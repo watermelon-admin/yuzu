@@ -178,9 +178,8 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-        // Get both database contexts
-        var standardDbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.YuzuDbContext>();
-        var postgresDbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Postgresql.YuzuDbContext>();
+        // Get database context
+        var dbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.YuzuDbContext>();
         
         // Get database settings
         var dataStorageSettings = scope.ServiceProvider.GetRequiredService<IOptions<Yuzu.Web.Configuration.DataStorageSettings>>().Value;
@@ -313,18 +312,15 @@ using (var scope = app.Services.CreateScope())
             app.Logger.LogInformation("Ensuring application data schema in database '{DbName}' is up to date...", targetDbName);
             
             // Get list of existing tables in the database before creation
-            var tableNames = await GetDbTableNamesAsync(postgresDbContext);
+            var tableNames = await GetDbTableNamesAsync(dbContext);
             app.Logger.LogInformation("Current application tables before creation: {TableNames}", string.Join(", ", tableNames));
             
-            // Initialize both database contexts
-            app.Logger.LogInformation("Creating application tables with standard DbContext...");
-            await standardDbContext.Database.EnsureCreatedAsync();
-            
-            app.Logger.LogInformation("Creating application tables with PostgreSQL DbContext...");
-            await postgresDbContext.Database.EnsureCreatedAsync();
+            // Initialize database context
+            app.Logger.LogInformation("Creating application tables with DbContext...");
+            await dbContext.Database.EnsureCreatedAsync();
             
             // Get list of tables after creation to verify
-            tableNames = await GetDbTableNamesAsync(postgresDbContext);
+            tableNames = await GetDbTableNamesAsync(dbContext);
             app.Logger.LogInformation("Tables after creation: {TableNames}", string.Join(", ", tableNames));
             
             // Check if the Data_BackgroundImages table exists
@@ -334,11 +330,11 @@ using (var scope = app.Services.CreateScope())
                 app.Logger.LogInformation("Attempting additional initialization...");
                 
                 // Try executing SQL directly if needed as a fallback
-                var sql = postgresDbContext.Database.GenerateCreateScript();
-                await postgresDbContext.Database.ExecuteSqlRawAsync(sql);
+                var sql = dbContext.Database.GenerateCreateScript();
+                await dbContext.Database.ExecuteSqlRawAsync(sql);
                 
                 // Check again
-                tableNames = await GetDbTableNamesAsync(postgresDbContext);
+                tableNames = await GetDbTableNamesAsync(dbContext);
                 app.Logger.LogInformation("Tables after script execution: {TableNames}", string.Join(", ", tableNames));
             }
             
@@ -508,13 +504,11 @@ using (var scope = app.Services.CreateScope())
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogInformation("Initializing system background images...");
         
-        // Ensure database is created and migrated using both contexts
-        var standardDbContext = services.GetRequiredService<Yuzu.Data.YuzuDbContext>();
-        var postgresDbContext = services.GetRequiredService<Yuzu.Data.Postgresql.YuzuDbContext>();
+        // Ensure database is created and migrated
+        var dbContext = services.GetRequiredService<Yuzu.Data.YuzuDbContext>();
         
-        // Create schema with both contexts
-        await standardDbContext.Database.EnsureCreatedAsync();
-        await postgresDbContext.Database.EnsureCreatedAsync();
+        // Create schema with context
+        await dbContext.Database.EnsureCreatedAsync();
         logger.LogInformation("Database creation completed");
         
         // Initialize background images

@@ -32,12 +32,7 @@ namespace Yuzu.Data
                 throw new InvalidOperationException("Could not find a connection string. Ensure that either ConnectionStrings:DefaultConnection or DataStorageConfig:ConnectionString is set in appsettings.json.");
             }
             
-            // Register both DbContext types since they're not directly compatible
-            // First register the PostgreSQL version
-            services.AddDbContext<Postgresql.YuzuDbContext>(options =>
-                options.UseNpgsql(connectionString));
-                
-            // Also register the regular YuzuDbContext
+            // Register the YuzuDbContext
             services.AddDbContext<YuzuDbContext>(options =>
                 options.UseNpgsql(connectionString));
             
