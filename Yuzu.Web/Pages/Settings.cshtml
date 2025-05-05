@@ -1,0 +1,159 @@
+﻿@page
+@model Yuzu.Web.Pages.SettingsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Settings";
+}
+
+<!-- FilePond CSS -->
+<link href="~/lib/filepond/dist/filepond.min.css" rel="stylesheet" />
+<link href="~/lib/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet" />
+
+<!-- Page-specific CSS -->
+<link href="~/css/pages/settings/break-types.css" rel="stylesheet" />
+<link href="~/css/pages/settings/break-types-wizard.css" rel="stylesheet" />
+<link href="~/css/pages/settings/time-zones-info.css" rel="stylesheet" />
+<link href="~/css/pages/settings/backgrounds.css" rel="stylesheet" />
+
+<style>
+    /* Settings tab content display */
+    .settings-content-container {
+        display: none; /* Hide by default, JavaScript will show the active tab */
+    }
+    
+    /* Fixed-height content wrapper to prevent footer jump */
+    .settings-content-wrapper {
+        min-height: 1300px; /* Adjusted height to fit 10 time zone cards while being more compact */
+        position: relative;
+    }
+    
+    /* Make content containers take full height of wrapper */
+    .settings-content-container.active {
+        display: block;
+        width: 100%;
+    }
+</style>
+
+<!-- Add antiforgery token -->
+@Html.AntiForgeryToken()
+
+<!-- Hidden fields for initializing data -->
+<input type="hidden" id="initial-section" value="account-details" />
+<input type="hidden" id="backgrounds-is-subscribed" value="@Model.IsSubscribed.ToString().ToLower()" />
+<input type="hidden" id="image-path" value="@Model.ImagePath" />
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<main class="page-wrapper">
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialLight.cshtml" />
+
+    <!-- Page content -->
+    <section class="container pt-5">
+        <div class="row">
+            <!-- Sidebar (User info + Account menu) -->
+            <aside class="col-lg-3 col-md-4 border-end pb-5 mt-n5">
+                <div class="position-sticky top-0">
+                    <div class="text-center pt-5">
+                        <div class="d-table position-relative mx-auto mt-2 mt-lg-4 pt-5 mb-3">
+                            <img src="~/img/avatar/user-sm.jpg" class="d-block rounded-circle" width="120" alt="@(Model.FirstName) @(Model.LastName)">
+                        </div>
+                        <h2 class="h5 mb-1" id="user-full-name">@(string.IsNullOrWhiteSpace(Model.FirstName) && string.IsNullOrWhiteSpace(Model.LastName) ? "breakscreen User" : $"{Model.FirstName} {Model.LastName}")</h2>
+                        <p class="mb-3 pb-3">@Model.Email</p>
+                        <button type="button" class="btn btn-secondary w-100 d-md-none mt-n2 mb-3" data-bs-toggle="collapse" data-bs-target="#account-menu">
+                            <i class="bx bxs-user-detail fs-xl me-2"></i>
+                            Account menu
+                            <i class="bx bx-chevron-down fs-lg ms-1"></i>
+                        </button>
+                        <div id="account-menu" class="list-group list-group-flush collapse d-md-block">
+                            <a id="settings-account-details" href="#account-details" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bx bx-cog fs-xl opacity-60 me-2"></i>
+                                Account Details
+                            </a>
+                            <a id="settings-break-types" href="#break-types" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bx bx-coffee-togo fs-xl opacity-60 me-2"></i>
+                                Break Types
+                            </a>
+                            <a id="settings-time-zones" href="#time-zones" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bx bx-world fs-xl opacity-60 me-2"></i>
+                                Time Zones
+                            </a>
+                            <a id="settings-backgrounds" href="#backgrounds" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bx bx-image fs-xl opacity-60 me-2"></i>
+                                Backgrounds
+                                @if (!Model.IsSubscribed)
+                                {
+                                    <i class="fs-lg fa-solid fa-rectangle-pro ms-2"></i>
+                                }
+                            </a>
+                            <a id="settings-membership" href="#membership" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bx bx-credit-card-front fs-xl opacity-60 me-2"></i>
+                                Membership
+                            </a>
+                            <a id="settings-sign-out" href="~/Account/Logout" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bx bx-log-out fs-xl opacity-60 me-2"></i>
+                                Log Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content sections containers -->
+            <div id="settings-sections-containers" class="col-md-8 offset-lg-1 pb-5 mb-lg-4 pt-md-5 mt-5 mt-md-0">
+                <!-- Fixed-height container wrapper for all settings content -->
+                <div class="settings-content-wrapper">
+                    <!-- Account Details Section -->
+                    <div id="account-details" class="settings-content-container">
+                        <partial name="~/Pages/Settings/Sections/_AccountDetailsPartial.cshtml" />
+                    </div>
+
+                    <!-- Break Types Section -->
+                    <div id="break-types" class="settings-content-container">
+                        <partial name="~/Pages/Settings/Sections/_BreakTypesPartial.cshtml" />
+                        <partial name="~/Pages/Settings/Sections/_BreakTypesWizardPartial.cshtml" />
+                    </div>
+
+                    <!-- Time Zones Section -->
+                    <div id="time-zones" class="settings-content-container">
+                        <partial name="~/Pages/Settings/Sections/_TimeZonesPartial.cshtml" />
+                    </div>
+
+                    <!-- Backgrounds Section -->
+                    <div id="backgrounds" class="settings-content-container">
+                        <partial name="~/Pages/Settings/Sections/_BackgroundsPartial.cshtml" />
+                    </div>
+
+                    <!-- Membership Section -->
+                    <div id="membership" class="settings-content-container">
+                        <partial name="~/Pages/Settings/Sections/_MembershipPartial.cshtml" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<partial name="~/Pages/Shared/_Footer.cshtml" />
+
+@section Scripts {
+    <!-- Include necessary libraries -->
+    <script src="~/js/swiper/swiper-bundle.min.js"></script>
+    
+    <!-- FilePond libraries -->
+    <script src="~/lib/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
+    <script src="~/lib/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="~/lib/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+    <script src="~/lib/filepond/dist/filepond.min.js"></script>
+    
+    <script type="module" src="~/js/pages/settings/settings.js"></script>
+}
+

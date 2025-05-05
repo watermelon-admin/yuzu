@@ -1,0 +1,109 @@
+# Timezone data generated from IANA timezone database (https://www.iana.org/time-zones)
+# Country names simplified from UN Terminology Database (https://unterm.un.org)
+# City names from UN/LOCODE (https://unece.org/trade/cefact/unlocode-code-list-country-and-territory)
+# Continental regions from UN Statistics Division (https://unstats.un.org/unsd/methodology/m49/)
+# Generated on: 2024-12-03 18:24:14
+# Format: IanaId|Continent|City|Country
+Africa/Abidjan|Africa|Abidjan|Ivory Coast
+Africa/Accra|Africa|Accra|Ghana
+Africa/Addis_Ababa|Africa|Addis Ababa|Ethiopia
+Africa/Algiers|Africa|Algiers|Algeria
+Africa/Cairo|Africa|Cairo|Egypt
+Africa/Casablanca|Africa|Casablanca|Morocco
+Africa/Johannesburg|Africa|Johannesburg|South Africa
+Africa/Khartoum|Africa|Khartoum|Sudan
+Africa/Lagos|Africa|Lagos|Nigeria
+Africa/Maputo|Africa|Maputo|Mozambique
+Africa/Nairobi|Africa|Nairobi|Kenya
+Africa/Tripoli|Africa|Tripoli|Libya
+Africa/Tunis|Africa|Tunis|Tunisia
+America/Anchorage|America|Anchorage|United States
+America/Argentina/Buenos_Aires|America|Buenos Aires|Argentina
+America/Bogota|America|Bogota|Colombia
+America/Caracas|America|Caracas|Venezuela
+America/Chicago|America|Chicago|United States
+America/Denver|America|Denver|United States
+America/Godthab|America|Nuuk|Greenland
+America/Halifax|America|Halifax|Canada
+America/Lima|America|Lima|Peru
+America/Los_Angeles|America|Los Angeles|United States
+America/Mexico_City|America|Mexico City|Mexico
+America/New_York|America|New York|United States
+America/Phoenix|America|Phoenix|United States
+America/Santiago|America|Santiago|Chile
+America/Sao_Paulo|America|Sao Paulo|Brazil
+America/St_Johns|America|St. John's|Canada
+America/Toronto|America|Toronto|Canada
+Asia/Almaty|Asia|Almaty|Kazakhstan
+Asia/Amman|Asia|Amman|Jordan
+Asia/Baghdad|Asia|Baghdad|Iraq
+Asia/Baku|Asia|Baku|Azerbaijan
+Asia/Bangkok|Asia|Bangkok|Thailand
+Asia/Beirut|Asia|Beirut|Lebanon
+Asia/Bishkek|Asia|Bishkek|Kyrgyzstan
+Asia/Brunei|Asia|Bandar Seri Begawan|Brunei
+Asia/Dhaka|Asia|Dhaka|Bangladesh
+Asia/Dubai|Asia|Dubai|United Arab Emirates
+Asia/Hong_Kong|Asia|Hong Kong|Hong Kong
+Asia/Jakarta|Asia|Jakarta|Indonesia
+Asia/Jerusalem|Asia|Jerusalem|Israel
+Asia/Kabul|Asia|Kabul|Afghanistan
+Asia/Karachi|Asia|Karachi|Pakistan
+Asia/Kathmandu|Asia|Kathmandu|Nepal
+Asia/Kolkata|Asia|Kolkata|India
+Asia/Kuwait|Asia|Kuwait City|Kuwait
+Asia/Manila|Asia|Manila|Philippines
+Asia/Muscat|Asia|Muscat|Oman
+Asia/Qatar|Asia|Doha|Qatar
+Asia/Riyadh|Asia|Riyadh|Saudi Arabia
+Asia/Seoul|Asia|Seoul|South Korea
+Asia/Shanghai|Asia|Shanghai|China
+Asia/Singapore|Asia|Singapore|Singapore
+Asia/Taipei|Asia|Taipei|Taiwan
+Asia/Tehran|Asia|Tehran|Iran
+Asia/Tokyo|Asia|Tokyo|Japan
+Asia/Ulaanbaatar|Asia|Ulaanbaatar|Mongolia
+Asia/Vladivostok|Asia|Vladivostok|Russia
+Asia/Yangon|Asia|Yangon|Myanmar
+Europe/Amsterdam|Europe|Amsterdam|Netherlands
+Europe/Athens|Europe|Athens|Greece
+Europe/Belgrade|Europe|Belgrade|Serbia
+Europe/Berlin|Europe|Berlin|Germany
+Europe/Brussels|Europe|Brussels|Belgium
+Europe/Bucharest|Europe|Bucharest|Romania
+Europe/Budapest|Europe|Budapest|Hungary
+Europe/Copenhagen|Europe|Copenhagen|Denmark
+Europe/Dublin|Europe|Dublin|Ireland
+Europe/Helsinki|Europe|Helsinki|Finland
+Europe/Istanbul|Europe|Istanbul|Turkey
+Europe/Kiev|Europe|Kyiv|Ukraine
+Europe/Lisbon|Europe|Lisbon|Portugal
+Europe/London|Europe|London|United Kingdom
+Europe/Madrid|Europe|Madrid|Spain
+Europe/Minsk|Europe|Minsk|Belarus
+Europe/Moscow|Europe|Moscow|Russia
+Europe/Oslo|Europe|Oslo|Norway
+Europe/Paris|Europe|Paris|France
+Europe/Prague|Europe|Prague|Czech Republic
+Europe/Riga|Europe|Riga|Latvia
+Europe/Rome|Europe|Rome|Italy
+Europe/Sofia|Europe|Sofia|Bulgaria
+Europe/Stockholm|Europe|Stockholm|Sweden
+Europe/Tallinn|Europe|Tallinn|Estonia
+Europe/Vienna|Europe|Vienna|Austria
+Europe/Vilnius|Europe|Vilnius|Lithuania
+Europe/Warsaw|Europe|Warsaw|Poland
+Europe/Zurich|Europe|Zurich|Switzerland
+Pacific/Auckland|Pacific|Auckland|New Zealand
+Pacific/Fiji|Pacific|Suva|Fiji
+Pacific/Guam|Pacific|Hagatna|Guam
+Pacific/Honolulu|Pacific|Honolulu|United States
+Pacific/Port_Moresby|Pacific|Port Moresby|Papua New Guinea
+Pacific/Tongatapu|Pacific|Nuku'alofa|Tonga
+Australia/Adelaide|Australia|Adelaide|Australia
+Australia/Brisbane|Australia|Brisbane|Australia
+Australia/Darwin|Australia|Darwin|Australia
+Australia/Hobart|Australia|Hobart|Australia
+Australia/Melbourne|Australia|Melbourne|Australia
+Australia/Perth|Australia|Perth|Australia
+Australia/Sydney|Australia|Sydney|Australia

@@ -1,0 +1,263 @@
+<div class="d-flex align-items-center justify-content-between pt-xl-1 mb-3 pb-3">
+    <h1 class="h2 mb-0 mt-4">Membership</h1>
+    @if (!Model.IsSubscribed)
+    {
+        <a href="~/pricing" class="btn btn-primary px-3 px-sm-4" id="membership-upgrade-button">
+            <i class="bx bx-crown fs-xl me-sm-2"></i>
+            <span class="d-none d-sm-inline">Upgrade to Pro</span>
+        </a>
+    }
+</div>
+
+<!-- Current Plan Section -->
+<div class="card border-0 shadow-sm mb-4" id="membership-current-plan-card">
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-3">
+            @if (Model.IsSubscribed)
+            {
+                <span class="badge bg-success p-2 me-3" id="membership-status-badge">Active</span>
+                <h2 class="h5 mb-0">Pro Membership</h2>
+            }
+            else
+            {
+                <span class="badge bg-secondary p-2 me-3" id="membership-status-badge">Basic</span>
+                <h2 class="h5 mb-0">Standard Plan</h2>
+            }
+        </div>
+
+        <div class="mb-4" id="membership-plan-details">
+@*             @if (true)
+            {
+                <div class="mb-3">
+                    <p class="mb-1"><i class="bx bx-check text-success me-2"></i><strong>Next billing date:</strong> <span id="membership-next-billing-date">@Model.Subscription.ValidUntil</span></p>
+                    <p class="mb-1"><i class="bx bx-check text-success me-2"></i><strong>Subscription ID:</strong> <span id="membership-subscription-id">@Model.Subscription.Id</span></p>
+                    <p class="mb-0"><i class="bx bx-check text-success me-2"></i><strong>Payment plan:</strong> <span id="membership-payment-plan">@Model.Subscription.Interval</span></p>
+                </div>
+                <div class="d-flex flex-wrap gap-2" id="membership-pro-actions">
+                    <button type="button" class="btn btn-outline-primary" id="membership-update-payment-button" data-bs-toggle="modal" data-bs-target="#membership-payment-modal">
+                        <i class="bx bx-credit-card me-2"></i>
+                        Update Payment
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" id="membership-cancel-button" data-bs-toggle="modal" data-bs-target="#membership-cancel-modal">
+                        <i class="bx bx-x-circle me-2"></i>
+                        Cancel Subscription
+                    </button>
+                </div>
+            }
+            else
+            { *@
+                <p class="mb-3">You're currently on our Standard plan with limited features. Upgrade to Pro to unlock all premium features.</p>
+                <a href="~/pricing" class="btn btn-primary" id="membership-view-plans-button">
+                    <i class="bx bx-crown me-2"></i>
+                    View Plans
+                </a>
+@*             } *@
+        </div>
+    </div>
+</div>
+
+<!-- Feature Comparison Table -->
+<div class="card border-0 shadow-sm" id="membership-features-card">
+    <div class="card-header bg-transparent">
+        <h3 class="h5 mb-0">Plan Comparison</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table" id="membership-comparison-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50%">Feature</th>
+                        <th class="text-center">Standard</th>
+                        <th class="text-center">Pro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic break timer functionality</td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                    </tr>
+                    <tr>
+                        <td>System break types</td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Multiple time zones</td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Custom break types</td>
+                        <td class="text-center"><i class="bx bx-x text-secondary fs-4"></i></td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Custom background images</td>
+                        <td class="text-center"><i class="bx bx-x text-secondary fs-4"></i></td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Advanced break screen designer</td>
+                        <td class="text-center"><i class="bx bx-x text-secondary fs-4"></i></td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Priority support</td>
+                        <td class="text-center"><i class="bx bx-x text-secondary fs-4"></i></td>
+                        <td class="text-center"><i class="bx bx-check text-success fs-4"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* <!-- Billing History Section (Pro only) -->
+@if (Model.IsSubscribed && Model.Invoices != null)
+{
+    <div class="card border-0 shadow-sm mt-4" id="membership-billing-history-card">
+        <div class="card-header bg-transparent">
+            <h3 class="h5 mb-0">Billing History</h3>
+        </div>
+        <div class="card-body">
+            @if (Model.Invoices.Count()>0)
+            {
+                <div class="table-responsive">
+                    <table class="table" id="membership-billing-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Invoice</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var invoice in Model.Invoices)
+                            {
+                                <tr>
+                                    <td>@invoice.Date</td>
+                                    <td>Pro Membership</td>
+                                    <td>@invoice.Total @invoice.Currency</td>
+                                    <td>
+                                        <span class="badge @(invoice.Status.ToLower() == "paid" ? "bg-success" : "bg-danger")">
+                                            @invoice.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-primary" id="membership-invoice-button-@invoice.Id">
+                                            <i class="bx bx-download me-1"></i>
+                                            PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center py-4" id="membership-no-invoices-message">
+                    <div class="text-center">
+                        <i class="bx bx-receipt fs-1 text-muted mb-2"></i>
+                        <p class="mb-0">No billing history available yet.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Cancel Subscription Modal (Pro only) -->
+@if (Model.IsSubscribed)
+{
+    <div class="modal fade" id="membership-cancel-modal" tabindex="-1" aria-labelledby="membership-cancel-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="membership-cancel-modal-label">Cancel Pro Membership</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="bx bx-error-circle fs-1 text-danger"></i>
+                        <h4 class="mt-3">Are you sure you want to cancel?</h4>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> By canceling your subscription:
+                    </div>
+
+                    <ul>
+                        <li>Your Pro membership will remain active until <strong>@Model.Subscription.ValidUntil</strong></li>
+                        <li>You'll lose access to Pro features after this date</li>
+                        <li>Custom break types and backgrounds will be unavailable</li>
+                        <li>Your custom data will be preserved if you decide to resubscribe later</li>
+                    </ul>
+
+                    <div class="mb-3">
+                        <label for="membership-cancel-reason" class="form-label">Please tell us why you're canceling:</label>
+                        <select class="form-select" id="membership-cancel-reason" name="cancelReason" required>
+                            <option value="" selected disabled>Please select a reason</option>
+                            <option value="too_expensive">Too expensive</option>
+                            <option value="not_using">Not using the service enough</option>
+                            <option value="missing_features">Missing features I need</option>
+                            <option value="switching">Switching to another service</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 d-none" id="membership-cancel-other-container">
+                        <label for="membership-cancel-other-reason" class="form-label">Please specify:</label>
+                        <textarea class="form-control" id="membership-cancel-other-reason" rows="2" placeholder="Tell us more..."></textarea>
+                    </div>
+
+                    <form id="membership-cancel-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="membership-cancel-subscription-id" name="subscriptionId" value="@Model.Subscription?.Id" />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="membership-cancel-back-button">Go Back</button>
+                    <button type="button" class="btn btn-danger" id="membership-confirm-cancel-button" disabled>Cancel Subscription</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Update Payment Modal (Pro only) -->
+@if (Model.IsSubscribed)
+{
+    <div class="modal fade" id="membership-payment-modal" tabindex="-1" aria-labelledby="membership-payment-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="membership-payment-modal-label">Update Payment Method</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info" id="membership-payment-info-alert">
+                        <i class="bx bx-info-circle me-2"></i>
+                        You'll be redirected to our secure payment provider to update your payment information.
+                    </div>
+                    
+                    <form id="membership-payment-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="membership-payment-subscription-id" name="subscriptionId" value="@Model.Subscription?.Id" />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="membership-update-payment-confirm-button">
+                        <i class="bx bx-credit-card me-2"></i>
+                        Update Payment Method
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+} *@

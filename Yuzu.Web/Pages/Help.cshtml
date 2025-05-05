@@ -1,0 +1,454 @@
+@page
+@model Yuzu.Web.Pages.HelpModel
+@{
+    ViewData["Title"] = "Help";
+}
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<!-- Page wrapper for sticky footer -->
+<!-- Wraps everything except footer to push footer to the bottom of the page if there is little content -->
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialDark.cshtml" />
+
+    <!-- Hero -->
+    <section class="position-relative overflow-hidden">
+        <div class="position-relative bg-dark zindex-4 pt-lg-3 pt-xl-5">
+
+            <!-- Text -->
+            <div class="container zindex-5 pt-5">
+                <div class="row justify-content-center text-center pt-4 pb-sm-2 py-lg-5">
+                    <div class="col-xl-8 col-lg-9 col-md-10 py-5">
+                        <h1 class="display-4 text-light pt-sm-2 pb-1 pb-sm-3 mb-3">Need Help?</h1>
+                        <p class="fs-lg text-light opacity-70 pb-2 pb-sm-0 mb-4 mb-sm-5">
+                            We're here to answer your questions and help you get the most out of breakscreen.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom shape -->
+            <div class="d-flex position-absolute top-100 start-0 w-100 overflow-hidden mt-n4 mt-sm-n1"
+                 style="color: #f7f7f9;"><!-- Bootstrap secondary color hex -->
+                <div class="position-relative start-50 translate-middle-x flex-shrink-0" style="width: 3788px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="3788" height="144" viewBox="0 0 3788 144">
+                        <path fill="currentColor" d="M0,0h3788.7c-525,90.2-1181.7,143.9-1894.3,143.9S525,90.2,0,0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact options + Form -->
+    <section class="position-relative bg-secondary py-5">
+        <div class="container position-relative zindex-2 py-md-3 py-lg-5">
+            <div class="row">
+                <!-- Contact info -->
+                <div class="col-xl-4 col-lg-5 pb-4 pb-lg-0 mb-5 mb-lg-0">
+                    <h2 class="h1 mb-4">Get in Touch</h2>
+                    <p class="pb-3 mb-3">Have questions about breakscreen? Need help with a feature? We're here to help! Contact us directly or use our support form.</p>
+                    <div class="d-flex align-items-center text-body mb-3">
+                        <div class="p-2 bg-light rounded me-3">
+                            <i class="bx bx-envelope fs-xl text-primary"></i>
+                        </div>
+                        <a href="mailto:support@breakscreen.com">support@breakscreen.com</a>
+                    </div>
+                    <div class="d-flex align-items-center text-body mb-4">
+                        <div class="p-2 bg-light rounded me-3">
+                            <i class="bx bx-phone fs-xl text-primary"></i>
+                        </div>
+                        <a href="tel:+18005550123">+1 (800) 555-0123</a>
+                    </div>
+                    <div class="d-flex mb-2">
+                        <a href="#" class="btn btn-icon btn-sm btn-outline-primary me-2 rounded-circle">
+                            <i class="bx bxl-facebook"></i>
+                        </a>
+                        <a href="#" class="btn btn-icon btn-sm btn-outline-primary me-2 rounded-circle">
+                            <i class="bx bxl-twitter"></i>
+                        </a>
+                        <a href="#" class="btn btn-icon btn-sm btn-outline-primary me-2 rounded-circle">
+                            <i class="bx bxl-linkedin"></i>
+                        </a>
+                        <a href="#" class="btn btn-icon btn-sm btn-outline-primary rounded-circle">
+                            <i class="bx bxl-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Contact form -->
+                <div class="col-xl-6 col-lg-7 offset-xl-2">
+                    <form class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-sm-6 mb-4">
+                                <label for="name" class="form-label fs-base">Full name</label>
+                                <input type="text" class="form-control form-control-lg" id="name" required>
+                                <div class="invalid-feedback">Please, enter your name</div>
+                            </div>
+                            <div class="col-sm-6 mb-4">
+                                <label for="email" class="form-label fs-base">Email</label>
+                                <input type="email" class="form-control form-control-lg" id="email" required>
+                                <div class="invalid-feedback">Please provide a valid email address</div>
+                            </div>
+                            <div class="col-12 mb-4">
+                                <label for="subject" class="form-label fs-base">Subject</label>
+                                <input type="text" class="form-control form-control-lg" id="subject" required>
+                                <div class="invalid-feedback">Please, enter the subject</div>
+                            </div>
+                            <div class="col-12 mb-4">
+                                <label for="message" class="form-label fs-base">Message</label>
+                                <textarea class="form-control form-control-lg" id="message" rows="4" required></textarea>
+                                <div class="invalid-feedback">Please, type your message</div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary shadow-primary btn-lg">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-5">
+        <div class="container py-md-2 py-lg-5">
+            <div class="row">
+                <div class="col-md-4 text-center text-md-start">
+                    <h2 class="h1">Frequently Asked Questions</h2>
+                    <p class="pb-md-3 mb-md-0">Have questions about using breakscreen? Find answers to common questions below.</p>
+                </div>
+                <div class="col-md-8 offset-xl-1 col-xl-7">
+                    <div class="accordion" id="helpFAQ">
+                        <!-- Getting Started -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    How do I create my first countdown?
+                                </button>
+                            </h3>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Creating your first countdown is simple. After signing in, click the "Start" button from the navigation menu. Choose a break type, set the duration, and click "Create Countdown." Your countdown will be generated immediately, and you can share the link or display it on your screen.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customization -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Can I customize the appearance of my countdown screen?
+                                </button>
+                            </h3>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Yes! With a Pro subscription, you can fully customize your countdown screens using our Break Screen Designer. This allows you to add custom text, change colors, upload your own background images, and arrange elements exactly how you want them.</p>
+                                    <p>Free users have access to a limited selection of pre-designed templates and background images.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sharing -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    How do I share my countdown with participants?
+                                </button>
+                            </h3>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>After creating a countdown, you'll get a unique link that you can share with participants. Simply copy and paste this link into your meeting chat, email, or any other communication platform.</p>
+                                    <p>Alternatively, you can display the countdown directly on your screen when sharing your screen during virtual meetings. For in-person events, you can project the countdown on a large screen.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mobile -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    How does the mobile countdown feature work?
+                                </button>
+                            </h3>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>The mobile countdown feature allows participants to follow the break timer on their own devices. When you create a countdown, a QR code is generated. Participants can scan this QR code with their mobile devices to open the countdown timer in their browser.</p>
+                                    <p>This is especially useful for in-person events where not everyone can see the main screen, or for participants who want to keep track of the time while away from their computers during virtual events.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Break Types -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                    How do I create custom break types?
+                                </button>
+                            </h3>
+                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Creating custom break types is a Pro feature. With a Pro subscription, go to Settings > Break Types and click "Add New" to create a custom break type. You can specify the default duration, end time rounding, and select a background image.</p>
+                                    <p>Custom break types make it easy to create specific types of breaks for different situations, such as lunch breaks, coffee breaks, or short stretching breaks.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Free Plan -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingSix">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                    What's included in the Free plan?
+                                </button>
+                            </h3>
+                            <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>The Free plan includes essential break timer functionality, allowing you to create basic countdown screens for breaks in online classes and events. You get access to limited background images, global time zone support, and a mobile timer accessible via QR code.</p>
+                                    <p>The Free plan is perfect for individual users who need simple break management for virtual events, workshops, or personal use.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pro Subscription -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingSeven">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                    What additional features do I get with the Pro subscription?
+                                </button>
+                            </h3>
+                            <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>With the Pro subscription, you unlock personalized break features including:</p>
+                                    <ul>
+                                        <li>Ability to create custom break types</li>
+                                        <li>Upload your own background images (up to 500MB storage)</li>
+                                        <li>Access to the graphical Break Screen Designer for fully customized break screens</li>
+                                        <li>Same-day support via email</li>
+                                    </ul>
+                                    <p>The Pro subscription is perfect for professionals who want to create branded break experiences for their online classes, workshops, and events.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Annual Subscription -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingEight">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                                    Is there a discount for annual subscriptions?
+                                </button>
+                            </h3>
+                            <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Yes! When you choose annual billing instead of monthly, you save 20% on your Pro subscription. This brings the price down from €3 per month to €2.40 per month when billed annually.</p>
+                                    <p>Annual billing provides the best value while giving you uninterrupted access to all Pro features throughout the year. You can select your preferred billing cycle directly on the payment page.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cancellation -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingNine">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+                                    Can I cancel my subscription at any time?
+                                </button>
+                            </h3>
+                            <div id="collapseNine" class="accordion-collapse collapse" aria-labelledby="headingNine" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Absolutely. There are no long-term commitments required. You can cancel your subscription at any time through your Membership settings page. Your subscription will remain active until the end of your current billing period.</p>
+                                    <p>To cancel, simply go to Settings > Membership and click the "Cancel Membership" button. There are no cancellation fees or penalties for ending your subscription early.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Organization Plan -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingTen">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTen" aria-expanded="false" aria-controls="collapseTen">
+                                    What is the Organization plan and who is it for?
+                                </button>
+                            </h3>
+                            <div id="collapseTen" class="accordion-collapse collapse" aria-labelledby="headingTen" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>The Organization plan is designed for teams and businesses that need break management for multiple team members. It includes all Pro features plus unlimited storage for images (500MB per user), priority support, and access for all organization members.</p>
+                                    <p>Educational institutions can qualify for free access to the Organization plan. Please contact our support team to learn more about eligibility and how to apply for the educational discount.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Time Zones -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingEleven">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEleven" aria-expanded="false" aria-controls="collapseEleven">
+                                    How does breakscreen handle different time zones?
+                                </button>
+                            </h3>
+                            <div id="collapseEleven" class="accordion-collapse collapse" aria-labelledby="headingEleven" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Breakscreen provides global time zone support for all plans. When you create a countdown, participants will see the end time displayed in their local time zone, eliminating confusion for international events.</p>
+                                    <p>You can also specify your preferred time zone in Settings > Time Zones, which will be used when you create new countdowns. This feature is especially useful for trainers, speakers, and event organizers working with participants across multiple time zones.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Data Privacy -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingTwelve">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwelve" aria-expanded="false" aria-controls="collapseTwelve">
+                                    How is my data handled and protected?
+                                </button>
+                            </h3>
+                            <div id="collapseTwelve" class="accordion-collapse collapse" aria-labelledby="headingTwelve" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>At breakscreen, we take your privacy seriously. We only collect the information necessary to provide our service, including your email address, account details, and any custom break types or images you create.</p>
+                                    <p>All data is stored securely in compliance with relevant data protection regulations. Your payment information is processed by Stripe and is never stored on our servers. For more details, please refer to our Privacy Policy.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Account Management -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingThirteen">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThirteen" aria-expanded="false" aria-controls="collapseThirteen">
+                                    How do I manage my account settings?
+                                </button>
+                            </h3>
+                            <div id="collapseThirteen" class="accordion-collapse collapse" aria-labelledby="headingThirteen" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>You can manage your account settings by clicking on the "Settings" link in the navigation menu. From there, you can:</p>
+                                    <ul>
+                                        <li>Update your profile information and password</li>
+                                        <li>Manage your subscription details</li>
+                                        <li>Configure your preferred time zone</li>
+                                        <li>Create and manage break types (Pro subscription)</li>
+                                        <li>Upload and organize background images (Pro subscription)</li>
+                                    </ul>
+                                    <p>If you need to delete your account, you can do so from Account Management settings, which will permanently remove all your data from our systems.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Technical Requirements -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingFourteen">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFourteen" aria-expanded="false" aria-controls="collapseFourteen">
+                                    What are the technical requirements for using breakscreen?
+                                </button>
+                            </h3>
+                            <div id="collapseFourteen" class="accordion-collapse collapse" aria-labelledby="headingFourteen" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Breakscreen is a web-based application that works on any modern browser, including Chrome, Firefox, Safari, and Edge. There is no need to install any software.</p>
+                                    <p>For the best experience, we recommend:</p>
+                                    <ul>
+                                        <li>An updated web browser</li>
+                                        <li>A stable internet connection</li>
+                                        <li>JavaScript enabled in your browser</li>
+                                    </ul>
+                                    <p>The mobile countdown feature works on any smartphone or tablet with a camera for scanning QR codes and a web browser.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment and Billing -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingFifteen">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFifteen" aria-expanded="false" aria-controls="collapseFifteen">
+                                    What payment methods do you accept?
+                                </button>
+                            </h3>
+                            <div id="collapseFifteen" class="accordion-collapse collapse" aria-labelledby="headingFifteen" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>We accept all major credit cards for subscription payments, including Visa, Mastercard, American Express, and Discover. Payment processing is securely handled through Stripe, ensuring your payment information is safe and protected.</p>
+                                    <p>For Organization plans, we can also accommodate invoice payments and purchase orders. Please contact our sales team to discuss these payment options.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources -->
+    <section class="container pt-2 pt-lg-0 pb-5">
+        <h2 class="h1 text-center pt-1 pt-md-3 pb-3 pb-md-4 mt-md-3">Additional Resources</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            
+            <!-- Tutorials -->
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-table bg-secondary rounded-3 p-3 mb-4">
+                            <i class="bx bx-film fs-1 text-primary"></i>
+                        </div>
+                        <h3 class="h4">Video Tutorials</h3>
+                        <p class="mb-0">Watch our step-by-step video guides to learn how to use all the features of breakscreen effectively.</p>
+                    </div>
+                    <div class="card-footer border-0 pt-0 pb-4">
+                        <a href="~/Tutorials" class="btn btn-outline-primary stretched-link">View Tutorials</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Knowledge Base -->
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-table bg-secondary rounded-3 p-3 mb-4">
+                            <i class="bx bx-book-open fs-1 text-primary"></i>
+                        </div>
+                        <h3 class="h4">Knowledge Base</h3>
+                        <p class="mb-0">Browse our comprehensive documentation with detailed articles and guides on every feature.</p>
+                    </div>
+                    <div class="card-footer border-0 pt-0 pb-4">
+                        <a href="#" class="btn btn-outline-primary stretched-link">Browse Articles</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community -->
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-table bg-secondary rounded-3 p-3 mb-4">
+                            <i class="bx bx-conversation fs-1 text-primary"></i>
+                        </div>
+                        <h3 class="h4">Community Forum</h3>
+                        <p class="mb-0">Join our community to ask questions, share tips, and connect with other breakscreen users.</p>
+                    </div>
+                    <div class="card-footer border-0 pt-0 pb-4">
+                        <a href="#" class="btn btn-outline-primary stretched-link">Join Community</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<partial name="~/Pages/Shared/_Footer.cshtml" />
+
+@section Scripts {
+    <!-- Form validation -->
+    <script>
+      (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+          var forms = document.querySelectorAll('.needs-validation');
+          Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+        }, false);
+      })();
+    </script>
+}

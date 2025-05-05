@@ -1,0 +1,22 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "ES2017",
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "strict": false,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "outDir": "./wwwroot/js",
+        "resolveJsonModule": true
+    },
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "./node_modules",
+        "./**/*.spec.ts"
+    ]
+}

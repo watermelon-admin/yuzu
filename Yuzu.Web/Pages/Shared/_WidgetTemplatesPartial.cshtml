@@ -1,0 +1,150 @@
+﻿<!-- ---------- Box Template ---------- -->
+<style>
+    .widget-box {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        height: 200px;
+        width: 350px;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.35);
+        touch-action: none;
+    }
+</style>
+
+<template id="BoxWidgetTemplate">
+    <div id="yuzuBox" class="widget-box" data-yz-component="YuzuBox">
+        <div class="debug-info info-top">[widget-XXX] x:0 y:10 sel:1 sto:4</div>
+    </div>
+</template>
+
+<!-- ---------- QR Template ---------- -->
+<style>
+    .qr-box {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 150px;
+        height: 150px;
+        background-color: transparent;
+        touch-action: none;
+    }
+</style>
+
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var token = "";
+    if (HttpContextAccessor.HttpContext != null)
+    {
+        token = Antiforgery.GetAndStoreTokens(HttpContextAccessor.HttpContext).RequestToken;
+    }
+}
+
+<template id="QRWidgetTemplate">
+    <div id="yuzuBox" class="qr-box" data-yz-component="YuzuQR">
+        <img src="~/Services/QR?text=Hello-this-is-only-a-placeholder&__RequestVerificationToken=@token" style="width: 100%; height: 100%;" />
+        <div class="debug-info info-top">[widget-XXX] x:0 y:10 sel:1 sto:4</div>
+    </div>
+</template>
+
+<!-- ---------- Text Template ---------- -->
+<style>
+    .text-widget {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 400px;
+        height: 110px;
+        background-color: transparent;
+        touch-action: none;
+    }
+
+    .text-widget-edit {
+        display: block;
+        width: 100%;
+        height: 100%;
+        font-family: 'Roboto', sans-serif;
+        font-size: 50px;
+        font-weight: 400;
+        color: black;
+        background-color: transparent;
+        text-align: center;
+        border: none;
+        outline: none;
+        user-select: none;
+    }
+
+    .text-widget-error {
+        position: absolute;
+        top: calc(100% + 5px);
+        left: 0px;
+        background-color: red;
+        border-style: solid;
+        border-width: 2px;
+        border-color: white;
+        border-radius: 10px;
+        color: white;
+        padding: 6px;
+        min-width: 350px;
+        /* white-space: nowrap; /* Prevents text wrapping */
+    }
+
+    .yz-text-edit:focus {
+        outline: none;
+    }
+</style>
+
+<template id="TextWidgetTemplate">
+    <div class="text-widget yz-component" data-yz-component="YuzuText">
+        <input id="editWidget" class="text-widget-edit" type="text" name="yuzu-text" value="Please edit me." readonly />
+        <div class="text-widget-error fs-sm" style="display: none"><span class="error-message">It looks like there's a problem with your placeholders. Make sure all opening and closing curly brackets are paired correctly.</span></div>
+    </div>
+
+</template>
+
+<!-- ---------- Group ------------>
+<style>
+    .group-box {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 700px;
+        height: 400px;
+        background-color: transparent;
+        border: 3px solid darkblue;
+        touch-action: none;
+    }
+
+    .group-number {
+        position: absolute;
+        top: 0;
+        left: 0;
+        min-width: 28px;
+        padding: 0 10px 3px 0;
+        background-color: darkblue;
+        color: white;
+        font-size: 12px;
+        text-align: right;
+        border-radius: 0 0 8px 0;
+        z-index: 2147483647;
+    }
+
+    .widget-container {
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        z-index: 0;
+    }
+</style>
+
+<template id="GroupWidgetTemplate">
+    <div class="group-box yz-component" data-yz-component="YuzuGroup">
+        <div class="widget-container">
+            <div class="group-number">01</div>
+        </div>
+        <div class="group-debug-info info-bottom">[widget-XXX] x:0 y:10 sel:1 sto:4</div>
+    </div>
+</template>

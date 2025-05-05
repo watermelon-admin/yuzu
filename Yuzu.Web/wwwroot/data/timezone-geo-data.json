@@ -1,0 +1,3338 @@
+{
+  "Pacific/Niue": {
+    "zoneId": "Pacific/Niue",
+    "city": "Niue",
+    "country": "Niue",
+    "continent": "Pacific",
+    "latitude": -19.016666666666666,
+    "longitude": -169.91666666666666
+  },
+  "Pacific/Pago_Pago": {
+    "zoneId": "Pacific/Pago_Pago",
+    "city": "Pago Pago",
+    "country": "Samoa (American)",
+    "continent": "Pacific",
+    "latitude": -14.266666666666667,
+    "longitude": -170.7
+  },
+  "Pacific/Midway": {
+    "zoneId": "Pacific/Midway",
+    "city": "Midway",
+    "country": "US minor outlying islands",
+    "continent": "Pacific",
+    "latitude": 28.216666666666665,
+    "longitude": -177.36666666666667
+  },
+  "Pacific/Rarotonga": {
+    "zoneId": "Pacific/Rarotonga",
+    "city": "Rarotonga",
+    "country": "Cook Islands",
+    "continent": "Pacific",
+    "latitude": -21.233333333333334,
+    "longitude": -159.76666666666668
+  },
+  "Pacific/Tahiti": {
+    "zoneId": "Pacific/Tahiti",
+    "city": "Tahiti",
+    "country": "French Polynesia",
+    "continent": "Pacific",
+    "latitude": -17.533333333333335,
+    "longitude": -149.56666666666666
+  },
+  "Pacific/Honolulu": {
+    "zoneId": "Pacific/Honolulu",
+    "city": "Honolulu",
+    "country": "United States",
+    "continent": "Pacific",
+    "latitude": 21.306944444444444,
+    "longitude": -157.85833333333332
+  },
+  "Pacific/Marquesas": {
+    "zoneId": "Pacific/Marquesas",
+    "city": "Marquesas",
+    "country": "French Polynesia",
+    "continent": "Pacific",
+    "latitude": -9,
+    "longitude": -139.5
+  },
+  "Pacific/Gambier": {
+    "zoneId": "Pacific/Gambier",
+    "city": "Gambier",
+    "country": "French Polynesia",
+    "continent": "Pacific",
+    "latitude": -23.133333333333333,
+    "longitude": -134.95
+  },
+  "America/Adak": {
+    "zoneId": "America/Adak",
+    "city": "Adak",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 51.88,
+    "longitude": -176.65805555555556
+  },
+  "Pacific/Pitcairn": {
+    "zoneId": "Pacific/Pitcairn",
+    "city": "Pitcairn",
+    "country": "Pitcairn",
+    "continent": "Pacific",
+    "latitude": -25.066666666666666,
+    "longitude": -130.08333333333334
+  },
+  "America/Anchorage": {
+    "zoneId": "America/Anchorage",
+    "city": "Anchorage",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 61.21805555555556,
+    "longitude": -149.90027777777777
+  },
+  "America/Juneau": {
+    "zoneId": "America/Juneau",
+    "city": "Juneau",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 58.301944444444445,
+    "longitude": -134.41972222222222
+  },
+  "America/Metlakatla": {
+    "zoneId": "America/Metlakatla",
+    "city": "Metlakatla",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 55.12694444444445,
+    "longitude": -131.57638888888889
+  },
+  "America/Nome": {
+    "zoneId": "America/Nome",
+    "city": "Nome",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 64.50111111111111,
+    "longitude": -165.4063888888889
+  },
+  "America/Sitka": {
+    "zoneId": "America/Sitka",
+    "city": "Sitka",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 57.17638888888889,
+    "longitude": -135.30194444444444
+  },
+  "America/Yakutat": {
+    "zoneId": "America/Yakutat",
+    "city": "Yakutat",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 59.54694444444444,
+    "longitude": -139.72722222222222
+  },
+  "America/Creston": {
+    "zoneId": "America/Creston",
+    "city": "Creston",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 49.1,
+    "longitude": -116.51666666666667
+  },
+  "America/Dawson": {
+    "zoneId": "America/Dawson",
+    "city": "Dawson",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 64.06666666666666,
+    "longitude": -139.41666666666666
+  },
+  "America/Dawson_Creek": {
+    "zoneId": "America/Dawson_Creek",
+    "city": "Dawson Creek",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 55.766666666666666,
+    "longitude": -120.23333333333333
+  },
+  "America/Fort_Nelson": {
+    "zoneId": "America/Fort_Nelson",
+    "city": "Fort Nelson",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 58.8,
+    "longitude": -122.7
+  },
+  "America/Vancouver": {
+    "zoneId": "America/Vancouver",
+    "city": "Vancouver",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 49.266666666666666,
+    "longitude": -123.11666666666666
+  },
+  "America/Whitehorse": {
+    "zoneId": "America/Whitehorse",
+    "city": "Whitehorse",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 60.71666666666667,
+    "longitude": -135.05
+  },
+  "America/Hermosillo": {
+    "zoneId": "America/Hermosillo",
+    "city": "Hermosillo",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 29.066666666666666,
+    "longitude": -110.96666666666667
+  },
+  "America/Mazatlan": {
+    "zoneId": "America/Mazatlan",
+    "city": "Mazatlan",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 23.216666666666665,
+    "longitude": -106.41666666666667
+  },
+  "America/Tijuana": {
+    "zoneId": "America/Tijuana",
+    "city": "Tijuana",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 32.53333333333333,
+    "longitude": -117.01666666666667
+  },
+  "America/Los_Angeles": {
+    "zoneId": "America/Los_Angeles",
+    "city": "Los Angeles",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 34.05222222222222,
+    "longitude": -118.24277777777777
+  },
+  "America/Phoenix": {
+    "zoneId": "America/Phoenix",
+    "city": "Phoenix",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 33.44833333333333,
+    "longitude": -112.07333333333334
+  },
+  "America/Belize": {
+    "zoneId": "America/Belize",
+    "city": "Belize",
+    "country": "Belize",
+    "continent": "America",
+    "latitude": 17.5,
+    "longitude": -88.2
+  },
+  "America/Cambridge_Bay": {
+    "zoneId": "America/Cambridge_Bay",
+    "city": "Cambridge Bay",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 69.1138888888889,
+    "longitude": -105.05277777777778
+  },
+  "America/Edmonton": {
+    "zoneId": "America/Edmonton",
+    "city": "Edmonton",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 53.55,
+    "longitude": -113.46666666666667
+  },
+  "America/Inuvik": {
+    "zoneId": "America/Inuvik",
+    "city": "Inuvik",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 68.34972222222223,
+    "longitude": -133.71666666666667
+  },
+  "America/Regina": {
+    "zoneId": "America/Regina",
+    "city": "Regina",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 50.4,
+    "longitude": -104.65
+  },
+  "America/Swift_Current": {
+    "zoneId": "America/Swift_Current",
+    "city": "Swift Current",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 50.28333333333333,
+    "longitude": -107.83333333333333
+  },
+  "Pacific/Easter": {
+    "zoneId": "Pacific/Easter",
+    "city": "Easter",
+    "country": "Chile",
+    "continent": "Pacific",
+    "latitude": -27.15,
+    "longitude": -109.43333333333334
+  },
+  "America/Costa_Rica": {
+    "zoneId": "America/Costa_Rica",
+    "city": "Costa Rica",
+    "country": "Costa Rica",
+    "continent": "America",
+    "latitude": 9.933333333333334,
+    "longitude": -84.08333333333333
+  },
+  "Pacific/Galapagos": {
+    "zoneId": "Pacific/Galapagos",
+    "city": "Galapagos",
+    "country": "Ecuador",
+    "continent": "Pacific",
+    "latitude": -0.9,
+    "longitude": -89.6
+  },
+  "America/El_Salvador": {
+    "zoneId": "America/El_Salvador",
+    "city": "El Salvador",
+    "country": "El Salvador",
+    "continent": "America",
+    "latitude": 13.7,
+    "longitude": -89.2
+  },
+  "America/Guatemala": {
+    "zoneId": "America/Guatemala",
+    "city": "Guatemala",
+    "country": "Guatemala",
+    "continent": "America",
+    "latitude": 14.633333333333333,
+    "longitude": -90.51666666666667
+  },
+  "America/Tegucigalpa": {
+    "zoneId": "America/Tegucigalpa",
+    "city": "Tegucigalpa",
+    "country": "Honduras",
+    "continent": "America",
+    "latitude": 14.1,
+    "longitude": -87.21666666666667
+  },
+  "America/Bahia_Banderas": {
+    "zoneId": "America/Bahia_Banderas",
+    "city": "Bahia Banderas",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 20.8,
+    "longitude": -105.25
+  },
+  "America/Chihuahua": {
+    "zoneId": "America/Chihuahua",
+    "city": "Chihuahua",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 28.633333333333333,
+    "longitude": -106.08333333333333
+  },
+  "America/Ciudad_Juarez": {
+    "zoneId": "America/Ciudad_Juarez",
+    "city": "Ciudad Juarez",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 31.733333333333334,
+    "longitude": -106.48333333333333
+  },
+  "America/Merida": {
+    "zoneId": "America/Merida",
+    "city": "Merida",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 20.966666666666665,
+    "longitude": -89.61666666666666
+  },
+  "America/Mexico_City": {
+    "zoneId": "America/Mexico_City",
+    "city": "Mexico City",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 19.4,
+    "longitude": -99.15
+  },
+  "America/Monterrey": {
+    "zoneId": "America/Monterrey",
+    "city": "Monterrey",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 25.666666666666668,
+    "longitude": -100.31666666666666
+  },
+  "America/Managua": {
+    "zoneId": "America/Managua",
+    "city": "Managua",
+    "country": "Nicaragua",
+    "continent": "America",
+    "latitude": 12.15,
+    "longitude": -86.28333333333333
+  },
+  "America/Boise": {
+    "zoneId": "America/Boise",
+    "city": "Boise",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 43.61361111111111,
+    "longitude": -116.2025
+  },
+  "America/Denver": {
+    "zoneId": "America/Denver",
+    "city": "Denver",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 39.73916666666667,
+    "longitude": -104.98416666666667
+  },
+  "America/Eirunepe": {
+    "zoneId": "America/Eirunepe",
+    "city": "Eirunepe",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -6.666666666666667,
+    "longitude": -69.86666666666666
+  },
+  "America/Rio_Branco": {
+    "zoneId": "America/Rio_Branco",
+    "city": "Rio Branco",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -9.966666666666667,
+    "longitude": -67.8
+  },
+  "America/Atikokan": {
+    "zoneId": "America/Atikokan",
+    "city": "Atikokan",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 48.75861111111111,
+    "longitude": -91.62166666666667
+  },
+  "America/Rankin_Inlet": {
+    "zoneId": "America/Rankin_Inlet",
+    "city": "Rankin Inlet",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 62.81666666666667,
+    "longitude": -92.08305555555556
+  },
+  "America/Resolute": {
+    "zoneId": "America/Resolute",
+    "city": "Resolute",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 74.69555555555556,
+    "longitude": -94.82916666666667
+  },
+  "America/Winnipeg": {
+    "zoneId": "America/Winnipeg",
+    "city": "Winnipeg",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 49.88333333333333,
+    "longitude": -97.15
+  },
+  "America/Cayman": {
+    "zoneId": "America/Cayman",
+    "city": "Cayman",
+    "country": "Cayman Islands",
+    "continent": "America",
+    "latitude": 19.3,
+    "longitude": -81.38333333333334
+  },
+  "America/Bogota": {
+    "zoneId": "America/Bogota",
+    "city": "Bogota",
+    "country": "Colombia",
+    "continent": "America",
+    "latitude": 4.6,
+    "longitude": -74.08333333333333
+  },
+  "America/Guayaquil": {
+    "zoneId": "America/Guayaquil",
+    "city": "Guayaquil",
+    "country": "Ecuador",
+    "continent": "America",
+    "latitude": -2.1666666666666665,
+    "longitude": -79.83333333333333
+  },
+  "America/Jamaica": {
+    "zoneId": "America/Jamaica",
+    "city": "Jamaica",
+    "country": "Jamaica",
+    "continent": "America",
+    "latitude": 17.968055555555555,
+    "longitude": -76.79333333333334
+  },
+  "America/Cancun": {
+    "zoneId": "America/Cancun",
+    "city": "Cancun",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 21.083333333333332,
+    "longitude": -86.76666666666667
+  },
+  "America/Matamoros": {
+    "zoneId": "America/Matamoros",
+    "city": "Matamoros",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 25.833333333333332,
+    "longitude": -97.5
+  },
+  "America/Ojinaga": {
+    "zoneId": "America/Ojinaga",
+    "city": "Ojinaga",
+    "country": "Mexico",
+    "continent": "America",
+    "latitude": 29.566666666666666,
+    "longitude": -104.41666666666667
+  },
+  "America/Panama": {
+    "zoneId": "America/Panama",
+    "city": "Panama",
+    "country": "Panama",
+    "continent": "America",
+    "latitude": 8.966666666666667,
+    "longitude": -79.53333333333333
+  },
+  "America/Lima": {
+    "zoneId": "America/Lima",
+    "city": "Lima",
+    "country": "Peru",
+    "continent": "America",
+    "latitude": -12.05,
+    "longitude": -77.05
+  },
+  "America/North_Dakota/Beulah": {
+    "zoneId": "America/North_Dakota/Beulah",
+    "city": "Beulah",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 47.26416666666667,
+    "longitude": -101.77777777777777
+  },
+  "America/North_Dakota/Center": {
+    "zoneId": "America/North_Dakota/Center",
+    "city": "Center",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 47.11638888888889,
+    "longitude": -101.29916666666666
+  },
+  "America/Chicago": {
+    "zoneId": "America/Chicago",
+    "city": "Chicago",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 41.85,
+    "longitude": -87.65
+  },
+  "America/Indiana/Knox": {
+    "zoneId": "America/Indiana/Knox",
+    "city": "Knox",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 41.295833333333334,
+    "longitude": -86.625
+  },
+  "America/Menominee": {
+    "zoneId": "America/Menominee",
+    "city": "Menominee",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 45.10777777777778,
+    "longitude": -87.61416666666666
+  },
+  "America/North_Dakota/New_Salem": {
+    "zoneId": "America/North_Dakota/New_Salem",
+    "city": "New Salem",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 46.845,
+    "longitude": -101.41083333333333
+  },
+  "America/Indiana/Tell_City": {
+    "zoneId": "America/Indiana/Tell_City",
+    "city": "Tell City",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 37.95305555555556,
+    "longitude": -86.76138888888889
+  },
+  "America/Anguilla": {
+    "zoneId": "America/Anguilla",
+    "city": "Anguilla",
+    "country": "Anguilla",
+    "continent": "America",
+    "latitude": 18.2,
+    "longitude": -63.06666666666667
+  },
+  "America/Antigua": {
+    "zoneId": "America/Antigua",
+    "city": "Antigua",
+    "country": "Antigua \u0026 Barbuda",
+    "continent": "America",
+    "latitude": 17.05,
+    "longitude": -61.8
+  },
+  "America/Aruba": {
+    "zoneId": "America/Aruba",
+    "city": "Aruba",
+    "country": "Aruba",
+    "continent": "America",
+    "latitude": 12.5,
+    "longitude": -69.96666666666667
+  },
+  "America/Nassau": {
+    "zoneId": "America/Nassau",
+    "city": "Nassau",
+    "country": "Bahamas",
+    "continent": "America",
+    "latitude": 25.083333333333332,
+    "longitude": -77.35
+  },
+  "America/Barbados": {
+    "zoneId": "America/Barbados",
+    "city": "Barbados",
+    "country": "Barbados",
+    "continent": "America",
+    "latitude": 13.1,
+    "longitude": -59.61666666666667
+  },
+  "America/La_Paz": {
+    "zoneId": "America/La_Paz",
+    "city": "La Paz",
+    "country": "Bolivia",
+    "continent": "America",
+    "latitude": -16.5,
+    "longitude": -68.15
+  },
+  "America/Boa_Vista": {
+    "zoneId": "America/Boa_Vista",
+    "city": "Boa Vista",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": 2.816666666666667,
+    "longitude": -60.666666666666664
+  },
+  "America/Campo_Grande": {
+    "zoneId": "America/Campo_Grande",
+    "city": "Campo Grande",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -20.45,
+    "longitude": -54.61666666666667
+  },
+  "America/Cuiaba": {
+    "zoneId": "America/Cuiaba",
+    "city": "Cuiaba",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -15.583333333333334,
+    "longitude": -56.083333333333336
+  },
+  "America/Manaus": {
+    "zoneId": "America/Manaus",
+    "city": "Manaus",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -3.1333333333333333,
+    "longitude": -60.016666666666666
+  },
+  "America/Porto_Velho": {
+    "zoneId": "America/Porto_Velho",
+    "city": "Porto Velho",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -8.766666666666667,
+    "longitude": -63.9
+  },
+  "America/Blanc-Sablon": {
+    "zoneId": "America/Blanc-Sablon",
+    "city": "Blanc-Sablon",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 51.416666666666664,
+    "longitude": -57.11666666666667
+  },
+  "America/Iqaluit": {
+    "zoneId": "America/Iqaluit",
+    "city": "Iqaluit",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 63.733333333333334,
+    "longitude": -68.46666666666667
+  },
+  "America/Toronto": {
+    "zoneId": "America/Toronto",
+    "city": "Toronto",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 43.65,
+    "longitude": -79.38333333333334
+  },
+  "America/Kralendijk": {
+    "zoneId": "America/Kralendijk",
+    "city": "Kralendijk",
+    "country": "Caribbean NL",
+    "continent": "America",
+    "latitude": 12.150833333333333,
+    "longitude": -68.27666666666667
+  },
+  "America/Santiago": {
+    "zoneId": "America/Santiago",
+    "city": "Santiago",
+    "country": "Chile",
+    "continent": "America",
+    "latitude": -33.45,
+    "longitude": -70.66666666666667
+  },
+  "America/Havana": {
+    "zoneId": "America/Havana",
+    "city": "Havana",
+    "country": "Cuba",
+    "continent": "America",
+    "latitude": 23.133333333333333,
+    "longitude": -82.36666666666666
+  },
+  "America/Curacao": {
+    "zoneId": "America/Curacao",
+    "city": "Curacao",
+    "country": "Cura\u00E7ao",
+    "continent": "America",
+    "latitude": 12.183333333333334,
+    "longitude": -69
+  },
+  "America/Dominica": {
+    "zoneId": "America/Dominica",
+    "city": "Dominica",
+    "country": "Dominica",
+    "continent": "America",
+    "latitude": 15.3,
+    "longitude": -61.4
+  },
+  "America/Santo_Domingo": {
+    "zoneId": "America/Santo_Domingo",
+    "city": "Santo Domingo",
+    "country": "Dominican Republic",
+    "continent": "America",
+    "latitude": 18.466666666666665,
+    "longitude": -69.9
+  },
+  "America/Grenada": {
+    "zoneId": "America/Grenada",
+    "city": "Grenada",
+    "country": "Grenada",
+    "continent": "America",
+    "latitude": 12.05,
+    "longitude": -61.75
+  },
+  "America/Guadeloupe": {
+    "zoneId": "America/Guadeloupe",
+    "city": "Guadeloupe",
+    "country": "Guadeloupe",
+    "continent": "America",
+    "latitude": 16.233333333333334,
+    "longitude": -61.53333333333333
+  },
+  "America/Guyana": {
+    "zoneId": "America/Guyana",
+    "city": "Guyana",
+    "country": "Guyana",
+    "continent": "America",
+    "latitude": 6.8,
+    "longitude": -58.166666666666664
+  },
+  "America/Port-au-Prince": {
+    "zoneId": "America/Port-au-Prince",
+    "city": "Port-au-Prince",
+    "country": "Haiti",
+    "continent": "America",
+    "latitude": 18.533333333333335,
+    "longitude": -72.33333333333333
+  },
+  "America/Martinique": {
+    "zoneId": "America/Martinique",
+    "city": "Martinique",
+    "country": "Martinique",
+    "continent": "America",
+    "latitude": 14.6,
+    "longitude": -61.083333333333336
+  },
+  "America/Montserrat": {
+    "zoneId": "America/Montserrat",
+    "city": "Montserrat",
+    "country": "Montserrat",
+    "continent": "America",
+    "latitude": 16.716666666666665,
+    "longitude": -62.21666666666667
+  },
+  "America/Asuncion": {
+    "zoneId": "America/Asuncion",
+    "city": "Asuncion",
+    "country": "Paraguay",
+    "continent": "America",
+    "latitude": -25.266666666666666,
+    "longitude": -57.666666666666664
+  },
+  "America/Puerto_Rico": {
+    "zoneId": "America/Puerto_Rico",
+    "city": "Puerto Rico",
+    "country": "Puerto Rico",
+    "continent": "America",
+    "latitude": 18.468333333333334,
+    "longitude": -66.1061111111111
+  },
+  "America/St_Barthelemy": {
+    "zoneId": "America/St_Barthelemy",
+    "city": "St Barthelemy",
+    "country": "St Barthelemy",
+    "continent": "America",
+    "latitude": 17.883333333333333,
+    "longitude": -62.85
+  },
+  "America/St_Kitts": {
+    "zoneId": "America/St_Kitts",
+    "city": "St Kitts",
+    "country": "St Kitts \u0026 Nevis",
+    "continent": "America",
+    "latitude": 17.3,
+    "longitude": -62.71666666666667
+  },
+  "America/St_Lucia": {
+    "zoneId": "America/St_Lucia",
+    "city": "St Lucia",
+    "country": "St Lucia",
+    "continent": "America",
+    "latitude": 14.016666666666667,
+    "longitude": -61
+  },
+  "America/Lower_Princes": {
+    "zoneId": "America/Lower_Princes",
+    "city": "Lower Princes",
+    "country": "St Maarten (Dutch)",
+    "continent": "America",
+    "latitude": 18.051388888888887,
+    "longitude": -63.047222222222224
+  },
+  "America/Marigot": {
+    "zoneId": "America/Marigot",
+    "city": "Marigot",
+    "country": "St Martin (French)",
+    "continent": "America",
+    "latitude": 18.066666666666666,
+    "longitude": -63.083333333333336
+  },
+  "America/St_Vincent": {
+    "zoneId": "America/St_Vincent",
+    "city": "St Vincent",
+    "country": "St Vincent",
+    "continent": "America",
+    "latitude": 13.15,
+    "longitude": -61.233333333333334
+  },
+  "America/Port_of_Spain": {
+    "zoneId": "America/Port_of_Spain",
+    "city": "Port of Spain",
+    "country": "Trinidad \u0026 Tobago",
+    "continent": "America",
+    "latitude": 10.65,
+    "longitude": -61.516666666666666
+  },
+  "America/Grand_Turk": {
+    "zoneId": "America/Grand_Turk",
+    "city": "Grand Turk",
+    "country": "Turks \u0026 Caicos Is",
+    "continent": "America",
+    "latitude": 21.466666666666665,
+    "longitude": -71.13333333333334
+  },
+  "America/Detroit": {
+    "zoneId": "America/Detroit",
+    "city": "Detroit",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 42.33138888888889,
+    "longitude": -83.04583333333333
+  },
+  "America/Indiana/Indianapolis": {
+    "zoneId": "America/Indiana/Indianapolis",
+    "city": "Indianapolis",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 39.76833333333333,
+    "longitude": -86.15805555555555
+  },
+  "America/Kentucky/Louisville": {
+    "zoneId": "America/Kentucky/Louisville",
+    "city": "Louisville",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 38.25416666666667,
+    "longitude": -85.75944444444444
+  },
+  "America/Indiana/Marengo": {
+    "zoneId": "America/Indiana/Marengo",
+    "city": "Marengo",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 38.37555555555556,
+    "longitude": -86.34472222222222
+  },
+  "America/Kentucky/Monticello": {
+    "zoneId": "America/Kentucky/Monticello",
+    "city": "Monticello",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 36.82972222222222,
+    "longitude": -84.84916666666666
+  },
+  "America/New_York": {
+    "zoneId": "America/New_York",
+    "city": "New York",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 40.714166666666664,
+    "longitude": -74.00638888888889
+  },
+  "America/Indiana/Petersburg": {
+    "zoneId": "America/Indiana/Petersburg",
+    "city": "Petersburg",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 38.49194444444444,
+    "longitude": -87.2786111111111
+  },
+  "America/Indiana/Vevay": {
+    "zoneId": "America/Indiana/Vevay",
+    "city": "Vevay",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 38.74777777777778,
+    "longitude": -85.06722222222223
+  },
+  "America/Indiana/Vincennes": {
+    "zoneId": "America/Indiana/Vincennes",
+    "city": "Vincennes",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 38.67722222222222,
+    "longitude": -87.5286111111111
+  },
+  "America/Indiana/Winamac": {
+    "zoneId": "America/Indiana/Winamac",
+    "city": "Winamac",
+    "country": "United States",
+    "continent": "America",
+    "latitude": 41.05138888888889,
+    "longitude": -86.60305555555556
+  },
+  "America/Caracas": {
+    "zoneId": "America/Caracas",
+    "city": "Caracas",
+    "country": "Venezuela",
+    "continent": "America",
+    "latitude": 10.5,
+    "longitude": -66.93333333333334
+  },
+  "America/Tortola": {
+    "zoneId": "America/Tortola",
+    "city": "Tortola",
+    "country": "Virgin Islands (UK)",
+    "continent": "America",
+    "latitude": 18.45,
+    "longitude": -64.61666666666666
+  },
+  "America/St_Thomas": {
+    "zoneId": "America/St_Thomas",
+    "city": "St Thomas",
+    "country": "Virgin Islands (US)",
+    "continent": "America",
+    "latitude": 18.35,
+    "longitude": -64.93333333333334
+  },
+  "Antarctica/Palmer": {
+    "zoneId": "Antarctica/Palmer",
+    "city": "Palmer",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -64.8,
+    "longitude": -64.1
+  },
+  "Antarctica/Rothera": {
+    "zoneId": "Antarctica/Rothera",
+    "city": "Rothera",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -67.56666666666666,
+    "longitude": -68.13333333333334
+  },
+  "America/Argentina/Buenos_Aires": {
+    "zoneId": "America/Argentina/Buenos_Aires",
+    "city": "Buenos Aires",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -34.6,
+    "longitude": -58.45
+  },
+  "America/Argentina/Catamarca": {
+    "zoneId": "America/Argentina/Catamarca",
+    "city": "Catamarca",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -28.466666666666665,
+    "longitude": -65.78333333333333
+  },
+  "America/Argentina/Cordoba": {
+    "zoneId": "America/Argentina/Cordoba",
+    "city": "Cordoba",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -31.4,
+    "longitude": -64.18333333333334
+  },
+  "America/Argentina/Jujuy": {
+    "zoneId": "America/Argentina/Jujuy",
+    "city": "Jujuy",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -24.183333333333334,
+    "longitude": -65.3
+  },
+  "America/Argentina/La_Rioja": {
+    "zoneId": "America/Argentina/La_Rioja",
+    "city": "La Rioja",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -29.433333333333334,
+    "longitude": -66.85
+  },
+  "America/Argentina/Mendoza": {
+    "zoneId": "America/Argentina/Mendoza",
+    "city": "Mendoza",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -32.88333333333333,
+    "longitude": -68.81666666666666
+  },
+  "America/Argentina/Rio_Gallegos": {
+    "zoneId": "America/Argentina/Rio_Gallegos",
+    "city": "Rio Gallegos",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -51.63333333333333,
+    "longitude": -69.21666666666667
+  },
+  "America/Argentina/Salta": {
+    "zoneId": "America/Argentina/Salta",
+    "city": "Salta",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -24.783333333333335,
+    "longitude": -65.41666666666667
+  },
+  "America/Argentina/San_Juan": {
+    "zoneId": "America/Argentina/San_Juan",
+    "city": "San Juan",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -31.533333333333335,
+    "longitude": -68.51666666666667
+  },
+  "America/Argentina/San_Luis": {
+    "zoneId": "America/Argentina/San_Luis",
+    "city": "San Luis",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -33.31666666666667,
+    "longitude": -66.35
+  },
+  "America/Argentina/Tucuman": {
+    "zoneId": "America/Argentina/Tucuman",
+    "city": "Tucuman",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -26.816666666666666,
+    "longitude": -65.21666666666667
+  },
+  "America/Argentina/Ushuaia": {
+    "zoneId": "America/Argentina/Ushuaia",
+    "city": "Ushuaia",
+    "country": "Argentina",
+    "continent": "America",
+    "latitude": -54.8,
+    "longitude": -68.3
+  },
+  "Atlantic/Bermuda": {
+    "zoneId": "Atlantic/Bermuda",
+    "city": "Bermuda",
+    "country": "Bermuda",
+    "continent": "Atlantic",
+    "latitude": 32.28333333333333,
+    "longitude": -64.76666666666667
+  },
+  "America/Araguaina": {
+    "zoneId": "America/Araguaina",
+    "city": "Araguaina",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -7.2,
+    "longitude": -48.2
+  },
+  "America/Bahia": {
+    "zoneId": "America/Bahia",
+    "city": "Bahia",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -12.983333333333333,
+    "longitude": -38.516666666666666
+  },
+  "America/Belem": {
+    "zoneId": "America/Belem",
+    "city": "Belem",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -1.45,
+    "longitude": -48.483333333333334
+  },
+  "America/Fortaleza": {
+    "zoneId": "America/Fortaleza",
+    "city": "Fortaleza",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -3.716666666666667,
+    "longitude": -38.5
+  },
+  "America/Maceio": {
+    "zoneId": "America/Maceio",
+    "city": "Maceio",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -9.666666666666666,
+    "longitude": -35.71666666666667
+  },
+  "America/Recife": {
+    "zoneId": "America/Recife",
+    "city": "Recife",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -8.05,
+    "longitude": -34.9
+  },
+  "America/Santarem": {
+    "zoneId": "America/Santarem",
+    "city": "Santarem",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -2.433333333333333,
+    "longitude": -54.86666666666667
+  },
+  "America/Sao_Paulo": {
+    "zoneId": "America/Sao_Paulo",
+    "city": "Sao Paulo",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -23.533333333333335,
+    "longitude": -46.61666666666667
+  },
+  "America/Glace_Bay": {
+    "zoneId": "America/Glace_Bay",
+    "city": "Glace Bay",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 46.2,
+    "longitude": -59.95
+  },
+  "America/Goose_Bay": {
+    "zoneId": "America/Goose_Bay",
+    "city": "Goose Bay",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 53.333333333333336,
+    "longitude": -60.416666666666664
+  },
+  "America/Halifax": {
+    "zoneId": "America/Halifax",
+    "city": "Halifax",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 44.65,
+    "longitude": -63.6
+  },
+  "America/Moncton": {
+    "zoneId": "America/Moncton",
+    "city": "Moncton",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 46.1,
+    "longitude": -64.78333333333333
+  },
+  "America/Punta_Arenas": {
+    "zoneId": "America/Punta_Arenas",
+    "city": "Punta Arenas",
+    "country": "Chile",
+    "continent": "America",
+    "latitude": -53.15,
+    "longitude": -70.91666666666667
+  },
+  "Atlantic/Stanley": {
+    "zoneId": "Atlantic/Stanley",
+    "city": "Stanley",
+    "country": "Falkland Islands",
+    "continent": "Atlantic",
+    "latitude": -51.7,
+    "longitude": -57.85
+  },
+  "America/Cayenne": {
+    "zoneId": "America/Cayenne",
+    "city": "Cayenne",
+    "country": "French Guiana",
+    "continent": "America",
+    "latitude": 4.933333333333334,
+    "longitude": -52.333333333333336
+  },
+  "America/Thule": {
+    "zoneId": "America/Thule",
+    "city": "Thule",
+    "country": "Greenland",
+    "continent": "America",
+    "latitude": 76.56666666666666,
+    "longitude": -68.78333333333333
+  },
+  "America/Paramaribo": {
+    "zoneId": "America/Paramaribo",
+    "city": "Paramaribo",
+    "country": "Suriname",
+    "continent": "America",
+    "latitude": 5.833333333333333,
+    "longitude": -55.166666666666664
+  },
+  "America/Montevideo": {
+    "zoneId": "America/Montevideo",
+    "city": "Montevideo",
+    "country": "Uruguay",
+    "continent": "America",
+    "latitude": -34.909166666666664,
+    "longitude": -56.2125
+  },
+  "America/St_Johns": {
+    "zoneId": "America/St_Johns",
+    "city": "St Johns",
+    "country": "Canada",
+    "continent": "America",
+    "latitude": 47.56666666666667,
+    "longitude": -52.71666666666667
+  },
+  "America/Noronha": {
+    "zoneId": "America/Noronha",
+    "city": "Noronha",
+    "country": "Brazil",
+    "continent": "America",
+    "latitude": -3.85,
+    "longitude": -32.416666666666664
+  },
+  "Atlantic/South_Georgia": {
+    "zoneId": "Atlantic/South_Georgia",
+    "city": "South Georgia",
+    "country": "South Georgia \u0026 the South Sandwich Islands",
+    "continent": "Atlantic",
+    "latitude": -54.266666666666666,
+    "longitude": -36.53333333333333
+  },
+  "America/Miquelon": {
+    "zoneId": "America/Miquelon",
+    "city": "Miquelon",
+    "country": "St Pierre \u0026 Miquelon",
+    "continent": "America",
+    "latitude": 47.05,
+    "longitude": -56.333333333333336
+  },
+  "Atlantic/Cape_Verde": {
+    "zoneId": "Atlantic/Cape_Verde",
+    "city": "Cape Verde",
+    "country": "Cape Verde",
+    "continent": "Atlantic",
+    "latitude": 14.916666666666666,
+    "longitude": -23.516666666666666
+  },
+  "America/Nuuk": {
+    "zoneId": "America/Nuuk",
+    "city": "Nuuk",
+    "country": "Greenland",
+    "continent": "America",
+    "latitude": 64.18333333333334,
+    "longitude": -51.733333333333334
+  },
+  "America/Scoresbysund": {
+    "zoneId": "America/Scoresbysund",
+    "city": "Scoresbysund",
+    "country": "Greenland",
+    "continent": "America",
+    "latitude": 70.48333333333333,
+    "longitude": -21.966666666666665
+  },
+  "Africa/Ouagadougou": {
+    "zoneId": "Africa/Ouagadougou",
+    "city": "Ouagadougou",
+    "country": "Burkina Faso",
+    "continent": "Africa",
+    "latitude": 12.366666666666667,
+    "longitude": -1.5166666666666666
+  },
+  "Africa/Abidjan": {
+    "zoneId": "Africa/Abidjan",
+    "city": "Abidjan",
+    "country": "C\u00F4te d\u0027Ivoire",
+    "continent": "Africa",
+    "latitude": 5.316666666666666,
+    "longitude": -4.033333333333333
+  },
+  "Africa/Banjul": {
+    "zoneId": "Africa/Banjul",
+    "city": "Banjul",
+    "country": "Gambia",
+    "continent": "Africa",
+    "latitude": 13.466666666666667,
+    "longitude": -16.65
+  },
+  "Africa/Accra": {
+    "zoneId": "Africa/Accra",
+    "city": "Accra",
+    "country": "Ghana",
+    "continent": "Africa",
+    "latitude": 5.55,
+    "longitude": -0.21666666666666667
+  },
+  "America/Danmarkshavn": {
+    "zoneId": "America/Danmarkshavn",
+    "city": "Danmarkshavn",
+    "country": "Greenland",
+    "continent": "America",
+    "latitude": 76.76666666666667,
+    "longitude": -18.666666666666668
+  },
+  "Africa/Conakry": {
+    "zoneId": "Africa/Conakry",
+    "city": "Conakry",
+    "country": "Guinea",
+    "continent": "Africa",
+    "latitude": 9.516666666666667,
+    "longitude": -13.716666666666667
+  },
+  "Africa/Bissau": {
+    "zoneId": "Africa/Bissau",
+    "city": "Bissau",
+    "country": "Guinea-Bissau",
+    "continent": "Africa",
+    "latitude": 11.85,
+    "longitude": -15.583333333333334
+  },
+  "Atlantic/Reykjavik": {
+    "zoneId": "Atlantic/Reykjavik",
+    "city": "Reykjavik",
+    "country": "Iceland",
+    "continent": "Atlantic",
+    "latitude": 64.15,
+    "longitude": -21.85
+  },
+  "Africa/Monrovia": {
+    "zoneId": "Africa/Monrovia",
+    "city": "Monrovia",
+    "country": "Liberia",
+    "continent": "Africa",
+    "latitude": 6.3,
+    "longitude": -10.783333333333333
+  },
+  "Africa/Bamako": {
+    "zoneId": "Africa/Bamako",
+    "city": "Bamako",
+    "country": "Mali",
+    "continent": "Africa",
+    "latitude": 12.65,
+    "longitude": -8
+  },
+  "Africa/Nouakchott": {
+    "zoneId": "Africa/Nouakchott",
+    "city": "Nouakchott",
+    "country": "Mauritania",
+    "continent": "Africa",
+    "latitude": 18.1,
+    "longitude": -15.95
+  },
+  "Atlantic/Azores": {
+    "zoneId": "Atlantic/Azores",
+    "city": "Azores",
+    "country": "Portugal",
+    "continent": "Atlantic",
+    "latitude": 37.733333333333334,
+    "longitude": -25.666666666666668
+  },
+  "Africa/Sao_Tome": {
+    "zoneId": "Africa/Sao_Tome",
+    "city": "Sao Tome",
+    "country": "Sao Tome \u0026 Principe",
+    "continent": "Africa",
+    "latitude": 0.3333333333333333,
+    "longitude": 6.733333333333333
+  },
+  "Africa/Dakar": {
+    "zoneId": "Africa/Dakar",
+    "city": "Dakar",
+    "country": "Senegal",
+    "continent": "Africa",
+    "latitude": 14.666666666666666,
+    "longitude": -17.433333333333334
+  },
+  "Africa/Freetown": {
+    "zoneId": "Africa/Freetown",
+    "city": "Freetown",
+    "country": "Sierra Leone",
+    "continent": "Africa",
+    "latitude": 8.5,
+    "longitude": -13.25
+  },
+  "Atlantic/St_Helena": {
+    "zoneId": "Atlantic/St_Helena",
+    "city": "St Helena",
+    "country": "St Helena",
+    "continent": "Atlantic",
+    "latitude": -15.916666666666666,
+    "longitude": -5.7
+  },
+  "Africa/Lome": {
+    "zoneId": "Africa/Lome",
+    "city": "Lome",
+    "country": "Togo",
+    "continent": "Africa",
+    "latitude": 6.133333333333334,
+    "longitude": 1.2166666666666666
+  },
+  "Africa/Algiers": {
+    "zoneId": "Africa/Algiers",
+    "city": "Algiers",
+    "country": "Algeria",
+    "continent": "Africa",
+    "latitude": 36.78333333333333,
+    "longitude": 3.05
+  },
+  "Africa/Luanda": {
+    "zoneId": "Africa/Luanda",
+    "city": "Luanda",
+    "country": "Angola",
+    "continent": "Africa",
+    "latitude": -8.8,
+    "longitude": 13.233333333333333
+  },
+  "Africa/Porto-Novo": {
+    "zoneId": "Africa/Porto-Novo",
+    "city": "Porto-Novo",
+    "country": "Benin",
+    "continent": "Africa",
+    "latitude": 6.483333333333333,
+    "longitude": 2.6166666666666667
+  },
+  "Europe/London": {
+    "zoneId": "Europe/London",
+    "city": "London",
+    "country": "Britain (UK)",
+    "continent": "Europe",
+    "latitude": 51.50833333333333,
+    "longitude": -0.12527777777777777
+  },
+  "Africa/Douala": {
+    "zoneId": "Africa/Douala",
+    "city": "Douala",
+    "country": "Cameroon",
+    "continent": "Africa",
+    "latitude": 4.05,
+    "longitude": 9.7
+  },
+  "Africa/Bangui": {
+    "zoneId": "Africa/Bangui",
+    "city": "Bangui",
+    "country": "Central African Rep.",
+    "continent": "Africa",
+    "latitude": 4.366666666666666,
+    "longitude": 18.583333333333332
+  },
+  "Africa/Ndjamena": {
+    "zoneId": "Africa/Ndjamena",
+    "city": "Ndjamena",
+    "country": "Chad",
+    "continent": "Africa",
+    "latitude": 12.116666666666667,
+    "longitude": 15.05
+  },
+  "Africa/Kinshasa": {
+    "zoneId": "Africa/Kinshasa",
+    "city": "Kinshasa",
+    "country": "Congo (Dem. Rep.)",
+    "continent": "Africa",
+    "latitude": -4.3,
+    "longitude": 15.3
+  },
+  "Africa/Brazzaville": {
+    "zoneId": "Africa/Brazzaville",
+    "city": "Brazzaville",
+    "country": "Congo (Rep.)",
+    "continent": "Africa",
+    "latitude": -4.266666666666667,
+    "longitude": 15.283333333333333
+  },
+  "Africa/Malabo": {
+    "zoneId": "Africa/Malabo",
+    "city": "Malabo",
+    "country": "Equatorial Guinea",
+    "continent": "Africa",
+    "latitude": 3.75,
+    "longitude": 8.783333333333333
+  },
+  "Atlantic/Faroe": {
+    "zoneId": "Atlantic/Faroe",
+    "city": "Faroe",
+    "country": "Faroe Islands",
+    "continent": "Atlantic",
+    "latitude": 62.016666666666666,
+    "longitude": -6.766666666666667
+  },
+  "Africa/Libreville": {
+    "zoneId": "Africa/Libreville",
+    "city": "Libreville",
+    "country": "Gabon",
+    "continent": "Africa",
+    "latitude": 0.38333333333333336,
+    "longitude": 9.45
+  },
+  "Europe/Guernsey": {
+    "zoneId": "Europe/Guernsey",
+    "city": "Guernsey",
+    "country": "Guernsey",
+    "continent": "Europe",
+    "latitude": 49.45472222222222,
+    "longitude": -2.536111111111111
+  },
+  "Europe/Dublin": {
+    "zoneId": "Europe/Dublin",
+    "city": "Dublin",
+    "country": "Ireland",
+    "continent": "Europe",
+    "latitude": 53.333333333333336,
+    "longitude": -6.25
+  },
+  "Europe/Isle_of_Man": {
+    "zoneId": "Europe/Isle_of_Man",
+    "city": "Isle of Man",
+    "country": "Isle of Man",
+    "continent": "Europe",
+    "latitude": 54.15,
+    "longitude": -4.466666666666667
+  },
+  "Europe/Jersey": {
+    "zoneId": "Europe/Jersey",
+    "city": "Jersey",
+    "country": "Jersey",
+    "continent": "Europe",
+    "latitude": 49.18361111111111,
+    "longitude": -2.1066666666666665
+  },
+  "Africa/Casablanca": {
+    "zoneId": "Africa/Casablanca",
+    "city": "Casablanca",
+    "country": "Morocco",
+    "continent": "Africa",
+    "latitude": 33.65,
+    "longitude": -7.583333333333333
+  },
+  "Africa/Niamey": {
+    "zoneId": "Africa/Niamey",
+    "city": "Niamey",
+    "country": "Niger",
+    "continent": "Africa",
+    "latitude": 13.516666666666667,
+    "longitude": 2.1166666666666667
+  },
+  "Africa/Lagos": {
+    "zoneId": "Africa/Lagos",
+    "city": "Lagos",
+    "country": "Nigeria",
+    "continent": "Africa",
+    "latitude": 6.45,
+    "longitude": 3.4
+  },
+  "Europe/Lisbon": {
+    "zoneId": "Europe/Lisbon",
+    "city": "Lisbon",
+    "country": "Portugal",
+    "continent": "Europe",
+    "latitude": 38.71666666666667,
+    "longitude": -9.133333333333333
+  },
+  "Atlantic/Madeira": {
+    "zoneId": "Atlantic/Madeira",
+    "city": "Madeira",
+    "country": "Portugal",
+    "continent": "Atlantic",
+    "latitude": 32.63333333333333,
+    "longitude": -16.9
+  },
+  "Atlantic/Canary": {
+    "zoneId": "Atlantic/Canary",
+    "city": "Canary",
+    "country": "Spain",
+    "continent": "Atlantic",
+    "latitude": 28.1,
+    "longitude": -15.4
+  },
+  "Africa/Tunis": {
+    "zoneId": "Africa/Tunis",
+    "city": "Tunis",
+    "country": "Tunisia",
+    "continent": "Africa",
+    "latitude": 36.8,
+    "longitude": 10.183333333333334
+  },
+  "Africa/El_Aaiun": {
+    "zoneId": "Africa/El_Aaiun",
+    "city": "El Aaiun",
+    "country": "Western Sahara",
+    "continent": "Africa",
+    "latitude": 27.15,
+    "longitude": -13.2
+  },
+  "Europe/Tirane": {
+    "zoneId": "Europe/Tirane",
+    "city": "Tirane",
+    "country": "Albania",
+    "continent": "Europe",
+    "latitude": 41.333333333333336,
+    "longitude": 19.833333333333332
+  },
+  "Europe/Andorra": {
+    "zoneId": "Europe/Andorra",
+    "city": "Andorra",
+    "country": "Andorra",
+    "continent": "Europe",
+    "latitude": 42.5,
+    "longitude": 1.5166666666666666
+  },
+  "Antarctica/Troll": {
+    "zoneId": "Antarctica/Troll",
+    "city": "Troll",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -72.01138888888889,
+    "longitude": 2.535
+  },
+  "Europe/Vienna": {
+    "zoneId": "Europe/Vienna",
+    "city": "Vienna",
+    "country": "Austria",
+    "continent": "Europe",
+    "latitude": 48.21666666666667,
+    "longitude": 16.333333333333332
+  },
+  "Europe/Brussels": {
+    "zoneId": "Europe/Brussels",
+    "city": "Brussels",
+    "country": "Belgium",
+    "continent": "Europe",
+    "latitude": 50.833333333333336,
+    "longitude": 4.333333333333333
+  },
+  "Europe/Sarajevo": {
+    "zoneId": "Europe/Sarajevo",
+    "city": "Sarajevo",
+    "country": "Bosnia \u0026 Herzegovina",
+    "continent": "Europe",
+    "latitude": 43.86666666666667,
+    "longitude": 18.416666666666668
+  },
+  "Africa/Gaborone": {
+    "zoneId": "Africa/Gaborone",
+    "city": "Gaborone",
+    "country": "Botswana",
+    "continent": "Africa",
+    "latitude": -24.65,
+    "longitude": 25.916666666666668
+  },
+  "Africa/Bujumbura": {
+    "zoneId": "Africa/Bujumbura",
+    "city": "Bujumbura",
+    "country": "Burundi",
+    "continent": "Africa",
+    "latitude": -3.3833333333333333,
+    "longitude": 29.366666666666667
+  },
+  "Africa/Lubumbashi": {
+    "zoneId": "Africa/Lubumbashi",
+    "city": "Lubumbashi",
+    "country": "Congo (Dem. Rep.)",
+    "continent": "Africa",
+    "latitude": -11.666666666666666,
+    "longitude": 27.466666666666665
+  },
+  "Europe/Zagreb": {
+    "zoneId": "Europe/Zagreb",
+    "city": "Zagreb",
+    "country": "Croatia",
+    "continent": "Europe",
+    "latitude": 45.8,
+    "longitude": 15.966666666666667
+  },
+  "Europe/Prague": {
+    "zoneId": "Europe/Prague",
+    "city": "Prague",
+    "country": "Czech Republic",
+    "continent": "Europe",
+    "latitude": 50.083333333333336,
+    "longitude": 14.433333333333334
+  },
+  "Europe/Copenhagen": {
+    "zoneId": "Europe/Copenhagen",
+    "city": "Copenhagen",
+    "country": "Denmark",
+    "continent": "Europe",
+    "latitude": 55.666666666666664,
+    "longitude": 12.583333333333334
+  },
+  "Africa/Mbabane": {
+    "zoneId": "Africa/Mbabane",
+    "city": "Mbabane",
+    "country": "Eswatini (Swaziland)",
+    "continent": "Africa",
+    "latitude": -26.3,
+    "longitude": 31.1
+  },
+  "Europe/Paris": {
+    "zoneId": "Europe/Paris",
+    "city": "Paris",
+    "country": "France",
+    "continent": "Europe",
+    "latitude": 48.86666666666667,
+    "longitude": 2.3333333333333335
+  },
+  "Europe/Berlin": {
+    "zoneId": "Europe/Berlin",
+    "city": "Berlin",
+    "country": "Germany",
+    "continent": "Europe",
+    "latitude": 52.5,
+    "longitude": 13.366666666666667
+  },
+  "Europe/Busingen": {
+    "zoneId": "Europe/Busingen",
+    "city": "Busingen",
+    "country": "Germany",
+    "continent": "Europe",
+    "latitude": 47.7,
+    "longitude": 8.683333333333334
+  },
+  "Europe/Gibraltar": {
+    "zoneId": "Europe/Gibraltar",
+    "city": "Gibraltar",
+    "country": "Gibraltar",
+    "continent": "Europe",
+    "latitude": 36.13333333333333,
+    "longitude": -5.35
+  },
+  "Europe/Budapest": {
+    "zoneId": "Europe/Budapest",
+    "city": "Budapest",
+    "country": "Hungary",
+    "continent": "Europe",
+    "latitude": 47.5,
+    "longitude": 19.083333333333332
+  },
+  "Europe/Rome": {
+    "zoneId": "Europe/Rome",
+    "city": "Rome",
+    "country": "Italy",
+    "continent": "Europe",
+    "latitude": 41.9,
+    "longitude": 12.483333333333333
+  },
+  "Africa/Maseru": {
+    "zoneId": "Africa/Maseru",
+    "city": "Maseru",
+    "country": "Lesotho",
+    "continent": "Africa",
+    "latitude": -29.466666666666665,
+    "longitude": 27.5
+  },
+  "Africa/Tripoli": {
+    "zoneId": "Africa/Tripoli",
+    "city": "Tripoli",
+    "country": "Libya",
+    "continent": "Africa",
+    "latitude": 32.9,
+    "longitude": 13.183333333333334
+  },
+  "Europe/Vaduz": {
+    "zoneId": "Europe/Vaduz",
+    "city": "Vaduz",
+    "country": "Liechtenstein",
+    "continent": "Europe",
+    "latitude": 47.15,
+    "longitude": 9.516666666666667
+  },
+  "Europe/Luxembourg": {
+    "zoneId": "Europe/Luxembourg",
+    "city": "Luxembourg",
+    "country": "Luxembourg",
+    "continent": "Europe",
+    "latitude": 49.6,
+    "longitude": 6.15
+  },
+  "Africa/Blantyre": {
+    "zoneId": "Africa/Blantyre",
+    "city": "Blantyre",
+    "country": "Malawi",
+    "continent": "Africa",
+    "latitude": -15.783333333333333,
+    "longitude": 35
+  },
+  "Europe/Malta": {
+    "zoneId": "Europe/Malta",
+    "city": "Malta",
+    "country": "Malta",
+    "continent": "Europe",
+    "latitude": 35.9,
+    "longitude": 14.516666666666667
+  },
+  "Europe/Monaco": {
+    "zoneId": "Europe/Monaco",
+    "city": "Monaco",
+    "country": "Monaco",
+    "continent": "Europe",
+    "latitude": 43.7,
+    "longitude": 7.383333333333334
+  },
+  "Europe/Podgorica": {
+    "zoneId": "Europe/Podgorica",
+    "city": "Podgorica",
+    "country": "Montenegro",
+    "continent": "Europe",
+    "latitude": 42.43333333333333,
+    "longitude": 19.266666666666666
+  },
+  "Africa/Maputo": {
+    "zoneId": "Africa/Maputo",
+    "city": "Maputo",
+    "country": "Mozambique",
+    "continent": "Africa",
+    "latitude": -25.966666666666665,
+    "longitude": 32.583333333333336
+  },
+  "Africa/Windhoek": {
+    "zoneId": "Africa/Windhoek",
+    "city": "Windhoek",
+    "country": "Namibia",
+    "continent": "Africa",
+    "latitude": -22.566666666666666,
+    "longitude": 17.1
+  },
+  "Europe/Amsterdam": {
+    "zoneId": "Europe/Amsterdam",
+    "city": "Amsterdam",
+    "country": "Netherlands",
+    "continent": "Europe",
+    "latitude": 52.36666666666667,
+    "longitude": 4.9
+  },
+  "Europe/Skopje": {
+    "zoneId": "Europe/Skopje",
+    "city": "Skopje",
+    "country": "North Macedonia",
+    "continent": "Europe",
+    "latitude": 41.983333333333334,
+    "longitude": 21.433333333333334
+  },
+  "Europe/Oslo": {
+    "zoneId": "Europe/Oslo",
+    "city": "Oslo",
+    "country": "Norway",
+    "continent": "Europe",
+    "latitude": 59.916666666666664,
+    "longitude": 10.75
+  },
+  "Europe/Warsaw": {
+    "zoneId": "Europe/Warsaw",
+    "city": "Warsaw",
+    "country": "Poland",
+    "continent": "Europe",
+    "latitude": 52.25,
+    "longitude": 21
+  },
+  "Europe/Kaliningrad": {
+    "zoneId": "Europe/Kaliningrad",
+    "city": "Kaliningrad",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 54.71666666666667,
+    "longitude": 20.5
+  },
+  "Africa/Kigali": {
+    "zoneId": "Africa/Kigali",
+    "city": "Kigali",
+    "country": "Rwanda",
+    "continent": "Africa",
+    "latitude": -1.95,
+    "longitude": 30.066666666666666
+  },
+  "Europe/San_Marino": {
+    "zoneId": "Europe/San_Marino",
+    "city": "San Marino",
+    "country": "San Marino",
+    "continent": "Europe",
+    "latitude": 43.916666666666664,
+    "longitude": 12.466666666666667
+  },
+  "Europe/Belgrade": {
+    "zoneId": "Europe/Belgrade",
+    "city": "Belgrade",
+    "country": "Serbia",
+    "continent": "Europe",
+    "latitude": 44.833333333333336,
+    "longitude": 20.5
+  },
+  "Europe/Bratislava": {
+    "zoneId": "Europe/Bratislava",
+    "city": "Bratislava",
+    "country": "Slovakia",
+    "continent": "Europe",
+    "latitude": 48.15,
+    "longitude": 17.116666666666667
+  },
+  "Europe/Ljubljana": {
+    "zoneId": "Europe/Ljubljana",
+    "city": "Ljubljana",
+    "country": "Slovenia",
+    "continent": "Europe",
+    "latitude": 46.05,
+    "longitude": 14.516666666666667
+  },
+  "Africa/Johannesburg": {
+    "zoneId": "Africa/Johannesburg",
+    "city": "Johannesburg",
+    "country": "South Africa",
+    "continent": "Africa",
+    "latitude": -26.25,
+    "longitude": 28
+  },
+  "Africa/Juba": {
+    "zoneId": "Africa/Juba",
+    "city": "Juba",
+    "country": "South Sudan",
+    "continent": "Africa",
+    "latitude": 4.85,
+    "longitude": 31.616666666666667
+  },
+  "Africa/Ceuta": {
+    "zoneId": "Africa/Ceuta",
+    "city": "Ceuta",
+    "country": "Spain",
+    "continent": "Africa",
+    "latitude": 35.88333333333333,
+    "longitude": -5.316666666666666
+  },
+  "Europe/Madrid": {
+    "zoneId": "Europe/Madrid",
+    "city": "Madrid",
+    "country": "Spain",
+    "continent": "Europe",
+    "latitude": 40.4,
+    "longitude": -3.683333333333333
+  },
+  "Africa/Khartoum": {
+    "zoneId": "Africa/Khartoum",
+    "city": "Khartoum",
+    "country": "Sudan",
+    "continent": "Africa",
+    "latitude": 15.6,
+    "longitude": 32.53333333333333
+  },
+  "Arctic/Longyearbyen": {
+    "zoneId": "Arctic/Longyearbyen",
+    "city": "Longyearbyen",
+    "country": "Svalbard \u0026 Jan Mayen",
+    "continent": "Arctic",
+    "latitude": 78,
+    "longitude": 16
+  },
+  "Europe/Stockholm": {
+    "zoneId": "Europe/Stockholm",
+    "city": "Stockholm",
+    "country": "Sweden",
+    "continent": "Europe",
+    "latitude": 59.333333333333336,
+    "longitude": 18.05
+  },
+  "Europe/Zurich": {
+    "zoneId": "Europe/Zurich",
+    "city": "Zurich",
+    "country": "Switzerland",
+    "continent": "Europe",
+    "latitude": 47.38333333333333,
+    "longitude": 8.533333333333333
+  },
+  "Europe/Vatican": {
+    "zoneId": "Europe/Vatican",
+    "city": "Vatican",
+    "country": "Vatican City",
+    "continent": "Europe",
+    "latitude": 41.90222222222222,
+    "longitude": 12.453055555555556
+  },
+  "Africa/Lusaka": {
+    "zoneId": "Africa/Lusaka",
+    "city": "Lusaka",
+    "country": "Zambia",
+    "continent": "Africa",
+    "latitude": -15.416666666666666,
+    "longitude": 28.283333333333335
+  },
+  "Africa/Harare": {
+    "zoneId": "Africa/Harare",
+    "city": "Harare",
+    "country": "Zimbabwe",
+    "continent": "Africa",
+    "latitude": -17.833333333333332,
+    "longitude": 31.05
+  },
+  "Europe/Mariehamn": {
+    "zoneId": "Europe/Mariehamn",
+    "city": "Mariehamn",
+    "country": "\u00C5land Islands",
+    "continent": "Europe",
+    "latitude": 60.1,
+    "longitude": 19.95
+  },
+  "Antarctica/Syowa": {
+    "zoneId": "Antarctica/Syowa",
+    "city": "Syowa",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -69.00611111111111,
+    "longitude": 39.59
+  },
+  "Asia/Bahrain": {
+    "zoneId": "Asia/Bahrain",
+    "city": "Bahrain",
+    "country": "Bahrain",
+    "continent": "Asia",
+    "latitude": 26.383333333333333,
+    "longitude": 50.583333333333336
+  },
+  "Europe/Minsk": {
+    "zoneId": "Europe/Minsk",
+    "city": "Minsk",
+    "country": "Belarus",
+    "continent": "Europe",
+    "latitude": 53.9,
+    "longitude": 27.566666666666666
+  },
+  "Europe/Sofia": {
+    "zoneId": "Europe/Sofia",
+    "city": "Sofia",
+    "country": "Bulgaria",
+    "continent": "Europe",
+    "latitude": 42.68333333333333,
+    "longitude": 23.316666666666666
+  },
+  "Indian/Comoro": {
+    "zoneId": "Indian/Comoro",
+    "city": "Comoro",
+    "country": "Comoros",
+    "continent": "Indian",
+    "latitude": -11.683333333333334,
+    "longitude": 43.266666666666666
+  },
+  "Asia/Famagusta": {
+    "zoneId": "Asia/Famagusta",
+    "city": "Famagusta",
+    "country": "Cyprus",
+    "continent": "Asia",
+    "latitude": 35.11666666666667,
+    "longitude": 33.95
+  },
+  "Asia/Nicosia": {
+    "zoneId": "Asia/Nicosia",
+    "city": "Nicosia",
+    "country": "Cyprus",
+    "continent": "Asia",
+    "latitude": 35.166666666666664,
+    "longitude": 33.36666666666667
+  },
+  "Africa/Djibouti": {
+    "zoneId": "Africa/Djibouti",
+    "city": "Djibouti",
+    "country": "Djibouti",
+    "continent": "Africa",
+    "latitude": 11.6,
+    "longitude": 43.15
+  },
+  "Africa/Cairo": {
+    "zoneId": "Africa/Cairo",
+    "city": "Cairo",
+    "country": "Egypt",
+    "continent": "Africa",
+    "latitude": 30.05,
+    "longitude": 31.25
+  },
+  "Africa/Asmara": {
+    "zoneId": "Africa/Asmara",
+    "city": "Asmara",
+    "country": "Eritrea",
+    "continent": "Africa",
+    "latitude": 15.333333333333334,
+    "longitude": 38.88333333333333
+  },
+  "Europe/Tallinn": {
+    "zoneId": "Europe/Tallinn",
+    "city": "Tallinn",
+    "country": "Estonia",
+    "continent": "Europe",
+    "latitude": 59.416666666666664,
+    "longitude": 24.75
+  },
+  "Africa/Addis_Ababa": {
+    "zoneId": "Africa/Addis_Ababa",
+    "city": "Addis Ababa",
+    "country": "Ethiopia",
+    "continent": "Africa",
+    "latitude": 9.033333333333333,
+    "longitude": 38.7
+  },
+  "Europe/Helsinki": {
+    "zoneId": "Europe/Helsinki",
+    "city": "Helsinki",
+    "country": "Finland",
+    "continent": "Europe",
+    "latitude": 60.166666666666664,
+    "longitude": 24.966666666666665
+  },
+  "Europe/Athens": {
+    "zoneId": "Europe/Athens",
+    "city": "Athens",
+    "country": "Greece",
+    "continent": "Europe",
+    "latitude": 37.96666666666667,
+    "longitude": 23.716666666666665
+  },
+  "Asia/Baghdad": {
+    "zoneId": "Asia/Baghdad",
+    "city": "Baghdad",
+    "country": "Iraq",
+    "continent": "Asia",
+    "latitude": 33.35,
+    "longitude": 44.416666666666664
+  },
+  "Asia/Jerusalem": {
+    "zoneId": "Asia/Jerusalem",
+    "city": "Jerusalem",
+    "country": "Israel",
+    "continent": "Asia",
+    "latitude": 31.780555555555555,
+    "longitude": 35.22388888888889
+  },
+  "Asia/Amman": {
+    "zoneId": "Asia/Amman",
+    "city": "Amman",
+    "country": "Jordan",
+    "continent": "Asia",
+    "latitude": 31.95,
+    "longitude": 35.93333333333333
+  },
+  "Africa/Nairobi": {
+    "zoneId": "Africa/Nairobi",
+    "city": "Nairobi",
+    "country": "Kenya",
+    "continent": "Africa",
+    "latitude": -1.2833333333333334,
+    "longitude": 36.81666666666667
+  },
+  "Asia/Kuwait": {
+    "zoneId": "Asia/Kuwait",
+    "city": "Kuwait",
+    "country": "Kuwait",
+    "continent": "Asia",
+    "latitude": 29.333333333333332,
+    "longitude": 47.983333333333334
+  },
+  "Europe/Riga": {
+    "zoneId": "Europe/Riga",
+    "city": "Riga",
+    "country": "Latvia",
+    "continent": "Europe",
+    "latitude": 56.95,
+    "longitude": 24.1
+  },
+  "Asia/Beirut": {
+    "zoneId": "Asia/Beirut",
+    "city": "Beirut",
+    "country": "Lebanon",
+    "continent": "Asia",
+    "latitude": 33.88333333333333,
+    "longitude": 35.5
+  },
+  "Europe/Vilnius": {
+    "zoneId": "Europe/Vilnius",
+    "city": "Vilnius",
+    "country": "Lithuania",
+    "continent": "Europe",
+    "latitude": 54.68333333333333,
+    "longitude": 25.316666666666666
+  },
+  "Indian/Antananarivo": {
+    "zoneId": "Indian/Antananarivo",
+    "city": "Antananarivo",
+    "country": "Madagascar",
+    "continent": "Indian",
+    "latitude": -18.916666666666668,
+    "longitude": 47.516666666666666
+  },
+  "Indian/Mayotte": {
+    "zoneId": "Indian/Mayotte",
+    "city": "Mayotte",
+    "country": "Mayotte",
+    "continent": "Indian",
+    "latitude": -12.783333333333333,
+    "longitude": 45.233333333333334
+  },
+  "Europe/Chisinau": {
+    "zoneId": "Europe/Chisinau",
+    "city": "Chisinau",
+    "country": "Moldova",
+    "continent": "Europe",
+    "latitude": 47,
+    "longitude": 28.833333333333332
+  },
+  "Asia/Gaza": {
+    "zoneId": "Asia/Gaza",
+    "city": "Gaza",
+    "country": "Palestine",
+    "continent": "Asia",
+    "latitude": 31.5,
+    "longitude": 34.46666666666667
+  },
+  "Asia/Hebron": {
+    "zoneId": "Asia/Hebron",
+    "city": "Hebron",
+    "country": "Palestine",
+    "continent": "Asia",
+    "latitude": 31.533333333333335,
+    "longitude": 35.095
+  },
+  "Asia/Qatar": {
+    "zoneId": "Asia/Qatar",
+    "city": "Qatar",
+    "country": "Qatar",
+    "continent": "Asia",
+    "latitude": 25.283333333333335,
+    "longitude": 51.53333333333333
+  },
+  "Europe/Bucharest": {
+    "zoneId": "Europe/Bucharest",
+    "city": "Bucharest",
+    "country": "Romania",
+    "continent": "Europe",
+    "latitude": 44.43333333333333,
+    "longitude": 26.1
+  },
+  "Europe/Kirov": {
+    "zoneId": "Europe/Kirov",
+    "city": "Kirov",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 58.6,
+    "longitude": 49.65
+  },
+  "Europe/Moscow": {
+    "zoneId": "Europe/Moscow",
+    "city": "Moscow",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 55.755833333333335,
+    "longitude": 37.617777777777775
+  },
+  "Europe/Volgograd": {
+    "zoneId": "Europe/Volgograd",
+    "city": "Volgograd",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 48.733333333333334,
+    "longitude": 44.416666666666664
+  },
+  "Asia/Riyadh": {
+    "zoneId": "Asia/Riyadh",
+    "city": "Riyadh",
+    "country": "Saudi Arabia",
+    "continent": "Asia",
+    "latitude": 24.633333333333333,
+    "longitude": 46.71666666666667
+  },
+  "Africa/Mogadishu": {
+    "zoneId": "Africa/Mogadishu",
+    "city": "Mogadishu",
+    "country": "Somalia",
+    "continent": "Africa",
+    "latitude": 2.066666666666667,
+    "longitude": 45.36666666666667
+  },
+  "Asia/Damascus": {
+    "zoneId": "Asia/Damascus",
+    "city": "Damascus",
+    "country": "Syria",
+    "continent": "Asia",
+    "latitude": 33.5,
+    "longitude": 36.3
+  },
+  "Africa/Dar_es_Salaam": {
+    "zoneId": "Africa/Dar_es_Salaam",
+    "city": "Dar es Salaam",
+    "country": "Tanzania",
+    "continent": "Africa",
+    "latitude": -6.8,
+    "longitude": 39.28333333333333
+  },
+  "Europe/Istanbul": {
+    "zoneId": "Europe/Istanbul",
+    "city": "Istanbul",
+    "country": "Turkey",
+    "continent": "Europe",
+    "latitude": 41.016666666666666,
+    "longitude": 28.966666666666665
+  },
+  "Africa/Kampala": {
+    "zoneId": "Africa/Kampala",
+    "city": "Kampala",
+    "country": "Uganda",
+    "continent": "Africa",
+    "latitude": 0.31666666666666665,
+    "longitude": 32.416666666666664
+  },
+  "Europe/Kyiv": {
+    "zoneId": "Europe/Kyiv",
+    "city": "Kyiv",
+    "country": "Ukraine",
+    "continent": "Europe",
+    "latitude": 50.43333333333333,
+    "longitude": 30.516666666666666
+  },
+  "Europe/Simferopol": {
+    "zoneId": "Europe/Simferopol",
+    "city": "Simferopol",
+    "country": "Ukraine",
+    "continent": "Europe",
+    "latitude": 44.95,
+    "longitude": 34.1
+  },
+  "Asia/Aden": {
+    "zoneId": "Asia/Aden",
+    "city": "Aden",
+    "country": "Yemen",
+    "continent": "Asia",
+    "latitude": 12.75,
+    "longitude": 45.2
+  },
+  "Asia/Tehran": {
+    "zoneId": "Asia/Tehran",
+    "city": "Tehran",
+    "country": "Iran",
+    "continent": "Asia",
+    "latitude": 35.666666666666664,
+    "longitude": 51.43333333333333
+  },
+  "Asia/Yerevan": {
+    "zoneId": "Asia/Yerevan",
+    "city": "Yerevan",
+    "country": "Armenia",
+    "continent": "Asia",
+    "latitude": 40.18333333333333,
+    "longitude": 44.5
+  },
+  "Asia/Baku": {
+    "zoneId": "Asia/Baku",
+    "city": "Baku",
+    "country": "Azerbaijan",
+    "continent": "Asia",
+    "latitude": 40.38333333333333,
+    "longitude": 49.85
+  },
+  "Asia/Tbilisi": {
+    "zoneId": "Asia/Tbilisi",
+    "city": "Tbilisi",
+    "country": "Georgia",
+    "continent": "Asia",
+    "latitude": 41.71666666666667,
+    "longitude": 44.81666666666667
+  },
+  "Indian/Mauritius": {
+    "zoneId": "Indian/Mauritius",
+    "city": "Mauritius",
+    "country": "Mauritius",
+    "continent": "Indian",
+    "latitude": -20.166666666666668,
+    "longitude": 57.5
+  },
+  "Asia/Muscat": {
+    "zoneId": "Asia/Muscat",
+    "city": "Muscat",
+    "country": "Oman",
+    "continent": "Asia",
+    "latitude": 23.6,
+    "longitude": 58.583333333333336
+  },
+  "Indian/Reunion": {
+    "zoneId": "Indian/Reunion",
+    "city": "Reunion",
+    "country": "R\u00E9union",
+    "continent": "Indian",
+    "latitude": -20.866666666666667,
+    "longitude": 55.46666666666667
+  },
+  "Europe/Astrakhan": {
+    "zoneId": "Europe/Astrakhan",
+    "city": "Astrakhan",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 46.35,
+    "longitude": 48.05
+  },
+  "Europe/Samara": {
+    "zoneId": "Europe/Samara",
+    "city": "Samara",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 53.2,
+    "longitude": 50.15
+  },
+  "Europe/Saratov": {
+    "zoneId": "Europe/Saratov",
+    "city": "Saratov",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 51.56666666666667,
+    "longitude": 46.03333333333333
+  },
+  "Europe/Ulyanovsk": {
+    "zoneId": "Europe/Ulyanovsk",
+    "city": "Ulyanovsk",
+    "country": "Russia",
+    "continent": "Europe",
+    "latitude": 54.333333333333336,
+    "longitude": 48.4
+  },
+  "Indian/Mahe": {
+    "zoneId": "Indian/Mahe",
+    "city": "Mahe",
+    "country": "Seychelles",
+    "continent": "Indian",
+    "latitude": -4.666666666666667,
+    "longitude": 55.46666666666667
+  },
+  "Asia/Dubai": {
+    "zoneId": "Asia/Dubai",
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "continent": "Asia",
+    "latitude": 25.3,
+    "longitude": 55.3
+  },
+  "Asia/Kabul": {
+    "zoneId": "Asia/Kabul",
+    "city": "Kabul",
+    "country": "Afghanistan",
+    "continent": "Asia",
+    "latitude": 34.516666666666666,
+    "longitude": 69.2
+  },
+  "Antarctica/Mawson": {
+    "zoneId": "Antarctica/Mawson",
+    "city": "Mawson",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -67.6,
+    "longitude": 62.88333333333333
+  },
+  "Antarctica/Vostok": {
+    "zoneId": "Antarctica/Vostok",
+    "city": "Vostok",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -78.4,
+    "longitude": 106.9
+  },
+  "Indian/Kerguelen": {
+    "zoneId": "Indian/Kerguelen",
+    "city": "Kerguelen",
+    "country": "French S. Terr.",
+    "continent": "Indian",
+    "latitude": -49.352777777777774,
+    "longitude": 70.2175
+  },
+  "Asia/Almaty": {
+    "zoneId": "Asia/Almaty",
+    "city": "Almaty",
+    "country": "Kazakhstan",
+    "continent": "Asia",
+    "latitude": 43.25,
+    "longitude": 76.95
+  },
+  "Asia/Aqtau": {
+    "zoneId": "Asia/Aqtau",
+    "city": "Aqtau",
+    "country": "Kazakhstan",
+    "continent": "Asia",
+    "latitude": 44.516666666666666,
+    "longitude": 50.266666666666666
+  },
+  "Asia/Aqtobe": {
+    "zoneId": "Asia/Aqtobe",
+    "city": "Aqtobe",
+    "country": "Kazakhstan",
+    "continent": "Asia",
+    "latitude": 50.28333333333333,
+    "longitude": 57.166666666666664
+  },
+  "Asia/Atyrau": {
+    "zoneId": "Asia/Atyrau",
+    "city": "Atyrau",
+    "country": "Kazakhstan",
+    "continent": "Asia",
+    "latitude": 47.11666666666667,
+    "longitude": 51.93333333333333
+  },
+  "Asia/Oral": {
+    "zoneId": "Asia/Oral",
+    "city": "Oral",
+    "country": "Kazakhstan",
+    "continent": "Asia",
+    "latitude": 51.21666666666667,
+    "longitude": 51.35
+  },
+  "Asia/Qostanay": {
+    "zoneId": "Asia/Qostanay",
+    "city": "Qostanay",
+    "country": "Kazakhstan",
+    "continent": "Asia",
+    "latitude": 53.2,
+    "longitude": 63.61666666666667
+  },
+  "Asia/Qyzylorda": {
+    "zoneId": "Asia/Qyzylorda",
+    "city": "Qyzylorda",
+    "country": "Kazakhstan",
+    "continent": "Asia",
+    "latitude": 44.8,
+    "longitude": 65.46666666666667
+  },
+  "Indian/Maldives": {
+    "zoneId": "Indian/Maldives",
+    "city": "Maldives",
+    "country": "Maldives",
+    "continent": "Indian",
+    "latitude": 4.166666666666667,
+    "longitude": 73.5
+  },
+  "Asia/Karachi": {
+    "zoneId": "Asia/Karachi",
+    "city": "Karachi",
+    "country": "Pakistan",
+    "continent": "Asia",
+    "latitude": 24.866666666666667,
+    "longitude": 67.05
+  },
+  "Asia/Yekaterinburg": {
+    "zoneId": "Asia/Yekaterinburg",
+    "city": "Yekaterinburg",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 56.85,
+    "longitude": 60.6
+  },
+  "Asia/Dushanbe": {
+    "zoneId": "Asia/Dushanbe",
+    "city": "Dushanbe",
+    "country": "Tajikistan",
+    "continent": "Asia",
+    "latitude": 38.583333333333336,
+    "longitude": 68.8
+  },
+  "Asia/Ashgabat": {
+    "zoneId": "Asia/Ashgabat",
+    "city": "Ashgabat",
+    "country": "Turkmenistan",
+    "continent": "Asia",
+    "latitude": 37.95,
+    "longitude": 58.38333333333333
+  },
+  "Asia/Samarkand": {
+    "zoneId": "Asia/Samarkand",
+    "city": "Samarkand",
+    "country": "Uzbekistan",
+    "continent": "Asia",
+    "latitude": 39.666666666666664,
+    "longitude": 66.8
+  },
+  "Asia/Tashkent": {
+    "zoneId": "Asia/Tashkent",
+    "city": "Tashkent",
+    "country": "Uzbekistan",
+    "continent": "Asia",
+    "latitude": 41.333333333333336,
+    "longitude": 69.3
+  },
+  "Asia/Kolkata": {
+    "zoneId": "Asia/Kolkata",
+    "city": "Kolkata",
+    "country": "India",
+    "continent": "Asia",
+    "latitude": 22.533333333333335,
+    "longitude": 88.36666666666666
+  },
+  "Asia/Colombo": {
+    "zoneId": "Asia/Colombo",
+    "city": "Colombo",
+    "country": "Sri Lanka",
+    "continent": "Asia",
+    "latitude": 6.933333333333334,
+    "longitude": 79.85
+  },
+  "Asia/Kathmandu": {
+    "zoneId": "Asia/Kathmandu",
+    "city": "Kathmandu",
+    "country": "Nepal",
+    "continent": "Asia",
+    "latitude": 27.716666666666665,
+    "longitude": 85.31666666666666
+  },
+  "Asia/Dhaka": {
+    "zoneId": "Asia/Dhaka",
+    "city": "Dhaka",
+    "country": "Bangladesh",
+    "continent": "Asia",
+    "latitude": 23.716666666666665,
+    "longitude": 90.41666666666667
+  },
+  "Asia/Thimphu": {
+    "zoneId": "Asia/Thimphu",
+    "city": "Thimphu",
+    "country": "Bhutan",
+    "continent": "Asia",
+    "latitude": 27.466666666666665,
+    "longitude": 89.65
+  },
+  "Indian/Chagos": {
+    "zoneId": "Indian/Chagos",
+    "city": "Chagos",
+    "country": "British Indian Ocean Territory",
+    "continent": "Indian",
+    "latitude": -7.333333333333333,
+    "longitude": 72.41666666666667
+  },
+  "Asia/Urumqi": {
+    "zoneId": "Asia/Urumqi",
+    "city": "Urumqi",
+    "country": "China",
+    "continent": "Asia",
+    "latitude": 43.8,
+    "longitude": 87.58333333333333
+  },
+  "Asia/Bishkek": {
+    "zoneId": "Asia/Bishkek",
+    "city": "Bishkek",
+    "country": "Kyrgyzstan",
+    "continent": "Asia",
+    "latitude": 42.9,
+    "longitude": 74.6
+  },
+  "Asia/Omsk": {
+    "zoneId": "Asia/Omsk",
+    "city": "Omsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 55,
+    "longitude": 73.4
+  },
+  "Indian/Cocos": {
+    "zoneId": "Indian/Cocos",
+    "city": "Cocos",
+    "country": "Cocos (Keeling) Islands",
+    "continent": "Indian",
+    "latitude": -12.166666666666666,
+    "longitude": 96.91666666666667
+  },
+  "Asia/Yangon": {
+    "zoneId": "Asia/Yangon",
+    "city": "Yangon",
+    "country": "Myanmar (Burma)",
+    "continent": "Asia",
+    "latitude": 16.783333333333335,
+    "longitude": 96.16666666666667
+  },
+  "Antarctica/Davis": {
+    "zoneId": "Antarctica/Davis",
+    "city": "Davis",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -68.58333333333333,
+    "longitude": 77.96666666666667
+  },
+  "Asia/Phnom_Penh": {
+    "zoneId": "Asia/Phnom_Penh",
+    "city": "Phnom Penh",
+    "country": "Cambodia",
+    "continent": "Asia",
+    "latitude": 11.55,
+    "longitude": 104.91666666666667
+  },
+  "Indian/Christmas": {
+    "zoneId": "Indian/Christmas",
+    "city": "Christmas",
+    "country": "Christmas Island",
+    "continent": "Indian",
+    "latitude": -10.416666666666666,
+    "longitude": 105.71666666666667
+  },
+  "Asia/Jakarta": {
+    "zoneId": "Asia/Jakarta",
+    "city": "Jakarta",
+    "country": "Indonesia",
+    "continent": "Asia",
+    "latitude": -6.166666666666667,
+    "longitude": 106.8
+  },
+  "Asia/Pontianak": {
+    "zoneId": "Asia/Pontianak",
+    "city": "Pontianak",
+    "country": "Indonesia",
+    "continent": "Asia",
+    "latitude": -0.03333333333333333,
+    "longitude": 109.33333333333333
+  },
+  "Asia/Vientiane": {
+    "zoneId": "Asia/Vientiane",
+    "city": "Vientiane",
+    "country": "Laos",
+    "continent": "Asia",
+    "latitude": 17.966666666666665,
+    "longitude": 102.6
+  },
+  "Asia/Hovd": {
+    "zoneId": "Asia/Hovd",
+    "city": "Hovd",
+    "country": "Mongolia",
+    "continent": "Asia",
+    "latitude": 48.016666666666666,
+    "longitude": 91.65
+  },
+  "Asia/Barnaul": {
+    "zoneId": "Asia/Barnaul",
+    "city": "Barnaul",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 53.36666666666667,
+    "longitude": 83.75
+  },
+  "Asia/Krasnoyarsk": {
+    "zoneId": "Asia/Krasnoyarsk",
+    "city": "Krasnoyarsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 56.016666666666666,
+    "longitude": 92.83333333333333
+  },
+  "Asia/Novokuznetsk": {
+    "zoneId": "Asia/Novokuznetsk",
+    "city": "Novokuznetsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 53.75,
+    "longitude": 87.11666666666666
+  },
+  "Asia/Novosibirsk": {
+    "zoneId": "Asia/Novosibirsk",
+    "city": "Novosibirsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 55.03333333333333,
+    "longitude": 82.91666666666667
+  },
+  "Asia/Tomsk": {
+    "zoneId": "Asia/Tomsk",
+    "city": "Tomsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 56.5,
+    "longitude": 84.96666666666667
+  },
+  "Asia/Bangkok": {
+    "zoneId": "Asia/Bangkok",
+    "city": "Bangkok",
+    "country": "Thailand",
+    "continent": "Asia",
+    "latitude": 13.75,
+    "longitude": 100.51666666666667
+  },
+  "Asia/Ho_Chi_Minh": {
+    "zoneId": "Asia/Ho_Chi_Minh",
+    "city": "Ho Chi Minh",
+    "country": "Vietnam",
+    "continent": "Asia",
+    "latitude": 10.75,
+    "longitude": 106.66666666666667
+  },
+  "Antarctica/Casey": {
+    "zoneId": "Antarctica/Casey",
+    "city": "Casey",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -66.28333333333333,
+    "longitude": 110.51666666666667
+  },
+  "Australia/Perth": {
+    "zoneId": "Australia/Perth",
+    "city": "Perth",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -31.95,
+    "longitude": 115.85
+  },
+  "Asia/Brunei": {
+    "zoneId": "Asia/Brunei",
+    "city": "Brunei",
+    "country": "Brunei",
+    "continent": "Asia",
+    "latitude": 4.933333333333334,
+    "longitude": 114.91666666666667
+  },
+  "Asia/Shanghai": {
+    "zoneId": "Asia/Shanghai",
+    "city": "Shanghai",
+    "country": "China",
+    "continent": "Asia",
+    "latitude": 31.233333333333334,
+    "longitude": 121.46666666666667
+  },
+  "Asia/Hong_Kong": {
+    "zoneId": "Asia/Hong_Kong",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "continent": "Asia",
+    "latitude": 22.283333333333335,
+    "longitude": 114.15
+  },
+  "Asia/Makassar": {
+    "zoneId": "Asia/Makassar",
+    "city": "Makassar",
+    "country": "Indonesia",
+    "continent": "Asia",
+    "latitude": -5.116666666666666,
+    "longitude": 119.4
+  },
+  "Asia/Macau": {
+    "zoneId": "Asia/Macau",
+    "city": "Macau",
+    "country": "Macau",
+    "continent": "Asia",
+    "latitude": 22.197222222222223,
+    "longitude": 113.54166666666667
+  },
+  "Asia/Kuala_Lumpur": {
+    "zoneId": "Asia/Kuala_Lumpur",
+    "city": "Kuala Lumpur",
+    "country": "Malaysia",
+    "continent": "Asia",
+    "latitude": 3.1666666666666665,
+    "longitude": 101.7
+  },
+  "Asia/Kuching": {
+    "zoneId": "Asia/Kuching",
+    "city": "Kuching",
+    "country": "Malaysia",
+    "continent": "Asia",
+    "latitude": 1.55,
+    "longitude": 110.33333333333333
+  },
+  "Asia/Ulaanbaatar": {
+    "zoneId": "Asia/Ulaanbaatar",
+    "city": "Ulaanbaatar",
+    "country": "Mongolia",
+    "continent": "Asia",
+    "latitude": 47.916666666666664,
+    "longitude": 106.88333333333334
+  },
+  "Asia/Manila": {
+    "zoneId": "Asia/Manila",
+    "city": "Manila",
+    "country": "Philippines",
+    "continent": "Asia",
+    "latitude": 14.583333333333334,
+    "longitude": 121
+  },
+  "Asia/Irkutsk": {
+    "zoneId": "Asia/Irkutsk",
+    "city": "Irkutsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 52.266666666666666,
+    "longitude": 104.33333333333333
+  },
+  "Asia/Singapore": {
+    "zoneId": "Asia/Singapore",
+    "city": "Singapore",
+    "country": "Singapore",
+    "continent": "Asia",
+    "latitude": 1.2833333333333334,
+    "longitude": 103.85
+  },
+  "Asia/Taipei": {
+    "zoneId": "Asia/Taipei",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "continent": "Asia",
+    "latitude": 25.05,
+    "longitude": 121.5
+  },
+  "Australia/Eucla": {
+    "zoneId": "Australia/Eucla",
+    "city": "Eucla",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -31.716666666666665,
+    "longitude": 128.86666666666667
+  },
+  "Asia/Dili": {
+    "zoneId": "Asia/Dili",
+    "city": "Dili",
+    "country": "East Timor",
+    "continent": "Asia",
+    "latitude": -8.55,
+    "longitude": 125.58333333333333
+  },
+  "Asia/Jayapura": {
+    "zoneId": "Asia/Jayapura",
+    "city": "Jayapura",
+    "country": "Indonesia",
+    "continent": "Asia",
+    "latitude": -2.533333333333333,
+    "longitude": 140.7
+  },
+  "Asia/Tokyo": {
+    "zoneId": "Asia/Tokyo",
+    "city": "Tokyo",
+    "country": "Japan",
+    "continent": "Asia",
+    "latitude": 35.654444444444444,
+    "longitude": 139.7447222222222
+  },
+  "Asia/Pyongyang": {
+    "zoneId": "Asia/Pyongyang",
+    "city": "Pyongyang",
+    "country": "Korea (North)",
+    "continent": "Asia",
+    "latitude": 39.016666666666666,
+    "longitude": 125.75
+  },
+  "Asia/Seoul": {
+    "zoneId": "Asia/Seoul",
+    "city": "Seoul",
+    "country": "Korea (South)",
+    "continent": "Asia",
+    "latitude": 37.55,
+    "longitude": 126.96666666666667
+  },
+  "Pacific/Palau": {
+    "zoneId": "Pacific/Palau",
+    "city": "Palau",
+    "country": "Palau",
+    "continent": "Pacific",
+    "latitude": 7.333333333333333,
+    "longitude": 134.48333333333332
+  },
+  "Asia/Chita": {
+    "zoneId": "Asia/Chita",
+    "city": "Chita",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 52.05,
+    "longitude": 113.46666666666667
+  },
+  "Asia/Khandyga": {
+    "zoneId": "Asia/Khandyga",
+    "city": "Khandyga",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 62.65638888888889,
+    "longitude": 135.55388888888888
+  },
+  "Asia/Yakutsk": {
+    "zoneId": "Asia/Yakutsk",
+    "city": "Yakutsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 62,
+    "longitude": 129.66666666666666
+  },
+  "Australia/Adelaide": {
+    "zoneId": "Australia/Adelaide",
+    "city": "Adelaide",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -34.916666666666664,
+    "longitude": 138.58333333333334
+  },
+  "Australia/Broken_Hill": {
+    "zoneId": "Australia/Broken_Hill",
+    "city": "Broken Hill",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -31.95,
+    "longitude": 141.45
+  },
+  "Australia/Darwin": {
+    "zoneId": "Australia/Darwin",
+    "city": "Darwin",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -12.466666666666667,
+    "longitude": 130.83333333333334
+  },
+  "Antarctica/DumontDUrville": {
+    "zoneId": "Antarctica/DumontDUrville",
+    "city": "Dumont-d\u0027Urville",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -66.66666666666667,
+    "longitude": 140.01666666666668
+  },
+  "Australia/Brisbane": {
+    "zoneId": "Australia/Brisbane",
+    "city": "Brisbane",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -27.466666666666665,
+    "longitude": 153.03333333333333
+  },
+  "Australia/Hobart": {
+    "zoneId": "Australia/Hobart",
+    "city": "Hobart",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -42.88333333333333,
+    "longitude": 147.31666666666666
+  },
+  "Australia/Lindeman": {
+    "zoneId": "Australia/Lindeman",
+    "city": "Lindeman",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -20.266666666666666,
+    "longitude": 149
+  },
+  "Antarctica/Macquarie": {
+    "zoneId": "Antarctica/Macquarie",
+    "city": "Macquarie",
+    "country": "Australia",
+    "continent": "Antarctica",
+    "latitude": -54.5,
+    "longitude": 158.95
+  },
+  "Australia/Melbourne": {
+    "zoneId": "Australia/Melbourne",
+    "city": "Melbourne",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -37.81666666666667,
+    "longitude": 144.96666666666667
+  },
+  "Australia/Sydney": {
+    "zoneId": "Australia/Sydney",
+    "city": "Sydney",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -33.86666666666667,
+    "longitude": 151.21666666666667
+  },
+  "Pacific/Guam": {
+    "zoneId": "Pacific/Guam",
+    "city": "Guam",
+    "country": "Guam",
+    "continent": "Pacific",
+    "latitude": 13.466666666666667,
+    "longitude": 144.75
+  },
+  "Pacific/Chuuk": {
+    "zoneId": "Pacific/Chuuk",
+    "city": "Chuuk",
+    "country": "Micronesia",
+    "continent": "Pacific",
+    "latitude": 7.416666666666667,
+    "longitude": 151.78333333333333
+  },
+  "Pacific/Saipan": {
+    "zoneId": "Pacific/Saipan",
+    "city": "Saipan",
+    "country": "Northern Mariana Islands",
+    "continent": "Pacific",
+    "latitude": 15.2,
+    "longitude": 145.75
+  },
+  "Pacific/Port_Moresby": {
+    "zoneId": "Pacific/Port_Moresby",
+    "city": "Port Moresby",
+    "country": "Papua New Guinea",
+    "continent": "Pacific",
+    "latitude": -9.5,
+    "longitude": 147.16666666666666
+  },
+  "Asia/Ust-Nera": {
+    "zoneId": "Asia/Ust-Nera",
+    "city": "Ust-Nera",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 64.56027777777778,
+    "longitude": 143.22666666666666
+  },
+  "Asia/Vladivostok": {
+    "zoneId": "Asia/Vladivostok",
+    "city": "Vladivostok",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 43.166666666666664,
+    "longitude": 131.93333333333334
+  },
+  "Australia/Lord_Howe": {
+    "zoneId": "Australia/Lord_Howe",
+    "city": "Lord Howe",
+    "country": "Australia",
+    "continent": "Australia",
+    "latitude": -31.55,
+    "longitude": 159.08333333333334
+  },
+  "Pacific/Kosrae": {
+    "zoneId": "Pacific/Kosrae",
+    "city": "Kosrae",
+    "country": "Micronesia",
+    "continent": "Pacific",
+    "latitude": 5.316666666666666,
+    "longitude": 162.98333333333332
+  },
+  "Pacific/Pohnpei": {
+    "zoneId": "Pacific/Pohnpei",
+    "city": "Pohnpei",
+    "country": "Micronesia",
+    "continent": "Pacific",
+    "latitude": 6.966666666666667,
+    "longitude": 158.21666666666667
+  },
+  "Pacific/Noumea": {
+    "zoneId": "Pacific/Noumea",
+    "city": "Noumea",
+    "country": "New Caledonia",
+    "continent": "Pacific",
+    "latitude": -22.266666666666666,
+    "longitude": 166.45
+  },
+  "Pacific/Norfolk": {
+    "zoneId": "Pacific/Norfolk",
+    "city": "Norfolk",
+    "country": "Norfolk Island",
+    "continent": "Pacific",
+    "latitude": -29.05,
+    "longitude": 167.96666666666667
+  },
+  "Pacific/Bougainville": {
+    "zoneId": "Pacific/Bougainville",
+    "city": "Bougainville",
+    "country": "Papua New Guinea",
+    "continent": "Pacific",
+    "latitude": -6.216666666666667,
+    "longitude": 155.56666666666666
+  },
+  "Asia/Magadan": {
+    "zoneId": "Asia/Magadan",
+    "city": "Magadan",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 59.56666666666667,
+    "longitude": 150.8
+  },
+  "Asia/Sakhalin": {
+    "zoneId": "Asia/Sakhalin",
+    "city": "Sakhalin",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 46.96666666666667,
+    "longitude": 142.7
+  },
+  "Asia/Srednekolymsk": {
+    "zoneId": "Asia/Srednekolymsk",
+    "city": "Srednekolymsk",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 67.46666666666667,
+    "longitude": 153.71666666666667
+  },
+  "Pacific/Guadalcanal": {
+    "zoneId": "Pacific/Guadalcanal",
+    "city": "Guadalcanal",
+    "country": "Solomon Islands",
+    "continent": "Pacific",
+    "latitude": -9.533333333333333,
+    "longitude": 160.2
+  },
+  "Pacific/Efate": {
+    "zoneId": "Pacific/Efate",
+    "city": "Efate",
+    "country": "Vanuatu",
+    "continent": "Pacific",
+    "latitude": -17.666666666666668,
+    "longitude": 168.41666666666666
+  },
+  "Antarctica/McMurdo": {
+    "zoneId": "Antarctica/McMurdo",
+    "city": "McMurdo",
+    "country": "Antarctica",
+    "continent": "Antarctica",
+    "latitude": -77.83333333333333,
+    "longitude": 166.6
+  },
+  "Pacific/Fiji": {
+    "zoneId": "Pacific/Fiji",
+    "city": "Fiji",
+    "country": "Fiji",
+    "continent": "Pacific",
+    "latitude": -18.133333333333333,
+    "longitude": 178.41666666666666
+  },
+  "Pacific/Tarawa": {
+    "zoneId": "Pacific/Tarawa",
+    "city": "Tarawa",
+    "country": "Kiribati",
+    "continent": "Pacific",
+    "latitude": 1.4166666666666667,
+    "longitude": 173
+  },
+  "Pacific/Kwajalein": {
+    "zoneId": "Pacific/Kwajalein",
+    "city": "Kwajalein",
+    "country": "Marshall Islands",
+    "continent": "Pacific",
+    "latitude": 9.083333333333334,
+    "longitude": 167.33333333333334
+  },
+  "Pacific/Majuro": {
+    "zoneId": "Pacific/Majuro",
+    "city": "Majuro",
+    "country": "Marshall Islands",
+    "continent": "Pacific",
+    "latitude": 7.15,
+    "longitude": 171.2
+  },
+  "Pacific/Nauru": {
+    "zoneId": "Pacific/Nauru",
+    "city": "Nauru",
+    "country": "Nauru",
+    "continent": "Pacific",
+    "latitude": -0.5166666666666667,
+    "longitude": 166.91666666666666
+  },
+  "Pacific/Auckland": {
+    "zoneId": "Pacific/Auckland",
+    "city": "Auckland",
+    "country": "New Zealand",
+    "continent": "Pacific",
+    "latitude": -36.86666666666667,
+    "longitude": 174.76666666666668
+  },
+  "Asia/Anadyr": {
+    "zoneId": "Asia/Anadyr",
+    "city": "Anadyr",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 64.75,
+    "longitude": 177.48333333333332
+  },
+  "Asia/Kamchatka": {
+    "zoneId": "Asia/Kamchatka",
+    "city": "Kamchatka",
+    "country": "Russia",
+    "continent": "Asia",
+    "latitude": 53.016666666666666,
+    "longitude": 158.65
+  },
+  "Pacific/Funafuti": {
+    "zoneId": "Pacific/Funafuti",
+    "city": "Funafuti",
+    "country": "Tuvalu",
+    "continent": "Pacific",
+    "latitude": -8.516666666666667,
+    "longitude": 179.21666666666667
+  },
+  "Pacific/Wake": {
+    "zoneId": "Pacific/Wake",
+    "city": "Wake",
+    "country": "US minor outlying islands",
+    "continent": "Pacific",
+    "latitude": 19.283333333333335,
+    "longitude": 166.61666666666667
+  },
+  "Pacific/Wallis": {
+    "zoneId": "Pacific/Wallis",
+    "city": "Wallis",
+    "country": "Wallis \u0026 Futuna",
+    "continent": "Pacific",
+    "latitude": -13.3,
+    "longitude": -176.16666666666666
+  },
+  "Pacific/Chatham": {
+    "zoneId": "Pacific/Chatham",
+    "city": "Chatham",
+    "country": "New Zealand",
+    "continent": "Pacific",
+    "latitude": -43.95,
+    "longitude": -176.55
+  },
+  "Pacific/Kanton": {
+    "zoneId": "Pacific/Kanton",
+    "city": "Kanton",
+    "country": "Kiribati",
+    "continent": "Pacific",
+    "latitude": -2.783333333333333,
+    "longitude": -171.71666666666667
+  },
+  "Pacific/Apia": {
+    "zoneId": "Pacific/Apia",
+    "city": "Apia",
+    "country": "Samoa (western)",
+    "continent": "Pacific",
+    "latitude": -13.833333333333334,
+    "longitude": -171.73333333333332
+  },
+  "Pacific/Fakaofo": {
+    "zoneId": "Pacific/Fakaofo",
+    "city": "Fakaofo",
+    "country": "Tokelau",
+    "continent": "Pacific",
+    "latitude": -9.366666666666667,
+    "longitude": -171.23333333333332
+  },
+  "Pacific/Tongatapu": {
+    "zoneId": "Pacific/Tongatapu",
+    "city": "Tongatapu",
+    "country": "Tonga",
+    "continent": "Pacific",
+    "latitude": -21.133333333333333,
+    "longitude": -175.2
+  },
+  "Pacific/Kiritimati": {
+    "zoneId": "Pacific/Kiritimati",
+    "city": "Kiritimati",
+    "country": "Kiribati",
+    "continent": "Pacific",
+    "latitude": 1.8666666666666667,
+    "longitude": -157.33333333333334
+  }
+}

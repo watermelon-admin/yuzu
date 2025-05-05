@@ -1,0 +1,209 @@
+<div class="d-flex align-items-center justify-content-between pt-xl-1 mb-3 pb-3">
+    <h1 class="h2 mb-0 mt-4">Time Zones</h1>
+    <button type="button" class="btn btn-primary px-3 px-sm-4" onclick="window.showTimeZonesModal();" id="add-time-zones-button">
+        <i id="add-new-timezone-button" class="bx bx-globe fs-xl me-sm-2"></i>
+        <span class="d-none d-sm-inline">Add Time Zones</span>
+    </button>
+</div>
+
+
+<!-- Item Display Container -->
+<div id="time-zone-container" class="row row-cols-1 row-cols-sm-2 gx-3 gy-3" data-loaded="false">
+    <!-- Timezones will be dynamically inserted here -->
+    <!-- data-loaded attribute prevents multiple initializations -->
+</div>
+
+<!-- Pagination Controls -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mt-4" id="time-zones-pagination-controls">
+        <!-- Pagination items will be added here via JavaScript -->
+    </ul>
+</nav>
+
+<!-- Time zone card templates -->
+<template id="time-zone-card-template">
+    <div class="col pb-lg-2 mb-4">
+        <article class="card settings-card h-100">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
+                    <span class="card-city-country"></span>
+                </h5>
+                <p class="card-text card-continent mb-0"></p>
+                <p class="card-text text-muted small card-utc-offset"></p>
+                <p class="card-text text-primary small card-weather-info mt-1 d-none"></p>
+            </div>
+            <div class="card-footer d-flex align-items-center py-3">
+                <div class="d-flex">
+                    <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-2">
+                        <i class="bx bx-home fs-xl me-1"></i>
+                        <span class="d-none d-md-inline">Set as Home</span>
+                    </button>
+                    <button type="button" class="card-info-button btn btn-sm btn-outline-primary me-2">
+                        <i class="bx bx-info-circle fs-xl me-1"></i>
+                        <span class="d-none d-md-inline">Info</span>
+                    </button>
+                    <button type="button" class="card-delete-button btn btn-sm btn-outline-danger">
+                        <i class="bx bx-trash-alt fs-xl me-1"></i>
+                        <span class="d-none d-md-inline">Delete</span>
+                    </button>
+                </div>
+            </div>
+        </article>
+    </div>
+</template>
+
+<!-- Home time zone card template (without buttons) -->
+<template id="home-time-zone-card-template">
+    <div class="col pb-lg-2 mb-4">
+        <article class="card settings-card h-100 border-primary">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
+                    <span class="card-city-country"></span>
+                    <span class="badge bg-primary ms-2">Home</span>
+                </h5>
+                <p class="card-text card-continent mb-0"></p>
+                <p class="card-text text-muted small card-utc-offset"></p>
+                <p class="card-text text-primary small card-weather-info mt-1 d-none"></p>
+            </div>
+            <div class="card-footer d-flex align-items-center py-3">
+                <div class="d-flex">
+                    <button type="button" class="card-info-button btn btn-sm btn-outline-primary">
+                        <i class="bx bx-info-circle fs-xl me-1"></i>
+                        <span class="d-none d-md-inline">Info</span>
+                    </button>
+                </div>
+            </div>
+
+        </article>
+    </div>
+</template>
+
+
+<!-- Time Zones Modal -->
+<div id="time-zones-search-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="time-zones-search-modal-title" aria-modal="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content d-flex flex-column">
+            <div class="modal-header">
+                <h2 class="modal-title" id="time-zones-search-modal-title">Search and Add a Time Zone</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close dialog"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body d-flex flex-column flex-grow-1">
+                <!-- Centered Floating label: Text input -->
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="form-floating" style="width: 40%;">
+                        <div class="input-group">
+                            <label for="time-zones-search-term" class="visually-hidden">Search for a timezone</label>
+                            <input id="time-zones-search-term" class="form-control" type="text" placeholder="Please enter a city, country or continent" aria-label="Search for a timezone" aria-controls="time-zone-table-body" aria-describedby="time-zones-search-instructions">
+                            <button id="time-zones-search-button" class="btn btn-primary" aria-label="Search timezones">
+                                <i class="fa-solid fa-magnifying-glass me-2"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search instructions and keyboard shortcuts -->
+                <div id="time-zones-search-instructions" class="visually-hidden">
+                    Press Enter to search. Use up and down arrow keys to navigate results. Press Enter to select a timezone, or Space to preview it.
+                </div>
+
+                <!-- Live region for search results -->
+                <div class="visually-hidden" role="status" aria-live="polite" id="time-zones-search-results"></div>
+
+                <!-- Light table -->
+                <div class="table-responsive flex-grow-1" style="padding: 10px; box-sizing: border-box; scrollbar-gutter: stable both-edges;">
+                    <table id="time-zones-search-table" class="table table-hover" role="listbox" aria-label="Available timezones" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 20%;">Continent</th>
+                                <th scope="col" style="width: 20%;">Country</th>
+                                <th scope="col" style="width: 30%;">City</th>
+                                <th scope="col" style="width: 10%;">UTC Offset</th>
+                                <th scope="col" style="width: 20%;">Alias</th>
+                            </tr>
+                        </thead>
+                        <tbody id="time-zones-search-table-body">
+                            <!-- Search results will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                <nav aria-label="Timezone search results pages">
+                    <ul class="pagination justify-content-center mt-4" id="time-zones-search-pagination-controls">
+                        <!-- Pagination items will be added here dynamically -->
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button id="time-zones-search-cancel-button" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+                <button id="time-zones-search-select-button" type="button" class="btn btn-secondary" aria-label="Select timezone">Select Timezone</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Zone Info Modal -->
+<div id="time-zones-info-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="time-zones-info-modal-title" aria-modal="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="time-zones-info-modal-title">Time Zone Information</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close dialog"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="fw-semibold mb-3">Basic Information</h5>
+                                <table class="table table-borderless mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-40">Location:</th>
+                                            <td id="tz-info-location">Loading...</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Continent:</th>
+                                            <td id="tz-info-continent">Loading...</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">IANA ID:</th>
+                                            <td id="tz-info-id">Loading...</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">UTC Offset:</th>
+                                            <td id="tz-info-offset">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="fw-semibold mb-3">Current Time</h5>
+                                <div class="text-center mb-2">
+                                    <h3 id="tz-info-current-time" class="display-6 mb-0">--:--:--</h3>
+                                    <p id="tz-info-current-date" class="text-muted">Loading...</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="mb-0">
+                                        <span id="tz-info-time-difference" class="badge bg-secondary">Loading...</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

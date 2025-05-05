@@ -1,0 +1,141 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialLight.cshtml" />
+
+    <!-- Page content -->
+    <section class="position-relative h-100 pt-5 pb-4">
+
+        <!-- Sign up form -->
+        <div class="container d-flex flex-wrap justify-content-center justify-content-xl-start h-100 pt-5">
+            <div class="w-100 align-self-start pt-1 pt-md-4 pb-4" style="max-width: 526px;">
+                <h1 class="text-center text-xl-start">Let's Get You Set Up.</h1>
+                <p class="text-center text-xl-start pb-3 mb-3">Please provide us with a few details to get registered. Already have an account? <a href="~/account/login">Sign in here.</a></p>
+                <form novalidate id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="position-relative mb-4">
+                                <label asp-for="Input.Email" class="form-label fs-base">Email</label>
+                                <input asp-for="Input.Email" type="email" id="inputEmail" class="form-control form-control-lg">
+                                <div class="position-absolute start-0 top-100 fs-sm text-danger">
+                                    <span asp-validation-for="Input.Email"></span>
+                                </div>
+                            </div>
+                            <input asp-for="Input.TimeZoneId" type="hidden" id="inputTimeZoneId">
+                        </div>
+                        <div class="col-12 mb-4">
+                            <label asp-for="Input.Password" class="form-label fs-base">Password</label>
+                            <div class="password-toggle">
+                                <input asp-for="Input.Password" type="password" id="inputPassword" class="form-control form-control-lg">
+                                <label class="password-toggle-btn" aria-label="Show/hide password">
+                                    <input class="password-toggle-check" type="checkbox">
+                                    <div class="password-toggle-indicator"></div>
+                                </label>
+                                <div class="position-absolute start-0 top-100 fs-sm text-danger">
+                                    <span asp-validation-for="Input.Password"></span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <label asp-for="Input.ConfirmPassword" class="form-label fs-base">Confirm password</label>
+                            <div class="password-toggle">
+                                <input asp-for="Input.ConfirmPassword" type="password" id="password-confirm" class="form-control form-control-lg">
+                                <label class="password-toggle-btn" aria-label="Show/hide password">
+                                    <input class="password-toggle-check" type="checkbox">
+                                    <span class="password-toggle-indicator"></span>
+                                </label>
+                                <div class="position-absolute start-0 top-100 fs-sm text-danger">
+                                    <span asp-validation-for="Input.ConfirmPassword"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input asp-for="Input.AcceptTerms" type="checkbox" id="terms" class="form-check-input">
+                            <label asp-for="Input.AcceptTerms" class="form-check-label">&nbsp;&nbsp;I agree to the <a href="~/Terms">Terms &amp; Conditions</a>.</label>
+                            <span class="fs-sm text-danger ms-2" asp-validation-for="Input.AcceptTerms"></span>
+                        </div>
+                    </div>
+                    <button id="registerSubmit" type="submit" class="btn btn-primary shadow-primary btn-lg w-100">Sign up</button>
+                </form>
+                @if (!ModelState.IsValid)
+                {
+                    <div class="alert d-flex alert-danger mt-3 mb-3" role="alert">
+                        <i class="bx bx-bell lead me-3"></i>
+                        <div>
+                            @Html.ValidationSummary()
+                        </div>
+                    </div>
+                }
+                <hr class="my-4">
+                <h6 class="text-center mb-4">Or sign in with an existing account</h6>
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                    <div class="row row-cols-1 row-cols-sm-2">
+                        <div class="col mb-3">
+                            <button type="submit" name="provider" value="Google" class="btn btn-icon btn-secondary btn-google btn-lg w-100">
+                                <i class="bx bxl-google fs-xl me-2"></i>
+                                Google
+                            </button>
+                        </div>
+                        <div class="col mb-3">
+                            <button type="submit" name="provider" value="Microsoft" class="btn btn-icon btn-secondary btn-microsoft btn-lg w-100">
+                                <i class="bx bxl-microsoft fs-xl me-2"></i>
+                                Microsoft
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- Copyright -->
+            <partial name="~/Pages/Shared/_Copyright.cshtml" />
+        </div>
+
+        <!-- Background -->
+        <div class="position-absolute top-0 end-0 w-50 h-100 bg-position-center bg-repeat-0 bg-size-cover d-none d-xl-block" style="background-image: url(/img/account/signin-bg.jpg);"></div>
+    </section>
+</main>
+
+<!-- Back to top button -->
+<a href="#top" class="btn-scroll-top" data-scroll>
+    <span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Top</span>
+    <i class="btn-scroll-top-icon bx bx-chevron-up"></i>
+</a>
+
+<!-- Client-side validation -->
+@section scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Get IANA time zone from browser
+                const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                if (browserTimeZone) {
+                    document.getElementById('inputTimeZoneId').value = browserTimeZone;
+                } else {
+                    document.getElementById('inputTimeZoneId').value = 'UTC';
+                }
+            } catch (error) {
+                console.error('Error getting browser timezone:', error);
+                document.getElementById('inputTimeZoneId').value = 'UTC';
+            }
+        });
+    </script>
+}

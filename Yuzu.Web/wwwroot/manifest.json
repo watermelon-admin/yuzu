@@ -1,0 +1,53 @@
+{
+  "name": "breakscreen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#333",
+  "lang": "en-US",
+  "description": "Helps you provide beautiful break screens in online and real-world presentations.",
+  "icons": [
+    {
+      "src": "general-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "density": "3.0",
+      "purpose": "any"
+    },
+    {
+      "src": "android-chrome-36x36.jpg",
+      "sizes": "36x36",
+      "type": "image/jpeg",
+      "density": "0.75"
+    },
+    {
+      "src": "android-chrome-48x48.jpg",
+      "sizes": "48x48",
+      "type": "image/jpeg",
+      "density": "1.0"
+    },
+    {
+      "src": "android-chrome-72x72.jpg",
+      "sizes": "72x72",
+      "type": "image/jpeg",
+      "density": "1.5"
+    },
+    {
+      "src": "android-chrome-96x96.jpg",
+      "sizes": "96x96",
+      "type": "image/jpeg",
+      "density": "2.0"
+    },
+    {
+      "src": "android-chrome-144x144.jpg",
+      "sizes": "144x144",
+      "type": "image/jpeg",
+      "density": "3.0"
+    },
+    {
+      "src": "android-chrome-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "density": "4.0"
+    }
+  ]
+}

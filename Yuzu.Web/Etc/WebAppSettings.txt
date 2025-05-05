@@ -1,0 +1,23 @@
+# Identity Storage Config
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings IdentityStorageConfig__UseDevelopmentStorage="false"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings IdentityStorageConfig__StorageAccountName="styuzuauthdewc"
+
+# Data Storage Config
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings DataStorageConfig__UseDevelopmentStorage="false"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings DataStorageConfig__StorageAccountName="styuzudatadewc"
+
+# Static Storage Config
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings StaticStorageConfig__BackgroundImagesURL="https://assets.breakscreen.com/backgrounds"
+
+# Mail Connection Config
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__smtpServer="smtps.udag.de"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__ConfirmationHost="breakscreen.com"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__SenderName="BreakScreen Team"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__SenderEmail="info@breakscreen.com"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__smtpPassword="@Microsoft.KeyVault(SecretUri=https://kv-yuzu-dewc.vault.azure.net/secrets/SmtpPassword)"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__smtpUsername="@Microsoft.KeyVault(SecretUri=https://kv-yuzu-dewc.vault.azure.net/secrets/SmtpUsername)"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__NoReplySenderName="BreakScreen Automailer"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__NoReplySenderEmail="noreply@breakscreen.com"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__smtpNoReplyUsername="@Microsoft.KeyVault(SecretUri=https://kv-yuzu-dewc.vault.azure.net/secrets/SmtpNoReplyUsername)"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__smtpNoReplyPassword="@Microsoft.KeyVault(SecretUri=https://kv-yuzu-dewc.vault.azure.net/secrets/SmtpNoReplyPassword)"
+az webapp config appsettings set --name "app-yuzu-dewc" --resource-group "rg-yuzu-dewc" --settings MailConnectionConfig__smtpPort="465"

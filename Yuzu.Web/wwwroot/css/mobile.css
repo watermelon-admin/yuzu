@@ -1,0 +1,112 @@
+﻿/* roboto-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/roboto-v47-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+@media (orientation: landscape) {
+    #countdownBox {
+        flex-direction: row;
+    }
+
+    #countdownDivider {
+        display: block;
+    }
+
+    #breakTitle {
+        margin-bottom: 0;
+    }
+
+    #counterDivider {
+        display: block;
+    }
+
+    #counterMessage {
+        margin-left: 0.2em;
+    }
+
+    .mobile-timer-icon {
+        font-size: 15vw;
+    }
+
+    .mobile-break-title {
+        font-size: 6vw;
+    }
+
+    .mobile-timer-counter {
+        font-size: 6vw
+    }
+
+    .mobile-timer-message {
+        font-size: 6vw;
+    }
+
+}
+
+@media (orientation: portrait) {
+    #countdownBox {
+        flex-direction: column;
+    }
+
+    #counterDivider {
+        display: none;
+    }
+
+    #breakTitle {
+        margin-bottom: 0.7em;
+    }
+
+    #countdownDivider {
+        display: none;
+    }
+
+    .mobile-timer-icon {
+        font-size: 30vw;
+    }
+
+    .mobile-break-title {
+        font-size: 10vw;
+    }
+
+    .mobile-timer-counter {
+        font-size: 21vw
+    }
+
+    .mobile-timer-message {
+        font-size: 10vw;
+    }
+}
+
+html, body {
+    height: 100%;
+    font-family: Roboto;
+    color: white;
+}
+
+#countdownBox {
+    height: 100%;
+    text-shadow: none;
+}
+
+.mobile-time-sync {
+    color: white;
+    background-color: dimgray;
+}
+
+.mobile-time-info {
+    color: white;
+    background-color: forestgreen;
+}
+
+.mobile-time-warning {
+    color: black;
+    background-color: orange;
+}
+
+.mobile-time-alert {
+    color: white;
+    background-color: red;
+}

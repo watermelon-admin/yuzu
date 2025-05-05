@@ -1,0 +1,64 @@
+﻿@page
+@model Yuzu.Web.Pages.MobileModel
+@{
+	Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Mobile Timer</title>
+
+	<!-- Google Fonts -->
+	<link rel="preload" href="~/fonts/roboto-v30-latin-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+	<!-- Font Awesome -->
+	<script src="https://kit.fontawesome.com/efabdf2ff0.js" crossorigin="anonymous"></script>
+	<!-- Bootstrap -->	
+	<link rel="stylesheet" type="text/css" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
+	<script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+	<!-- Local styles -->
+	<link rel="stylesheet" type="text/css" href="~/css/mobile.css" />
+</head>
+
+<body class="d-flex align-items-center justify-content-center mobile-time-info">
+
+	<script src="~/js/luxon/luxon.min.js"></script>
+	<script type="module" src="~/js/pages/mobile/mobile.js"></script>
+
+	<input type="hidden" id="breakEndTimeUnixTimestamp" value="@(Model.BreakDetails != null ? new DateTimeOffset(Model.BreakDetails.EndTime).ToUnixTimeSeconds() : 0)" />
+	<input type="hidden" id="breakCountdownMessage" value="@(Model.BreakTypeDetails?.CountdownMessage ?? "")" />
+	<input type="hidden" id="breakCountdownEndMessage" value="@(Model.BreakTypeDetails?.CountdownEndMessage ?? "")" />
+
+	<div>
+		<div id="mainArea" class="d-flex flex-column justify-content-center align-items-center">
+			<div id="breakTitle" class="mobile-break-title">@(Model.BreakTypeDetails?.Name ?? "")</div>
+			<div class="flex-fill">
+				<div class="container-fluid h-100">
+					<div class="row h-100">
+						<div class="col-12 d-flex flex-column justify-content-center align-items-center ">
+							<div id="breakIconWrapper">
+								<i id="breakIcon" class="mt-4 fa-light @(Model.BreakTypeDetails?.IconName ?? "") mobile-timer-icon"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="flex-fill">
+				<div class="container-fluid h-100">
+					<div class="row h-100">
+						<div id="countdownBox" class="col-12 d-flex justify-content-center align-items-center">
+							<div id="counterTime" class="p-0 mobile-timer-counter"><span id="breakCounter"></span></div>
+							<div id="counterDivider" class="p-0 mobile-break-title">&nbsp;</div>
+							<div id="counterUnit" class="p-0 mobile-break-title"><span id="timeUnit"></span> left</div>
+							<div id="counterMessage" class="p-0 mobile-break-title"><span id="countdownMessage"></span></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>

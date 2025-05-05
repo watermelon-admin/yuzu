@@ -1,0 +1,303 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationInsightsResourceId>/subscriptions/c4f10b92-5d7f-4151-812d-1152adad7df2/resourceGroups/rg-yuzu-dewc/providers/microsoft.insights/components/app-yuzu-dewc</ApplicationInsightsResourceId>
+		<UserSecretsId>49c2ecd5-c7f1-4f1f-abce-824d2cc0e450</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Pages\NewFolder\**" />
+	  <Compile Remove="wwwroot\js\pages\settings\breaktypes\**" />
+	  <Compile Remove="wwwroot\js\pages\settings\timezones\**" />
+	  <Content Remove="Pages\NewFolder\**" />
+	  <Content Remove="wwwroot\js\pages\settings\breaktypes\**" />
+	  <Content Remove="wwwroot\js\pages\settings\timezones\**" />
+	  <EmbeddedResource Remove="Pages\NewFolder\**" />
+	  <EmbeddedResource Remove="wwwroot\js\pages\settings\breaktypes\**" />
+	  <EmbeddedResource Remove="wwwroot\js\pages\settings\timezones\**" />
+	  <None Remove="Pages\NewFolder\**" />
+	  <None Remove="wwwroot\js\pages\settings\breaktypes\**" />
+	  <None Remove="wwwroot\js\pages\settings\timezones\**" />
+	  <TypeScriptCompile Remove="Pages\NewFolder\**" />
+	  <TypeScriptCompile Remove="wwwroot\js\pages\settings\breaktypes\**" />
+	  <TypeScriptCompile Remove="wwwroot\js\pages\settings\timezones\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="WidgetComponent.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.Identity" Version="1.13.1" />
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
+		<PackageReference Include="AWSSDK.S3" Version="3.7.305.24" />
+		<!-- Replaced ElCamino.AspNetCore.Identity.AzureTable with Microsoft.AspNetCore.Identity.EntityFrameworkCore -->
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
+		<PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.8.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+		<PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="2.0.6" />
+		<PackageReference Include="NodaTime" Version="3.2.0" />
+		<PackageReference Include="NUglify" Version="1.21.11" />
+		<PackageReference Include="OpenTelemetry" Version="1.11.1" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.0" />
+		<PackageReference Include="SharpAbp.Abp.OpenTelemetry.Exporter.Otlp" Version="4.0.1" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
+		<PackageReference Include="System.Net.Http" Version="4.3.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\css\boxicons\animations.css" />
+	  <None Include="wwwroot\css\boxicons\boxicons.css" />
+	  <None Include="wwwroot\css\boxicons\boxicons.min.css" />
+	  <None Include="wwwroot\css\boxicons\transformations.css" />
+	  <None Include="wwwroot\css\fonts.css" />
+	  <None Include="wwwroot\css\fonts\boxicons.ttf" />
+	  <None Include="wwwroot\css\fonts\boxicons.woff" />
+	  <None Include="wwwroot\css\fonts\boxicons.woff2" />
+	  <None Include="wwwroot\css\swiper\swiper-bundle.min.css" />
+	  <None Include="wwwroot\css\theme.min.css" />
+	  <None Include="wwwroot\css\theme.min.css.map" />
+	  <None Include="wwwroot\css\yuzu.css" />
+	  <None Include="wwwroot\fonts\dekko-v21-latin-regular.woff2" />
+	  <None Include="wwwroot\fonts\fira-sans-v17-latin-regular.woff2" />
+	  <None Include="wwwroot\fonts\fredericka-the-great-v21-latin-regular.woff2" />
+	  <None Include="wwwroot\fonts\noto-serif-v23-latin-regular.woff2" />
+	  <None Include="wwwroot\fonts\roboto-v30-latin-regular.woff2" />
+	  <None Include="wwwroot\img\account\signin-bg.jpg" />
+	  <None Include="wwwroot\img\account\tutorial-thumb.jpg" />
+	  <None Include="wwwroot\img\avatar\01.jpg" />
+	  <None Include="wwwroot\img\avatar\02.jpg" />
+	  <None Include="wwwroot\img\avatar\03.jpg" />
+	  <None Include="wwwroot\img\avatar\04.jpg" />
+	  <None Include="wwwroot\img\avatar\05.jpg" />
+	  <None Include="wwwroot\img\avatar\06.jpg" />
+	  <None Include="wwwroot\img\avatar\07.jpg" />
+	  <None Include="wwwroot\img\avatar\08.jpg" />
+	  <None Include="wwwroot\img\avatar\09.jpg" />
+	  <None Include="wwwroot\img\avatar\10.jpg" />
+	  <None Include="wwwroot\img\avatar\11.jpg" />
+	  <None Include="wwwroot\img\avatar\12.jpg" />
+	  <None Include="wwwroot\img\avatar\13.jpg" />
+	  <None Include="wwwroot\img\avatar\14.jpg" />
+	  <None Include="wwwroot\img\avatar\15.jpg" />
+	  <None Include="wwwroot\img\avatar\16.jpg" />
+	  <None Include="wwwroot\img\avatar\17.jpg" />
+	  <None Include="wwwroot\img\avatar\18.jpg" />
+	  <None Include="wwwroot\img\avatar\19.jpg" />
+	  <None Include="wwwroot\img\avatar\20.jpg" />
+	  <None Include="wwwroot\img\avatar\21.jpg" />
+	  <None Include="wwwroot\img\avatar\22.jpg" />
+	  <None Include="wwwroot\img\avatar\23.jpg" />
+	  <None Include="wwwroot\img\avatar\24.jpg" />
+	  <None Include="wwwroot\img\avatar\25.jpg" />
+	  <None Include="wwwroot\img\avatar\26.jpg" />
+	  <None Include="wwwroot\img\avatar\27.jpg" />
+	  <None Include="wwwroot\img\avatar\28.jpg" />
+	  <None Include="wwwroot\img\avatar\29.jpg" />
+	  <None Include="wwwroot\img\avatar\30.jpg" />
+	  <None Include="wwwroot\img\avatar\31.jpg" />
+	  <None Include="wwwroot\img\avatar\32.jpg" />
+	  <None Include="wwwroot\img\avatar\33.jpg" />
+	  <None Include="wwwroot\img\avatar\34.jpg" />
+	  <None Include="wwwroot\img\avatar\35.jpg" />
+	  <None Include="wwwroot\img\avatar\36.jpg" />
+	  <None Include="wwwroot\img\avatar\37.jpg" />
+	  <None Include="wwwroot\img\avatar\38.jpg" />
+	  <None Include="wwwroot\img\avatar\39.jpg" />
+	  <None Include="wwwroot\img\avatar\40.jpg" />
+	  <None Include="wwwroot\img\avatar\41.jpg" />
+	  <None Include="wwwroot\img\avatar\42.png" />
+	  <None Include="wwwroot\img\avatar\43.png" />
+	  <None Include="wwwroot\img\avatar\44.png" />
+	  <None Include="wwwroot\img\avatar\45.png" />
+	  <None Include="wwwroot\img\avatar\46.png" />
+	  <None Include="wwwroot\img\avatar\47.png" />
+	  <None Include="wwwroot\img\avatar\48.jpg" />
+	  <None Include="wwwroot\img\avatar\49.jpg" />
+	  <None Include="wwwroot\img\avatar\50.jpg" />
+	  <None Include="wwwroot\img\avatar\51.jpg" />
+	  <None Include="wwwroot\img\avatar\52.jpg" />
+	  <None Include="wwwroot\img\avatar\53.jpg" />
+	  <None Include="wwwroot\img\avatar\54.jpg" />
+	  <None Include="wwwroot\img\avatar\55.jpg" />
+	  <None Include="wwwroot\img\avatar\56.jpg" />
+	  <None Include="wwwroot\img\avatar\user-sm.jpg" />
+	  <None Include="wwwroot\img\avatar\user.jpg" />
+	  <None Include="wwwroot\img\general\logo-watermelon.png" />
+	  <None Include="wwwroot\img\pages\hero\layer-01.png" />
+	  <None Include="wwwroot\img\pages\hero\layer-02.png" />
+	  <None Include="wwwroot\js\boxicons\boxicons.js" />
+	  <None Include="wwwroot\js\cleave\cleave.min.js" />
+	  <None Include="wwwroot\js\common\luxon-namespace.js" />
+	  <None Include="wwwroot\js\common\luxon-namespace.js.map" />
+	  <None Include="wwwroot\js\editor\actions.js" />
+	  <None Include="wwwroot\js\editor\actions.js.map" />
+	  <None Include="wwwroot\js\editor\addwidget.js" />
+	  <None Include="wwwroot\js\editor\addwidget.js.map" />
+	  <None Include="wwwroot\js\editor\appearance.js" />
+	  <None Include="wwwroot\js\editor\appearance.js.map" />
+	  <None Include="wwwroot\js\editor\arrange.js" />
+	  <None Include="wwwroot\js\editor\arrange.js.map" />
+	  <None Include="wwwroot\js\editor\boxwidget.js" />
+	  <None Include="wwwroot\js\editor\boxwidget.js.map" />
+	  <None Include="wwwroot\js\editor\break.js" />
+	  <None Include="wwwroot\js\editor\break.js.map" />
+	  <None Include="wwwroot\js\editor\canvas.js" />
+	  <None Include="wwwroot\js\editor\canvas.js.map" />
+	  <None Include="wwwroot\js\editor\clipboard.js" />
+	  <None Include="wwwroot\js\editor\clipboard.js.map" />
+	  <None Include="wwwroot\js\editor\command.js" />
+	  <None Include="wwwroot\js\editor\command.js.map" />
+	  <None Include="wwwroot\js\editor\commands.js" />
+	  <None Include="wwwroot\js\editor\commands.js.map" />
+	  <None Include="wwwroot\js\editor\constants.js" />
+	  <None Include="wwwroot\js\editor\constants.js.map" />
+	  <None Include="wwwroot\js\editor\editing.js" />
+	  <None Include="wwwroot\js\editor\editing.js.map" />
+	  <None Include="wwwroot\js\editor\editor.js" />
+	  <None Include="wwwroot\js\editor\editor.js.map" />
+	  <None Include="wwwroot\js\editor\globals.js" />
+	  <None Include="wwwroot\js\editor\globals.js.map" />
+	  <None Include="wwwroot\js\editor\group.js" />
+	  <None Include="wwwroot\js\editor\group.js.map" />
+	  <None Include="wwwroot\js\editor\groupwidget.js" />
+	  <None Include="wwwroot\js\editor\groupwidget.js.map" />
+	  <None Include="wwwroot\js\editor\interaction.js" />
+	  <None Include="wwwroot\js\editor\interaction.js.map" />
+	  <None Include="wwwroot\js\editor\keys.js" />
+	  <None Include="wwwroot\js\editor\keys.js.map" />
+	  <None Include="wwwroot\js\editor\moveresize.js" />
+	  <None Include="wwwroot\js\editor\moveresize.js.map" />
+	  <None Include="wwwroot\js\editor\palette.js" />
+	  <None Include="wwwroot\js\editor\palette.js.map" />
+	  <None Include="wwwroot\js\editor\placeholders.js" />
+	  <None Include="wwwroot\js\editor\placeholders.js.map" />
+	  <None Include="wwwroot\js\editor\preview.js" />
+	  <None Include="wwwroot\js\editor\preview.js.map" />
+	  <None Include="wwwroot\js\editor\qrwidget.js" />
+	  <None Include="wwwroot\js\editor\qrwidget.js.map" />
+	  <None Include="wwwroot\js\editor\removewidgets.js" />
+	  <None Include="wwwroot\js\editor\removewidgets.js.map" />
+	  <None Include="wwwroot\js\editor\setappearance.js" />
+	  <None Include="wwwroot\js\editor\setappearance.js.map" />
+	  <None Include="wwwroot\js\editor\stack.js" />
+	  <None Include="wwwroot\js\editor\stack.js.map" />
+	  <None Include="wwwroot\js\editor\stackorder.js" />
+	  <None Include="wwwroot\js\editor\stackorder.js.map" />
+	  <None Include="wwwroot\js\editor\storage.js" />
+	  <None Include="wwwroot\js\editor\storage.js.map" />
+	  <None Include="wwwroot\js\editor\textwidget.js" />
+	  <None Include="wwwroot\js\editor\textwidget.js.map" />
+	  <None Include="wwwroot\js\editor\timezones.js" />
+	  <None Include="wwwroot\js\editor\timezones.js.map" />
+	  <None Include="wwwroot\js\editor\tools.js" />
+	  <None Include="wwwroot\js\editor\tools.js.map" />
+	  <None Include="wwwroot\js\editor\undo.js" />
+	  <None Include="wwwroot\js\editor\undo.js.map" />
+	  <None Include="wwwroot\js\editor\widget.js" />
+	  <None Include="wwwroot\js\editor\widget.js.map" />
+	  <None Include="wwwroot\js\editor\widgets.js" />
+	  <None Include="wwwroot\js\editor\widgets.js.map" />
+	  <None Include="wwwroot\js\editor\widgetstore.js" />
+	  <None Include="wwwroot\js\editor\widgetstore.js.map" />
+	  <None Include="wwwroot\js\img-comparison-slider\index.js" />
+	  <None Include="wwwroot\js\img-comparison-slider\index.js.map" />
+	  <None Include="wwwroot\js\img-comparison-slider\styles.css" />
+	  <None Include="wwwroot\js\luxon\luxon.js" />
+	  <None Include="wwwroot\js\luxon\luxon.min.js" />
+	  <None Include="wwwroot\js\pages\countdown\countdown.js" />
+	  <None Include="wwwroot\js\pages\countdown\countdown.js.map" />
+	  <None Include="wwwroot\js\pages\start\start.js" />
+	  <None Include="wwwroot\js\pages\start\start.js.map" />
+	  <None Include="wwwroot\js\rellax\rellax.min.js" />
+	  <None Include="wwwroot\js\swiper\swiper-bundle.min.js" />
+	  <None Include="wwwroot\js\swiper\swiper-bundle.min.js.map" />
+	  <None Include="wwwroot\js\theme-switcher.js" />
+	  <None Include="wwwroot\js\theme.min.js" />
+	  <None Include="wwwroot\js\theme.min.js.map" />
+	  <None Include="wwwroot\js\vanilla-tilt\vanilla-tilt.min.js" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css" />
+	  <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js" />
+	  <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map" />
+	  <None Include="wwwroot\lib\bootstrap\LICENSE" />
+	  <None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js" />
+	  <None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
+	  <None Include="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
+	  <None Include="wwwroot\lib\jquery-validation\dist\additional-methods.js" />
+	  <None Include="wwwroot\lib\jquery-validation\dist\additional-methods.min.js" />
+	  <None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.js" />
+	  <None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.min.js" />
+	  <None Include="wwwroot\lib\jquery-validation\LICENSE.md" />
+	  <None Include="wwwroot\lib\jquery\dist\jquery.js" />
+	  <None Include="wwwroot\lib\jquery\dist\jquery.min.js" />
+	  <None Include="wwwroot\lib\jquery\dist\jquery.min.map" />
+	  <None Include="wwwroot\lib\jquery\LICENSE.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Yuzu.Data\Yuzu.Data.csproj" />
+	  <ProjectReference Include="..\Yuzu.Mail\Yuzu.Mail.csproj" />
+	  <ProjectReference Include="..\Yuzu.Payments\Yuzu.Payments.csproj" />
+	  <ProjectReference Include="..\Yuzu.ServiceDefaults\Yuzu.ServiceDefaults.csproj" />
+	  <ProjectReference Include="..\Yuzu.Time\Yuzu.Time.csproj" />
+	</ItemGroup>
+
+</Project>

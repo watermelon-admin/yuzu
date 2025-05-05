@@ -1,0 +1,44 @@
+﻿/* roboto-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/roboto-v30-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* noto-serif-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Noto Serif';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/noto-serif-v23-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* fira-sans-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Fira Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/fira-sans-v17-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Sa|fari 12+, iOS 10+ */
+}
+
+/* fredericka-the-great-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Fredericka the Great';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/fredericka-the-great-v21-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* dekko-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Dekko';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/dekko-v21-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}

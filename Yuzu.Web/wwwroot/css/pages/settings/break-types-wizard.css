@@ -1,0 +1,138 @@
+/* Wizard Styles */
+
+/* Fade animation for transitions */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Step Indicators */
+.wizard-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.wizard-progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.wizard-progress-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 2px solid #ced4da;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    color: #6c757d;
+}
+
+.wizard-progress-step.active .wizard-progress-step-number {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.wizard-progress-step.completed .wizard-progress-step-number {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.wizard-progress-step-label {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #6c757d;
+}
+
+.wizard-progress-step.active .wizard-progress-step-label {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.wizard-progress-step.completed .wizard-progress-step-label {
+    color: #198754;
+    font-weight: 500;
+}
+
+.wizard-progress-connector {
+    height: 2px;
+    background-color: #ced4da;
+    flex-grow: 1;
+    margin: 0 10px;
+    position: relative;
+    top: -20px;
+}
+
+/* Wizard Steps Content */
+.wizard-steps {
+    position: relative;
+    min-height: 400px;
+}
+
+.wizard-step {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.wizard-step.active {
+    display: block;
+    opacity: 1;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Backgrounds and Icons Selection */
+/* Add padding to swiper slides to allow space for hover effect */
+.swiper-slide {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.background-card,
+.icon-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-top: 5px; /* Add space at top to prevent cutoff during hover */
+}
+
+.background-card:hover,
+.icon-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.background-card.selected,
+.icon-card.selected {
+    border: 2px solid #0d6efd !important;
+    transform: translateY(-5px);
+}
+
+.select-background-btn,
+.select-icon-btn {
+    transition: all 0.2s ease;
+}
+
+/* Form Validation */
+.is-invalid:focus {
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.invalid-feedback {
+    display: none;
+}
+
+.is-invalid + .invalid-feedback {
+    display: block;
+}

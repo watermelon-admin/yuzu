@@ -1,0 +1,102 @@
+﻿@page
+@model EmailModel
+@{
+    ViewData["Title"] = "Manage Email";
+}
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialLight.cshtml" />
+
+    <!-- Page content -->
+    <section class="position-relative h-100 pt-5 pb-4">
+
+        <!-- Email management form -->
+        <div class="container d-flex flex-wrap justify-content-center justify-content-xl-start h-100 pt-5">
+            <div class="w-100 align-self-start pt-1 pt-md-4 pb-4" style="max-width: 526px;">
+                <h1 class="text-center text-xl-start">Manage Your Email</h1>
+                <p class="text-center text-xl-start pb-3 mb-3">Update your account email address.</p>
+
+                <partial name="~/Pages/Account/Manage/_StatusMessage.cshtml" for="StatusMessage" />
+
+                <form id="email-form" method="post" class="mb-2" novalidate>
+                    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+                    @if (Model.IsEmailConfirmed)
+                    {
+                        <div class="mb-4">
+                            <label class="form-label fs-base">Current email</label>
+                            <div class="input-group">
+                                <input asp-for="Email" class="form-control form-control-lg" disabled />
+                                <span class="input-group-text bg-success text-white"><i class="bx bx-check fs-5"></i></span>
+                            </div>
+                            <small class="text-muted">Your email is confirmed.</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label fs-base">Current email</label>
+                            <input asp-for="Email" class="form-control form-control-lg" disabled />
+                            <div class="d-flex align-items-center mt-2">
+                                <i class="bx bx-info-circle text-primary me-2"></i>
+                                <small class="text-muted">Email not confirmed. </small>
+                                <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link btn-sm p-0 ms-2">Send verification email</button>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="position-relative mb-4">
+                        <label asp-for="Input.NewEmail" class="form-label fs-base">New email</label>
+                        <input asp-for="Input.NewEmail" class="form-control form-control-lg" autocomplete="email" aria-required="true" placeholder="Enter your new email address" />
+                        <div class="position-absolute start-0 top-100 fs-sm text-danger">
+                            <span asp-validation-for="Input.NewEmail"></span>
+                        </div>
+                    </div>
+
+                    <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn btn-primary shadow-primary btn-lg w-100">Change email</button>
+                </form>
+
+                @if (!ModelState.IsValid)
+                {
+                    <div class="alert d-flex alert-danger mt-3 mb-3" role="alert">
+                        <i class="bx bx-bell lead me-3"></i>
+                        <div>
+                            @Html.ValidationSummary()
+                        </div>
+                    </div>
+                }
+
+                <div class="alert d-flex alert-info mt-4" role="alert">
+                    <i class="bx bx-info-circle lead me-3"></i>
+                    <div>
+                        When you change your email, you will need to confirm the new address before it becomes active.
+                    </div>
+                </div>
+            </div>
+            <!-- Copyright -->
+            <partial name="~/Pages/Shared/_Copyright.cshtml" />
+        </div>
+
+        <!-- Background -->
+        <div class="position-absolute top-0 end-0 w-50 h-100 bg-position-center bg-repeat-0 bg-size-cover d-none d-xl-block" style="background-image: url(/img/account/signin-bg.jpg);"></div>
+    </section>
+</main>
+
+<!-- Back to top button -->
+<a href="#top" class="btn-scroll-top" data-scroll>
+    <span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Top</span>
+    <i class="btn-scroll-top-icon bx bx-chevron-up"></i>
+</a>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

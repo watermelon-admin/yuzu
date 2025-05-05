@@ -1,0 +1,105 @@
+/* Common card styles for Settings pages */
+
+/* Card base styles */
+.settings-card {
+    border: none !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+    border-radius: 0.5rem !important;
+}
+
+.settings-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Card image styles */
+.settings-card .card-img-top {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+    transition: transform 0.3s ease !important;
+    object-fit: cover !important;
+    height: 180px !important;
+    width: 100% !important;
+}
+
+/* Special handling for break types page */
+.settings-card .card-preview-image {
+    height: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    display: block !important;
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+    object-fit: unset !important;
+}
+
+/* Prevent image overflow on hover */
+.settings-card .position-relative {
+    overflow: hidden !important;
+}
+
+.settings-card:hover .card-img-top:not(.card-preview-image) {
+    transform: scale(1.05) !important;
+}
+
+/* Different hover effect for break type cards - use the same effect as regular images */
+.settings-card:hover .card-preview-image {
+    transform: scale(1.05) !important;
+}
+
+/* Card body spacing */
+.settings-card .card-body {
+    padding: 1.25rem !important;
+}
+
+/* Card footer styles */
+.settings-card .card-footer {
+    background-color: transparent !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+    padding: 0.75rem 0 !important;
+    margin: 0 1.25rem !important;
+}
+
+/* Badge styles */
+.settings-card .image-badge {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    font-size: 0.75rem !important;
+    padding: 2px 8px !important;
+    border-radius: 10px !important;
+    z-index: 2 !important;
+}
+
+/* Button styling for consistency across all settings pages */
+.settings-card .btn-sm {
+    padding: 0.375rem 0.5rem !important; /* Increased vertical padding for more height */
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+    border-radius: 0.2rem !important;
+}
+
+/* Add extra padding for non-icon-only buttons */
+.settings-card .btn-sm:not(.btn-icon-only) {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+}
+
+/* For larger screens, add even more padding */
+@media (min-width: 992px) {
+    .settings-card .btn-sm:not(.btn-icon-only) {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* Icon-only buttons */
+.settings-card .btn-sm.btn-icon-only {
+    width: 36px !important;
+    padding: 0.375rem !important; /* Match the increased height */
+    text-align: center !important;
+}
+
+/* Icons within buttons */
+.settings-card .btn i {
+    vertical-align: middle !important;
+}

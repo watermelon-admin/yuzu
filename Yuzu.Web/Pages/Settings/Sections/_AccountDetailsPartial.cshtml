@@ -1,0 +1,134 @@
+<div class="d-flex align-items-center justify-content-between pt-xl-1 mb-3 pb-3">
+    <h1 class="h2 mb-0 mt-4">Account Details</h1>
+</div>
+
+<!-- Basic info -->
+<h2 class="h5 text-primary mt-5 mb-4">Basic info</h2>
+<div class="border-bottom pb-3 pb-lg-4">
+    @Html.AntiForgeryToken()
+    <!-- This form contains the anti-forgery token needed for AJAX requests -->
+
+    <form id="profile-form" novalidate>
+        <div class="row pb-2">
+            <div class="col-sm-6 mb-3">
+                <label for="settings-firstname" class="form-label fs-base me-2">First name</label><span class="text-muted">(optional)</span>
+                <input type="text" id="settings-firstname" name="firstName" class="form-control form-control-lg" value="@Model.FirstName" maxlength="50">
+                <div class="text-danger small mt-1" id="settings-firstname-error"></div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="settings-lastname" class="form-label fs-base me-2">Last name</label><span class="text-muted">(optional)</span>
+                <input type="text" id="settings-lastname" name="lastName" class="form-control form-control-lg" value="@Model.LastName" maxlength="50">
+                <div class="text-danger small mt-1" id="settings-lastname-error"></div>
+            </div>
+        </div>
+        <div class="d-flex mb-3">
+            <button type="button" id="settings-name-update" class="btn btn-primary me-3" style="width: 180px;">Update</button>
+        </div>
+    </form>
+</div>
+
+<!-- Log in info -->
+<h2 class="h5 text-primary mb-4 mt-5">Login credentials</h2>
+<div class="border-bottom pb-3 pb-lg-4">
+    <div class="row pb-2">
+        <div class="col-sm-6 mb-3">
+            <label for="settings_email" class="form-label fs-base">Email address</label>
+            <input type="email" id="settings_email" class="form-control form-control-lg bg-secondary" value="@Model.Email" readonly>
+            <div class="invalid-feedback" id="settings_email_error">Please provide a valid email address!</div>
+            <div class="d-flex mb-2 mt-4">
+                <a href="~/account/manage/email" class="btn btn-primary" style="width: 180px;">Change</a>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <label for="settings_password" class="form-label fs-base">Password</label>
+            <input type="password" id="settings_password" class="form-control form-control-lg bg-secondary" value="��������" readonly>
+            <div class="invalid-feedback" id="settings_password_error">Please provide a valid password!</div>
+            <div class="d-flex mb-2 mt-4">
+                <a href="~/account/manage/changepassword" class="btn btn-primary" style="width: 180px;">Change</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Membership -->
+@if (Model.IsSubscribed)
+{
+    <div class="border-bottom pb-4 pb-lg-5">
+        <h2 class="h5 text-primary pt-1 pt-lg-3 my-4">You are a Pro member</h2>
+        <p>
+            Thanks for your support! Be sure to check out all premium features - add your own break types, upload custom background images and design personalized break screen layouts to truly make the experience your own.
+        </p>
+        <p>
+            <strong>We value your feedback and are always looking to improve.</strong><br />Questions or suggestions? Reach out anytime using our <a href="~/contact">contact page</a>.
+        </p>
+        <a href="~/settings/membership" class="btn btn-primary mt-3" id="manage_membership_button" style="width: 180px;">Manage Membership</a>
+    </div>
+}
+else
+{
+    <div class="border-bottom pb-4 pb-lg-5">
+        <h2 class="h5 text-primary pt-1 pt-lg-3 my-4">Unlock More with Pro</h2>
+        <p>
+            You're enjoying our Standard features, but our Pro membership has more to offer � add your own break types, upload custom background images and design personalized break screen layouts to truly make the experience your own.
+        </p>
+        <p>
+            <strong>We value your feedback and are always looking to improve.</strong><br />Questions or suggestions? Reach out anytime using our <a href="~/contact">contact page</a>.
+        </p>
+        <a href="~/pricing" class="btn btn-primary mt-3" id="upgrade_membership_button">Upgrade Membership</a>
+    </div>
+}
+
+<!-- Delete account -->
+<h2 class="h5 text-primary pt-1 pt-lg-3 mt-4">Delete account</h2>
+<p>
+    Your account and all associated data will be permanently deleted immediately upon confirmation. If you choose to return in the future, you'll need to create a new account and reconfigure your personal settings and customizations.
+    Please note that this action cannot be undone.
+</p>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage) && Model.StatusMessage.Contains("Error:"))
+{
+    <div class="alert alert-danger" id="delete-account-error">@Model.StatusMessage</div>
+}
+
+<div class="form-check mb-4">
+    <input type="checkbox" id="delete-account-checkbox" class="form-check-input">
+    <label for="delete-account-checkbox" class="form-check-label fs-base">Yes, I want to delete my account</label>
+</div>
+<button type="button" id="delete-account-button" class="btn btn-danger" style="width: 180px;" disabled data-bs-toggle="modal" data-bs-target="#delete-account-modal">Delete</button>
+
+<!-- Account Deletion Confirmation Modal -->
+<div class="modal fade" id="delete-account-modal" tabindex="-1" aria-labelledby="delete-account-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="delete-account-modal-label">Confirm Account Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <h4>Permanently Delete Your Account?</h4>
+                </div>
+
+                <div class="alert alert-danger">
+                    <strong>Important:</strong> This action cannot be undone.
+                </div>
+
+                <p>By deleting your account:</p>
+                <ul>
+                    <li>All your personal information will be permanently removed</li>
+                    <li>Your saved break types and backgrounds will be deleted</li>
+                    <li>Your user preferences and settings will be erased</li>
+                    <li>Your subscription information will be removed from our system</li>
+                </ul>
+
+                <p class="mb-0"><strong>Note about subscriptions:</strong> If you have an active subscription, you will still have access until the end of your current billing period. Your subscription will not be automatically renewed.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-delete-button" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="delete-account-form" method="post" asp-page-handler="Delete">
+                    <button type="submit" class="btn btn-danger">Permanently Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

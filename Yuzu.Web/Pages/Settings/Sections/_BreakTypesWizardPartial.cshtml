@@ -1,0 +1,540 @@
+<!-- Break Type Wizard Modal -->
+<div class="modal fade"
+     id="break-type-wizard-modal"
+     tabindex="-1"
+     aria-labelledby="break-type-wizard-modal-label"
+     aria-hidden="true"
+     data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="wizard-step-title" class="modal-title">Step 1: General Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="break-type-wizard-form" method="post">
+                    @Html.AntiForgeryToken()
+                    <input id="break-type-id" type="hidden" name="BreakId" value="" />
+
+                    <!-- Wizard Step Navigation - Progress Indicator -->
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="wizard-progress">
+                            <div class="wizard-progress-step active" data-step="1">
+                                <div class="wizard-progress-step-number">1</div>
+                                <div class="wizard-progress-step-label">Define</div>
+                            </div>
+                            <div class="wizard-progress-connector"></div>
+                            <div class="wizard-progress-step" data-step="2">
+                                <div class="wizard-progress-step-number">2</div>
+                                <div class="wizard-progress-step-label">Messages</div>
+                            </div>
+                            <div class="wizard-progress-connector"></div>
+                            <div class="wizard-progress-step" data-step="3">
+                                <div class="wizard-progress-step-number">3</div>
+                                <div class="wizard-progress-step-label">Visual</div>
+                            </div>
+                            <div class="wizard-progress-connector"></div>
+                            <div class="wizard-progress-step" data-step="4">
+                                <div class="wizard-progress-step-number">4</div>
+                                <div class="wizard-progress-step-label">Icon</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wizard Step Content -->
+                    <div class="wizard-steps">
+                        <!-- Step 1: General Settings -->
+                        <div class="wizard-step active" data-step="1">
+                            <div class="container-fluid py-4">
+                                <h3 class="mb-1 text-center">Define Your Break</h3>
+
+                                <div class="row justify-content-center mb-4">
+                                    <div class="col-md-8 text-center">
+                                        <div class="mt-2" style="line-height: 1.4;">
+                                            <small class="text-muted">
+                                                Set up the essential details for your break type including name and timing.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Break Name and Time Settings (side by side) -->
+                                <div class="row justify-content-center mb-4">
+                                    <!-- Break Name Input -->
+                                    <div class="col-md-5">
+                                        <div class="card shadow-sm h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-3">
+                                                    Basic Properties
+                                                </h5>
+                                                <div class="mb-3">
+                                                    <label for="breakTypeName" class="form-label mb-2">Break Name</label>
+                                                    <input type="text"
+                                                           id="breakTypeName"
+                                                           name="Name"
+                                                           class="form-control"
+                                                           placeholder="Enter break name (e.g., Coffee Break)"
+                                                           required
+                                                           maxlength="100"
+                                                           data-val="true"
+                                                           data-val-required="Please provide a name for your break type."
+                                                           data-val-maxlength="The name cannot exceed 100 characters."
+                                                           data-val-maxlength-max="100">
+                                                    <div class="invalid-feedback" id="breakTypeNameFeedback">
+                                                        Please provide a name for your break type.
+                                                    </div>
+                                                    <div class="mt-3" style="line-height: 1.4;">
+                                                        <small class="text-muted">
+                                                            This name will be displayed on your break type cards and when scheduling breaks.
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Time Settings -->
+                                    <div class="col-md-5">
+                                        <div class="card shadow-sm h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-3">
+                                                    Time Settings
+                                                </h5>
+
+                                                <div class="row">
+                                                    <!-- Default Break Duration -->
+                                                    <div class="col-md-6 mb-4">
+                                                        <label for="defaultBreakDuration" class="form-label mb-2">Default Duration</label>
+                                                        <div class="input-group">
+                                                            <input id="defaultBreakDuration"
+                                                                   name="DefaultDurationMinutes"
+                                                                   type="number"
+                                                                   class="form-control"
+                                                                   min="1"
+                                                                   max="1440"
+                                                                   value="15"
+                                                                   required
+                                                                   data-val="true"
+                                                                   data-val-required="Please specify the default duration."
+                                                                   data-val-range="Duration must be between 1 and 1440 minutes."
+                                                                   data-val-range-min="1"
+                                                                   data-val-range-max="1440">
+                                                            <span class="input-group-text">minutes</span>
+                                                        </div>
+                                                        <div class="invalid-feedback" id="defaultDurationFeedback">
+                                                            Please enter a valid duration between 1 and 1440 minutes.
+                                                        </div>
+                                                        <div class="mt-3" style="line-height: 1.4;">
+                                                            <small class="text-muted">
+                                                                Specify the default duration for the break. This will be the suggested length when scheduling breaks.
+                                                            </small>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Break Time Step -->
+                                                    <div class="col-md-6 mb-4">
+                                                        <label for="breakTimeStep" class="form-label mb-2">End Time Step</label>
+                                                        <div class="input-group">
+                                                            <input id="breakTimeStep"
+                                                                   name="BreakTimeStepMinutes"
+                                                                   type="number"
+                                                                   class="form-control"
+                                                                   min="1"
+                                                                   max="60"
+                                                                   value="5"
+                                                                   required
+                                                                   data-val="true"
+                                                                   data-val-required="Please specify the time step."
+                                                                   data-val-range="Time step must be between 1 and 60 minutes."
+                                                                   data-val-range-min="1"
+                                                                   data-val-range-max="60">
+                                                            <span class="input-group-text">minutes</span>
+                                                        </div>
+                                                        <div class="invalid-feedback" id="timeStepFeedback">
+                                                            Please enter a valid time step between 1 and 60 minutes.
+                                                        </div>
+                                                        <div class="mt-3" style="line-height: 1.4;">
+                                                            <small class="text-muted">
+                                                                This setting determines how break end times are rounded. For a 5-minute step, break end times will align to times like 10:05, 10:10, 10:15.
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Text Settings -->
+                        <div class="wizard-step" data-step="2">
+                            <div class="container-fluid py-4">
+                                <h3 class="mb-1 text-center">Customize Timer Text</h3>
+
+                                <div class="row justify-content-center mb-4">
+                                    <div class="col-md-8 text-center">
+                                        <div class="mt-2" style="line-height: 1.4;">
+                                            <small class="text-muted">
+                                                Personalize the messages that appear on your break countdown timer.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Text Settings Form -->
+                                <div class="row justify-content-center">
+                                    <div class="col-md-10">
+                                        <div class="card shadow-sm h-100">
+                                            <div class="card-body">
+                                                <!-- Heading aligned with first column -->
+                                                <div class="row mb-0">
+                                                    <div class="col-lg-4">
+                                                        <h5 class="card-title mb-3">Display Messages</h5>
+                                                    </div>
+                                                    <div class="col-lg-8">
+                                                        <!-- Empty space for alignment -->
+                                                    </div>
+                                                </div>
+
+                                                <!-- Three columns layout -->
+                                                <div class="row">
+                                                    <!-- Countdown Message -->
+                                                    <div class="col-lg-4 mb-4">
+                                                        <div class="h-100 d-flex flex-column">
+                                                            <div>
+                                                                <label for="breakCountdownMessage" class="form-label mb-2 fw-bold">Countdown Message</label>
+                                                                <input type="text"
+                                                                       id="breakCountdownMessage"
+                                                                       name="BreakTypeText.CountdownMessage"
+                                                                       class="form-control mb-1"
+                                                                       placeholder="Minutes until break ends"
+                                                                       maxlength="100"
+                                                                       data-val="true"
+                                                                       data-val-required="Please provide a countdown message."
+                                                                       data-val-maxlength="Countdown message cannot exceed 100 characters."
+                                                                       data-val-maxlength-max="100"
+                                                                       required>
+                                                                <div class="invalid-feedback">
+                                                                    Please provide a countdown message.
+                                                                </div>
+                                                                <div class="mt-1 fs-sm text-danger" id="countdown-error">
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1 mt-4" style="line-height: 1.5;">
+                                                                <small class="text-muted">
+                                                                    This is the text displayed next to the countdown timer, like "Minutes until break ends," "Hours until event starts," or "Minutes until practice time finishes." Just enter the message here - no need to include the time unit (like minutes or hours).
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- End Message -->
+                                                    <div class="col-lg-4 mb-4">
+                                                        <div class="h-100 d-flex flex-column">
+                                                            <div>
+                                                                <label for="breakCountdownEndMessage" class="form-label mb-2 fw-bold">End Message</label>
+                                                                <input type="text"
+                                                                       id="breakCountdownEndMessage"
+                                                                       name="BreakTypeText.CountdownEndMessage"
+                                                                       class="form-control mb-1"
+                                                                       placeholder="Break is over"
+                                                                       maxlength="100"
+                                                                       data-val="true"
+                                                                       data-val-required="Please provide an end message."
+                                                                       data-val-maxlength="End message cannot exceed 100 characters."
+                                                                       data-val-maxlength-max="100"
+                                                                       required>
+                                                                <div class="invalid-feedback">
+                                                                    Please provide an end message.
+                                                                </div>
+                                                                <div class="mt-1 fs-sm text-danger" id="end-message-error">
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1 mt-4" style="line-height: 1.5;">
+                                                                <small class="text-muted">
+                                                                    When the countdown reaches zero, this message appears to let everyone know what's next. For example, "Event is starting now," "Break is over," or "Time to get back to work" are good options.
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- End Time Label -->
+                                                    <div class="col-lg-4 mb-4">
+                                                        <div class="h-100 d-flex flex-column">
+                                                            <div>
+                                                                <label for="breakEndTimeTitle" class="form-label mb-2 fw-bold">End Time Label</label>
+                                                                <input type="text"
+                                                                       id="breakEndTimeTitle"
+                                                                       name="BreakTypeText.EndTimeTitle"
+                                                                       class="form-control mb-1"
+                                                                       placeholder="Break Ends At"
+                                                                       maxlength="100"
+                                                                       data-val="true"
+                                                                       data-val-required="Please provide an end time label."
+                                                                       data-val-maxlength="End time label cannot exceed 100 characters."
+                                                                       data-val-maxlength-max="100"
+                                                                       required>
+                                                                <div class="invalid-feedback">
+                                                                    Please provide an end time label.
+                                                                </div>
+                                                                <div class="mt-1 fs-sm text-danger" id="end-time-label-error">
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1 mt-4" style="line-height: 1.5;">
+                                                                <small class="text-muted">
+                                                                    This title appears above the end time of your current break, both for your main time zone and any additional time zones. Examples include "Break Ends At," "Event Starts At," or "Time to Return." It helps you quickly see when your break or event is set to finish.
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Background Selection -->
+                        <div class="wizard-step" data-step="3">
+                            <div class="container-fluid py-4">
+                                <h3 class="mb-1 text-center">Choose Visual Theme</h3>
+
+                                <div class="row justify-content-center mb-4">
+                                    <div class="col-md-8 text-center">
+                                        <div class="mt-2" style="line-height: 1.4;">
+                                            <small class="text-muted">
+                                                Select a background image. You can change this and adjust the layout later using the editor.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Simple Loading Spinner -->
+                                <div id="background-loading-spinner" class="text-center py-5 my-4">
+                                    <div class="spinner-border text-primary mb-3" role="status">
+                                        <span class="visually-hidden">Loading background images...</span>
+                                    </div>
+                                    <p class="text-muted">Loading your background options...</p>
+                                </div>
+
+                                <!-- Error Message -->
+                                <div id="background-error" class="alert alert-danger d-none mx-auto my-4" style="max-width: 800px;" role="alert">
+                                    Error loading backgrounds. Please try again later.
+                                </div>
+
+                                <!-- Background Carousel (hidden until loaded) -->
+                                <div id="background-carousel-container" class="position-relative px-xl-5 mt-4 d-none">
+                                    <!-- Carousel Navigation Buttons -->
+                                    <button type="button" id="prev-background"
+                                            class="btn btn-prev btn-icon btn-sm position-absolute top-50 start-0 translate-middle-y d-none d-xl-inline-flex"
+                                            aria-label="Previous">
+                                        <i class="bx bx-chevron-left"></i>
+                                    </button>
+                                    <button type="button" id="next-background"
+                                            class="btn btn-next btn-icon btn-sm position-absolute top-50 end-0 translate-middle-y d-none d-xl-inline-flex"
+                                            aria-label="Next">
+                                        <i class="bx bx-chevron-right"></i>
+                                    </button>
+
+                                    <!-- Swiper Carousel -->
+                                    <div class="px-xl-2">
+                                        <div class="swiper background-swiper" data-swiper-options='{
+                                            "slidesPerView": 1,
+                                            "loop": false,
+                                            "spaceBetween": 15,
+                                            "preventClicks": false,
+                                            "preventClicksPropagation": false,
+                                            "simulateTouch": true,
+                                            "watchSlidesProgress": true,
+                                            "navigation": {
+                                                "prevEl": "#prev-background",
+                                                "nextEl": "#next-background"
+                                            },
+                                            "breakpoints": {
+                                                "576": {
+                                                    "slidesPerView": 2,
+                                                    "spaceBetween": 15
+                                                },
+                                                "768": {
+                                                    "slidesPerView": 3,
+                                                    "spaceBetween": 20
+                                                },
+                                                "992": {
+                                                    "slidesPerView": 4,
+                                                    "spaceBetween": 20
+                                                },
+                                                "1200": {
+                                                    "slidesPerView": 5,
+                                                    "spaceBetween": 20
+                                                }
+                                            }
+                                        }'>
+                                            <div class="swiper-wrapper" id="background-slider">
+                                                <!-- Background slides will be inserted here via JavaScript -->
+                                            </div>
+
+                                            <!-- Pagination (bullets) -->
+                                            <div class="swiper-pagination position-relative bottom-0 mt-4 mb-lg-2"></div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Background Template -->
+                                <template id="background-template">
+                                    <div class="swiper-slide h-auto pb-2">
+                                        <div class="card h-100 border-0 shadow-sm mx-2 background-card">
+                                            <div class="position-relative">
+                                                <img src="" class="card-img-top background-image" alt="Background Image">
+                                            </div>
+                                            <div class="card-body text-center p-2">
+                                                <h5 class="card-title background-title mb-0 fw-semibold"></h5>
+                                                <p class="card-text text-muted background-description small"></p>
+                                            </div>
+                                            <div class="card-footer p-2 text-center bg-transparent">
+                                                <button type="button" class="select-background-btn btn btn-sm btn-outline-primary mt-2 mb-2">
+                                                    <i class="bx bx-check fs-xl me-1 check-icon d-none"></i>
+                                                    <span class="select-text">Select</span>
+                                                    <span class="selected-text d-none">Selected</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Icon Selection -->
+                        <div class="wizard-step" data-step="4">
+                            <div class="container-fluid py-4">
+                                <h3 class="mb-1 text-center">Pick Your Icon</h3>
+
+                                <div class="row justify-content-center mb-4">
+                                    <div class="col-md-8 text-center">
+                                        <div class="mt-2" style="line-height: 1.4;">
+                                            <small class="text-muted">
+                                                Select an icon that represents your break type. This icon will be displayed on the mobile timer page.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Simple Loading Spinner -->
+                                <div id="icon-loading-spinner" class="text-center py-5 my-4">
+                                    <div class="spinner-border text-primary mb-3" role="status">
+                                        <span class="visually-hidden">Loading icons...</span>
+                                    </div>
+                                    <p class="text-muted">Loading your icon options...</p>
+                                </div>
+
+                                <!-- Error Message -->
+                                <div id="icon-error" class="alert alert-danger d-none mx-auto my-4" style="max-width: 800px;" role="alert">
+                                    Error loading icons. Please try again later.
+                                </div>
+
+                                <!-- Icon Carousel (hidden until loaded) -->
+                                <div id="icon-carousel-container" class="position-relative px-xl-5 mt-4 d-none">
+                                    <!-- Carousel Navigation Buttons -->
+                                    <button type="button" id="prev-icon"
+                                            class="btn btn-prev btn-icon btn-sm position-absolute top-50 start-0 translate-middle-y d-none d-xl-inline-flex"
+                                            aria-label="Previous">
+                                        <i class="bx bx-chevron-left"></i>
+                                    </button>
+                                    <button type="button" id="next-icon"
+                                            class="btn btn-next btn-icon btn-sm position-absolute top-50 end-0 translate-middle-y d-none d-xl-inline-flex"
+                                            aria-label="Next">
+                                        <i class="bx bx-chevron-right"></i>
+                                    </button>
+
+                                    <!-- Swiper Carousel -->
+                                    <div class="px-xl-2">
+                                        <div class="swiper icon-swiper" data-swiper-options='{
+                                            "slidesPerView": 1,
+                                            "loop": false,
+                                            "spaceBetween": 15,
+                                            "preventClicks": false,
+                                            "preventClicksPropagation": false,
+                                            "simulateTouch": true,
+                                            "watchSlidesProgress": true,
+                                            "navigation": {
+                                                "prevEl": "#prev-icon",
+                                                "nextEl": "#next-icon"
+                                            },
+                                            "breakpoints": {
+                                                "576": {
+                                                    "slidesPerView": 2,
+                                                    "spaceBetween": 15
+                                                },
+                                                "768": {
+                                                    "slidesPerView": 3,
+                                                    "spaceBetween": 20
+                                                },
+                                                "992": {
+                                                    "slidesPerView": 4,
+                                                    "spaceBetween": 20
+                                                },
+                                                "1200": {
+                                                    "slidesPerView": 5,
+                                                    "spaceBetween": 20
+                                                }
+                                            }
+                                        }'>
+                                            <div class="swiper-wrapper" id="icon-slider">
+                                                <!-- Icon slides will be inserted here via JavaScript -->
+                                            </div>
+
+                                            <!-- Pagination (bullets) -->
+                                            <div class="swiper-pagination position-relative bottom-0 mt-4 mb-lg-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Icon Template -->
+                                <template id="icon-template">
+                                    <div class="swiper-slide h-auto pb-2">
+                                        <div class="card h-100 border-0 shadow-sm mx-2 icon-card">
+                                            <div class="position-relative d-flex justify-content-center align-items-center" style="height: 160px; background-color: #f8f9fa; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
+                                                <i class="icon-display fs-1 my-4" style="font-size: 5rem !important; color: #212529;"></i>
+                                            </div>
+                                            <div class="card-body text-center p-2">
+                                                <h5 class="card-title icon-title mb-0 fw-semibold"></h5>
+                                            </div>
+                                            <div class="card-footer p-2 text-center bg-transparent">
+                                                <button type="button" class="select-icon-btn btn btn-sm btn-outline-primary mt-2 mb-2">
+                                                    <i class="bx bx-check fs-xl me-1 check-icon d-none"></i>
+                                                    <span class="select-text">Select</span>
+                                                    <span class="selected-text d-none">Selected</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button id="wizard-prev-btn" type="button" class="btn btn-outline-secondary" disabled>
+                        <i class="bx bx-chevron-left me-1"></i>
+                        Previous
+                    </button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                    <button id="wizard-next-btn" type="button" class="btn btn-primary">
+                        Next
+                        <i class="bx bx-chevron-right ms-1"></i>
+                    </button>
+                    <button id="wizard-save-btn" type="button" class="btn btn-success d-none">
+                        Save
+                        <i class="bx bx-check ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

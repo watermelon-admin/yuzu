@@ -1,0 +1,112 @@
+﻿# Update the start.sh script with the correct path
+cat > start.sh << EOL
+#!/bin/sh
+set -e
+
+# Find the act_runner binary
+ACT_RUNNER_PATH=\$(which act_runner || echo "/bin/act_runner")
+
+# Check if already registered
+if [ -f "/data/.runner" ]; then
+    echo "Runner already registered, starting..."
+    \$ACT_RUNNER_PATH daemon
+else
+    # Register the runner if needed
+    if [ -n "\${GITEA_INSTANCE_URL}" ] && [ -n "\${GITEA_RUNNER_REGISTRATION_TOKEN}" ]; then
+        echo "Registering runner..."
+        echo "Using act_runner at: \$ACT_RUNNER_PATH"
+        
+        # Try to find the binary if it's not in the expected location
+        if [ ! -f "\$ACT_RUNNER_PATH" ]; then
+            echo "Searching for act_runner..."
+            ACT_RUNNER_PATH=\$(find / -name act_runner -type f 2>/dev/null | head -n 1)
+            echo "Found at: \$ACT_RUNNER_PATH"
+        fi
+        
+        \$ACT_RUNNER_PATH register \
+            --instance "\${GITEA_INSTANCE_URL}" \
+            --token "\${GITEA_RUNNER_REGISTRATION_TOKEN}" \
+            --name "\${GITEA_RUNNER_NAME:-\$(hostname)}" \
+            --labels "\${GITEA_RUNNER_LABELS:-alpine,linux}" \
+            --no-interactive
+    else
+        echo "Error: GITEA_INSTANCE_URL and GITEA_RUNNER_REGISTRATION_TOKEN must be provided!"
+        exit 1
+    fi
+    
+    # Start the runner
+    \$ACT_RUNNER_PATH daemon
+fi
+EOL
+
+------
+
+cat > Dockerfile << EOL
+# Start with the official Gitea runner image
+FROM gitea/act_runner:latest
+
+# Install essential tools using Alpine's package manager
+RUN apk add --no-cache \
+    curl \
+    wget \
+    git \
+    gnupg \
+    build-base \
+    unzip \
+    jq \
+    bash \
+    findutils
+
+# Identify where act_runner is located
+RUN find / -name act_runner -type f || echo "act_runner not found"
+RUN which act_runner || echo "act_runner not in PATH"
+
+# Install .NET 9
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && \
+    chmod +x dotnet-install.sh && \
+    bash ./dotnet-install.sh --channel 9.0 --install-dir /usr/local/dotnet && \
+    ln -s /usr/local/dotnet/dotnet /usr/local/bin/
+
+# Install Node.js
+RUN apk add --no-cache nodejs npm
+
+# Verify installations
+RUN node --version || echo "Node.js not installed" && \
+    npm --version || echo "npm not installed" && \
+    dotnet --version || echo ".NET not installed"
+
+# Install any additional npm packages you use frequently
+RUN npm install -g yarn typescript
+
+# Install any additional dotnet tools
+RUN dotnet tool install -g dotnet-ef || echo "dotnet-ef installation failed"
+
+# Set environment variables
+ENV PATH="/usr/local/dotnet:${PATH}"
+
+# Create directories
+RUN mkdir -p /data /config
+
+# Copy our startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+ENTRYPOINT ["/start.sh"]
+EOL
+
+------
+
+sudo docker build -t custom-gitea-runner .
+
+------
+
+sudo docker run -d \
+  --name gitea_runner \
+  --restart always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v ~/gitea-runner-data:/data \
+  -e GITEA_INSTANCE_URL="https://gitea.watermelonsoft.eu" \
+  -e GITEA_RUNNER_REGISTRATION_TOKEN="VMs5mZdGd47zf2BM3vYBvjmYQgUmuQQKWWIZP0fh" \
+  -e GITEA_RUNNER_NAME="custom-runner" \
+  -e GITEA_RUNNER_LABELS="alpine,dotnet9,node20,custom-runner" \
+  custom-gitea-runner

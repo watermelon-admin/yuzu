@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsAspireProjectResource>false</IsAspireProjectResource>
+	  <UserSecretsId>532a18b0-99a1-43eb-9ed2-40602d9a441c</UserSecretsId>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Aspire.RabbitMQ.Client" Version="9.0.0" />
+		<PackageReference Include="Azure.Data.Tables" Version="12.9.1" />
+		<PackageReference Include="Azure.Identity" Version="1.13.1" />
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+	</ItemGroup>
+
+</Project>

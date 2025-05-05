@@ -1,0 +1,6 @@
+﻿standard@test.local
+pro@test.local
+Apollo13!
+
+Stripe Visa:
+4242 4242 4242 4242

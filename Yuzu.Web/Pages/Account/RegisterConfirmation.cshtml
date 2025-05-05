@@ -1,0 +1,77 @@
+﻿@page
+@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Register confirmation";
+}
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialLight.cshtml" />
+
+
+    <!-- Page content -->
+    <section class="position-relative h-100 pt-5 pb-4">
+
+        <!-- Sign in form -->
+        <div class="container d-flex flex-wrap justify-content-center justify-content-xl-start h-100 pt-5">
+            <div class="w-100 align-self-start pt-1 pt-md-4 pb-4" style="max-width: 526px;">
+                <h1 class="text-center text-xl-start">You've Got Mail.</h1>
+                <p class="text-center text-xl-start pb-3 mb-3">Thank you for signing up! To complete your registration, please check your inbox and click on the confirmation link we just sent you. This will verify your email address and activate your account.</p>
+
+                <div class="alert d-flex alert-info mt-4" role="alert">
+                    <i class="bx bx-info-circle lead me-3"></i>
+                    <div>
+                        If you don't see the email in your inbox, please check your spam or junk folder. Sometimes our emails can end up there by mistake.
+                    </div>
+                </div>
+                <p class="text-center text-xl-start pb-3 mt-5 mb-3">We're excited to have you on board! If you have any questions or need further assistance, feel free to <a href="~/Help">reach out</a>.</p>
+
+                <hr class="my-4">
+                <h6 class="text-center mb-4">Open your Inbox</h6>
+                     <div class="row row-cols-1 row-cols-sm-2">
+                        <div class="col mb-3">
+                        <a class="btn btn-icon btn-secondary btn-google btn-lg w-100" href="https://mail.google.com/mail/u/0/#inbox" target="_blank">
+                                <i class="bx bxl-google fs-xl me-2"></i>
+                                GMail
+                            </a>
+                        </div>
+                        <div class="col mb-3">
+                        <a class="btn btn-icon btn-secondary btn-microsoft btn-lg w-100" href="https://outlook.live.com/mail/inbox" target="_blank">
+                                <i class="bx bxl-microsoft fs-xl me-2"></i>
+                                Outlook
+                            </a>
+                        </div>
+                    </div>
+               
+
+                
+            </div>
+            <!-- Copyright -->
+            <partial name="~/Pages/Shared/_Copyright.cshtml" />
+        </div>
+
+        <!-- Background -->
+        <div class="position-absolute top-0 end-0 w-50 h-100 bg-position-center bg-repeat-0 bg-size-cover d-none d-xl-block" style="background-image: url(/img/account/signin-bg.jpg);"></div>
+    </section>
+</main>
+
+<!-- Back to top button -->
+<a href="#top" class="btn-scroll-top" data-scroll>
+    <span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Top</span>
+    <i class="btn-scroll-top-icon bx bx-chevron-up"></i>
+</a>
+
+<!-- Client-side validation -->
+@section scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+}

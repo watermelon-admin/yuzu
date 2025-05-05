@@ -1,0 +1,64 @@
+﻿@page
+@model Yuzu.Web.Pages.Dbg.ValidateModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Validate</title>
+    <!-- Include jQuery -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Include jQuery Validation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <!-- Include jQuery Unobtrusive Validation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+</head>
+<body>
+    <h1>Validate</h1>
+    <p>Validate the model</p>
+    <form id="validateForm" method="post">
+        <div>
+            <label asp-for="Input.Username"></label>
+            <input asp-for="Input.Username" class="form-control" />
+            <span asp-validation-for="Input.Username" class="text-danger"></span>
+        </div>
+        <div>
+            <label asp-for="Input.Password"></label>
+            <input asp-for="Input.Password" type="password" class="form-control" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" id="validateButton" class="btn btn-secondary">Validate</button>
+    </form>
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            $("#validateButton").click(function () {
+                var form = $("#validateForm");
+                if (form.valid()) {
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function (response) {
+                            alert("Form submitted successfully!");
+                            // Handle success response
+                        },
+                        error: function (xhr, status, error) {
+                            alert("An error occurred: " + error);
+                            // Handle error response
+                        }
+                    });
+                } else {
+                    form.validate().focusInvalid();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

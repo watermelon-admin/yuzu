@@ -1,0 +1,388 @@
+﻿@page
+@model Yuzu.Web.Pages.DesignerModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+	Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Widget Designer with Draggable Toolboxes</title>
+
+	<!-- Bootstrap CSS -->
+	<link href="lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Toastify CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+	<!-- Custom styles -->
+	<link rel="stylesheet" href="css/designer/designer.css">
+	<script src="https://kit.fontawesome.com/efabdf2ff0.js" crossorigin="anonymous"></script>
+
+	<!-- Custom Toast Styles -->
+	<style>
+		.toast-spacious .toast-close {
+			padding-left: 20px; /* Increase space between text and close button */
+		}
+
+		.toast-spacious {
+			padding-right: 10px; /* Add more padding on the right side */
+		}
+	</style>
+</head>
+<body>
+	@* Add antiforgery token and design data for AJAX requests *@
+	<form id="antiforgery-form" style="display: none;">
+		<input type="hidden" id="design-id" value="@Model.Id" />
+		<input type="hidden" id="is-loading-existing" value="@Model.IsLoadingExistingDesign.ToString().ToLower()" />
+		<input type="hidden" id="image-path" value="@Model.ImagePath" />
+		@Html.AntiForgeryToken()
+	</form>
+
+	<!-- Store JSON in a data attribute which is less prone to encoding issues -->
+	<div id="initial-canvas-data-container" style="display: none;"
+		 data-canvas-json='@Html.Raw(Model.InitialCanvasData)'
+		 data-background-title="@(Model.BackgroundImageTitle)"></div>
+
+	<div id="designer-canvas" class="canvas" role="main" tabindex="0" aria-label="Design Canvas" aria-description="Canvas area for designing layouts. Use arrow keys to navigate when elements are selected.">
+		<!-- Widgets will be added here by JavaScript -->
+	</div>
+
+	<!-- Main Toolbar with all controls -->
+	<div class="toolbar d-flex flex-column" role="toolbar" aria-label="Main Toolbar">
+		<div class="toolbox-handle w-100" title="Drag to move toolbar" aria-label="Drag handle" role="button" tabindex="0">
+			<i class="fa-light fa-grip-dots" style="color: lightgray;"></i>
+		</div>
+		<div class="toolbar-content w-100 ps-2 pe-2 pb-2">
+			<!-- Create widgets buttons -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Create widgets">
+				<button id="btn-add-box" class="btn btn-outline-secondary" title="Add Box" aria-label="Add Box">
+					<i class="fa-solid fa-square"></i>
+				</button>
+				<button id="btn-add-qr" class="btn btn-outline-secondary" title="Add QR Code" aria-label="Add QR Code">
+					<i class="fa-solid fa-qrcode"></i>
+				</button>
+				<button id="btn-add-text" class="btn btn-outline-secondary" title="Add Text" aria-label="Add Text">
+					<i class="fa-solid fa-font"></i>
+				</button>
+			</div>
+
+			<!-- Edit operations group -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Edit operations">
+				<button id="btn-undo" class="btn btn-outline-secondary" title="Undo" aria-label="Undo" disabled>
+					<i class="fa-solid fa-arrow-rotate-left"></i>
+				</button>
+				<button id="btn-redo" class="btn btn-outline-secondary" title="Redo" aria-label="Redo" disabled>
+					<i class="fa-solid fa-arrow-rotate-right"></i>
+				</button>
+			</div>
+
+			<!-- Clipboard group -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Clipboard">
+				<button id="btn-cut" class="btn btn-outline-secondary" title="Cut" aria-label="Cut" disabled>
+					<i class="fa-solid fa-scissors"></i>
+				</button>
+				<button id="btn-copy" class="btn btn-outline-secondary" title="Copy" aria-label="Copy" disabled>
+					<i class="fa-solid fa-copy"></i>
+				</button>
+				<button id="btn-paste" class="btn btn-outline-secondary" title="Paste" aria-label="Paste" disabled>
+					<i class="fa-solid fa-clipboard"></i>
+				</button>
+				<button id="btn-delete" class="btn btn-outline-secondary" title="Delete" aria-label="Delete" disabled>
+					<i class="fa-solid fa-trash"></i>
+				</button>
+			</div>
+
+			<!-- Group operations -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Group operations">
+				<button id="btn-group" class="btn btn-outline-secondary" title="Group selected widgets" aria-label="Group" disabled>
+					<i class="fa-solid fa-object-group"></i>
+				</button>
+				<button id="btn-ungroup" class="btn btn-outline-secondary" title="Ungroup selected groups" aria-label="Ungroup" disabled>
+					<i class="fa-solid fa-object-ungroup"></i>
+				</button>
+			</div>
+
+			<!-- Z-order group -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Z-Order">
+				<button id="btn-bring-to-front" class="btn btn-outline-secondary" title="Bring to Front (Ctrl+])" aria-label="Bring to Front" aria-keyshortcuts="Control+]" disabled>
+					<i class="fa-solid fa-layer-group"></i>
+				</button>
+				<button id="btn-send-to-back" class="btn btn-outline-secondary" title="Send to Back (Ctrl+[)" aria-label="Send to Back" aria-keyshortcuts="Control+[" disabled>
+					<i class="fa-solid fa-layer-group fa-flip-vertical"></i>
+				</button>
+			</div>
+
+			<!-- Horizontal alignment group -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Horizontal alignment">
+				<button id="btn-align-left" class="btn btn-outline-secondary" title="Align Left" aria-label="Align Left" disabled>
+					<i class="fa-solid fa-align-left"></i>
+				</button>
+				<button id="btn-align-center-h" class="btn btn-outline-secondary" title="Align Center Horizontally" aria-label="Align Center Horizontally" disabled>
+					<i class="fa-solid fa-align-center"></i>
+				</button>
+				<button id="btn-align-right" class="btn btn-outline-secondary" title="Align Right" aria-label="Align Right" disabled>
+					<i class="fa-solid fa-align-right"></i>
+				</button>
+			</div>
+
+			<!-- Vertical alignment group -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Vertical alignment">
+				<button id="btn-align-top" class="btn btn-outline-secondary" title="Align Top" aria-label="Align Top" disabled>
+					<i class="fa-solid fa-align-left fa-rotate-90"></i>
+				</button>
+				<button id="btn-align-center-v" class="btn btn-outline-secondary" title="Align Center Vertically" aria-label="Align Center Vertically" disabled>
+					<i class="fa-solid fa-align-center fa-rotate-90"></i>
+				</button>
+				<button id="btn-align-bottom" class="btn btn-outline-secondary" title="Align Bottom" aria-label="Align Bottom" disabled>
+					<i class="fa-solid fa-align-right fa-rotate-90"></i>
+				</button>
+			</div>
+
+			<!-- Distribution group -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Distribution">
+				<button id="btn-distribute-h" class="btn btn-outline-secondary" title="Distribute Horizontally" aria-label="Distribute Horizontally" disabled>
+					<i class="fa-solid fa-distribute-spacing-horizontal"></i>
+				</button>
+				<button id="btn-distribute-v" class="btn btn-outline-secondary" title="Distribute Vertically" aria-label="Distribute Vertically" disabled>
+					<i class="fa-solid fa-distribute-spacing-vertical"></i>
+				</button>
+			</div>
+
+			<!-- Size group -->
+			<div class="btn-group btn-group-sm" role="group" aria-label="Size">
+				<button id="btn-same-width" class="btn btn-outline-secondary" title="Make Same Width" aria-label="Make Same Width" disabled>
+					<i class="fa-solid fa-arrows-left-right"></i>
+				</button>
+				<button id="btn-same-height" class="btn btn-outline-secondary" title="Make Same Height" aria-label="Make Same Height" disabled>
+					<i class="fa-solid fa-arrows-up-down"></i>
+				</button>
+				<button id="btn-same-size" class="btn btn-outline-secondary" title="Make Same Size" aria-label="Make Same Size" disabled>
+					<i class="fa-solid fa-maximize"></i>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Properties Toolbox -->
+	<div class="properties-toolbar" role="complementary" aria-label="Properties Toolbox">
+
+		<!-- Handle -->
+		<div class="toolbox-handle w-100" title="Drag to move toolbar" aria-label="Drag handle" role="button" tabindex="0">
+			<i class="fa-light fa-grip-dots" style="color: lightgray;"></i>
+		</div>
+
+		<div id="property-editors" class="toolbar-content w-100 ps-2 pe-2 pb-2">
+			<div class="container text-start">
+				<!-- Position -->
+				<div class="row">
+					<div class="col p-0 pe-1">
+						<div class="input-group input-group-sm">
+							<span class="input-group-text" id="position-x-label" style="min-width: 28px;">x</span>
+							<input type="text" class="form-control" id="position-x" aria-labelledby="position-x-label" aria-describedby="position-x-unit">
+							<span class="input-group-text" id="position-x-unit">px</span>
+						</div>
+					</div>
+					<div class="col p-0 ps-1">
+						<div class="input-group input-group-sm">
+							<span class="input-group-text" id="position-y-label" style="min-width: 28px;">y</span>
+							<input type="text" class="form-control" id="position-y" aria-labelledby="position-y-label" aria-describedby="position-y-unit">
+							<span class="input-group-text" id="position-y-unit">px</span>
+						</div>
+					</div>
+				</div>
+				<!-- Dimensions -->
+				<div class="row mt-2">
+					<div class="col p-0 pe-1">
+						<div class="input-group input-group-sm">
+							<span class="input-group-text" id="dimension-w-label" style="min-width: 28px;">w</span>
+							<input type="text" class="form-control" id="dimension-w" aria-labelledby="dimension-w-label" aria-describedby="dimension-w-unit">
+							<span class="input-group-text" id="dimension-w-unit">px</span>
+						</div>
+					</div>
+					<div class="col p-0 ps-1">
+						<div class="input-group input-group-sm">
+							<span class="input-group-text" id="dimension-h-label" style="min-width: 28px;">h</span>
+							<input type="text" class="form-control" id="dimension-h" aria-labelledby="dimension-h-label" aria-describedby="dimension-h-unit">
+							<span class="input-group-text" id="dimension-h-unit">px</span>
+						</div>
+					</div>
+				</div>
+				<!-- Text -->
+				<div class="row mt-2 p-0">
+					<div class="col p-0 m-0">
+						<label style="font-size: 12px;" for="box-text" class="form-label m-0 p-0">Text</label>
+					</div>
+				</div>
+				<div class="row p-0">
+					<textarea id="box-text" cols="2" class="form-control-sm" aria-label="Text"></textarea>
+				</div>
+				<!-- Text Styles-->
+				<div class="row mt-2 p-0">
+					<div class="col p-0 m-0 d-flex justify-content-between">
+						<!-- Toggle buttons for text styles -->
+						<div class="btn-group" role="group" aria-label="Text style toggle button group">
+							<input type="checkbox" class="btn-check" id="btn-text-bold" autocomplete="off" aria-label="Bold text">
+							<label class="btn btn-outline-secondary btn-sm" for="btn-text-bold" title="Bold" aria-pressed="false">
+								<i class="fa-solid fa-bold"></i>
+							</label>
+
+							<input type="checkbox" class="btn-check" id="btn-text-italic" autocomplete="off" aria-label="Italic text">
+							<label class="btn btn-outline-secondary btn-sm" for="btn-text-italic" title="Italic" aria-pressed="false">
+								<i class="fa-solid fa-italic"></i>
+							</label>
+
+							<input type="checkbox" class="btn-check" id="btn-text-underline" autocomplete="off" aria-label="Underline text">
+							<label class="btn btn-outline-secondary btn-sm" for="btn-text-underline" title="Underline" aria-pressed="false">
+								<i class="fa-solid fa-underline"></i>
+							</label>
+
+							<input type="checkbox" class="btn-check" id="btn-text-strikethrough" autocomplete="off" aria-label="Strikethrough text">
+							<label class="btn btn-outline-secondary btn-sm" for="btn-text-strikethrough" title="Strikethrough" aria-pressed="false">
+								<i class="fa-solid fa-strikethrough"></i>
+							</label>
+						</div>
+
+						<!-- Radio buttons for text alignment -->
+						<div class="btn-group" role="group" aria-label="Text alignment toggle button group">
+							<input type="radio" class="btn-check" name="text-alignment" id="btn-text-left" autocomplete="off" aria-label="Align text left">
+							<label class="btn btn-outline-secondary btn-sm" for="btn-text-left" title="Left" aria-pressed="false">
+								<i class="fa-solid fa-align-left"></i>
+							</label>
+
+							<input type="radio" class="btn-check" name="text-alignment" id="btn-text-center" autocomplete="off">
+							<label class="btn btn-outline-secondary btn-sm" for="btn-text-center" title="Center">
+								<i class="fa-solid fa-align-center"></i>
+							</label>
+
+							<input type="radio" class="btn-check" name="text-alignment" id="btn-text-right" autocomplete="off">
+							<label class="btn btn-outline-secondary btn-sm" for="btn-text-right" title="Right">
+								<i class="fa-solid fa-align-right"></i>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- Font -->
+				<div class="row mt-2 p-0">
+					<div class="col p-0 m-0">
+						<label style="font-size: 12px;" for="font-family" class="form-label m-0 p-0">Font</label>
+					</div>
+				</div>
+				<div class="row p-0">
+					<select id="font-family" class="form-select form-select-sm" aria-label="Font Family">
+						<option value="Arial">Arial</option>
+						<option value="Times New Roman">Times New Roman</option>
+						<option value="Verdana">Verdana</option>
+					</select>
+				</div>
+				<!-- Text Size -->
+				<div class="row mt-2 p-0">
+					<div class="col p-0 pe-1">
+						<label style="font-size: 12px;" for="text-size-range" class="form-label p-0 m-0">Text Size</label>
+					</div>
+					<div class="col p-0 ps-1 text-end pe-1">
+						<label style="font-size: 12px;" for="text-size-range" class="form-label p-0 m-0" id="text-size-display">12px</label>
+					</div>
+				</div>
+				<div class="row mt-0 p-0">
+					<input type="range" class="form-range form-control-sm p-0 m-0" id="text-size-range" min="8" max="72" step="1" aria-labelledby="text-size-display">
+				</div>
+				<!-- Color -->
+				<div class="row mt-2 p-0">
+					<div class="col p-0 pe-1">
+						<input type="color" class="form-control form-control-color form-control-sm no-border w-100" id="color-picker" value="#563d7c" title="Choose your color" aria-label="Text Color" aria-describedby="color-description">
+						<span id="color-description" class="visually-hidden">Use this color picker to set the text or fill color</span>
+					</div>
+					<div class="col p-0 ps-1">
+						<div class="input-group input-group-sm">
+							<span class="input-group-text" id="color-hex-label" style="min-width: 28px;">#</span>
+							<input type="text" class="form-control form-control-sm" id="color-hex" aria-labelledby="color-hex-label" aria-describedby="color-hex-description" pattern="[0-9A-Fa-f]{6}" maxlength="6">
+							<span id="color-hex-description" class="visually-hidden">Enter a 6-digit hexadecimal color code without the # symbol</span>
+						</div>
+					</div>
+				</div>
+				<!-- Corners -->
+				<div class="row mt-2 p-0">
+					<div class="col p-0 pe-1">
+						<label style="font-size: 12px;" for="corner-radius-range" class="form-label p-0 m-0">Corner Radius</label>
+					</div>
+					<div class="col p-0 ps-1 text-end pe-1">
+						<label style="font-size: 12px;" for="corner-radius-range" class="form-label p-0 m-0" id="corner-radius-display">12px</label>
+					</div>
+				</div>
+				<div class="row mt-0 p-0">
+					<input type="range" class="form-range form-control-sm p-0 m-0" id="corner-radius-range" min="0" max="50" step="1" aria-labelledby="corner-radius-display">
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Action buttons -->
+	<div class="action-buttons">
+		<button id="btn-background" class="btn btn-primary rounded-circle action-button" title="Choose Background" aria-label="Choose Background" aria-haspopup="dialog" aria-controls="backgroundSelectorModal">
+			<i class="fa-solid fa-image" aria-hidden="true"></i>
+			<span class="visually-hidden">Open background selector</span>
+		</button>
+		<button id="btn-grid" class="btn btn-info rounded-circle action-button" title="Toggle Grid" aria-label="Toggle Grid" aria-pressed="true">
+			<i class="fa-solid fa-border-all" aria-hidden="true"></i>
+			<span class="visually-hidden">Toggle grid visibility</span>
+		</button>
+		<button id="btn-save" class="btn btn-success rounded-circle action-button" title="Save" aria-label="Save">
+			<i class="fa-solid fa-save" aria-hidden="true"></i>
+			<span class="visually-hidden">Save design</span>
+		</button>
+		<button id="btn-preview" class="btn btn-light rounded-circle action-button" title="Preview" aria-label="Preview">
+			<i class="fa-solid fa-eye" aria-hidden="true"></i>
+			<span class="visually-hidden">Preview design</span>
+		</button>
+		<button id="btn-exit" class="btn btn-secondary rounded-circle action-button" title="Exit" aria-label="Exit">
+			<i class="fa-solid fa-door-open" aria-hidden="true"></i>
+			<span class="visually-hidden">Exit designer</span>
+		</button>
+	</div>
+
+	<!-- Bootstrap Bundle with Popper -->
+	<script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Toastify JS -->
+	<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+	<!-- Background Selector Modal -->
+	<div class="modal fade" id="backgroundSelectorModal" tabindex="-1" aria-labelledby="backgroundSelectorModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="backgroundSelectorModalLabel">Select Background Image</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="background-loading" class="text-center py-5" aria-live="polite">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+						<p class="mt-2">Loading background images...</p>
+					</div>
+					<div id="background-error" class="alert alert-danger d-none" role="alert" aria-live="assertive">
+						Error loading backgrounds. Please try again later.
+					</div>
+					<div id="background-grid" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-4" role="list" aria-label="Background image options">
+						<!-- Background thumbnails will be inserted here dynamically -->
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" id="btn-apply-background" class="btn btn-primary" disabled>Apply Background</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Direct loading of TypeScript via browser's native ES modules -->
+	<script type="module" src="js/designer/main.js"></script>
+</body>
+</html>

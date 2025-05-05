@@ -1,0 +1,80 @@
+﻿.background-container {
+    padding: 20px;
+}
+
+    .background-container img {
+        width: 300px;
+        margin: 10px;
+        border-radius: 10px;
+        border: 4px solid white;
+        transition: transform 0.2s ease; /* Smooth transition effect */
+    }
+
+        .background-container img:hover {
+            cursor: pointer;
+            transform: scale(1.2);
+            transition: transform 0.2s ease; /* Smooth transition effect */
+        }
+
+/* Custom Styles for SweetAlert2 */
+
+.colored-toast.swal2-icon-success {
+    background-color: #a5dc86 !important;
+}
+
+.colored-toast.swal2-icon-error {
+    background-color: #f27474 !important;
+}
+
+.colored-toast.swal2-icon-warning {
+    background-color: #f8bb86 !important;
+}
+
+.colored-toast.swal2-icon-info {
+    background-color: #3fc3ee !important;
+}
+
+.colored-toast.swal2-icon-question {
+    background-color: #87adbd !important;
+}
+
+.colored-toast .swal2-title {
+    color: white;
+}
+
+.colored-toast .swal2-close {
+    color: white;
+}
+
+.colored-toast .swal2-html-container {
+    color: white;
+}
+
+.debug-info {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-webkit-reveal {
+    display: none;
+}
+
+.move-eye {
+    right: 2.2rem !important;
+}
+
+/* Apply scrollbar-gutter in browsers that support it */
+.scrollable-content {
+    scrollbar-gutter: stable; /* Preferred method for modern browsers */
+}
+
+/* Fallback for older browsers */
+.scrollable-content {
+    overflow-y: scroll; /* Forces scrollbar to always appear, avoiding layout shifts */
+}
+
+

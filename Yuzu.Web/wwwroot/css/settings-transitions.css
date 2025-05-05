@@ -1,0 +1,177 @@
+/* Settings page transition effects */
+
+/* Base styles for all settings content containers */
+.settings-content-container {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Active container */
+.settings-content-container.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Add animation for entering content */
+.settings-content-container.fade-in {
+    animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+/* Add animation for exiting content */
+.settings-content-container.fade-out {
+    animation: fadeOut 0.3s ease-in-out forwards;
+}
+
+/* Keyframes for fade in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Keyframes for fade out animation */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Ensure smooth transitions for all interactive elements */
+.list-group-item, 
+.card,
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Settings cards fade-in effect - two different animations */
+
+/* Initial page load - staggered appearance (default) */
+#timeZoneContainer .col.staggered,
+#breakTypesContainer .col.staggered,
+#backgroundsContainer .col.staggered {
+    animation: cardFadeIn 0.4s ease-in-out forwards;
+    opacity: 0;
+}
+
+/* Updated content - unified highlight effect */
+#timeZoneContainer .col.highlight,
+#breakTypesContainer .col.highlight,
+#backgroundsContainer .col.highlight {
+    animation: cardHighlight 0.6s ease-in-out forwards;
+}
+
+/* Animation for initial staggered appearance */
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation for updates - subtle highlight effect */
+@keyframes cardHighlight {
+    0% {
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+        transform: scale(1);
+    }
+    30% {
+        box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+        transform: scale(1);
+    }
+}
+
+/* Animation for home timezone update */
+@keyframes homeCardHighlight {
+    0% {
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    }
+    30% {
+        box-shadow: 0 0 20px rgba(13, 110, 253, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    }
+}
+
+/* Apply this class to newly added timezone cards */
+.new-timezone-card {
+    animation: newCardEffect 0.8s ease-in-out forwards !important;
+}
+
+/* Animation for newly added timezone cards */
+@keyframes newCardEffect {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Special animation for the new home timezone */
+.new-home-timezone {
+    animation: newHomeEffect 1s ease-in-out forwards !important;
+}
+
+/* Animation for new home timezone */
+@keyframes newHomeEffect {
+    0% {
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    }
+    40% {
+        box-shadow: 0 0 25px rgba(13, 110, 253, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    }
+}
+
+/* Simple pulse animation for home timezone change */
+@keyframes cardPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    }
+}
+
+/* Add a slight scale effect when hovering over cards */
+.settings-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}

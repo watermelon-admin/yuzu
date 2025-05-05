@@ -1,0 +1,50 @@
+﻿@page
+@model Yuzu.Web.Pages.Account.AccountDeletedModel
+@{
+    ViewData["Title"] = "Account Deleted";
+}
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavbarPartialLight.cshtml" />
+
+    <!-- Page content -->
+    <section class="container d-flex flex-column justify-content-center pt-5 mt-lg-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3 text-center py-5 my-5">
+                <div class="text-center mb-5">
+                    <i class="bx bx-check-circle text-success display-1 mb-3"></i>
+                    <h1 class="h2 mb-4">Your Account Has Been Deleted</h1>
+                    
+                    <p class="fs-lg">We've successfully deleted <strong>@Model.Email</strong> and all associated data from our system.</p>
+                    
+                    @if (Model.HasSubscription)
+                    {
+                        <div class="alert alert-info mx-auto my-4" style="max-width: 500px;">
+                            <p class="mb-0">Your subscription will remain active until the end of your current billing period.</p>
+                        </div>
+                    }
+                    
+                    <p class="mb-4">We're sorry to see you go. If you decide to come back, you're always welcome to create a new account.</p>
+                    
+                    <a href="/" class="btn btn-primary">Return to Home Page</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+</main>
+
+<!-- Back to top button -->
+<a href="#top" class="btn-scroll-top" data-scroll>
+    <span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Top</span>
+    <i class="btn-scroll-top-icon bx bx-chevron-up"></i>
+</a>

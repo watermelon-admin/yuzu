@@ -1,0 +1,552 @@
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.form-control-color.no-border {
+    border: none;
+    padding: 0;
+}
+
+/* Canvas styles */
+.canvas {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh);
+    background-color: #fafafa;
+    overflow: hidden;
+    background-position: center;
+    background-size: cover;
+}
+
+/* Grid overlay that can be toggled */
+.canvas::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), 
+                      linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+/* Class to hide the grid */
+.canvas.grid-hidden::after {
+    opacity: 0;
+}
+
+/* Toolbar styles */
+.toolbar {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column; /* Ensure vertical stacking */
+    user-select: none;
+    position: absolute;
+    z-index: 1000;
+    padding: 0;
+    width: max-content; /* Ensure the width is determined by the content */
+}
+
+.toolbar-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%; /* Ensure the content takes the full width of the toolbar */
+}
+
+.btn-group {
+    margin-right: 0;
+}
+
+/* Toolbox handle styles */
+.toolbox-handle {
+    width: 100%; /* Ensure the handle takes the full width of the toolbar */
+    height: 14px;
+    border-radius: 4px 4px 0 0;
+    background-color: #e9ecef;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+    .toolbox-handle:hover {
+        background-color: #dee2e6;
+    }
+
+/* Widget styles */
+.widget {
+    position: absolute;
+    min-width: 10px;
+    min-height: 10px;
+    background-color: transparent;
+    border: 2px solid #ccc; /* Use 2px border always for consistent sizing */
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: move;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.widget.selected {
+    border-color: #0d6efd; /* Change only the color, not the width */
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+}
+
+/* Box widgets need the selection border to follow the border radius */
+.widget[data-type="box"].selected {
+    border-color: #0d6efd; /* Change only the color, not the width */
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+}
+
+.widget-content {
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Resize handle styles */
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #0d6efd;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    pointer-events: all;
+}
+
+.resize-handle.nw {
+    top: -6px;
+    left: -6px;
+    cursor: nw-resize;
+}
+
+.resize-handle.ne {
+    top: -6px;
+    right: -6px;
+    cursor: ne-resize;
+}
+
+.resize-handle.sw {
+    bottom: -6px;
+    left: -6px;
+    cursor: sw-resize;
+}
+
+.resize-handle.se {
+    bottom: -6px;
+    right: -6px;
+    cursor: se-resize;
+}
+
+/* Selection box */
+.selection-box {
+    position: absolute;
+    border: 1px dashed #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    pointer-events: none;
+}
+
+/* Reference widget styling */
+.reference-widget {
+    border-color: #fd7e14 !important; /* orange border color */
+}
+
+/* Properties Toolbox Styling */
+.properties-toolbar {
+    position: absolute;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 240px;
+    z-index: 1000;
+    top: 20px;
+    right: 20px;
+    padding: 0;
+    user-select: none;
+    overflow: hidden;
+}
+
+.toolbox-handle {
+    width: 100%;
+    height: 14px;
+    border-radius: 4px 4px 0 0;
+    background-color: #e9ecef;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.toolbox-handle:hover {
+    background-color: #dee2e6;
+}
+
+    .toolbar-button span {
+        font-size: 10px;
+        margin-top: 2px;
+    }
+
+.property-section {
+    padding: 8px;
+}
+
+.slider-value-display {
+    text-align: right;
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+.no-selection-message {
+    padding: 16px;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Widget type styles */
+.widget[data-type="box"] .widget-content {
+    border: none;
+    padding: 0;
+}
+
+.widget[data-type="qr"] .widget-content {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    pointer-events: none;
+}
+
+.widget[data-type="qr"] img {
+    max-width: 100%;
+    max-height: 100%;
+    border: none;
+    outline: none;
+    pointer-events: none;
+}
+
+.widget[data-type="text"] .widget-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    padding: 0;
+    min-height: unset;
+}
+
+/* Group widget styles */
+.widget[data-type="group"] {
+    border: 3px dashed #007bff;
+    border-radius: 8px;
+    background-color: rgba(0, 123, 255, 0.15); /* Increase opacity for better visibility */
+    pointer-events: all !important; /* Always allow interactions with groups */
+    position: relative; /* Ensure stacking context */
+    /* Create a new stacking context to isolate z-index issues */
+    isolation: isolate;
+    /* Force a minimum z-index to ensure groups are visible */
+    z-index: 1000 !important; /* Override JS-controlled z-index with a high value */
+    /* Add significant padding for easier selection */
+    box-sizing: border-box;
+    /* Add subtle box shadow to make it more visible */
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
+}
+
+.widget[data-type="group"].selected {
+    border: 4px dashed #fd7e14; /* Orange border when selected */
+    box-shadow: 0 0 15px rgba(253, 126, 20, 0.5); /* Stronger orange shadow */
+    background-color: rgba(253, 126, 20, 0.1); /* Slight orange background */
+}
+
+.widget[data-type="group"].reference-widget {
+    border: 4px dashed #ff0000 !important; /* Red border for reference group */
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5) !important; /* Red shadow */
+    background-color: rgba(255, 0, 0, 0.1) !important; /* Slight red background */
+}
+
+.widget[data-type="group"] .widget-content {
+    padding: 0;
+}
+
+.group-icon {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: #007bff;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 16px;
+    z-index: 9999 !important; /* Very high z-index to ensure it's above everything */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    border: 1px solid white;
+    user-select: none; /* Prevent text selection */
+    pointer-events: none; /* Allow clicks to pass through to the group */
+}
+
+.widget[data-type="group"]::after {
+    content: "group";
+}
+
+/* Style for widgets that are part of a group */
+.widget.in-group {
+    pointer-events: none !important; /* Never allow direct interaction with grouped widgets */
+}
+
+.text-widget-content {
+    width: 100%;
+    height: 100%;
+    outline: none;
+}
+
+.text-widget-editor {
+    width: 100%;
+    height: 100%;
+    outline: none;
+    background-color: transparent;
+    font-family: inherit;
+    overflow: auto;
+}
+
+/* Widget type indicator for easier identification */
+.widget::after {
+    content: attr(data-type);
+    position: absolute;
+    bottom: -20px;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.widget:hover::after {
+    opacity: 1;
+}
+
+/* Toolbox dragging state */
+.toolbox-dragging {
+    opacity: 0.8;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.1s ease;
+    cursor: move;
+}
+
+/* Action buttons */
+.action-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 20px;
+}
+
+.action-button {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: 2px solid white;
+}
+
+.action-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+#btn-preview {
+    background: linear-gradient(135deg, #8A2BE2, #FF1493);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+}
+
+/* Preview Mode Styles */
+.canvas.preview-mode {
+    background-image: none;
+    background-color: white;
+}
+
+.widget.preview-mode {
+    cursor: default;
+    pointer-events: none;
+    /* Remove borders completely for preview mode but compensate for space with padding */
+    border: 0 !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    border-color: transparent !important;
+    border-image: none !important;
+    /* Note: not removing border-radius since we want to keep rounded corners for box widgets */
+    
+    /* Add specific padding to compensate for the removed border (prevents layout shift) */
+    padding: 0 2px 2px 2px !important; /* Only add padding to right/bottom */
+    margin: 2px 0 0 0 !important; /* Add top margin to compensate for upward shift */
+    
+    /* Remove outlines completely */
+    outline: 0 !important;
+    outline-width: 0 !important;
+    outline-style: none !important;
+    outline-color: transparent !important;
+    
+    /* Remove shadows and other visual cues that might look like borders */
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    
+    /* Control background rendering */
+    background-image: none !important;
+    background-clip: padding-box !important;
+    
+    /* Override any transition properties */
+    transition: none !important;
+}
+
+/* Override any widget styling when in preview mode */
+.widget.preview-mode::before,
+.widget.preview-mode::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Force hide all UI elements in preview mode */
+body.preview-mode .toolbar,
+body.preview-mode .properties-toolbar,
+body.preview-mode .action-buttons {
+    display: none !important;
+}
+
+/* Hide tooltips and type indicators in preview mode */
+body.preview-mode .tooltip,
+body.preview-mode .widget::after {
+    display: none !important;
+}
+
+.exit-preview-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.exit-preview-btn:hover {
+    background-color: #5a6268;
+}
+
+.exit-preview-btn i {
+    font-size: 16px;
+}
+
+/* Background selector styles */
+.background-thumbnail-container {
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 9;
+}
+
+.background-thumbnail-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.background-thumbnail-container.selected {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+.background-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.background-thumbnail-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Accessibility - Visually hidden but available to screen readers */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .toolbar,
+    .properties-toolbar {
+        flex-direction: column;
+        max-width: 80vw;
+    }
+    
+    .properties-toolbar {
+        width: 250px;
+    }
+}

@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!-- Navbar -->
+<!-- Remove "fixed-top" class to make navigation bar scrollable with the page -->
+<header class="header navbar navbar-expand-lg bg-light border-bottom border-light shadow-sm fixed-top">
+	<div class="container px-3">
+		<a href="~/" class="navbar-brand pe-3">
+			<i class='bx bx-coffee-togo text-primary' style="font-size: 32px;"></i>&nbsp;&nbsp;
+			<span class="text-primary">break</span>screen
+		</a>
+		<div id="navbarNav" class="offcanvas offcanvas-end">
+			<div class="offcanvas-header border-bottom">
+				<h5 class="offcanvas-title">Menu</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+						aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				<partial name="~/Pages/Shared/_MenuItems.cshtml" />
+			</div>
+			<div class="offcanvas-header border-top">
+				<a href="https://themes.getbootstrap.com/product/silicon-business-technology-template-ui-kit/" class="btn btn-primary w-100" target="_blank" rel="noopener">
+					<i class="bx bx-user fs-4 lh-1 me-1"></i>
+					&nbsp;Log Out
+				</a>
+			</div>
+		</div>
+		<div class="form-check form-switch mode-switch pe-lg-1 ms-auto me-4" data-bs-toggle="mode">
+			<input type="checkbox" class="form-check-input" id="theme-mode">
+			<label class="form-check-label d-none d-sm-block" for="theme-mode">Light</label>
+			<label class="form-check-label d-none d-sm-block" for="theme-mode">Dark</label>
+		</div>
+		<button type="button" class="navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		@if (SignInManager.IsSignedIn(User))
+		{
+			<a href="~/Account/LogOut"
+			   class="btn btn-primary btn-sm fs-sm rounded d-none d-lg-inline-flex">
+				<i class="fa-light fa-arrow-right-from-bracket"></i>&nbsp;&nbsp;&nbsp;Log Out
+			</a>
+		}
+		else
+		{
+			<a href="~/Account/LogIn"
+			   class="btn btn-primary btn-sm fs-sm rounded d-none d-lg-inline-flex">
+				<i class='fa-light fa-user'></i>&nbsp;&nbsp;&nbsp;Log In
+			</a>
+		}
+	</div>
+</header>

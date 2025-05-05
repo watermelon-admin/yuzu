@@ -1,0 +1,74 @@
+/* Time Zone Info Modal Styles */
+
+/* Card styling */
+#time-zone-info-modal .card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+#time-zone-info-modal .card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Card headings */
+#time-zone-info-modal .card h5 {
+    color: #2b3452;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Current time display */
+#tz-info-current-time {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    min-width: 180px; /* Set a fixed minimum width to prevent layout shifts */
+    transition: color 0.2s ease; /* Smooth transition for color changes */
+}
+
+/* Use monospace font for digits to prevent width changes */
+#tz-info-current-time {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+#tz-info-current-date {
+    font-size: 1rem;
+    margin-top: 5px;
+    color: #6c757d;
+    min-height: 24px; /* Ensure consistent height */
+}
+
+/* Time difference badge */
+#tz-info-time-difference {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+    border-radius: 50rem;
+}
+
+/* Table styling */
+#time-zone-info-modal .table th {
+    color: #495057;
+    font-weight: 600;
+    width: 35%;
+}
+
+#time-zone-info-modal .table td {
+    color: #212529;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    #tz-info-current-time {
+        font-size: 2rem;
+    }
+    
+    .w-40 {
+        width: 50% !important;
+    }
+    
+    #time-zone-info-modal .col-md-6:first-child {
+        margin-bottom: 1rem;
+    }
+}

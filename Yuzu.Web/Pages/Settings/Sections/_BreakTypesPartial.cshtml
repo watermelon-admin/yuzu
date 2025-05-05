@@ -1,0 +1,179 @@
+<div class="d-flex align-items-center justify-content-between pt-xl-1 mb-3 pb-3">
+    <h1 class="h2 mb-0 mt-4">Break Types</h1>
+    <button type="button" class="btn btn-primary px-3 px-sm-4" id="add-new-break-type-button">
+        <i class="bx bx-plus-circle fs-xl me-sm-2"></i>
+        <span class="d-none d-sm-inline">Add New Break Type</span>
+        @if (!Model.IsSubscribed)
+        {
+            <i class="fs-lg fa-solid fa-rectangle-pro ms-2"></i>
+        }
+    </button>
+</div>
+
+<!-- We don't need local hidden fields as they are defined in the parent Settings.cshtml -->
+<!-- Item Display Container -->
+<div id="break-type-container" class="row row-cols-1 row-cols-sm-2 gx-3 gx-lg-4">
+    <!-- BreakType items will be populated here via JavaScript -->
+</div>
+
+<!-- Pagination Controls -->
+<nav aria-label="Break Types Page Navigation">
+    <ul class="pagination justify-content-center mt-4" id="break-types-pagination-controls">
+        <!-- Pagination items will be added here via JavaScript -->
+    </ul>
+</nav>
+
+<!-- Break Type Card Template -->
+<template id="break-type-template">
+    <div class="col pb-lg-2 mb-4">
+        <article class="card settings-card h-100">
+            <div class="position-relative" style="height: auto;">
+                <a href="#" class="d-block position-absolute w-100 h-100 top-0 start-0" aria-label="Cover image"></a>
+                <img src="" class="card-img-top card-preview-image" style="width: 100%;" alt="Image">
+                <span class="system-badge image-badge system-image-badge d-none">System</span>
+                <span class="user-badge image-badge user-image-badge d-none">Custom</span>
+            </div>
+            <div class="card-body">
+                <h3 class="h5 mb-2">
+                    <a href="#" class="card-title-link"></a>
+                </h3>
+                <div class="d-flex align-items-center fs-sm text-muted mt-2">
+                    <div class="d-flex align-items-center me-4"
+                         data-bs-toggle="tooltip"
+                         style="cursor: pointer;"
+                         data-bs-placement="top"
+                         title="Default Break Duration">
+                        <i class="bx bx-time fs-xl me-1"></i>
+                        <span class="card-duration"></span>&nbsp;min
+                    </div>
+                    <div class="d-flex align-items-center"
+                         data-bs-toggle="tooltip"
+                         style="cursor: pointer;"
+                         data-bs-placement="top"
+                         title="Usage Counter">
+                        <i class="bx bx-coffee-togo fs-xl me-1"></i>
+                        <span class="card-usage"></span>&nbsp;times
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between fs-sm py-4">
+                <div class="d-flex">
+                    <a href="javascript:;"
+                       class="btn-edit btn btn-sm btn-outline-primary me-3">
+                        <i class="bx bx-edit fs-xl me-1"></i>
+                        <span class="d-none d-md-inline">Edit</span>
+                    </a>
+                    <a href="#" class="btn-design btn btn-sm btn-outline-primary me-3">
+                        <i class="bx bx-palette fs-xl me-1"></i>
+                        <span class="d-none d-md-inline">Design</span>
+                        @if (!Model.IsSubscribed)
+                        {
+                            <i class="fs-lg fa-solid fa-rectangle-pro ms-2"></i>
+                        }
+                    </a>
+                </div>
+                <div class="btn-delete-container d-none">
+                    <a href="javascript:;" class="btn-delete btn btn-sm btn-outline-danger">
+                        <i class="bx bx-trash fs-xl me-1"></i>
+                        <span class="d-none d-md-inline">Delete</span>
+                    </a>
+                </div>
+            </div>
+        </article>
+    </div>
+</template>
+
+<!-- Simple Break Type Edit Modal (for non-subscribers) -->
+<div class="modal fade" id="break-type-simple-edit-modal" tabindex="-1" aria-labelledby="break-type-simple-edit-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="break-type-simple-edit-modal-label">Edit Break Type Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="break-type-simple-edit-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="simple-edit-break-type-id" name="BreakId" value="" />
+                    <input type="hidden" id="simple-edit-break-type-name" name="Name" value="" />
+                    <input type="hidden" id="simple-edit-icon-name" name="IconName" value="" />
+                    <input type="hidden" id="simple-edit-countdown-message" name="CountdownMessage" value="" />
+                    <input type="hidden" id="simple-edit-countdown-end-message" name="CountdownEndMessage" value="" />
+                    <input type="hidden" id="simple-edit-end-time-title" name="EndTimeTitle" value="" />
+
+                    <!-- Duration -->
+                    <div class="mb-4">
+                        <label for="simple-edit-default-duration" class="form-label fw-bold">Default Duration (minutes)</label>
+                        <input type="number" class="form-control" id="simple-edit-default-duration" name="DefaultDurationMinutes" min="1" max="1440" required>
+                        <div class="form-text mt-2">The default length of this break type in minutes.</div>
+                    </div>
+
+                    <!-- Time Step -->
+                    <div class="mb-4">
+                        <label for="simple-edit-time-step" class="form-label fw-bold">End Time Step (minutes)</label>
+                        <input type="number" class="form-control" id="simple-edit-time-step" name="BreakTimeStepMinutes" min="1" max="60" required>
+                        <div class="form-text mt-2">Controls how break end times are rounded. For a 5-minute step, break end times will align to times like 10:05, 10:10, 10:15.</div>
+                    </div>
+
+                    <!-- Background Image Selection -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Background Image</label>
+                        <div class="d-flex justify-content-between">
+                            <div class="background-option me-3 flex-grow-1">
+                                <div class="card h-100 background-option-card" data-image-option="0">
+                                    <img src="" id="background-option-1" class="card-img-top" style="height: 120px; object-fit: cover;">
+                                    <div class="card-footer p-2 text-center">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="backgroundOption" id="background-option-1-radio" value="0" checked>
+                                            <label class="form-check-label" for="background-option-1-radio">Option 1</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="background-option flex-grow-1">
+                                <div class="card h-100 background-option-card" data-image-option="1">
+                                    <img src="" id="background-option-2" class="card-img-top" style="height: 120px; object-fit: cover;">
+                                    <div class="card-footer p-2 text-center">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="backgroundOption" id="background-option-2-radio" value="1">
+                                            <label class="form-check-label" for="background-option-2-radio">Option 2</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="simple-edit-save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Break Type Confirmation Modal -->
+<div class="modal fade" id="delete-break-type-modal" tabindex="-1" aria-labelledby="delete-break-type-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="delete-break-type-modal-label">Delete Break Type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the break type "<span id="delete-break-type-name"></span>"?</p>
+                <p class="text-danger">This action cannot be undone. All associated data for this break type will be permanently removed.</p>
+                <form id="delete-break-type-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="delete-break-type-id" name="BreakId" value="" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+

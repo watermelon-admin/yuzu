@@ -1,0 +1,496 @@
+@page
+@model Yuzu.Web.Pages.StartModel
+@{
+	ViewData["Title"] = "Start";
+}
+
+<style>
+
+	/* Prevent content shift when modal is shown */
+	body.modal-open {
+		padding-right: var(--scrollbar-width) !important;
+	}
+
+		body.modal-open .navbar {
+			padding-right: var(--scrollbar-width) !important;
+		}
+
+	.button-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		column-gap: 10px;
+		row-gap: 10px;
+	}
+
+	@@media (max-width: 800px) {
+		.button-grid {
+			column-gap: 10px;
+			row-gap: 10px;
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	.button-grid .btn {
+		/* Buttons need be be able to shrik to fit the grid */
+		padding: 0.5rem 0 0.5rem 0;
+	}
+
+	/* Custom styling for the time input */
+	.time-input {
+		width: 130px !important;
+		font-size: 32px !important;
+		text-align: center !important;
+		margin: 0 auto !important;
+		display: block !important;
+		padding: 0.25rem 0 !important; /* Remove horizontal padding */
+		cursor: pointer !important;
+		letter-spacing: 1px;
+		position: relative !important;
+	}
+
+		/* Remove spinner buttons and adjust the input position */
+		.time-input::-webkit-calendar-picker-indicator {
+			position: absolute;
+			right: 0;
+			opacity: 0;
+			width: 100%;
+			height: 100%;
+			cursor: pointer;
+		}
+
+		.time-input::-webkit-inner-spin-button,
+		.time-input::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		/* Focus state styling */
+		.time-input:focus {
+			border-color: #86b7fe;
+			box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+			outline: 0;
+		}
+
+		/* Hover state */
+		.time-input:hover {
+			border-color: #86b7fe;
+		}
+
+	/* Center the input group */
+	.modal-body {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	/* Time input styling without using vendor pseudo-elements */
+	input[type="time"] {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: 0;
+	}
+
+
+	/* Custom styling for the modal buttons */
+	.modal-footer .btn {
+		width: 100px; /* Set the desired fixed width */
+	}
+
+	/* Custom styles for custom time modal */
+
+	#timeModal .modal-dialog {
+		position: absolute;
+		top: 50%; /* Offset slightly from the top */
+		left: 50%; /* Offset slightly from the left */
+		transform: translate(-50%, -50%);
+		margin: 0;
+		width: 600px;
+	}
+
+</style>
+
+<main class="page-wrapper">
+
+	<!-- Custom Time Picker Modal -->
+	<div class="modal fade" id="timeModal" tabindex="-1" aria-labelledby="timeModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="timeModalLabel">Select Custom End Time</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p class="mb-3 text-center">
+						When do you want the timer to stop?
+					</p>
+					<input type="time" class="form-control time-input" id="timePicker"
+						   step="60" required>
+				</div>
+				<div>
+					<p id="dayMessage" class="text-muted text-center">
+						The selected end time is <strong><span id="dayInfo">today</span>.</strong>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" id="okButton">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- NavBar -->
+	<partial name="~/Pages/Shared/_NavBarPartialDark.cshtml" />
+
+	<!-- Page loading spinner -->
+	<div class="page-loading active">
+		<div class="page-loading-inner">
+			<div class="page-spinner"></div><span>Loading...</span>
+		</div>
+	</div>
+
+	<input type="hidden" id="homeTimeZoneCode" value="@Model.HomeTimeZoneCode" />
+
+	<form id="startBreakForm" method="post">
+		<input type="hidden" id="breakTypeId" asp-for="Input.BreakTypeId" />
+		<input type="hidden" id="breakEndTimeUnixTimestamp" asp-for="Input.BreakEndTimeUnixTimestamp" />
+	</form>
+
+	<!-- Start Break -->
+	<section class="position-relative overflow-hidden bg-dark">
+
+		<!-- Top section background -->
+		<div class="position-relative zindex-4 pt-lg-3 pt-xl-5">
+
+			<!-- Headline and subline -->
+			<div class="container zindex-5 pt-5">
+				<div class="row justify-content-center text-center pt-4 pb-sm-2 py-lg-5">
+					<div class="col-xl-8 col-lg-9 col-md-10 py-5">
+						<h1 class="display-6 text-light pt-sm-2 pb-1 pb-sm-3 mb-3">It's <span id="currentLocalTime"></span>. Time for a Break?</h1>
+						<p class="fs-lg text-light opacity-70 mb-sm-1">
+							Choose the type of break and when it should end in the next section. If you want, you can
+							set a specific end time for your break by selecting 'Other'. Have a great break!
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Timer presets slider -->
+		<div class="container pb-xl-5">
+
+			<!-- Multiple slides responsive slider with external Prev / Next buttons and bullets outside -->
+			<div class="position-relative px-xl-5">
+
+				<!-- Slider prev/next buttons -->
+				<button type="button" id="prev-news"
+						class="btn btn-prev btn-icon btn-sm position-absolute top-50 start-0 translate-middle-y d-none d-xl-inline-flex"
+						aria-label="Previous">
+					<i class="bx bx-chevron-left"></i>
+				</button>
+				<button type="button" id="next-news"
+						class="btn btn-next btn-icon btn-sm position-absolute top-50 end-0 translate-middle-y d-none d-xl-inline-flex"
+						aria-label="Next">
+					<i class="bx bx-chevron-right"></i>
+				</button>
+
+				<!-- Slider -->
+				<div class="px-xl-2">
+					<div class="swiper mx-n2" data-swiper-options='{
+							"slidesPerView": 1,
+							"loop": true,
+							"pagination": {
+								"el": ".swiper-pagination",
+								"clickable": true
+							},
+							"navigation": {
+								"prevEl": "#prev-news",
+								"nextEl": "#next-news"
+							},
+							"breakpoints": {
+								"500": {
+									"slidesPerView": 2
+								},
+								"1000": {
+									"slidesPerView": 3
+								}
+							}
+						}'>
+
+						<div class="swiper-wrapper">
+
+							@foreach (var item in Model.BreakTypes)
+							{
+								<div class="swiper-slide h-auto pb-3">
+									<div class="card h-100 border-0 shadow-sm mx-2">
+										<div class="position-relative">
+											@if(!string.IsNullOrEmpty(item.ImageTitle))
+											{
+												<img src="@(Model.BackgroundImagesURL)/@(item.ImageTitle)-thumb.jpg" 
+													class="card-img-top" alt="@item.Name">
+											}
+											else
+											{
+												<div class="card-img-top bg-primary" style="height: 225px; display: flex; align-items: center; justify-content: center;">
+													<i class="bx bx-coffee text-light" style="font-size: 3rem;"></i>
+												</div>
+											}
+										</div>
+
+										<div class="container p-4">
+											<div class="d-flex align-items-center justify-content-between">
+												<h3 class="h5 mb-0">
+													@item.Name
+												</h3>
+												<span class="badge fs-sm text-nav bg-secondary text-decoration-none">
+													@item.DefaultDurationMinutes
+													<span>&nbsp;min</span>
+												</span>
+											</div>
+										</div>
+										<div class="card-footer py-4">
+											<div class="mb-2">
+												<div class="button-grid" data-break-id="@item.Id">
+													<button type="button" class="btn btn-primary"
+															onclick="handlePresetButtonClick(this);"
+															data-interval-multiplier="-1"
+															data-interval-minutes="@item.BreakTimeStepMinutes"
+															data-break-duration="@item.DefaultDurationMinutes">
+													</button>
+													<button type="button" class="btn btn-outline-primary"
+															onclick="handlePresetButtonClick(this);"
+															data-interval-multiplier="0"
+															data-interval-minutes="@item.BreakTimeStepMinutes"
+															data-break-duration="@item.DefaultDurationMinutes">
+													</button>
+													<button type="button" class="btn btn-primary"
+															onclick="handlePresetButtonClick(this);"
+															data-interval-multiplier="1"
+															data-interval-minutes="@item.BreakTimeStepMinutes"
+															data-break-duration="@item.DefaultDurationMinutes">
+													</button>
+													<button type="button" class="btn btn-primary"
+															onclick="handlePresetButtonClick(this);"
+															data-interval-multiplier="2"
+															data-interval-minutes="@item.BreakTimeStepMinutes"
+															data-break-duration="@item.DefaultDurationMinutes">
+														>
+													</button>
+													<button type="button" class="btn btn-primary"
+															onclick="handlePresetButtonClick(this);"
+															data-interval-multiplier="3"
+															data-interval-minutes="@item.BreakTimeStepMinutes"
+															data-break-duration="@item.DefaultDurationMinutes">
+													</button>
+													<button type="button" class="btn btn-secondary other-button"
+															onclick="handleOtherButtonClick(this);"
+															data-interval-multiplier="0"
+															data-interval-minutes="@item.BreakTimeStepMinutes"
+															data-break-duration="@item.DefaultDurationMinutes">
+														Other
+													</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							}
+
+						</div>
+
+						<!-- Pagination (bullets) -->
+						<div class="swiper-pagination position-relative bottom-0 mt-4 mb-lg-2"></div>
+
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+
+	</section>
+
+	<!-- Settings Info Boxes -->
+
+	<section class="position-relative overflow-hidden bg-light">
+
+		<div class="container mt-4 mb-4 mb-xl-5">
+
+			<!-- Headline-->
+			<div class="container zindex-5">
+				<div class="row justify-content-center text-center">
+					<div class="col-xl-8 col-lg-9 col-md-10 mt-3 mt-xl-5">
+						<h2 class="display-7 text-dark">
+							Settings &amp;
+							Features
+						</h2>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex flex-column flex-xl-row pb-xl-5 mt-2 mt-xl-3" style="margin-left: -1rem; margin-right: -1rem;">
+
+
+				<div class="card m-3 bg-secondary" style="flex: 1;">
+					<div class="card-body d-flex flex-column align-items-start">
+						<div class="mt-3">
+							<h5>Your <span class="text-primary">home time zone</span> is set to @Model.HomeTimeZoneOffset.</h5>
+						</div>
+						<div class="mt-3 mb-3">
+							<p class="fs-md">This is the time zone for @Model.HomeTimeZoneCity, @Model.HomeTimeZoneCountry. It's what you see as the main one on your break screens. If you want, you can change to a different time zone in the settings.</p>
+						</div>
+						<div class="mt-auto w-100">
+							<a href="/settings/timezones" class="btn btn-md btn-primary mt-3 w-100">Change Home Time Zone</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="card m-3 bg-secondary" style="flex: 1;">
+					<div class="card-body d-flex flex-column align-items-start">
+						<div class="mt-3">
+							<h5>Add <span class="text-primary">extra time zones</span> for international users.</h5>
+						</div>
+						<div class="mt-3 mb-3">
+							<p class="fs-md">On the break screen, we display extra time zones to help users who are in different time zones. This way, everyone can make it back from their break on time without any trouble.</p>
+						</div>
+						<div class="mt-auto w-100">
+							<a href="/settings/timezones" class="btn btn-md btn-primary mt-3 w-100">Add Extra Time Zones</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="card m-3 bg-secondary" style="flex: 1;">
+					<div class="card-body d-flex flex-column align-items-start">
+						<div class="mt-3">
+							<h5><span class="text-primary">Customize</span> your break screen experience.</h5>
+						</div>
+						<div class="mt-3 mb-3">
+							<p class="fs-md">
+								Customize everything to suit your needs — our docs and tutorials show you how. From settings to visuals and additional break types, learn to make your break screen truly your own.
+							</p>
+						</div>
+						<div class="mt-auto w-100">
+							<a href="#" class="btn btn-md btn-primary w-100">Learn More in Docs</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="card m-3 bg-primary" style="flex: 1;">
+					<div class="card-body d-flex flex-column align-items-start">
+						<div class="mt-3">
+							<h5 class="text-light">You are a standard member. <span class="text-warning">Upgrade now!</span></h5>
+						</div>
+						<div class="mt-3 mb-3">
+							<p class="fs-md text-light">Upgrade your membership to access more cool features, such as adding your own background pictures, creating your own break screen, or using our automation interface (API).</p>
+						</div>
+						<div class="mt-auto w-100">
+							<a href="#" class="btn btn-md btn-light w-100">Upgrade Your Membership</a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+
+	</section>
+
+	<section class="position-relative overflow-hidden bg-secondary">
+
+		<div class="container mb-5">
+
+			<!-- Headline-->
+			<div class="container zindex-5 mt-3 mt-xl-5 mb-2">
+				<div class="row justify-content-center text-center">
+					<div class="col-xl-8 col-lg-9 col-md-10 ">
+						<h2 class="display-7 text-dark mt-3">
+							Take a Break!
+						</h2>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex flex-column flex-lg-row pb-xl-5 mt-xl-5" style="margin-left: -1rem; margin-right: -1rem;">
+
+				<!-- Testimonial: Style 1 -->
+				<figure class="card h-100 position-relative border-0 shadow-sm pt-4 m-4" style="flex: 1;">
+					<span class="btn btn-icon btn-primary shadow-primary pe-none position-absolute top-0 start-0 translate-middle-y ms-4">
+						<i class="bx bxs-quote-left"></i>
+					</span>
+					<blockquote class="card-body mb-0">
+						<p class="mb-0">A rested mind sees solutions that a weary soul could never find, and in those moments of pause, creativity is reborn.</p>
+					</blockquote>
+					<figcaption class="card-footer border-0 d-flex align-items-center pt-0">
+						<img src="~/img/avatar/53.jpg" width="48" class="rounded-circle" alt="Hiroshi Tanaka">
+						<div class="ps-3">
+							<h6 class="fw-semibold lh-base mb-0">Hiroshi Tanaka</h6>
+							<span class="fs-sm text-muted mt-2" style="display: inline-block; line-height: 1.2;">Wellness Strategist<br />Zenpath Consulting (Japan)</span>
+						</div>
+					</figcaption>
+				</figure>
+
+				<!-- Testimonial: Style 1 -->
+				<figure class="card h-100 position-relative border-0 shadow-sm pt-4 m-4" style="flex: 1;">
+					<span class="btn btn-icon btn-primary shadow-primary pe-none position-absolute top-0 start-0 translate-middle-y ms-4">
+						<i class="bx bxs-quote-left"></i>
+					</span>
+					<blockquote class="card-body mb-0">
+						<p class="mb-0">
+							Rest isn't a sign of weakness but a strategy for strength, ensuring that you return to your work with passion and clarity.
+						</p>
+					</blockquote>
+					<figcaption class="card-footer border-0 d-flex align-items-center pt-0">
+						<img src="~/img/avatar/56.jpg" width="48" class="rounded-circle" alt="Freya Lund">
+						<div class="ps-3">
+							<h6 class="fw-semibold lh-base mb-0">Freya Lund</h6>
+							<span class="fs-sm text-muted mt-2" style="display: inline-block; line-height: 1.2;">Innovation Specialist<br />Nordic Ventures (Sweden)</span>
+						</div>
+					</figcaption>
+				</figure>
+
+				<!-- Testimonial: Style 1 -->
+				<figure class="card h-100 position-relative border-0 shadow-sm pt-4 m-4" style="flex: 1;">
+					<span class="btn btn-icon btn-primary shadow-primary pe-none position-absolute top-0 start-0 translate-middle-y ms-4">
+						<i class="bx bxs-quote-left"></i>
+					</span>
+					<blockquote class="card-body mb-0">
+						<p class="mb-0">
+							Taking a break is not a retreat but a reset, a chance to gather the energy and perspective needed to move forward with purpose.
+						</p>
+					</blockquote>
+					<figcaption class="card-footer border-0 d-flex align-items-center pt-0">
+						<img src="~/img/avatar/02.jpg" width="48" class="rounded-circle" alt="Liam McCarthy">
+						<div class="ps-3">
+							<h6 class="fw-semibold lh-base mb-0">Liam McCarthy</h6>
+							<span class="fs-sm text-muted mt-2" style="display: inline-block; line-height: 1.2;">Performance Consultant<br />Peak Potential Partners (Ireland)</span>
+						</div>
+					</figcaption>
+				</figure>
+
+			</div>
+		</div>
+
+	</section>
+
+</main>
+
+<!-- Footer -->
+<partial name="~/Pages/Shared/_Footer.cshtml" />
+
+@section Scripts {
+
+	<script src="~/js/swiper/swiper-bundle.min.js"></script>
+	<script src="~/js/luxon/luxon.min.js"></script>
+	<script type="module" src="~/js/pages/start/start.js"></script>
+
+}
+
+<script>
+	// Hack to prevent nav bar from shifting
+	document.addEventListener('DOMContentLoaded', function () {
+		const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+		document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+	});
+</script>

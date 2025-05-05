@@ -1,0 +1,2 @@
+﻿stripe login
+stripe listen --forward-to https://localhost:7143/Payments/Webhook

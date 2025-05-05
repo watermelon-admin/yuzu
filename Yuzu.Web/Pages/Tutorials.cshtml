@@ -1,0 +1,600 @@
+@page
+@model Yuzu.Web.Pages.TutorialsModel
+@{
+    ViewData["Title"] = "Video Tutorials";
+}
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<!-- Page wrapper for sticky footer -->
+<!-- Wraps everything except footer to push footer to the bottom of the page if there is little content -->
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialDark.cshtml" />
+
+    <!-- Hero -->
+    <section class="position-relative overflow-hidden">
+        <div class="position-relative bg-dark zindex-4 pt-lg-3 pt-xl-5">
+
+            <!-- Text -->
+            <div class="container zindex-5 pt-5">
+                <div class="row justify-content-center text-center pt-4 pb-sm-2 py-lg-5">
+                    <div class="col-xl-8 col-lg-9 col-md-10 py-5">
+                        <h1 class="display-4 text-light pt-sm-2 pb-1 pb-sm-3 mb-3">Video Tutorials</h1>
+                        <p class="fs-lg text-light opacity-70 pb-2 pb-sm-0 mb-4 mb-sm-5">
+                            Watch step-by-step guides to learn how to use all breakscreen features effectively.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom shape -->
+            <div class="d-flex position-absolute top-100 start-0 w-100 overflow-hidden mt-n4 mt-sm-n1"
+                 style="color: #f7f7f9;"><!-- Bootstrap secondary color hex -->
+                <div class="position-relative start-50 translate-middle-x flex-shrink-0" style="width: 3788px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="3788" height="144" viewBox="0 0 3788 144">
+                        <path fill="currentColor" d="M0,0h3788.7c-525,90.2-1181.7,143.9-1894.3,143.9S525,90.2,0,0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Categories -->
+    <section class="container mt-5 mb-lg-5">
+        <!-- Category tabs -->
+        <ul class="nav nav-tabs flex-nowrap overflow-auto flex-lg-wrap pb-2 mb-3 mb-lg-4" role="tablist">
+            <li class="nav-item">
+                <a href="#all-videos" class="nav-link d-flex align-items-center active" data-bs-toggle="tab" role="tab" aria-controls="all-videos" aria-selected="true">
+                    <i class="bx bx-collection fs-4 lh-1 me-2"></i>
+                    All Videos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#getting-started" class="nav-link d-flex align-items-center" data-bs-toggle="tab" role="tab" aria-controls="getting-started" aria-selected="false">
+                    <i class="bx bx-play-circle fs-4 lh-1 me-2"></i>
+                    Getting Started
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#countdown" class="nav-link d-flex align-items-center" data-bs-toggle="tab" role="tab" aria-controls="countdown" aria-selected="false">
+                    <i class="bx bx-time fs-4 lh-1 me-2"></i>
+                    Countdown Features
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#customization" class="nav-link d-flex align-items-center" data-bs-toggle="tab" role="tab" aria-controls="customization" aria-selected="false">
+                    <i class="bx bx-palette fs-4 lh-1 me-2"></i>
+                    Customization
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#pro-features" class="nav-link d-flex align-items-center" data-bs-toggle="tab" role="tab" aria-controls="pro-features" aria-selected="false">
+                    <i class="bx bx-crown fs-4 lh-1 me-2"></i>
+                    Pro Features
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+
+            <!-- All Videos -->
+            <div class="tab-pane fade show active" id="all-videos" role="tabpanel">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Getting Started with breakscreen">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">5:24</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Getting Started with breakscreen</h5>
+                                <p class="card-text text-muted mb-2">Learn the basics of creating your first countdown timer.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Jan 15, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Sharing Your Countdown">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">3:41</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Sharing Your Countdown</h5>
+                                <p class="card-text text-muted mb-2">How to share your countdown with participants.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Jan 22, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Using the Mobile QR Feature">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">4:12</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Using the Mobile QR Feature</h5>
+                                <p class="card-text text-muted mb-2">How to use QR codes for mobile countdown access.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 3, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Creating Custom Break Types">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">6:38</span>
+                                <span class="position-absolute start-0 top-0 m-3 d-flex align-items-center bg-primary text-white rounded-pill px-3 fs-sm">
+                                    <i class="bx bx-crown fs-sm me-1"></i>
+                                    Pro
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Creating Custom Break Types</h5>
+                                <p class="card-text text-muted mb-2">How to create and customize different break types.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 15, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Using the Break Screen Designer">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">8:15</span>
+                                <span class="position-absolute start-0 top-0 m-3 d-flex align-items-center bg-primary text-white rounded-pill px-3 fs-sm">
+                                    <i class="bx bx-crown fs-sm me-1"></i>
+                                    Pro
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Using the Break Screen Designer</h5>
+                                <p class="card-text text-muted mb-2">How to create custom countdown screen designs.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Mar 5, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Global Time Zone Support">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">4:52</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Global Time Zone Support</h5>
+                                <p class="card-text text-muted mb-2">How to manage time zones for international events.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Mar 18, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4 pt-lg-3" aria-label="Video tutorials pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a href="#" class="page-link" aria-label="Previous" tabindex="-1" aria-disabled="true">
+                                <i class="bx bx-chevron-left mx-n1"></i>
+                            </a>
+                        </li>
+                        <li class="page-item active" aria-current="page">
+                            <a href="#" class="page-link">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link" aria-label="Next">
+                                <i class="bx bx-chevron-right mx-n1"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Getting Started -->
+            <div class="tab-pane fade" id="getting-started" role="tabpanel">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Getting Started with breakscreen">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">5:24</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Getting Started with breakscreen</h5>
+                                <p class="card-text text-muted mb-2">Learn the basics of creating your first countdown timer.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Jan 15, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Setting Up Your Account">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">3:52</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Setting Up Your Account</h5>
+                                <p class="card-text text-muted mb-2">How to create and configure your breakscreen account.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Jan 12, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Interface Tour">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">6:14</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Interface Tour</h5>
+                                <p class="card-text text-muted mb-2">A walkthrough of the breakscreen interface and key features.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Jan 18, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Countdown Features -->
+            <div class="tab-pane fade" id="countdown" role="tabpanel">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Sharing Your Countdown">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">3:41</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Sharing Your Countdown</h5>
+                                <p class="card-text text-muted mb-2">How to share your countdown with participants.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Jan 22, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Using the Mobile QR Feature">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">4:12</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Using the Mobile QR Feature</h5>
+                                <p class="card-text text-muted mb-2">How to use QR codes for mobile countdown access.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 3, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Global Time Zone Support">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">4:52</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Global Time Zone Support</h5>
+                                <p class="card-text text-muted mb-2">How to manage time zones for international events.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Mar 18, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customization -->
+            <div class="tab-pane fade" id="customization" role="tabpanel">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Break Types Basics">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">5:03</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Break Types Basics</h5>
+                                <p class="card-text text-muted mb-2">Introduction to using pre-designed break types.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 8, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Creating Custom Break Types">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">6:38</span>
+                                <span class="position-absolute start-0 top-0 m-3 d-flex align-items-center bg-primary text-white rounded-pill px-3 fs-sm">
+                                    <i class="bx bx-crown fs-sm me-1"></i>
+                                    Pro
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Creating Custom Break Types</h5>
+                                <p class="card-text text-muted mb-2">How to create and customize different break types.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 15, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Custom Background Images">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">4:27</span>
+                                <span class="position-absolute start-0 top-0 m-3 d-flex align-items-center bg-primary text-white rounded-pill px-3 fs-sm">
+                                    <i class="bx bx-crown fs-sm me-1"></i>
+                                    Pro
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Custom Background Images</h5>
+                                <p class="card-text text-muted mb-2">How to upload and use your own background images.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 22, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro Features -->
+            <div class="tab-pane fade" id="pro-features" role="tabpanel">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Creating Custom Break Types">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">6:38</span>
+                                <span class="position-absolute start-0 top-0 m-3 d-flex align-items-center bg-primary text-white rounded-pill px-3 fs-sm">
+                                    <i class="bx bx-crown fs-sm me-1"></i>
+                                    Pro
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Creating Custom Break Types</h5>
+                                <p class="card-text text-muted mb-2">How to create and customize different break types.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 15, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Using the Break Screen Designer">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">8:15</span>
+                                <span class="position-absolute start-0 top-0 m-3 d-flex align-items-center bg-primary text-white rounded-pill px-3 fs-sm">
+                                    <i class="bx bx-crown fs-sm me-1"></i>
+                                    Pro
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Using the Break Screen Designer</h5>
+                                <p class="card-text text-muted mb-2">How to create custom countdown screen designs.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Mar 5, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video item -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img src="~/img/account/tutorial-thumb.jpg" class="card-img-top" alt="Custom Background Images">
+                                <a href="#" class="btn btn-icon btn-primary btn-lg stretched-link rounded-circle position-absolute start-50 top-50 translate-middle zindex-2">
+                                    <i class="bx bx-play"></i>
+                                </a>
+                                <span class="position-absolute end-0 bottom-0 m-3 fs-sm bg-dark bg-opacity-75 text-white rounded-pill px-3">4:27</span>
+                                <span class="position-absolute start-0 top-0 m-3 d-flex align-items-center bg-primary text-white rounded-pill px-3 fs-sm">
+                                    <i class="bx bx-crown fs-sm me-1"></i>
+                                    Pro
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">Custom Background Images</h5>
+                                <p class="card-text text-muted mb-2">How to upload and use your own background images.</p>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bx bx-calendar fs-lg me-1"></i>
+                                    <span>Feb 22, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<partial name="~/Pages/Shared/_Footer.cshtml" />
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-light" id="videoModalLabel">Video Tutorial</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe id="youtubeVideo" src="" title="YouTube video" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Video modal popup script -->
+    <script>
+        // Store the YouTube video URL
+        const youtubeVideoUrl = "https://www.youtube.com/embed/8KaJRw-rfn8?autoplay=1";
+        
+        // Handle clicks on video play buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the modal element
+            const videoModal = document.getElementById('videoModal');
+            
+            // When the modal is shown, set the iframe src to the YouTube video URL
+            videoModal.addEventListener('show.bs.modal', function (event) {
+                document.getElementById('youtubeVideo').src = youtubeVideoUrl;
+            });
+            
+            // When the modal is hidden, clear the iframe src to stop the video
+            videoModal.addEventListener('hide.bs.modal', function (event) {
+                document.getElementById('youtubeVideo').src = '';
+            });
+            
+            // Add event listeners to all video play buttons
+            const playButtons = document.querySelectorAll('.position-relative a.btn-icon');
+            playButtons.forEach(button => {
+                button.setAttribute('data-bs-toggle', 'modal');
+                button.setAttribute('data-bs-target', '#videoModal');
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            });
+        });
+    </script>
+}

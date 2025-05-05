@@ -1,0 +1,314 @@
+{
+    "widgets": [
+        {
+            "id": "widget-17417003489207-008",
+            "type": "box",
+            "position": {
+                "x": 65,
+                "y": 50
+            },
+            "size": {
+                "width": 320,
+                "height": 320
+            },
+            "zIndex": 1,
+            "properties": {
+                "backgroundColor": "#ffffff",
+                "borderRadius": 15
+            }
+        },
+        {
+            "id": "widget-1741693003499-869",
+            "position": {
+                "x": 65,
+                "y": 68
+            },
+            "size": {
+                "width": 320,
+                "height": 68
+            },
+            "zIndex": 3,
+            "type": "text",
+            "properties": {
+                "text": "{break-name}",
+                "fontFamily": "Arial",
+                "fontSize": 40,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": true,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-0041700289207-818",
+            "type": "text",
+            "position": {
+                "x": 109.5,
+                "y": 146
+            },
+            "size": {
+                "width": 231,
+                "height": 114
+            },
+            "zIndex": 2,
+            "properties": {
+                "text": "{timer}",
+                "fontFamily": "Arial",
+                "fontSize": 72,
+                "fontColor": "#000000",
+                "textAlign": "center",
+                "hasPlaceholders": true,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-1741693032103-445",
+            "position": {
+                "x": 65,
+                "y": 261
+            },
+            "size": {
+                "width": 320,
+                "height": 45
+            },
+            "zIndex": 4,
+            "type": "text",
+            "properties": {
+                "text": "{time-unit}",
+                "fontFamily": "Arial",
+                "fontSize": 29,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": true,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-1741693062657-689",
+            "position": {
+                "x": 65,
+                "y": 298
+            },
+            "size": {
+                "width": 320,
+                "height": 49
+            },
+            "zIndex": 4,
+            "type": "text",
+            "properties": {
+                "text": "{countdown-message}",
+                "fontFamily": "Arial",
+                "fontSize": 29,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": true,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-1741693222393-854",
+            "position": {
+                "x": 457.5,
+                "y": 50
+            },
+            "size": {
+                "width": 320,
+                "height": 320
+            },
+            "zIndex": 1,
+            "type": "box",
+            "properties": {
+                "backgroundColor": "#ffffff",
+                "borderRadius": 15
+            }
+        },
+        {
+            "id": "widget-1741693222393-915",
+            "position": {
+                "x": 457.5,
+                "y": 68
+            },
+            "size": {
+                "width": 320,
+                "height": 68
+            },
+            "zIndex": 3,
+            "type": "text",
+            "properties": {
+                "text": "Scan Me",
+                "fontFamily": "Arial",
+                "fontSize": 40,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": false,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-1741700289207-888",
+            "position": {
+                "x": 540,
+                "y": 134
+            },
+            "size": {
+                "width": 155,
+                "height": 155
+            },
+            "zIndex": 259,
+            "type": "qr",
+            "properties": {
+                "imageUrl": "img/general/dummy-qr.svg"
+            }
+        },
+        {
+            "id": "widget-1741693222393-5",
+            "position": {
+                "x": 457.5,
+                "y": 298
+            },
+            "size": {
+                "width": 320,
+                "height": 49
+            },
+            "zIndex": 4,
+            "type": "text",
+            "properties": {
+                "text": "for a mobile timer",
+                "fontFamily": "Arial",
+                "fontSize": 29,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": false,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-1741693229226-128",
+            "position": {
+                "x": 852,
+                "y": 50
+            },
+            "size": {
+                "width": 320,
+                "height": 320
+            },
+            "zIndex": 1,
+            "type": "box",
+            "properties": {
+                "backgroundColor": "#ffffff",
+                "borderRadius": 15
+            }
+        },
+        {
+            "id": "widget-1741693229226-897",
+            "position": {
+                "x": 850,
+                "y": 68
+            },
+            "size": {
+                "width": 320,
+                "height": 68
+            },
+            "zIndex": 3,
+            "type": "text",
+            "properties": {
+                "text": "Break ends at",
+                "fontFamily": "Arial",
+                "fontSize": 40,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": false,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-1741700106106-830",
+            "position": {
+                "x": 850,
+                "y": 246
+            },
+            "size": {
+                "width": 320,
+                "height": 55
+            },
+            "zIndex": 68,
+            "type": "text",
+            "properties": {
+                "text": "{end-time-home}",
+                "fontFamily": "Arial",
+                "fontSize": 39,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": false,
+                "fontWeight": "bold"
+            }
+        },
+        {
+            "id": "widget-1741693229226-791",
+            "position": {
+                "x": 850,
+                "y": 192
+            },
+            "size": {
+                "width": 320,
+                "height": 45
+            },
+            "zIndex": 4,
+            "type": "text",
+            "properties": {
+                "text": "{time-name-home}",
+                "fontFamily": "Arial",
+                "fontSize": 29,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": false,
+                "showRawPlaceholders": false
+            }
+        },
+        {
+            "id": "widget-1741700068706-505",
+            "position": {
+                "x": 850,
+                "y": 136
+            },
+            "size": {
+                "width": 320,
+                "height": 55
+            },
+            "zIndex": 68,
+            "type": "text",
+            "properties": {
+                "text": "{end-time-additional}",
+                "fontFamily": "Arial",
+                "fontSize": 39,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": false,
+                "fontWeight": "bold"
+            }
+        },
+        {
+            "id": "widget-1741700106106-491",
+            "position": {
+                "x": 850,
+                "y": 302
+            },
+            "size": {
+                "width": 320,
+                "height": 45
+            },
+            "zIndex": 4,
+            "type": "text",
+            "properties": {
+                "text": "{time-name-additional}",
+                "fontFamily": "Arial",
+                "fontSize": 29,
+                "fontColor": "#333333",
+                "textAlign": "center",
+                "hasPlaceholders": false,
+                "showRawPlaceholders": false
+            }
+        }
+    ],
+    "nextZIndex": 420
+}

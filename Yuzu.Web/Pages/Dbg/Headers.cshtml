@@ -1,0 +1,26 @@
+﻿@page
+@model Yuzu.Web.Pages.Debug.HeadersModel
+@{
+    ViewData["Title"] = "Headers";
+    Layout = null;
+}
+
+<h2>Headers</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Header</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var header in Model.Headers)
+        {
+            <tr>
+                <td>@header.Key</td>
+                <td>@string.Join(", ", header.Value.ToArray())</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,173 @@
+﻿@page "/countdown"
+@{
+    Layout = null;
+}
+@model Yuzu.Web.Pages.CountdownModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var token = Antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>breakscreen - Countdown</title>
+    <link rel="stylesheet" href="~/css/fonts.css" />
+    <link rel="preload" href="~/fonts/roboto-v30-latin-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="~/fonts/noto-serif-v23-latin-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="~/fonts/fira-sans-v17-latin-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="~/fonts/fredericka-the-great-v21-latin-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="~/fonts/dekko-v21-latin-regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/efabdf2ff0.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <script src="~/js/luxon/luxon.min.js"></script>
+    <script type="module" src="~/js/pages/countdown/countdown.js"></script>
+
+    <input type="hidden" id="breakName" value="@(Model.BreakTypeDetails?.Name ?? "")" />
+    <input type="hidden" id="breakEndTimeUnixTimestamp" value="@(Model.BreakDetails != null ? new DateTimeOffset(Model.BreakDetails.EndTime).ToUnixTimeSeconds() : 0)" />
+    <input type="hidden" id="breakEndTimeTitle" value="@(Model.BreakTypeDetails?.EndTimeTitle ?? "")" />
+    <input type="hidden" id="breakCountdownMessage" value="@(Model.BreakTypeDetails?.CountdownMessage ?? "")" />
+    <input type="hidden" id="breakCountdownEndMessage" value="@(Model.BreakTypeDetails?.CountdownEndMessage ?? "")" />
+    <input type="hidden" id="userHomeTZID" value="@Model.UserHomeTZID" />
+    <input type="hidden" id="userHomeTimeZoneName" value="@Model.UserHomeTimezoneName" />
+    <input type="hidden" id="userAdditionalTZIDList" value="@Model.UserAdditionalTZIDList" />
+    <input type="hidden" id="userAdditionalTimeZoneNameList" value="@Model.UserAdditionalTimezoneNameList" />
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .countdown-container {
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .widget {
+            position: absolute;
+        }
+
+        /* ---------- Box Template ---------- */
+        .widget-box {
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ---------- QR Template ---------- */
+        .qr-box {
+            background-color: transparent;
+        }
+
+        /* ---------- Text Template ---------- */
+        .text-widget {
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Exit button styling */
+        .exit-button {
+            position: absolute;
+            z-index: 9999;
+            top: -60px; /* Start hidden above the top edge */
+            right: 100px;
+            width: 170px;
+            height: 47px;
+            padding: 10px 20px;
+            background-color: #c0392b;
+            font-size: 20px;
+            color: white;
+            border: none;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            cursor: pointer;
+            transition: top 0.5s ease-in-out, background-color 0.3s, transform 0.3s /* Slide in/out effect and color transition */
+        }
+
+            .exit-button.visible {
+                top: 0; /* Slide down to be visible */
+            }
+
+            .exit-button:hover {
+                background-color: #a93226; /* Change color on hover */
+                transform: scale(1.05); /* Slightly increase size on hover */
+            }
+
+    </style>
+
+    <div id="mainDisplay" class="countdown-container" style="background-image: url('@Model.BackgroundImageUrl');">
+        <button id="exitButton" class="exit-button" onclick="window.location.href='/start';">Close</button>
+        @if (ViewData["CanvasData"] is Yuzu.Web.Pages.CanvasData canvasData && canvasData.widgets != null)
+        {
+            foreach (var widget in canvasData.widgets)
+            {
+                var widgetType = widget.type?.ToLower() ?? "";
+                var widgetClass = widgetType switch
+                {
+                    "text" => "text-widget",
+                    "qr" => "qr-box",
+                    "box" => "widget-box",
+                    _ => string.Empty
+                };
+
+                var posX = widget.position?.x ?? 0;
+                var posY = widget.position?.y ?? 0;
+                var width = widget.size?.width ?? 0;
+                var height = widget.size?.height ?? 0;
+                var zIndex = widget.zIndex;
+                
+                var props = widget.properties ?? new PropertiesData();
+                var backgroundColor = props.backgroundColor ?? "#ffffff";
+                var borderRadius = props.borderRadius;
+                var text = props.text ?? "";
+                var fontFamily = props.fontFamily ?? "Arial";
+                var fontSize = props.fontSize > 0 ? props.fontSize : 12;
+                var fontColor = props.fontColor ?? "#000000";
+                var textAlign = props.textAlign ?? "center";
+                var fontWeight = string.IsNullOrEmpty(props.fontWeight) ? "normal" : props.fontWeight;
+
+                <div class="widget @widgetClass" data-type="@widgetType" data-template="@(widgetType == "text" ? text : "")" style="
+                    position: absolute;
+                    left: @($"{Math.Round(posX)}px");
+                    top: @($"{Math.Round(posY)}px");
+                    width: @($"{Math.Round(width)}px");
+                    height: @($"{Math.Round(height)}px");
+                    z-index: @zIndex;
+                    @(widgetType == "box" ? $"background-color: {backgroundColor}; border-radius: {borderRadius}px;" : "")
+                    @(widgetType == "text" ? $"font-family: {fontFamily}; font-size: {fontSize}px; color: {fontColor}; text-align: {textAlign}; font-weight: {fontWeight};" : "")">
+                    @switch (widgetType)
+                    {
+                        case "text":
+                            <span class="text-content" data-template="@text"></span>
+                            break;
+                        case "qr":
+                            <img src="~/Services/QR?text=@Model.MobileCounterUrl&__RequestVerificationToken=@token" style="width: 100%; height: 100%;" alt="QR Code" />
+                            break;
+                        case "box":
+                            <!-- Additional content or styling can be added here later -->
+                            break;
+                        default:
+                            break;
+                    }
+                </div>
+            }
+        }
+    </div>
+</body>
+</html>
