@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Yuzu.Web.Configuration;
+using Yuzu.Configuration.S3;
 
 namespace Yuzu.Web.Tools.StorageServices
 {
@@ -14,12 +14,20 @@ namespace Yuzu.Web.Tools.StorageServices
 
         public StorageServiceFactory(
             IServiceProvider serviceProvider, 
-            IOptions<S3Settings> s3Options,
+            IOptions<Yuzu.Configuration.S3.S3Settings> s3Options,
             ILogger<StorageServiceFactory> logger)
         {
             _serviceProvider = serviceProvider;
             _s3Settings = s3Options.Value;
             _logger = logger;
+            
+            // Debug logging to check S3Settings
+            _logger.LogInformation("StorageServiceFactory initialized with S3Settings:");
+            _logger.LogInformation($"  ServiceUrl: {_s3Settings.ServiceUrl}");
+            _logger.LogInformation($"  BucketName: {_s3Settings.BucketName}");
+            _logger.LogInformation($"  BackgroundsContainer: {_s3Settings.BackgroundsContainer}");
+            _logger.LogInformation($"  AccessKey: {_s3Settings.AccessKey}");
+            _logger.LogInformation($"  Secret Key exists: {!string.IsNullOrEmpty(_s3Settings.SecretKey)}");
         }
 
         public IStorageService CreateStorageService()

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using Yuzu.Data.Models;
 using Yuzu.Data.Services.Interfaces;
-using Yuzu.Data.Configuration;
+using Yuzu.Configuration.S3;
 
 namespace Yuzu.Data.Services
 {
@@ -30,7 +30,7 @@ namespace Yuzu.Data.Services
         public SystemBackgroundImageInitializer(
             IBackgroundImageService backgroundImageService,
             IStorageServiceFactory storageServiceFactory,
-            IOptions<S3Settings> s3Options,
+            IOptions<Yuzu.Configuration.S3.S3Settings> s3Options,
             ILogger<SystemBackgroundImageInitializer> logger)
         {
             _backgroundImageService = backgroundImageService ?? throw new ArgumentNullException(nameof(backgroundImageService));

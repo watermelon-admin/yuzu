@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Yuzu.Web.Configuration;
+using Yuzu.Configuration.Payments;
 
 namespace Yuzu.Web.Pages.Payments
 {

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Yuzu.Configuration.S3;
+using Yuzu.Configuration.Payments;
 
 namespace Yuzu.Web.Configuration
 {
@@ -23,25 +25,27 @@ namespace Yuzu.Web.Configuration
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
-            services.AddOptions<S3Settings>()
+            // S3Settings from shared configuration project
+            services.AddOptions<Yuzu.Configuration.S3.S3Settings>()
                 .Bind(configuration.GetSection("S3Settings"))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
-            services.AddOptions<PaymentSettings>()
+            // PaymentSettings from shared configuration project
+            services.AddOptions<Yuzu.Configuration.Payments.PaymentSettings>()
                 .Bind(configuration.GetSection("PaymentConfig"))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
-            services.AddOptions<DataStorageSettings>()
+            services.AddOptions<Yuzu.Web.Configuration.DataStorageSettings>()
                 .Bind(configuration.GetSection("DataStorageConfig"))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
-            services.AddOptions<DebugSettings>()
+            services.AddOptions<Yuzu.Web.Configuration.DebugSettings>()
                 .Bind(configuration.GetSection("DebugSettings"));
 
-            services.AddOptions<IdentitySettings>()
+            services.AddOptions<Yuzu.Web.Configuration.IdentitySettings>()
                 .Bind(configuration.GetSection("IdentityConfig"));
 
             return services;

@@ -1,7 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
-using Yuzu.Web.Configuration;
+using Yuzu.Configuration.S3;
 
 namespace Yuzu.Web.Tools.StorageServices
 {
@@ -16,10 +16,48 @@ namespace Yuzu.Web.Tools.StorageServices
         private readonly string _bucketName;
         private readonly string _serviceUrl;
 
-        public S3StorageService(ILogger<S3StorageService> logger, IOptions<S3Settings> s3Options)
+        public S3StorageService(ILogger<S3StorageService> logger, IOptions<Yuzu.Configuration.S3.S3Settings> s3Options)
         {
             _logger = logger;
+            
+            if (s3Options == null)
+            {
+                _logger.LogError("S3Options is null");
+                throw new ArgumentNullException(nameof(s3Options));
+            }
+            
             _s3Settings = s3Options.Value;
+            
+            if (_s3Settings == null)
+            {
+                _logger.LogError("S3Settings Value is null");
+                throw new ArgumentNullException(nameof(s3Options.Value));
+            }
+            
+            // Validate required values
+            if (string.IsNullOrEmpty(_s3Settings.ServiceUrl))
+            {
+                _logger.LogError("S3Settings.ServiceUrl is null or empty");
+                throw new InvalidOperationException("S3Settings.ServiceUrl is required but was not configured");
+            }
+            
+            if (string.IsNullOrEmpty(_s3Settings.BucketName))
+            {
+                _logger.LogError("S3Settings.BucketName is null or empty");
+                throw new InvalidOperationException("S3Settings.BucketName is required but was not configured");
+            }
+            
+            if (string.IsNullOrEmpty(_s3Settings.AccessKey))
+            {
+                _logger.LogError("S3Settings.AccessKey is null or empty");
+                throw new InvalidOperationException("S3Settings.AccessKey is required but was not configured");
+            }
+            
+            if (string.IsNullOrEmpty(_s3Settings.SecretKey))
+            {
+                _logger.LogError("S3Settings.SecretKey is null or empty");
+                throw new InvalidOperationException("S3Settings.SecretKey is required but was not configured");
+            }
             
             // Get required values
             _serviceUrl = _s3Settings.ServiceUrl;

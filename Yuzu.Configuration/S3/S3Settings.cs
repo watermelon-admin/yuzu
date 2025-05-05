@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Yuzu.Web.Configuration
+namespace Yuzu.Configuration.S3
 {
     /// <summary>
     /// Configuration settings for S3 storage

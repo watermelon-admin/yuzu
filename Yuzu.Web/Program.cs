@@ -17,6 +17,8 @@ using Yuzu.Mail;
 using Yuzu.Payments;
 using Yuzu.Web;
 using Yuzu.Web.Configuration;
+using Yuzu.Configuration.S3;
+using Yuzu.Configuration.Payments;
 using Yuzu.Web.Tools;
 using Yuzu.Web.Tools.StorageServices;
 using IEmailSender = Yuzu.Mail.IEmailSender;
@@ -101,7 +103,7 @@ builder.Services.AddYuzuIdentity(builder.Configuration);
 builder.Services.AddSingleton<IEmailSender>(sp =>
 {
     var logger = sp.GetRequiredService<ILogger<EmailSender>>();
-    var mailSettings = sp.GetRequiredService<IOptions<MailSettings>>().Value;
+    var mailSettings = sp.GetRequiredService<IOptions<Yuzu.Web.Configuration.MailSettings>>().Value;
     
     return new EmailSender(
         mailSettings.SmtpServer,
@@ -181,7 +183,7 @@ using (var scope = app.Services.CreateScope())
         var postgresDbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Postgresql.YuzuDbContext>();
         
         // Get database settings
-        var dataStorageSettings = scope.ServiceProvider.GetRequiredService<IOptions<DataStorageSettings>>().Value;
+        var dataStorageSettings = scope.ServiceProvider.GetRequiredService<IOptions<Yuzu.Web.Configuration.DataStorageSettings>>().Value;
         var connectionString = dataStorageSettings.ConnectionString;
         
         // Get connection string to log database name

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Stripe;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Yuzu.Payments.Configuration;
+using Yuzu.Configuration.Payments;
 
 namespace Yuzu.Payments
 {

@@ -42,6 +42,7 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
+			<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0" />
 		<PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.8.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -293,6 +294,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Yuzu.Configuration\Yuzu.Configuration.csproj" />
 	  <ProjectReference Include="..\Yuzu.Data\Yuzu.Data.csproj" />
 	  <ProjectReference Include="..\Yuzu.Mail\Yuzu.Mail.csproj" />
 	  <ProjectReference Include="..\Yuzu.Payments\Yuzu.Payments.csproj" />

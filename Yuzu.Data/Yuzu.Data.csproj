@@ -29,8 +29,11 @@
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.1" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
-		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="AWSSDK.S3" Version="3.7.305.24" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Yuzu.Configuration\Yuzu.Configuration.csproj" />
 	</ItemGroup>
 
 </Project>

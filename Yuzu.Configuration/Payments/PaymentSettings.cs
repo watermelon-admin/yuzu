@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Yuzu.Payments.Configuration
+namespace Yuzu.Configuration.Payments
 {
     /// <summary>
     /// Configuration settings for payment processing
