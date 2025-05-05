@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using Yuzu.Data.Models;
 using Yuzu.Data.Services.Interfaces;
-using Yuzu.Web.Configuration;
+using Yuzu.Data.Configuration;
 
 namespace Yuzu.Data.Services
 {
