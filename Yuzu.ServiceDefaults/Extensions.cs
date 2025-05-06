@@ -19,8 +19,6 @@ public static class Extensions
 {
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
-        // Kubernetes configuration now handled directly in Yuzu.Web
-        
         builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
@@ -44,8 +42,6 @@ public static class Extensions
 
         return builder;
     }
-    
-    // Method removed - this functionality is now in Yuzu.Web.Configuration.ConfigurationExtensions
 
     public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {

@@ -179,6 +179,22 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // Get database context
+        // Replace the following line:
+        // logger: builder.Services.BuildServiceProvider().GetService<ILogger<IConfiguration>>());
+
+        // With this updated code:
+        var loggerFactory = LoggerFactory.Create(loggingBuilder =>
+        {
+            loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
+            loggingBuilder.AddConsole();
+            loggingBuilder.AddDebug();
+        });
+        var logger = loggerFactory.CreateLogger<IConfiguration>();
+
+        builder.Configuration.AddKubernetesSecretsConfiguration(
+            secretName: "yuzu-app-secrets",
+            @namespace: "default",
+            logger: logger);
         var dbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.YuzuDbContext>();
         
         // Get database settings

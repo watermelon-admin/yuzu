@@ -1,0 +1,103 @@
+# Traefik configuration for Scaleway Kapsule with wildcard certificates
+additionalArguments:
+  # Configure Kubernetes provider
+  - --providers.kubernetesingress.ingressclass=traefik
+  - --providers.kubernetescrd.ingressclass=traefik
+  
+  # TLS configuration
+  - --entrypoints.websecure.http.tls=true
+  
+  # Logging
+  - --accesslog=true
+  - --log.level=INFO
+  
+  # ACME (Let's Encrypt) configuration with DNS challenge for wildcard certificates
+  - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+  - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=scaleway
+  - --certificatesresolvers.letsencrypt.acme.email=your-email@yourdomain.com
+  - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
+
+# Environment variables for Scaleway DNS API credentials
+env:
+  - name: SCW_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: scaleway-dns-credentials
+        key: access_key
+  - name: SCW_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: scaleway-dns-credentials
+        key: secret_key
+  - name: SCW_DEFAULT_REGION
+    value: fr-par
+
+# Scaleway LoadBalancer configuration
+service:
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2: "true"
+    service.beta.kubernetes.io/scw-loadbalancer-use-hostname: "true"
+
+# Port configuration with HTTP to HTTPS redirection
+ports:
+  web:
+    port: 80
+    redirectTo: websecure
+  websecure:
+    port: 443
+    tls:
+      enabled: true
+
+# Persistent storage for ACME certificates
+persistence:
+  enabled: true
+  name: traefik-data
+  size: 1Gi
+  path: /data
+
+# Security settings
+securityContext:
+  capabilities:
+    drop: [ALL]
+    add: [NET_BIND_SERVICE]
+  readOnlyRootFilesystem: true
+  runAsGroup: 65532
+  runAsNonRoot: true
+  runAsUser: 65532
+
+# Resource requests and limits
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "300m"
+    memory: "256Mi"
+
+# Affinity for pod placement
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - traefik
+          topologyKey: kubernetes.io/hostname
+
+# Pod disruption budget for high availability
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
+# Enable the dashboard with basic auth for monitoring
+dashboard:
+  enabled: true
+  auth:
+    basic:
+      admin: $apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/  # Password: admin
+  domain: traefik-dashboard.yourdomain.com
