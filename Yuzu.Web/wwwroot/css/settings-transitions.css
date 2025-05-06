@@ -1,5 +1,15 @@
 /* Settings page transition effects */
 
+/* Page loader fade out animation */
+.page-loading {
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.page-loading.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
 /* Base styles for all settings content containers */
 .settings-content-container {
     display: none;
@@ -50,14 +60,90 @@
     transition: all 0.2s ease-in-out;
 }
 
+/* Clean menu item styling */
+#account-menu .list-group-item {
+    position: relative;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    border: none; /* Reset all borders */
+    margin-bottom: 4px; /* Small spacing between items */
+    border-radius: 0.25rem; /* Slight rounding like Bootstrap primary buttons */
+    box-shadow: none !important; /* No shadow effects */
+    padding: 0.75rem 1.25rem; /* Standard padding */
+}
+
+/* Active menu item styling - primary button design */
+#account-menu .list-group-item.active {
+    background-color: #6366f1; /* Yuzu primary color (#6366f1) */
+    color: #ffffff; /* White text */
+    font-weight: 400; /* Normal font weight */
+}
+
+/* Icon color in active item */
+#account-menu .list-group-item.active i {
+    color: #ffffff; /* Make icon white too */
+    opacity: 1 !important; /* Override any opacity settings */
+}
+
+/* Hover effect for menu items */
+#account-menu .list-group-item:not(.active):hover {
+    background-color: rgba(99, 102, 241, 0.1); /* Very light primary background */
+    color: #6366f1; /* Primary text */
+}
+
 /* Settings cards fade-in effect - two different animations */
 
 /* Initial page load - staggered appearance (default) */
+#timeZoneContainer .col,
+#breakTypesContainer .col,
+#backgrounds-gallery-container .col,
 #timeZoneContainer .col.staggered,
 #breakTypesContainer .col.staggered,
-#backgroundsContainer .col.staggered {
+#backgrounds-gallery-container .col.staggered {
     animation: cardFadeIn 0.4s ease-in-out forwards;
     opacity: 0;
+}
+
+/* Apply staggered delay to cards based on their position */
+#timeZoneContainer .col:nth-child(1),
+#breakTypesContainer .col:nth-child(1),
+#backgrounds-gallery-container .col:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+#timeZoneContainer .col:nth-child(2),
+#breakTypesContainer .col:nth-child(2),
+#backgrounds-gallery-container .col:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+#timeZoneContainer .col:nth-child(3),
+#breakTypesContainer .col:nth-child(3),
+#backgrounds-gallery-container .col:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+#timeZoneContainer .col:nth-child(4),
+#breakTypesContainer .col:nth-child(4),
+#backgrounds-gallery-container .col:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+#timeZoneContainer .col:nth-child(5),
+#breakTypesContainer .col:nth-child(5),
+#backgrounds-gallery-container .col:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+#timeZoneContainer .col:nth-child(6),
+#breakTypesContainer .col:nth-child(6),
+#backgrounds-gallery-container .col:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+#timeZoneContainer .col:nth-child(n+7),
+#breakTypesContainer .col:nth-child(n+7),
+#backgrounds-gallery-container .col:nth-child(n+7) {
+    animation-delay: 0.35s;
 }
 
 /* Updated content - unified highlight effect */

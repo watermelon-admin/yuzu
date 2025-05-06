@@ -9,36 +9,66 @@ import { initMembership } from './membership/index.js';
 import './break-types/wizard.js'; // Import the break type wizard
 
 /**
- * Switches to the specified settings tab
+ * Switches to the specified settings tab with smooth fade transitions
  * @param tabId - The ID of the tab to switch to
  */
 export function switchToTab(tabId: string): void {
-        console.debug(`Switching to tab: ${tabId}`);
-
-        // Hide all content containers by removing active class
-        const containers = document.querySelectorAll('.settings-content-container');
-        containers.forEach(container => {
-            container.classList.remove('active');
-        });
-
-        // Show the selected container by adding active class
-        const selectedContainer = document.getElementById(tabId);
-        if (selectedContainer) {
-            selectedContainer.classList.add('active');
-        }
-
-        // Update active state in menu
-        const menuItems = document.querySelectorAll('#account-menu a.list-group-item');
-        menuItems.forEach(item => {
-            item.classList.remove('active');
-        });
-
-        // Find the menu item with href matching the tabId and make it active
-        const activeMenuItem = document.querySelector(`#account-menu a[href="#${tabId}"]`);
-        if (activeMenuItem) {
-            activeMenuItem.classList.add('active');
-        }
+    console.debug(`Switching to tab: ${tabId}`);
+    
+    // Get all content containers
+    const containers = document.querySelectorAll('.settings-content-container');
+    
+    // Get the currently active container
+    const activeContainer = document.querySelector('.settings-content-container.active');
+    
+    // Get the container we want to show
+    const targetContainer = document.getElementById(tabId);
+    
+    if (!targetContainer) {
+        console.error(`Target container with ID ${tabId} not found`);
+        return;
     }
+    
+    // Define the transition timing
+    const transitionDuration = 300; // milliseconds (matches CSS)
+    
+    // Fade out the current active container if one exists
+    if (activeContainer) {
+        // Add fade-out animation class
+        activeContainer.classList.add('fade-out');
+        
+        // After animation completes, remove active and fade-out classes
+        setTimeout(() => {
+            activeContainer.classList.remove('active', 'fade-out');
+        }, transitionDuration);
+    }
+    
+    // Fade in the target container after a slight delay
+    setTimeout(() => {
+        // Make the target container visible but still faded out
+        targetContainer.classList.add('active');
+        
+        // Add fade-in animation class
+        targetContainer.classList.add('fade-in');
+        
+        // After animation completes, remove the fade-in class
+        setTimeout(() => {
+            targetContainer.classList.remove('fade-in');
+        }, transitionDuration);
+    }, activeContainer ? transitionDuration : 0); // Add delay only if fading out another tab
+    
+    // Update active state in menu
+    const menuItems = document.querySelectorAll('#account-menu a.list-group-item');
+    menuItems.forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Find the menu item with href matching the tabId and make it active
+    const activeMenuItem = document.querySelector(`#account-menu a[href="#${tabId}"]`);
+    if (activeMenuItem) {
+        activeMenuItem.classList.add('active');
+    }
+}
 
     /**
      * Initializes the tab switching functionality for the settings page
@@ -92,6 +122,23 @@ export function switchToTab(tabId: string): void {
     }
 
     /**
+     * Hides the page loading spinner with a fade effect
+     */
+    function hidePageLoader(): void {
+        // Find the page loader
+        const pageLoader = document.querySelector('.page-loading');
+        if (!pageLoader) return;
+        
+        // Add a class to start the fade out
+        pageLoader.classList.add('fade-out');
+        
+        // After animation completes, remove the active class
+        setTimeout(() => {
+            pageLoader.classList.remove('active');
+        }, 300);
+    }
+    
+    /**
      * Initializes the settings page functionality
      */
     export function initSettings(): void {
@@ -102,11 +149,22 @@ export function switchToTab(tabId: string): void {
 
         // Initialize all section modules
         initSections();
+        
+        // Hide the page loader
+        hidePageLoader();
     }
 
     // Initialize the page when loaded
     document.addEventListener('DOMContentLoaded', () => {
+        // Start initializing the page
         initSettings();
+        
+        // Remove the page loader after a slight delay
+        // to ensure animations run smoothly
+        setTimeout(() => {
+            // This is a redundant call in case the loader wasn't hidden in initSettings
+            hidePageLoader();
+        }, 500);
     });
 
     // Make functions available globally

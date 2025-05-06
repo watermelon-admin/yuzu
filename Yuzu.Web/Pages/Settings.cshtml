@@ -14,23 +14,13 @@
 <link href="~/css/pages/settings/break-types-wizard.css" rel="stylesheet" />
 <link href="~/css/pages/settings/time-zones-info.css" rel="stylesheet" />
 <link href="~/css/pages/settings/backgrounds.css" rel="stylesheet" />
+<link href="~/css/settings-transitions.css" rel="stylesheet" />
 
 <style>
-    /* Settings tab content display */
-    .settings-content-container {
-        display: none; /* Hide by default, JavaScript will show the active tab */
-    }
-    
     /* Fixed-height content wrapper to prevent footer jump */
     .settings-content-wrapper {
         min-height: 1300px; /* Adjusted height to fit 10 time zone cards while being more compact */
         position: relative;
-    }
-    
-    /* Make content containers take full height of wrapper */
-    .settings-content-container.active {
-        display: block;
-        width: 100%;
     }
 </style>
 
