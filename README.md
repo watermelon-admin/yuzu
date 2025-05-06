@@ -56,6 +56,23 @@ dotnet run --project Yuzu.Web/Yuzu.Web.csproj
 4. Configure connection strings in appsettings.Development.json
 5. Run the application
 
+### Kubernetes Deployment
+
+When running in Kubernetes:
+
+1. The application automatically detects the Kubernetes environment
+2. Configuration is loaded from Kubernetes secrets instead of appsettings.json
+3. Create a secret named `yuzu-app-secrets` with your configuration:
+
+```bash
+kubectl create secret generic yuzu-app-secrets \
+  --from-literal=S3Settings__AccessKey=your_access_key \
+  --from-literal=S3Settings__SecretKey=your_secret_key \
+  --from-literal=DataStorageConfig__ConnectionString=your_connection_string
+```
+
+See [Kubernetes Secrets Integration](docs/kubernetes-secrets-integration.md) for detailed documentation.
+
 ## Adding New Features
 
 When adding new features:
