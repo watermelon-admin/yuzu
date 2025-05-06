@@ -57,44 +57,55 @@
                         <!-- Added row container for side-by-side layout -->
                         <!-- Left column: Form inputs -->
                         <div class="col-md-6">
-                            <p class="mb-3">Upload a JPG or PNG image to use as a custom background.</p>
-                            <!-- Hidden anti-forgery token -->
-                            @Html.AntiForgeryToken()
-                            <!-- Title Input with validation -->
-                            <div class="position-relative mb-4">
-                                <label for="backgrounds-image-title" class="form-label fs-base">Image Title</label>
-                                <input type="text" class="form-control" id="backgrounds-image-title" name="imageTitle" maxlength="50" required
-                                       placeholder="Enter a unique title for your background">
-                                <div class="position-absolute start-0 top-100 fs-sm text-danger validation-message" id="backgrounds-title-validation-message">
+                            <div class="d-flex flex-column h-100">
+                                <!-- Top aligned content (red panel) -->
+                                <div class="mb-auto">
+                                    <p class="mb-3">Upload a JPG or PNG image to use as a custom background.</p>
+                                    <!-- Hidden anti-forgery token -->
+                                    @Html.AntiForgeryToken()
+                                    <!-- Title Input with validation -->
+                                    <div class="mb-3">
+                                        <label for="backgrounds-image-title" class="form-label fs-base">Image Title</label>
+                                        <input type="text" class="form-control" id="backgrounds-image-title" name="imageTitle" maxlength="50" required
+                                               placeholder="Enter a unique title for your background">
+                                        <div class="position-relative">
+                                            <div class="fs-sm text-danger validation-message" id="backgrounds-title-validation-message">
+                                            </div>
+                                        </div>
+                                        <div class="form-text">This title will be displayed in your background library.</div>
+                                    </div>
                                 </div>
-                                <div class="form-text">This title will be displayed in your background library.</div>
-                            </div>
 
-                            <!-- Information text moved here -->
-                            <div class="alert alert-info small text-muted mt-5">
-                                <ul>
-                                    <li>Maximum file size: 5MB</li>
-                                    <li>Allowed formats: JPG, PNG</li>
-                                    <li>Recommended dimensions: 1920×1080px</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!-- Right column: FilePond Image upload/preview -->
-                        <div class="col-md-6">
-                            <div class="h-100">
-                                <!-- File upload element moved here -->
-                                <input type="file" class="filepond h-100" name="file" id="backgrounds-file-upload"
-                                       accept="image/png, image/jpeg" />
-                                <!-- Validation message for file upload -->
-                                <div class="position-relative">
-                                    <div class="fs-sm text-danger validation-message" id="backgrounds-file-validation-message">
-                                        xxxxx
+                                <!-- Bottom aligned content (blue panel) -->
+                                <div class="mt-auto">
+                                    <!-- Information text moved here -->
+                                    <div class="alert alert-info small mb-0">
+                                        <ul class="mb-0">
+                                            <li>Maximum file size: 5MB</li>
+                                            <li>Allowed formats: JPG, PNG</li>
+                                            <li>Recommended dimensions: 1920×1080px</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
 
+                        <!-- Right column: FilePond Image upload/preview -->
+                        <div class="col-md-6">
+                            <div class="h-100 d-flex flex-column">
+                                <!-- File upload element fills available space -->
+                                <div class="h-100">
+                                    <input type="file" class="filepond h-100" name="file" id="backgrounds-file-upload"
+                                           accept="image/png, image/jpeg" />
+                                </div>
+
+                                <!-- Validation message at bottom -->
+                                <div class="mt-auto">
+                                    <div class="fs-sm text-danger validation-message" id="backgrounds-file-validation-message">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Validation alert for overall form errors - full width -->
@@ -113,7 +124,6 @@
         </div>
     </div>
 </div>
-
 <!-- Subscription Prompt Modal -->
 <div class="modal fade" id="backgrounds-subscription-prompt-modal" tabindex="-1" aria-labelledby="backgrounds-subscription-prompt-modal-label" aria-hidden="true">
     <div class="modal-dialog">
