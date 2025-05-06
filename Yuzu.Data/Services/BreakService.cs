@@ -252,7 +252,7 @@ namespace Yuzu.Data.Services
             {
                 // Use direct SQL for better performance
                 int deletedCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                    $"DELETE FROM breaks WHERE user_id = {userId}");
+                    $"DELETE FROM \"Data_Breaks\" WHERE user_id = {userId}");
                 
                 _logger.LogInformation("Deleted {Count} breaks for user {UserId}", deletedCount, userId);
             }

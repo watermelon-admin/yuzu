@@ -90,60 +90,17 @@
     color: #6366f1; /* Primary text */
 }
 
-/* Settings cards fade-in effect - two different animations */
+/* Settings cards fade-in effect - simple fade-in */
 
-/* Initial page load - staggered appearance (default) */
+/* Initial page load - simple fade-in for all cards */
 #timeZoneContainer .col,
 #breakTypesContainer .col,
 #backgrounds-gallery-container .col,
 #timeZoneContainer .col.staggered,
 #breakTypesContainer .col.staggered,
 #backgrounds-gallery-container .col.staggered {
-    animation: cardFadeIn 0.4s ease-in-out forwards;
+    animation: simpleFadeIn 0.4s ease-in-out forwards;
     opacity: 0;
-}
-
-/* Apply staggered delay to cards based on their position */
-#timeZoneContainer .col:nth-child(1),
-#breakTypesContainer .col:nth-child(1),
-#backgrounds-gallery-container .col:nth-child(1) {
-    animation-delay: 0.05s;
-}
-
-#timeZoneContainer .col:nth-child(2),
-#breakTypesContainer .col:nth-child(2),
-#backgrounds-gallery-container .col:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-#timeZoneContainer .col:nth-child(3),
-#breakTypesContainer .col:nth-child(3),
-#backgrounds-gallery-container .col:nth-child(3) {
-    animation-delay: 0.15s;
-}
-
-#timeZoneContainer .col:nth-child(4),
-#breakTypesContainer .col:nth-child(4),
-#backgrounds-gallery-container .col:nth-child(4) {
-    animation-delay: 0.2s;
-}
-
-#timeZoneContainer .col:nth-child(5),
-#breakTypesContainer .col:nth-child(5),
-#backgrounds-gallery-container .col:nth-child(5) {
-    animation-delay: 0.25s;
-}
-
-#timeZoneContainer .col:nth-child(6),
-#breakTypesContainer .col:nth-child(6),
-#backgrounds-gallery-container .col:nth-child(6) {
-    animation-delay: 0.3s;
-}
-
-#timeZoneContainer .col:nth-child(n+7),
-#breakTypesContainer .col:nth-child(n+7),
-#backgrounds-gallery-container .col:nth-child(n+7) {
-    animation-delay: 0.35s;
 }
 
 /* Updated content - unified highlight effect */
@@ -153,15 +110,13 @@
     animation: cardHighlight 0.6s ease-in-out forwards;
 }
 
-/* Animation for initial staggered appearance */
-@keyframes cardFadeIn {
+/* Animation for simple fade-in */
+@keyframes simpleFadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
@@ -199,65 +154,37 @@
     animation: newCardEffect 0.8s ease-in-out forwards !important;
 }
 
-/* Animation for newly added timezone cards */
+/* Animation for newly added timezone cards - simplified */
 @keyframes newCardEffect {
-    0% {
+    from {
         opacity: 0;
-        transform: scale(0.8);
     }
-    50% {
+    to {
         opacity: 1;
-        transform: scale(1.05);
-    }
-    70% {
-        transform: scale(0.98);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
     }
 }
 
-/* Special animation for the new home timezone */
+/* Special animation for the new home timezone - simplified */
 .new-home-timezone {
-    animation: newHomeEffect 1s ease-in-out forwards !important;
+    animation: simpleFadeIn 0.4s ease-in-out forwards !important;
 }
 
-/* Animation for new home timezone */
-@keyframes newHomeEffect {
-    0% {
-        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
-    }
-    40% {
-        box-shadow: 0 0 25px rgba(13, 110, 253, 0.7);
-    }
-    100% {
-        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
-    }
-}
-
-/* Simple pulse animation for home timezone change */
+/* Simple pulse animation for home timezone change - simplified */
 @keyframes cardPulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    from {
+        opacity: 0.8;
     }
-    50% {
-        transform: scale(1.02);
-        box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 rgba(13, 110, 253, 0);
+    to {
+        opacity: 1;
     }
 }
 
-/* Add a slight scale effect when hovering over cards */
+/* Add a subtle hover effect for cards */
 .settings-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .settings-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }

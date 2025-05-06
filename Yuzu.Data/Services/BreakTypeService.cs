@@ -186,7 +186,7 @@ namespace Yuzu.Data.Services
                 {
                     // Delete associated breaks directly with SQL for better performance
                     await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM breaks WHERE break_type_id = {id}");
+                        $"DELETE FROM \"Data_Breaks\" WHERE break_type_id = {id}");
 
                     // Delete the break type
                     _dbContext.BreakTypes.Remove(breakType);
@@ -230,7 +230,7 @@ namespace Yuzu.Data.Services
                 {
                     // Delete associated breaks directly with SQL for better performance
                     await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM breaks WHERE break_type_id = {id} AND user_id = {userId}");
+                        $"DELETE FROM \"Data_Breaks\" WHERE break_type_id = {id} AND user_id = {userId}");
 
                     // Delete the break type
                     _dbContext.BreakTypes.Remove(breakType);
@@ -424,11 +424,11 @@ namespace Yuzu.Data.Services
                 {
                     // Delete all breaks directly with SQL for better performance
                     int deletedBreaksCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM breaks WHERE user_id = {userId}");
+                        $"DELETE FROM \"Data_Breaks\" WHERE user_id = {userId}");
 
                     // Delete all break types directly with SQL for better performance
                     int deletedBreakTypesCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM break_types WHERE user_id = {userId}");
+                        $"DELETE FROM \"Data_BreakTypes\" WHERE user_id = {userId}");
 
                     // Commit the transaction
                     await transaction.CommitAsync();

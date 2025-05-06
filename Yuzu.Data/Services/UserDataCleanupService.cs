@@ -62,17 +62,17 @@ namespace Yuzu.Data.Services
                 
                 // 1. Delete all breaks directly with SQL for better performance
                 int deletedBreaksCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                    $"DELETE FROM breaks WHERE user_id = {userId}");
+                    $"DELETE FROM \"Data_Breaks\" WHERE user_id = {userId}");
                 _logger.LogInformation("Deleted {Count} breaks for user {UserId}", deletedBreaksCount, userId);
                 
                 // 2. Delete all break types directly with SQL
                 int deletedBreakTypesCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                    $"DELETE FROM break_types WHERE user_id = {userId}");
+                    $"DELETE FROM \"Data_BreakTypes\" WHERE user_id = {userId}");
                 _logger.LogInformation("Deleted {Count} break types for user {UserId}", deletedBreakTypesCount, userId);
                 
                 // 3. Delete all user data items directly with SQL
                 int deletedUserDataCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                    $"DELETE FROM user_data WHERE user_id = {userId}");
+                    $"DELETE FROM \"Data_UserData\" WHERE user_id = {userId}");
                 _logger.LogInformation("Deleted {Count} user data items for user {UserId}", deletedUserDataCount, userId);
                 
                 // 4. Delete background images (use the service since we might need to clean up S3 storage too)
