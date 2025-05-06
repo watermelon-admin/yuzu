@@ -49,17 +49,32 @@ async function loadBackgroundImages(): Promise<void> {
         // Show loading state
         const container = document.getElementById('backgrounds-gallery-container');
         if (container) {
-            container.innerHTML = `
-                <div class="col loading-placeholder">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body d-flex align-items-center justify-content-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Clear the container first
+            container.innerHTML = '';
+            
+            // Create loading placeholder
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'col loading-placeholder';
+            
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card h-100 border-0 shadow-sm';
+            
+            const cardBodyDiv = document.createElement('div');
+            cardBodyDiv.className = 'card-body d-flex align-items-center justify-content-center';
+            
+            const spinnerDiv = document.createElement('div');
+            spinnerDiv.className = 'spinner-border text-primary';
+            spinnerDiv.setAttribute('role', 'status');
+            
+            const spinnerSpan = document.createElement('span');
+            spinnerSpan.className = 'visually-hidden';
+            spinnerSpan.textContent = 'Loading...';
+            
+            spinnerDiv.appendChild(spinnerSpan);
+            cardBodyDiv.appendChild(spinnerDiv);
+            cardDiv.appendChild(cardBodyDiv);
+            loadingDiv.appendChild(cardDiv);
+            container.appendChild(loadingDiv);
         }
 
         const response = await fetch('?handler=BackgroundImages', {
@@ -93,6 +108,86 @@ async function loadBackgroundImages(): Promise<void> {
 }
 
 /**
+ * Creates a background card element from the template
+ * @param background - The background image data
+ * @returns The populated card element
+ */
+function createBackgroundCard(background: BackgroundImage): DocumentFragment {
+    // Get the template
+    const template = document.getElementById('backgrounds-card-template') as HTMLTemplateElement;
+    if (!template) {
+        console.error('Background card template not found');
+        throw new Error('Template not found');
+    }
+    
+    // Clone the template
+    const card = document.importNode(template.content, true);
+    
+    // Set image source and alt text
+    const img = card.querySelector('.card-img-top') as HTMLImageElement;
+    if (img) {
+        img.src = background.thumbnailUrl;
+        img.alt = background.title;
+    }
+    
+    // Set title
+    const titleElement = card.querySelector('.backgrounds-card-title');
+    if (titleElement) {
+        titleElement.textContent = background.title;
+    }
+    
+    // Add appropriate badge based on image type
+    const imgContainer = card.querySelector('.position-relative');
+    if (imgContainer) {
+        const badge = document.createElement('div');
+        
+        if (background.isUserUploaded) {
+            badge.className = 'image-badge user-image-badge';
+            badge.textContent = 'Custom';
+        } else {
+            badge.className = 'image-badge system-image-badge';
+            badge.textContent = 'System';
+        }
+        
+        imgContainer.appendChild(badge);
+    }
+    
+    // Set up preview button
+    const previewButton = card.querySelector('.backgrounds-preview-button');
+    if (previewButton) {
+        previewButton.addEventListener('click', () => previewImage(background));
+    }
+    
+    // Set up delete button
+    const deleteButton = card.querySelector('.backgrounds-delete-button');
+    if (deleteButton) {
+        if (background.isUserUploaded && isSubscribed) {
+            deleteButton.addEventListener('click', () => confirmDelete(background));
+        } else {
+            // Hide delete button for system backgrounds or non-subscribed users
+            (deleteButton as HTMLElement).style.display = 'none';
+        }
+    }
+    
+    return card;
+}
+
+/**
+ * Creates a "no backgrounds" message element
+ * @returns The message element
+ */
+function createNoBackgroundsMessage(): HTMLElement {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'col-12 text-center py-5';
+    messageDiv.innerHTML = `
+        <i class="bx bx-image fs-1 text-muted mb-3"></i>
+        <h5>No Background Images</h5>
+        <p class="text-muted">Upload your own images or wait for new system backgrounds.</p>
+    `;
+    return messageDiv;
+}
+
+/**
  * Display background images with pagination
  */
 function displayBackgrounds(): void {
@@ -102,6 +197,7 @@ function displayBackgrounds(): void {
         return;
     }
     
+    // Clear the container
     container.innerHTML = '';
 
     // Calculate pagination
@@ -117,76 +213,21 @@ function displayBackgrounds(): void {
         });
     }
     
+    // Handle empty state
     if (backgrounds.length === 0) {
-        container.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <i class="bx bx-image fs-1 text-muted mb-3"></i>
-                <h5>No Background Images</h5>
-                <p class="text-muted">Upload your own images or wait for new system backgrounds.</p>
-            </div>
-        `;
+        container.appendChild(createNoBackgroundsMessage());
         return;
     }
 
-    // Clone and populate the template for each background
-    const template = document.getElementById('backgrounds-card-template') as HTMLTemplateElement;
-    if (!template) {
-        console.error('Background card template not found');
-        return;
-    }
-    
+    // Get backgrounds for current page and create cards
     const currentPageBackgrounds = backgrounds.slice(startIndex, endIndex);
-
-    currentPageBackgrounds.forEach(bg => {
-        const clone = document.importNode(template.content, true);
-        
-        // Set image source and title
-        const img = clone.querySelector('.card-img-top') as HTMLImageElement;
-        if (img) {
-            img.src = bg.thumbnailUrl;
-            img.alt = bg.title;
+    currentPageBackgrounds.forEach(background => {
+        try {
+            const card = createBackgroundCard(background);
+            container.appendChild(card);
+        } catch (error) {
+            console.error(`Error creating card for background ${background.title}:`, error);
         }
-        
-        // Set title
-        const titleElement = clone.querySelector('.backgrounds-card-title');
-        if (titleElement) {
-            titleElement.textContent = bg.title;
-        }
-
-        // Add appropriate badge based on image type
-        const imgContainer = clone.querySelector('.position-relative');
-        if (imgContainer) {
-            const badge = document.createElement('div');
-            
-            if (bg.isUserUploaded) {
-                badge.className = 'image-badge user-image-badge';
-                badge.textContent = 'Custom';
-            } else {
-                badge.className = 'image-badge system-image-badge';
-                badge.textContent = 'System';
-            }
-            
-            imgContainer.appendChild(badge);
-        }
-
-        // Set up preview button
-        const previewButton = clone.querySelector('.backgrounds-preview-button');
-        if (previewButton) {
-            previewButton.addEventListener('click', () => previewImage(bg));
-        }
-
-        // Set up delete button
-        const deleteButton = clone.querySelector('.backgrounds-delete-button');
-        if (deleteButton) {
-            if (bg.isUserUploaded && isSubscribed) {
-                deleteButton.addEventListener('click', () => confirmDelete(bg));
-            } else {
-                // Hide delete button for system backgrounds or non-subscribed users
-                (deleteButton as HTMLElement).style.display = 'none';
-            }
-        }
-
-        container.appendChild(clone);
     });
 
     // Initialize tooltips
@@ -194,6 +235,70 @@ function displayBackgrounds(): void {
     
     // Update pagination controls
     updatePagination(totalPages);
+}
+
+/**
+ * Creates a pagination button
+ * @param type - The type of button (prev, next, page)
+ * @param pageNumber - The page number (for page type)
+ * @param isActive - Whether this button is active
+ * @param isDisabled - Whether this button is disabled
+ * @returns The pagination button element
+ */
+function createPaginationButton(
+    type: 'prev' | 'next' | 'page', 
+    pageNumber: number = 0, 
+    isActive: boolean = false, 
+    isDisabled: boolean = false
+): HTMLElement {
+    const listItem = document.createElement('li');
+    
+    // Set appropriate classes
+    let className = 'page-item';
+    if (isActive) className += ' active';
+    if (isDisabled) className += ' disabled';
+    listItem.className = className;
+    
+    // Create the link
+    const link = document.createElement('a');
+    link.className = 'page-link';
+    link.href = '#';
+    
+    // Set content based on type
+    if (type === 'prev') {
+        const icon = document.createElement('i');
+        icon.className = 'bx bx-chevron-left';
+        link.appendChild(icon);
+    } else if (type === 'next') {
+        const icon = document.createElement('i');
+        icon.className = 'bx bx-chevron-right';
+        link.appendChild(icon);
+    } else {
+        // Regular page number
+        link.textContent = pageNumber.toString();
+    }
+    
+    // Set click handler
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        if (isDisabled) return;
+        
+        if (type === 'prev' && currentPage > 1) {
+            currentPage--;
+            displayBackgrounds();
+        } else if (type === 'next' && currentPage < pageNumber) {
+            // For next button, pageNumber represents totalPages
+            currentPage++;
+            displayBackgrounds();
+        } else if (type === 'page') {
+            currentPage = pageNumber;
+            displayBackgrounds();
+        }
+    });
+    
+    listItem.appendChild(link);
+    return listItem;
 }
 
 /**
@@ -207,65 +312,31 @@ function updatePagination(totalPages: number): void {
         return;
     }
     
+    // Clear current pagination
     paginationControls.innerHTML = '';
 
+    // Hide pagination if only one page
     if (totalPages <= 1) {
         paginationControls.style.display = 'none';
         return;
     }
 
+    // Show pagination
     paginationControls.style.display = 'flex';
 
-    // Previous button
-    const prevLi = document.createElement('li');
-    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-    const prevLink = document.createElement('a');
-    prevLink.className = 'page-link';
-    prevLink.href = '#';
-    prevLink.innerHTML = '<i class="bx bx-chevron-left"></i>';
-    prevLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (currentPage > 1) {
-            currentPage--;
-            displayBackgrounds();
-        }
-    });
-    prevLi.appendChild(prevLink);
-    paginationControls.appendChild(prevLi);
+    // Add previous button
+    const prevButton = createPaginationButton('prev', 0, false, currentPage === 1);
+    paginationControls.appendChild(prevButton);
 
-    // Page numbers
+    // Add page number buttons
     for (let i = 1; i <= totalPages; i++) {
-        const pageLi = document.createElement('li');
-        pageLi.className = `page-item ${currentPage === i ? 'active' : ''}`;
-        const pageLink = document.createElement('a');
-        pageLink.className = 'page-link';
-        pageLink.href = '#';
-        pageLink.textContent = i.toString();
-        pageLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            currentPage = i;
-            displayBackgrounds();
-        });
-        pageLi.appendChild(pageLink);
-        paginationControls.appendChild(pageLi);
+        const pageButton = createPaginationButton('page', i, currentPage === i);
+        paginationControls.appendChild(pageButton);
     }
 
-    // Next button
-    const nextLi = document.createElement('li');
-    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-    const nextLink = document.createElement('a');
-    nextLink.className = 'page-link';
-    nextLink.href = '#';
-    nextLink.innerHTML = '<i class="bx bx-chevron-right"></i>';
-    nextLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (currentPage < totalPages) {
-            currentPage++;
-            displayBackgrounds();
-        }
-    });
-    nextLi.appendChild(nextLink);
-    paginationControls.appendChild(nextLi);
+    // Add next button
+    const nextButton = createPaginationButton('next', totalPages, false, currentPage === totalPages);
+    paginationControls.appendChild(nextButton);
 }
 
 /**
