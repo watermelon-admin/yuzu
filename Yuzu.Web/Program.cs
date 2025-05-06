@@ -26,6 +26,12 @@ using IEmailSender = Yuzu.Mail.IEmailSender;
 // Get application builder
 var builder = WebApplication.CreateBuilder(args);
 
+// Apply Kubernetes configuration if running in Kubernetes environment
+builder.Configuration.AddKubernetesSecretsConfiguration(
+    secretName: "yuzu-app-secrets",
+    @namespace: "default",
+    logger: builder.Services.BuildServiceProvider().GetService<ILogger<IConfiguration>>());
+
 builder.AddServiceDefaults();
 builder.Services.AddControllers();
 

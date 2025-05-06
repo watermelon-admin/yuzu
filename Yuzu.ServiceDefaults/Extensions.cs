@@ -9,7 +9,6 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using System;
-using Yuzu.ServiceDefaults.Kubernetes;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -20,9 +19,8 @@ public static class Extensions
 {
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
-        // Add Kubernetes secrets configuration if running in Kubernetes
-        AddKubernetesConfigurationIfAvailable(builder);
-
+        // Kubernetes configuration now handled directly in Yuzu.Web
+        
         builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
@@ -47,35 +45,7 @@ public static class Extensions
         return builder;
     }
     
-    /// <summary>
-    /// Adds Kubernetes secrets configuration provider if running in a Kubernetes environment
-    /// </summary>
-    /// <param name="builder">The host application builder</param>
-    private static void AddKubernetesConfigurationIfAvailable<TBuilder>(TBuilder builder) where TBuilder : IHostApplicationBuilder
-    {
-        if (KubernetesEnvironmentDetector.IsRunningInKubernetes())
-        {
-            var logger = builder.Services.BuildServiceProvider().GetService<ILogger<IConfiguration>>();
-            logger?.LogInformation("Running in Kubernetes environment, adding Kubernetes secrets configuration");
-
-            try 
-            {
-                // Add application settings from the Kubernetes secret
-                // This will automatically map keys from the secret to configuration keys
-                builder.Configuration.AddKubernetesSecretsIfAvailable(
-                    secretName: "yuzu-app-secrets",  // The name of your Kubernetes secret
-                    @namespace: "default",           // The Kubernetes namespace where your secret is defined
-                    logger: logger);
-                
-                logger?.LogInformation("Kubernetes secrets configuration added successfully");
-            }
-            catch (Exception ex)
-            {
-                logger?.LogWarning(ex, "Failed to add Kubernetes secrets configuration: {Message}", ex.Message);
-                logger?.LogInformation("Application will continue with default configuration sources");
-            }
-        }
-    }
+    // Method removed - this functionality is now in Yuzu.Web.Configuration.ConfigurationExtensions
 
     public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
