@@ -44,7 +44,8 @@
 
 <!-- Upload Modal -->
 <div class="modal fade" id="backgrounds-upload-modal" tabindex="-1" aria-labelledby="backgrounds-upload-modal-label" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Changed from modal-dialog to modal-lg for wider dialog -->
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="backgrounds-upload-modal-label">Upload Background Image</h5>
@@ -52,43 +53,56 @@
             </div>
             <form id="backgrounds-upload-form" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <p class="mb-3">Upload a JPG or PNG image to use as a custom background.</p>
+                    <div class="row">
+                        <!-- Added row container for side-by-side layout -->
+                        <!-- Left column: Form inputs -->
+                        <div class="col-md-6">
+                            <p class="mb-3">Upload a JPG or PNG image to use as a custom background.</p>
+                            <!-- Hidden anti-forgery token -->
+                            @Html.AntiForgeryToken()
+                            <!-- Title Input with validation -->
+                            <div class="position-relative mb-4">
+                                <label for="backgrounds-image-title" class="form-label fs-base">Image Title</label>
+                                <input type="text" class="form-control" id="backgrounds-image-title" name="imageTitle" maxlength="50" required
+                                       placeholder="Enter a unique title for your background">
+                                <div class="position-absolute start-0 top-100 fs-sm text-danger validation-message" id="backgrounds-title-validation-message">
+                                </div>
+                                <div class="form-text">This title will be displayed in your background library.</div>
+                            </div>
 
-                    <!-- Hidden anti-forgery token -->
-                    @Html.AntiForgeryToken()
-
-                    <!-- Title Input with validation -->
-                    <div class="position-relative mb-4">
-                        <label for="backgrounds-image-title" class="form-label fs-base">Image Title</label>
-                        <input type="text" class="form-control" id="backgrounds-image-title" name="imageTitle" maxlength="50" required
-                               placeholder="Enter a unique title for your background">
-                        <div class="position-absolute start-0 top-100 fs-sm text-danger validation-message" id="backgrounds-title-validation-message">
+                            <!-- Information text moved here -->
+                            <div class="alert alert-info small text-muted mt-5">
+                                <ul>
+                                    <li>Maximum file size: 5MB</li>
+                                    <li>Allowed formats: JPG, PNG</li>
+                                    <li>Recommended dimensions: 1920×1080px</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="form-text">This title will be displayed in your background library.</div>
+                        <!-- Right column: FilePond Image upload/preview -->
+                        <div class="col-md-6">
+                            <div class="h-100">
+                                <!-- File upload element moved here -->
+                                <input type="file" class="filepond h-100" name="file" id="backgrounds-file-upload"
+                                       accept="image/png, image/jpeg" />
+                                <!-- Validation message for file upload -->
+                                <div class="position-relative">
+                                    <div class="fs-sm text-danger validation-message" id="backgrounds-file-validation-message">
+                                        xxxxx
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <!-- File upload element with validation -->
-                    <div class="position-relative mb-4">
-                        <input type="file" class="filepond" name="file" id="backgrounds-file-upload"
-                               accept="image/png, image/jpeg" />
-                        <div class="position-absolute start-0 top-100 fs-sm text-danger validation-message" id="backgrounds-file-validation-message">
-                        </div>
-                    </div>
-
-                    <!-- Validation alert for overall form errors -->
-                    <div class="alert d-flex alert-danger mt-3 mb-3 d-none" role="alert" id="backgrounds-form-validation-alert">
+                    <!-- Validation alert for overall form errors - full width -->
+                    <div class="alert d-flex alert-danger mt-3 mb-0 d-none" role="alert" id="backgrounds-form-validation-alert">
                         <i class="bx bx-bell lead me-3"></i>
                         <div id="backgrounds-form-validation-message">
                             Please correct the errors above before uploading.
                         </div>
-                    </div>
-
-                    <div class="small text-muted mt-2">
-                        <ul>
-                            <li>Maximum file size: 5MB</li>
-                            <li>Allowed formats: JPG, PNG</li>
-                            <li>Recommended dimensions: 1920�1080px</li>
-                        </ul>
                     </div>
                 </div>
                 <div class="modal-footer">
