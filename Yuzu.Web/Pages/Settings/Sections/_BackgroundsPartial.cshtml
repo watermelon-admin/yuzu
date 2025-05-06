@@ -68,9 +68,7 @@
                                         <label for="backgrounds-image-title" class="form-label fs-base">Image Title</label>
                                         <input type="text" class="form-control" id="backgrounds-image-title" name="imageTitle" maxlength="50" required
                                                placeholder="Enter a unique title for your background">
-                                        <div class="position-relative">
-                                            <div class="fs-sm text-danger validation-message" id="backgrounds-title-validation-message">
-                                            </div>
+                                        <div class="fs-sm text-danger validation-message" id="backgrounds-title-validation-message">
                                         </div>
                                         <div class="form-text">This title will be displayed in your background library.</div>
                                     </div>
@@ -79,7 +77,7 @@
                                 <!-- Bottom aligned content (blue panel) -->
                                 <div class="mt-auto">
                                     <!-- Information text moved here -->
-                                    <div class="alert alert-info small mb-0">
+                                    <div class="alert alert-info small mt-5 mb-0">
                                         <ul class="mb-0">
                                             <li>Maximum file size: 5MB</li>
                                             <li>Allowed formats: JPG, PNG</li>
@@ -89,7 +87,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <!-- Right column: FilePond Image upload/preview -->
                         <div class="col-md-6">
                             <div class="h-100 d-flex flex-column">
@@ -101,7 +98,7 @@
 
                                 <!-- Validation message at bottom -->
                                 <div class="mt-auto">
-                                    <div class="fs-sm text-danger validation-message" id="backgrounds-file-validation-message">
+                                    <div style="position: relative; top: -50px;" class="fs-sm text-danger validation-message" id="backgrounds-file-validation-message">
                                     </div>
                                 </div>
                             </div>
