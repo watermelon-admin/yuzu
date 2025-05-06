@@ -160,22 +160,16 @@ using (var scope = app.Services.CreateScope())
     geolocator.GenerateTimeZoneGeoData();
     app.Logger.LogInformation("Time zone geolocation data generated/loaded");
     
-    // Test a few specific time zones to verify data is correct
-    app.Logger.LogInformation("Testing specific time zones for debugging:");
-    geolocator.LogTimeZoneData("Europe/Berlin");
-    geolocator.LogTimeZoneData("America/New_York");
-    geolocator.LogTimeZoneData("Asia/Tokyo");
-    
-    // Test getting weather for a time zone
+    // Verify weather service functionality
     try
     {
         var weatherService = scope.ServiceProvider.GetRequiredService<WeatherService>();
-        var berlinWeather = await weatherService.GetBasicWeatherInfoAsync("Europe/Berlin");
-        app.Logger.LogInformation("Test weather for Berlin: {Weather}", berlinWeather);
+        await weatherService.GetBasicWeatherInfoAsync("Europe/Berlin");
+        app.Logger.LogInformation("Weather service check completed successfully");
     }
     catch (Exception ex)
     {
-        app.Logger.LogError(ex, "Error testing weather service");
+        app.Logger.LogError(ex, "Error checking weather service");
     }
 }
 
@@ -250,20 +244,6 @@ using (var scope = app.Services.CreateScope())
                 await connection.OpenAsync();
                 app.Logger.LogInformation("Connected to 'postgres' database successfully");
                 
-                // List existing databases
-                app.Logger.LogInformation("Listing existing databases:");
-                using (var cmd = connection.CreateCommand())
-                {
-                    cmd.CommandText = "SELECT datname FROM pg_database WHERE datistemplate = false;";
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            app.Logger.LogInformation("- {DatabaseName}", reader.GetString(0));
-                        }
-                    }
-                }
-                
                 // Check if database exists
                 app.Logger.LogInformation("Checking if database '{DbName}' exists...", targetDbName);
                 using (var cmd = connection.CreateCommand())
@@ -290,44 +270,19 @@ using (var scope = app.Services.CreateScope())
                         app.Logger.LogInformation("CREATE DATABASE command executed successfully");
                     }
                 }
-                
-                // Verify the database was created
-                app.Logger.LogInformation("Verifying database creation:");
-                using (var cmd = connection.CreateCommand())
-                {
-                    cmd.CommandText = "SELECT datname FROM pg_database WHERE datistemplate = false;";
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            var dbName = reader.GetString(0);
-                            if (dbName == targetDbName)
-                            {
-                                app.Logger.LogInformation("✓ Database '{DbName}' confirmed in pg_database", targetDbName);
-                            }
-                            else
-                            {
-                                app.Logger.LogInformation("- {DatabaseName}", dbName);
-                            }
-                        }
-                    }
-                }
             }
             
             // Now ensure the application data schema exists
             app.Logger.LogInformation("Ensuring application data schema in database '{DbName}' is up to date...", targetDbName);
             
-            // Get list of existing tables in the database before creation
-            var tableNames = await GetDbTableNamesAsync(dbContext);
-            app.Logger.LogInformation("Current application tables before creation: {TableNames}", string.Join(", ", tableNames));
-            
             // Initialize database context
             app.Logger.LogInformation("Creating application tables with DbContext...");
             await dbContext.Database.EnsureCreatedAsync();
             
-            // Get list of tables after creation to verify
-            tableNames = await GetDbTableNamesAsync(dbContext);
-            app.Logger.LogInformation("Tables after creation: {TableNames}", string.Join(", ", tableNames));
+            // Verify critical tables exist
+            var tableNames = await GetDbTableNamesAsync(dbContext);
+            app.Logger.LogInformation("Key tables: {TableNames}", 
+                string.Join(", ", tableNames.Where(t => t.StartsWith("Data_"))));
             
             // Check if the Data_BackgroundImages table exists
             if (!tableNames.Contains("Data_BackgroundImages"))
@@ -339,9 +294,7 @@ using (var scope = app.Services.CreateScope())
                 var sql = dbContext.Database.GenerateCreateScript();
                 await dbContext.Database.ExecuteSqlRawAsync(sql);
                 
-                // Check again
-                tableNames = await GetDbTableNamesAsync(dbContext);
-                app.Logger.LogInformation("Tables after script execution: {TableNames}", string.Join(", ", tableNames));
+                app.Logger.LogInformation("Database script executed");
             }
             
             app.Logger.LogInformation("Application data schema creation completed");
@@ -383,23 +336,13 @@ using (var scope = app.Services.CreateScope())
                 // Don't rethrow here - we still want the application to start even if identity fails
             }
             
-            // List tables in the database
-            app.Logger.LogInformation("Listing tables in the database:");
+            // Verify database connection with target database
+            app.Logger.LogInformation("Verifying connection to target database '{DbName}'", targetDbName);
             connBuilder.Database = targetDbName;
             using (var connection = new Npgsql.NpgsqlConnection(connBuilder.ConnectionString))
             {
                 await connection.OpenAsync();
-                using (var cmd = connection.CreateCommand())
-                {
-                    cmd.CommandText = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';";
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            app.Logger.LogInformation("- Table: {TableName}", reader.GetString(0));
-                        }
-                    }
-                }
+                app.Logger.LogInformation("Successfully connected to target database");
             }
             
             // Only initialize default data if the database was newly created
@@ -424,23 +367,16 @@ using (var scope = app.Services.CreateScope())
                     app.Logger.LogInformation("Default break types initialization completed");
                     
                     // Verify data was created
-                    app.Logger.LogInformation("Verifying data creation:");
-                    
-                    // Check user data
                     var userData = await userDataService.GetByUserIdAsync(testUserId);
-                    app.Logger.LogInformation("User data count: {Count}", userData?.Count ?? 0);
-                    
-                    // Check break types
                     var breakTypes = await breakTypeService.GetAllAsync(testUserId);
-                    app.Logger.LogInformation("Break types count: {Count}", breakTypes?.Count ?? 0);
                     
                     if (userData?.Count > 0 && breakTypes?.Count > 0)
                     {
-                        app.Logger.LogInformation("✓ Default data successfully created");
+                        app.Logger.LogInformation("Default data successfully created");
                     }
                     else
                     {
-                        app.Logger.LogWarning("⚠ Default data may not have been created properly");
+                        app.Logger.LogWarning("Default data may not have been created properly");
                     }
                 }
                 catch (Exception ex)
