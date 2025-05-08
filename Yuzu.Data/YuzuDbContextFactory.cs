@@ -31,12 +31,7 @@ namespace Yuzu.Data
             
             if (string.IsNullOrEmpty(connectionString))
             {
-                connectionString = configuration.GetSection("DataStorageConfig")["ConnectionString"];
-            }
-            
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("Could not find a connection string. Ensure that either ConnectionStrings:DefaultConnection or DataStorageConfig:ConnectionString is set in appsettings.json.");
+                throw new InvalidOperationException("Could not find a connection string. Ensure that ConnectionStrings:DefaultConnection is set in appsettings.json or user secrets.");
             }
 
             // Create DbContext options

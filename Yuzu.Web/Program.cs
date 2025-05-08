@@ -11,7 +11,11 @@ using Azure.Identity;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
+using Npgsql;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Yuzu.Data;
 using Yuzu.Mail;
 using Yuzu.Payments;
@@ -179,10 +183,6 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // Get database context
-        // Replace the following line:
-        // logger: builder.Services.BuildServiceProvider().GetService<ILogger<IConfiguration>>());
-
-        // With this updated code:
         var loggerFactory = LoggerFactory.Create(loggingBuilder =>
         {
             loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
@@ -197,9 +197,8 @@ using (var scope = app.Services.CreateScope())
             logger: logger);
         var dbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.YuzuDbContext>();
         
-        // Get database settings
-        var dataStorageSettings = scope.ServiceProvider.GetRequiredService<IOptions<Yuzu.Web.Configuration.DataStorageSettings>>().Value;
-        var connectionString = dataStorageSettings.ConnectionString;
+        // Get connection string from configuration
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         
         // Get connection string to log database name
         try {
@@ -230,10 +229,8 @@ using (var scope = app.Services.CreateScope())
         
         try 
         {
-            // Modify the connection string to connect to postgres DB first
-            app.Logger.LogInformation("Attempting to connect to 'postgres' database to create '{DbName}'", targetDbName);
-            connBuilder.Database = "postgres";
-            var pgConnString = connBuilder.ConnectionString;
+            // Skip database creation and connect directly to the existing database
+            app.Logger.LogInformation("Using existing database '{DbName}', skipping database creation", targetDbName);
             
             // Check if PostgreSQL server is running
             app.Logger.LogInformation("Testing if PostgreSQL server is accessible at {Host}:{Port}...", host, port);
@@ -253,68 +250,154 @@ using (var scope = app.Services.CreateScope())
                 }
             }
             
-            // Connect to postgres database
-            using (var connection = new Npgsql.NpgsqlConnection(pgConnString))
+            // Skip database existence check and creation
+            databaseExists = true; // Always assume database exists
+            
+            // Create the application data tables in the existing database
+            app.Logger.LogInformation("Creating application data tables in database '{DbName}'...", targetDbName);
+            
+            try
             {
-                app.Logger.LogInformation("Opening connection to 'postgres' database...");
-                await connection.OpenAsync();
-                app.Logger.LogInformation("Connected to 'postgres' database successfully");
+                // First, try to create tables directly with EF Core's ExecuteSqlRaw
+                app.Logger.LogInformation("Generating and executing SQL script for table creation...");
+                var sql = dbContext.Database.GenerateCreateScript();
+                await dbContext.Database.ExecuteSqlRawAsync(sql);
+                app.Logger.LogInformation("Direct SQL script execution completed");
                 
-                // Check if database exists
-                app.Logger.LogInformation("Checking if database '{DbName}' exists...", targetDbName);
-                using (var cmd = connection.CreateCommand())
-                {
-                    cmd.CommandText = $"SELECT 1 FROM pg_database WHERE datname = '{targetDbName}';";
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        databaseExists = await reader.ReadAsync();
-                    }
-                }
+                // Verify tables were created successfully
+                var tableNames = await GetDbTableNamesAsync(dbContext);
+                app.Logger.LogInformation("Tables in database: {TableNames}", 
+                    string.Join(", ", tableNames));
                 
-                if (databaseExists)
+                // Check for required Data_ tables
+                var dataTableCount = tableNames.Count(t => t.StartsWith("Data_"));
+                app.Logger.LogInformation("Data tables count: {Count}", dataTableCount);
+                
+                if (dataTableCount == 0)
                 {
-                    app.Logger.LogInformation("Database '{DbName}' already exists, preserving data", targetDbName);
-                }
-                else
-                {
-                    // Create fresh database only if it doesn't exist
-                    app.Logger.LogInformation("Creating database '{DbName}'...", targetDbName);
-                    using (var cmd = connection.CreateCommand())
+                    app.Logger.LogWarning("No Data_ tables were created - trying alternate approach");
+                    
+                    // Try using EnsureCreatedAsync method as a fallback
+                    app.Logger.LogInformation("Using DbInitializer to create tables...");
+                    var dbInitializer = scope.ServiceProvider.GetRequiredService<Yuzu.Data.DbInitializer>();
+                    await dbInitializer.EnsureDatabaseCreatedAsync();
+                    
+                    // Verify tables again
+                    tableNames = await GetDbTableNamesAsync(dbContext);
+                    app.Logger.LogInformation("Tables after DbInitializer: {TableNames}", 
+                        string.Join(", ", tableNames.Where(t => t.StartsWith("Data_"))));
+                    
+                    if (!tableNames.Any(t => t.StartsWith("Data_")))
                     {
-                        cmd.CommandText = $"CREATE DATABASE \"{targetDbName}\";";
-                        await cmd.ExecuteNonQueryAsync();
-                        app.Logger.LogInformation("CREATE DATABASE command executed successfully");
+                        // One more attempt with explicit table creation SQL
+                        app.Logger.LogWarning("Still no Data_ tables - attempting explicit table creation");
+                        
+                        // Create the required Data_ tables explicitly
+                        string createTablesScript = @"
+                            -- Create Data_BackgroundImages table
+                            CREATE TABLE ""Data_BackgroundImages"" (
+                                id SERIAL PRIMARY KEY,
+                                user_id TEXT NOT NULL,
+                                file_name TEXT NOT NULL,
+                                title TEXT NOT NULL,
+                                thumbnail_path TEXT NOT NULL,
+                                full_image_path TEXT NOT NULL,
+                                thumbnail_url TEXT,
+                                full_image_url TEXT,
+                                uploaded_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                is_system BOOLEAN NOT NULL DEFAULT false,
+                                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+                            );
+                            
+                            -- Create indexes for Data_BackgroundImages
+                            CREATE INDEX idx_data_background_images_user_id ON ""Data_BackgroundImages""(user_id);
+                            CREATE INDEX idx_data_background_images_file_name ON ""Data_BackgroundImages""(file_name);
+                            
+                            -- Create Data_BreakTypes table
+                            CREATE TABLE ""Data_BreakTypes"" (
+                                id SERIAL PRIMARY KEY,
+                                user_id TEXT NOT NULL,
+                                sort_order INTEGER NOT NULL,
+                                name VARCHAR(100) NOT NULL,
+                                default_duration_minutes INTEGER NOT NULL,
+                                countdown_message VARCHAR(200) NOT NULL,
+                                countdown_end_message VARCHAR(200) NOT NULL,
+                                end_time_title VARCHAR(100) NOT NULL,
+                                break_time_step_minutes INTEGER NOT NULL,
+                                background_image_choices TEXT,
+                                image_title TEXT,
+                                usage_count BIGINT NOT NULL DEFAULT 0,
+                                icon_name TEXT,
+                                components TEXT,
+                                is_locked BOOLEAN NOT NULL DEFAULT false,
+                                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+                            );
+                            
+                            -- Create indexes for Data_BreakTypes
+                            CREATE INDEX idx_data_break_types_user_id ON ""Data_BreakTypes""(user_id);
+                            
+                            -- Create Data_UserData table
+                            CREATE TABLE ""Data_UserData"" (
+                                id SERIAL PRIMARY KEY,
+                                user_id TEXT NOT NULL,
+                                data_key TEXT NOT NULL,
+                                value TEXT NOT NULL,
+                                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+                            );
+                            
+                            -- Create indexes for Data_UserData
+                            CREATE INDEX idx_data_user_data_user_id ON ""Data_UserData""(user_id);
+                            CREATE UNIQUE INDEX idx_data_user_data_user_id_data_key ON ""Data_UserData""(user_id, data_key);
+                            
+                            -- Create Data_Breaks table
+                            CREATE TABLE ""Data_Breaks"" (
+                                id SERIAL PRIMARY KEY,
+                                user_id TEXT NOT NULL,
+                                break_type_id INTEGER NOT NULL,
+                                start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+                                end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+                                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                CONSTRAINT fk_data_breaks_break_type FOREIGN KEY (break_type_id) 
+                                    REFERENCES ""Data_BreakTypes""(id) ON DELETE CASCADE
+                            );
+                            
+                            -- Create indexes for Data_Breaks
+                            CREATE INDEX idx_data_breaks_user_id ON ""Data_Breaks""(user_id);
+                            CREATE INDEX idx_data_breaks_break_type_id ON ""Data_Breaks""(break_type_id);
+                        ";
+                        
+                        try
+                        {
+                            await dbContext.Database.ExecuteSqlRawAsync(createTablesScript);
+                            app.Logger.LogInformation("Explicit table creation SQL executed");
+                            
+                            // Verify one more time
+                            tableNames = await GetDbTableNamesAsync(dbContext);
+                            app.Logger.LogInformation("Tables after explicit creation: {TableNames}", 
+                                string.Join(", ", tableNames.Where(t => t.StartsWith("Data_"))));
+                                
+                            if (!tableNames.Any(t => t.StartsWith("Data_")))
+                            {
+                                app.Logger.LogError("Still unable to create Data_ tables despite multiple attempts");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            app.Logger.LogError(ex, "Error during explicit table creation: {Message}", ex.Message);
+                        }
                     }
                 }
             }
-            
-            // Now ensure the application data schema exists
-            app.Logger.LogInformation("Ensuring application data schema in database '{DbName}' is up to date...", targetDbName);
-            
-            // Initialize database context
-            app.Logger.LogInformation("Creating application tables with DbContext...");
-            await dbContext.Database.EnsureCreatedAsync();
-            
-            // Verify critical tables exist
-            var tableNames = await GetDbTableNamesAsync(dbContext);
-            app.Logger.LogInformation("Key tables: {TableNames}", 
-                string.Join(", ", tableNames.Where(t => t.StartsWith("Data_"))));
-            
-            // Check if the Data_BackgroundImages table exists
-            if (!tableNames.Contains("Data_BackgroundImages"))
+            catch (Exception ex)
             {
-                app.Logger.LogWarning("Data_BackgroundImages table not created - schema synchronization issue detected");
-                app.Logger.LogInformation("Attempting additional initialization...");
-                
-                // Try executing SQL directly if needed as a fallback
-                var sql = dbContext.Database.GenerateCreateScript();
-                await dbContext.Database.ExecuteSqlRawAsync(sql);
-                
-                app.Logger.LogInformation("Database script executed");
+                app.Logger.LogError(ex, "Error creating application tables: {Message}", ex.Message);
             }
             
             app.Logger.LogInformation("Application data schema creation completed");
-            
             app.Logger.LogInformation("Application data schema check completed successfully");
             
             // Initialize Identity database schema
@@ -410,9 +493,6 @@ using (var scope = app.Services.CreateScope())
             app.Logger.LogError(ex, "Error creating database: {Message}", ex.Message);
             throw; // Rethrow to stop application startup
         }
-        
-        // Skip legacy initializer as we're using a fresh PostgreSQL install
-        app.Logger.LogInformation("Skipping legacy database initialization in PostgreSQL-only mode");
     }
     catch (Exception ex)
     {

@@ -40,16 +40,8 @@ namespace Yuzu.Web.Configuration
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
-            services.AddOptions<Yuzu.Web.Configuration.DataStorageSettings>()
-                .Bind(configuration.GetSection("DataStorageConfig"))
-                .ValidateDataAnnotations()
-                .ValidateOnStart();
-
             services.AddOptions<Yuzu.Web.Configuration.DebugSettings>()
                 .Bind(configuration.GetSection("DebugSettings"));
-
-            services.AddOptions<Yuzu.Web.Configuration.IdentitySettings>()
-                .Bind(configuration.GetSection("IdentityConfig"));
 
             return services;
         }

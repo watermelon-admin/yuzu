@@ -1,5 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.S3.Util;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Yuzu.Configuration.S3;
 
@@ -79,7 +81,9 @@ namespace Yuzu.Web.Tools.StorageServices
 
         public string GetBaseUrl(string containerName)
         {
-            // Format is: https://s3.region.scw.cloud/bucket-name/container-name
+            // Format is normally: https://s3.region.scw.cloud/bucket-name/container-name
+
+
             return $"{_serviceUrl}/{_bucketName}/{containerName}";
         }
         
@@ -224,7 +228,7 @@ namespace Yuzu.Web.Tools.StorageServices
                 // Set the CannedACL to make the object publicly readable if requested
                 if (isPublic)
                 {
-                    request.CannedACL = S3CannedACL.PublicRead;
+                    request.CannedACL = Amazon.S3.S3CannedACL.PublicRead;
                     _logger.LogInformation("Setting public access for object {ObjectName} in container {ContainerName}", objectName, containerName);
                 }
 
