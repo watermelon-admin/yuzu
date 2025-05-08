@@ -59,7 +59,12 @@ namespace Yuzu.Data.Services
             }
             
             // The result is a Task<IEnumerable<StorageItem>> in the web namespace
-            dynamic task = method.Invoke(_webStorageService, new object[] { containerName, prefix });
+            var invokeResult = method.Invoke(_webStorageService, new object[] { containerName, prefix });
+            if (invokeResult == null)
+            {
+                return new List<StorageItem>();
+            }
+            dynamic task = invokeResult;
             var result = await task;
             
             // Convert the result to our StorageItem objects

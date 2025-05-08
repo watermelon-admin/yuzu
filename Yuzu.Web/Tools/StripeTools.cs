@@ -120,7 +120,7 @@ namespace Yuzu.Web.Tools
         /// </summary>
         /// <param name="userId">The ID of the user whose subscription data should be retrieved.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the subscription data.</returns>
-        public async Task<object> GetSubscriptionDataAsync(string userId)
+        public async Task<object?> GetSubscriptionDataAsync(string userId)
         {
             // If debug flag is enabled, return fake subscription data
             if (TreatAllUsersAsSubscribed)
@@ -150,7 +150,7 @@ namespace Yuzu.Web.Tools
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null || string.IsNullOrEmpty(user.StripeSubscriptionID))
             {
-                return new SubscriptionData 
+                return new 
                 { 
                     Status = "inactive",
                     CurrentPeriodEnd = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
@@ -160,7 +160,7 @@ namespace Yuzu.Web.Tools
             
             // TODO: Implement actual subscription data retrieval from Stripe API
             // For now, return a placeholder subscription
-            return new SubscriptionData
+            return new 
             {
                 Status = "active",
                 CurrentPeriodEnd = DateTimeOffset.UtcNow.AddDays(30).ToUnixTimeSeconds(),

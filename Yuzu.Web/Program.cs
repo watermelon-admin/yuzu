@@ -191,18 +191,6 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // Get database context
-        var loggerFactory = LoggerFactory.Create(loggingBuilder =>
-        {
-            loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
-            loggingBuilder.AddConsole();
-            loggingBuilder.AddDebug();
-        });
-        var logger = loggerFactory.CreateLogger<IConfiguration>();
-
-        builder.Configuration.AddKubernetesSecretsConfiguration(
-            secretName: "yuzu-app-secrets",
-            @namespace: "default",
-            logger: logger);
         var dbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.YuzuDbContext>();
         
         // Get connection string from configuration
@@ -547,28 +535,28 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("Initializing system background images...");
+        var initLogger = services.GetRequiredService<ILogger<Program>>();
+        initLogger.LogInformation("Initializing system background images...");
         
         // Ensure database is created and migrated
         var dbContext = services.GetRequiredService<Yuzu.Data.YuzuDbContext>();
         
         // Create schema with context
         await dbContext.Database.EnsureCreatedAsync();
-        logger.LogInformation("Database creation completed");
+        initLogger.LogInformation("Database creation completed");
         
         // Initialize background images
         var backgroundImageInitializer = services.GetRequiredService<Yuzu.Data.Services.SystemBackgroundImageInitializer>();
         backgroundImageInitializer.InitializeAsync().GetAwaiter().GetResult();
-        logger.LogInformation("Background image initialization completed");
+        initLogger.LogInformation("Background image initialization completed");
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while initializing the system: {Message}", ex.Message);
+        var errorLogger = services.GetRequiredService<ILogger<Program>>();
+        errorLogger.LogError(ex, "An error occurred while initializing the system: {Message}", ex.Message);
         if (ex.InnerException != null)
         {
-            logger.LogError("Inner exception: {Message}", ex.InnerException.Message);
+            errorLogger.LogError("Inner exception: {Message}", ex.InnerException.Message);
         }
     }
 }
