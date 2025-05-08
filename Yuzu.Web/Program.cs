@@ -31,10 +31,18 @@ using IEmailSender = Yuzu.Mail.IEmailSender;
 var builder = WebApplication.CreateBuilder(args);
 
 // Apply Kubernetes configuration if running in Kubernetes environment
+// Instead of BuildServiceProvider(), use a factory approach
+var loggerFactory = LoggerFactory.Create(logging => 
+{
+    logging.AddConsole();
+    logging.SetMinimumLevel(LogLevel.Information);
+});
+var logger = loggerFactory.CreateLogger<IConfiguration>();
+
 builder.Configuration.AddKubernetesSecretsConfiguration(
     secretName: "yuzu-app-secrets",
     @namespace: "default",
-    logger: builder.Services.BuildServiceProvider().GetService<ILogger<IConfiguration>>());
+    logger: logger);
 
 builder.AddServiceDefaults();
 builder.Services.AddControllers();

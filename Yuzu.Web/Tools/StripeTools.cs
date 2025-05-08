@@ -150,12 +150,22 @@ namespace Yuzu.Web.Tools
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null || string.IsNullOrEmpty(user.StripeSubscriptionID))
             {
-                return null;
+                return new SubscriptionData 
+                { 
+                    Status = "inactive",
+                    CurrentPeriodEnd = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    IsCanceled = true
+                };
             }
             
             // TODO: Implement actual subscription data retrieval from Stripe API
-            // For now, return a placeholder
-            return null;
+            // For now, return a placeholder subscription
+            return new SubscriptionData
+            {
+                Status = "active",
+                CurrentPeriodEnd = DateTimeOffset.UtcNow.AddDays(30).ToUnixTimeSeconds(),
+                IsCanceled = false
+            };
         }
     }
 }

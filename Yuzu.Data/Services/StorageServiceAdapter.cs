@@ -44,7 +44,8 @@ namespace Yuzu.Data.Services
                 throw new InvalidOperationException("GetBaseUrl method not found on web storage service");
             }
             
-            return (string)method.Invoke(_webStorageService, new object[] { containerName });
+            var result = method.Invoke(_webStorageService, new object[] { containerName });
+            return result?.ToString() ?? string.Empty;
         }
 
         /// <inheritdoc />
@@ -87,7 +88,12 @@ namespace Yuzu.Data.Services
                 throw new InvalidOperationException("ObjectExistsAsync method not found on web storage service");
             }
             
-            return await (Task<bool>)method.Invoke(_webStorageService, new object[] { containerName, objectName });
+            var result = method.Invoke(_webStorageService, new object[] { containerName, objectName });
+            if (result == null)
+            {
+                return false;
+            }
+            return await (Task<bool>)result;
         }
     }
 
@@ -118,6 +124,10 @@ namespace Yuzu.Data.Services
             }
             
             var webStorageService = method.Invoke(_webStorageServiceFactory, null);
+            if (webStorageService == null)
+            {
+                throw new InvalidOperationException("Web storage service factory returned null");
+            }
             return new StorageServiceAdapter(webStorageService);
         }
 
@@ -131,7 +141,8 @@ namespace Yuzu.Data.Services
                 throw new InvalidOperationException("GetBackgroundsUrl method not found on web storage service factory");
             }
             
-            return (string)method.Invoke(_webStorageServiceFactory, null);
+            var result = method.Invoke(_webStorageServiceFactory, null);
+            return result?.ToString() ?? string.Empty;
         }
     }
 }

@@ -77,7 +77,7 @@ namespace Yuzu.Web.Configuration.Kubernetes
                     data[configKey] = decodedValue;
                 }
                 
-                Data = data;
+                Data = data as IDictionary<string, string?>;
                 
                 _logger?.LogInformation(
                     "Successfully loaded {Count} configuration values from Kubernetes secret {SecretName}", 
@@ -94,7 +94,7 @@ namespace Yuzu.Web.Configuration.Kubernetes
                 
                 // Don't throw exceptions on configuration load failures
                 // Just continue with an empty configuration
-                Data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                Data = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
             }
         }
     }
