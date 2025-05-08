@@ -17,17 +17,11 @@ namespace Yuzu.Web
         /// <returns>A new YuzuIdentityDbContext instance</returns>
         public YuzuIdentityDbContext CreateDbContext(string[] args)
         {
-            // Get the directory where the assembly is located
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-            
-            // Navigate up to the project root to find the appsettings.json file
-            var projectRoot = Path.GetFullPath(Path.Combine(assemblyPath, "..", ".."));
-            
             // Create configuration
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(projectRoot)
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile("appsettings.Development.json", optional: true)
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
                 .AddEnvironmentVariables()
                 .AddUserSecrets<YuzuIdentityDbContext>(optional: true)
                 .Build();
