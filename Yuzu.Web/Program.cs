@@ -24,7 +24,7 @@ using Yuzu.Web.Configuration;
 using Yuzu.Configuration.S3;
 using Yuzu.Configuration.Payments;
 using Yuzu.Web.Tools;
-using Yuzu.Web.Tools.StorageServices;
+// Storage service implementation is now in Yuzu.Data.Services
 using IEmailSender = Yuzu.Mail.IEmailSender;
 
 // Get application builder
@@ -91,15 +91,11 @@ builder.Services.AddMemoryCache();
 // Add the cached timezone service
 builder.Services.AddScoped<Yuzu.Time.CachedTimeZoneService>();
 
-// Register storage services
-builder.Services.AddScoped<S3StorageService>();
-builder.Services.AddScoped<IStorageServiceFactory, StorageServiceFactory>();
+// Register the simplified Scaleway S3 storage service
+builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageService, Yuzu.Data.Services.ScalewayS3StorageService>();
 
-// Register adapters for cross-project dependencies
-builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageServiceFactory>(sp => 
-    new Yuzu.Data.Services.StorageServiceFactoryAdapter(sp.GetRequiredService<IStorageServiceFactory>()));
-builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageService>(sp => 
-    new Yuzu.Data.Services.StorageServiceAdapter(sp.GetRequiredService<IStorageServiceFactory>().CreateStorageService()));
+// Register the adapter for backward compatibility
+builder.Services.AddScoped<Yuzu.Data.Services.StorageServiceAdapter>();
 
 // Add data services (repositories)
 builder.Services.AddDataServices(builder.Configuration);
@@ -182,6 +178,121 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         app.Logger.LogError(ex, "Error checking weather service");
+    }
+    
+    // Test S3 connectivity during startup
+    try
+    {
+        app.Logger.LogInformation("Testing S3 connectivity...");
+        var s3Settings = scope.ServiceProvider.GetRequiredService<IOptions<S3Settings>>().Value;
+        app.Logger.LogInformation("S3 Settings from configuration:");
+        app.Logger.LogInformation("  ServiceUrl: {ServiceUrl}", s3Settings.ServiceUrl);
+        app.Logger.LogInformation("  BucketName: {BucketName}", s3Settings.BucketName);
+        app.Logger.LogInformation("  BackgroundsContainer: {Container}", s3Settings.BackgroundsContainer);
+        app.Logger.LogInformation("  AccessKey: {AccessKeyPrefix}...", 
+            s3Settings.AccessKey?.Substring(0, Math.Min(5, s3Settings.AccessKey?.Length ?? 0)));
+        app.Logger.LogInformation("  SecretKey exists: {HasSecretKey}", !string.IsNullOrEmpty(s3Settings.SecretKey));
+        app.Logger.LogInformation("  SecretKey length: {Length}", s3Settings.SecretKey?.Length ?? 0);
+        
+        // Try to create S3 client directly to test
+        var credentials = new Amazon.Runtime.BasicAWSCredentials(s3Settings.AccessKey, s3Settings.SecretKey);
+        var s3Config = new Amazon.S3.AmazonS3Config
+        {
+            ServiceURL = s3Settings.ServiceUrl,
+            ForcePathStyle = false, // Try virtual-hosted style for Scaleway
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+        
+        // Try extracting region from URL
+        string region = "";
+        if (s3Settings.ServiceUrl.Contains("s3.") && s3Settings.ServiceUrl.EndsWith("scw.cloud"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(s3Settings.ServiceUrl, @"s3\.([^.]+)\.scw\.cloud");
+            if (match.Success && match.Groups.Count > 1)
+            {
+                region = match.Groups[1].Value;
+                app.Logger.LogInformation("Detected Scaleway region: {Region}", region);
+                
+                if (region.Equals("fr-par", StringComparison.OrdinalIgnoreCase))
+                {
+                    s3Config.RegionEndpoint = Amazon.RegionEndpoint.EUWest3; // Paris
+                }
+                else if (region.Equals("nl-ams", StringComparison.OrdinalIgnoreCase))
+                {
+                    s3Config.RegionEndpoint = Amazon.RegionEndpoint.EUWest1; // Amsterdam (closest match)
+                }
+                else if (region.Equals("pl-waw", StringComparison.OrdinalIgnoreCase))
+                {
+                    s3Config.RegionEndpoint = Amazon.RegionEndpoint.EUCentral1; // Warsaw (closest match)
+                }
+            }
+        }
+        
+        app.Logger.LogInformation("Creating S3 client with config: ServiceURL={URL}, ForcePathStyle={ForcePathStyle}, RegionEndpoint={Region}",
+            s3Config.ServiceURL, s3Config.ForcePathStyle, s3Config.RegionEndpoint?.DisplayName ?? "default");
+            
+        using (var s3Client = new Amazon.S3.AmazonS3Client(credentials, s3Config))
+        {
+            try
+            {
+                // Try to list objects in the bucket
+                var request = new Amazon.S3.Model.ListObjectsV2Request
+                {
+                    BucketName = s3Settings.BucketName,
+                    Prefix = s3Settings.BackgroundsContainer + "/",
+                    MaxKeys = 10
+                };
+                
+                app.Logger.LogInformation("Sending ListObjectsV2 request: BucketName={BucketName}, Prefix={Prefix}",
+                    request.BucketName, request.Prefix);
+                    
+                var response = await s3Client.ListObjectsV2Async(request);
+                
+                app.Logger.LogInformation("S3 list objects response successful!");
+                app.Logger.LogInformation("Objects found: {Count}", response.S3Objects.Count);
+                
+                // Log first few objects if any
+                foreach (var obj in response.S3Objects.Take(5))
+                {
+                    app.Logger.LogInformation("  Object: {Key}, Size: {Size}, LastModified: {Modified}",
+                        obj.Key, obj.Size, obj.LastModified);
+                }
+            }
+            catch (Amazon.S3.AmazonS3Exception s3Ex)
+            {
+                app.Logger.LogError(s3Ex, "S3 exception during test: Status={Status}, ErrorCode={ErrorCode}, Message={Message}",
+                    s3Ex.StatusCode, s3Ex.ErrorCode, s3Ex.Message);
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogError(ex, "General exception during S3 test");
+            }
+        }
+        
+        // Now test using our ScalewayS3StorageService
+        try
+        {
+            app.Logger.LogInformation("Testing via IStorageService...");
+            var storageService = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
+            var items = await storageService.ListObjectsAsync(s3Settings.BackgroundsContainer);
+            
+            app.Logger.LogInformation("IStorageService list successful! Found {Count} items", items.Count());
+            
+            // Log first few items
+            foreach (var item in items.Take(5))
+            {
+                app.Logger.LogInformation("  Item: {Name}, Size: {Size}, LastModified: {Modified}",
+                    item.Name, item.Size, item.LastModified);
+            }
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogError(ex, "Error testing IStorageService");
+        }
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Error during S3 connectivity test");
     }
 }
 
