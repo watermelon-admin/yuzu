@@ -23,23 +23,24 @@ namespace Yuzu.Data
         }
         
         /// <summary>
-        /// Ensures the database is created and ready to use
+        /// Checks if database is accessible
         /// </summary>
-        public async Task EnsureDatabaseCreatedAsync()
+        public async Task<bool> CheckDatabaseAccessAsync()
         {
             try
             {
-                _logger.LogInformation("Ensuring database is created using EnsureCreated...");
+                _logger.LogInformation("Checking database connectivity...");
                 
-                // Use EnsureCreated instead of Migrate to avoid migration issues
-                await _dbContext.Database.EnsureCreatedAsync();
+                // Just verify connection
+                bool canConnect = await _dbContext.Database.CanConnectAsync();
                 
-                _logger.LogInformation("Database creation complete");
+                _logger.LogInformation("Database connection check: {Result}", canConnect ? "Success" : "Failed");
+                return canConnect;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while initializing the database");
-                throw;
+                _logger.LogError(ex, "An error occurred while checking database connectivity");
+                return false;
             }
         }
     }

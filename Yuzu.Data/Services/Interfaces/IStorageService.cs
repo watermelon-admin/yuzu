@@ -9,6 +9,11 @@ namespace Yuzu.Data.Services.Interfaces
         /// Gets the base URL for the storage container
         /// </summary>
         string GetBaseUrl(string containerName);
+        
+        /// <summary>
+        /// Gets the base URL for the backgrounds container
+        /// </summary>
+        string GetBackgroundsUrl();
 
         /// <summary>
         /// Lists all objects in a container with optional prefix
@@ -19,23 +24,25 @@ namespace Yuzu.Data.Services.Interfaces
         /// Checks if an object exists
         /// </summary>
         Task<bool> ObjectExistsAsync(string containerName, string objectName);
-    }
-
-    /// <summary>
-    /// Interface for storage service factory in the Data layer
-    /// </summary>
-    public interface IStorageServiceFactory
-    {
-        /// <summary>
-        /// Creates a storage service
-        /// </summary>
-        IStorageService CreateStorageService();
         
         /// <summary>
-        /// Gets the base URL for backgrounds
+        /// Uploads an object to the specified container
         /// </summary>
-        string GetBackgroundsUrl();
+        Task UploadObjectAsync(string containerName, string objectName, Stream content, 
+            string contentType, IDictionary<string, string> metadata, bool isPublic = true);
+            
+        /// <summary>
+        /// Deletes an object from the specified container
+        /// </summary>
+        Task DeleteObjectAsync(string containerName, string objectName);
+        
+        /// <summary>
+        /// Gets object metadata
+        /// </summary>
+        Task<IDictionary<string, string>> GetObjectMetadataAsync(string containerName, string objectName);
     }
+
+    // The IStorageServiceFactory interface has been removed - use IStorageService directly
 
     /// <summary>
     /// Represents a storage item in the Data layer

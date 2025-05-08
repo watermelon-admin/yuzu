@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Yuzu.Web.Pages;
-using Yuzu.Web.Tools.StorageServices;
+using Yuzu.Data.Services.Interfaces;
 
 namespace Yuzu.Web.Tools
 {
@@ -14,17 +14,16 @@ namespace Yuzu.Web.Tools
         /// <summary>
         /// Loads background images from S3 storage
         /// </summary>
-        /// <param name="storageServiceFactory">Storage service factory</param>
+        /// <param name="storageService">Storage service</param>
         /// <param name="configuration">Application configuration</param>
         /// <param name="logger">Logger for the service</param>
         /// <returns>A list of background images</returns>
         public static async Task<List<BackgroundImage>> LoadBackgroundImagesAsync(
-            Yuzu.Web.Tools.StorageServices.IStorageServiceFactory storageServiceFactory,
+            Yuzu.Data.Services.Interfaces.IStorageService storageService,
             IConfiguration configuration,
             ILogger logger)
         {
-            // Get the S3 storage service
-            var storageService = storageServiceFactory.CreateStorageService();
+            // Get the container name
             string containerName = configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
 
             // Create a list to hold the background images

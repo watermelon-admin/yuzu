@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Yuzu.Data.Models;
 using Yuzu.Data.Services.Interfaces;
 using Yuzu.Web.Tools;
-using Yuzu.Web.Tools.StorageServices;
 
 namespace Yuzu.Web.Pages
 {
@@ -59,8 +58,8 @@ namespace Yuzu.Web.Pages
         public async Task OnGetAsync([FromServices] IBreakTypeService breakTypeService, [FromServices] IConfiguration configuration)
         {
             // Set up the image path from the storage service factory
-            var storageServiceFactory = HttpContext.RequestServices.GetRequiredService<Yuzu.Web.Tools.StorageServices.IStorageServiceFactory>();
-            ImagePath = storageServiceFactory.GetBackgroundsUrl();
+            var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
+            ImagePath = storageService.GetBackgroundsUrl();
             
             // Check if an ID was provided in the query string
             string designId = Request.Query["id"].ToString();
@@ -219,13 +218,13 @@ namespace Yuzu.Web.Pages
             {
                 // Get dependencies
                 var configuration = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-                var storageServiceFactory = HttpContext.RequestServices.GetRequiredService<Yuzu.Web.Tools.StorageServices.IStorageServiceFactory>();
+                var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
                 
                 _logger.LogInformation("Fetching background images from S3 storage");
 
                 // Use the utility service to load background images
                 var backgrounds = await BackgroundImageService.LoadBackgroundImagesAsync(
-                    storageServiceFactory,
+                    storageService,
                     configuration,
                     _logger);
 

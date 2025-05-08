@@ -51,7 +51,7 @@ namespace Yuzu.Web.Pages
         IBreakTypeService breakTypeService,
         IConfiguration configuration,
         ILogger<SettingsModel> logger,
-        Yuzu.Web.Tools.StorageServices.IStorageServiceFactory storageServiceFactory,
+        Yuzu.Data.Services.Interfaces.IStorageService storageService,
         Yuzu.Time.CachedTimeZoneService timeZoneService,
         IUserDataService userDataService,
         Yuzu.Payments.StripeService stripeService,
@@ -65,7 +65,7 @@ namespace Yuzu.Web.Pages
         private readonly IBreakTypeService _breakTypeService = breakTypeService;
         private readonly IConfiguration _configuration = configuration;
         private readonly ILogger<SettingsModel> _logger = logger;
-        private readonly Yuzu.Web.Tools.StorageServices.IStorageServiceFactory _storageServiceFactory = storageServiceFactory;
+        private readonly Yuzu.Data.Services.Interfaces.IStorageService _storageService = storageService;
         private readonly Yuzu.Time.CachedTimeZoneService _timeZoneService = timeZoneService;
         private readonly IUserDataService _userDataService = userDataService;
         private readonly Yuzu.Payments.StripeService _stripeService = stripeService;
@@ -138,7 +138,7 @@ namespace Yuzu.Web.Pages
                 HomeTimeZoneCode = "UTC"; // This should be loaded from user preferences
                 
                 // Get backgrounds URL from the storage service factory
-                ImagePath = _storageServiceFactory.GetBackgroundsUrl();
+                ImagePath = _storageService.GetBackgroundsUrl();
                 
                 // Initialize break types if user doesn't have any
                 try
@@ -526,7 +526,7 @@ namespace Yuzu.Web.Pages
                     
                     // Use the utility service to load background images from S3
                     var s3Backgrounds = await BackgroundImageService.LoadBackgroundImagesAsync(
-                        _storageServiceFactory, 
+                        _storageService, 
                         _configuration,
                         _logger);
                     
@@ -1116,7 +1116,7 @@ namespace Yuzu.Web.Pages
                 try
                 {
                     // Get the storage service
-                    var storageService = _storageServiceFactory.CreateStorageService();
+                    // Use the storage service directly
                     string containerName = _configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
                     
                     // Create a unique filename based on user ID and a GUID
@@ -1157,7 +1157,7 @@ namespace Yuzu.Web.Pages
                         ["userId"] = userId
                     };
                     
-                    await storageService.UploadObjectAsync(
+                    await _storageService.UploadObjectAsync(
                         containerName,
                         fullSizeFileName,
                         fullSizeStream,
@@ -1178,7 +1178,7 @@ namespace Yuzu.Web.Pages
                     thumbnailStream.Position = 0;
                     
                     // Upload the thumbnail
-                    await storageService.UploadObjectAsync(
+                    await _storageService.UploadObjectAsync(
                         containerName,
                         thumbnailFileName,
                         thumbnailStream,
@@ -1186,7 +1186,7 @@ namespace Yuzu.Web.Pages
                         metadata);
                     
                     // Get the base URL for the container
-                    var baseUrl = storageService.GetBaseUrl(containerName);
+                    var baseUrl = _storageService.GetBaseUrl(containerName);
                     
                     // Create URLs for the uploaded images
                     string thumbnailUrl = $"{baseUrl}/{thumbnailFileName}";
@@ -1276,7 +1276,7 @@ namespace Yuzu.Web.Pages
                 try
                 {
                     // Get the storage service
-                    var storageService = _storageServiceFactory.CreateStorageService();
+                    // Use the storage service directly
                     string containerName = _configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
                     
                     // Get file extension by checking if the thumbnail exists (.jpg or .png)
@@ -1286,7 +1286,7 @@ namespace Yuzu.Web.Pages
                     foreach (var ext in extensions)
                     {
                         string thumbnailName = $"{imageName}-thumb{ext}";
-                        if (await storageService.ObjectExistsAsync(containerName, thumbnailName))
+                        if (await _storageService.ObjectExistsAsync(containerName, thumbnailName))
                         {
                             fileExtension = ext;
                             break;
@@ -1301,11 +1301,11 @@ namespace Yuzu.Web.Pages
                     
                     // Delete the thumbnail
                     string thumbnailFileName = $"{imageName}-thumb{fileExtension}";
-                    await storageService.DeleteObjectAsync(containerName, thumbnailFileName);
+                    await _storageService.DeleteObjectAsync(containerName, thumbnailFileName);
                     
                     // Delete the full-size image
                     string fullSizeFileName = $"{imageName}-fhd{fileExtension}";
-                    await storageService.DeleteObjectAsync(containerName, fullSizeFileName);
+                    await _storageService.DeleteObjectAsync(containerName, fullSizeFileName);
                     
                     // Delete the image from the database
                     bool dbDeleteResult = await _backgroundImageService.DeleteByFileNameAsync(imageName, userId);

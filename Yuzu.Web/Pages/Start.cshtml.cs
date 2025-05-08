@@ -119,9 +119,9 @@ public class StartModel : PageModel
 
         try
         {
-            // Get the backgrounds URL from the storage service factory
-            var storageServiceFactory = HttpContext.RequestServices.GetRequiredService<Yuzu.Web.Tools.StorageServices.IStorageServiceFactory>();
-            BackgroundImagesURL = storageServiceFactory.GetBackgroundsUrl();
+            // Get the backgrounds URL directly from the storage service
+            var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
+            BackgroundImagesURL = storageService.GetBackgroundsUrl();
 
             // Retrieve the break types from the database
             BreakTypes = await _breakTypeService.GetAllAsync(userId);

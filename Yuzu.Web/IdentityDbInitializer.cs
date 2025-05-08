@@ -34,62 +34,35 @@ namespace Yuzu.Web
         }
 
         /// <summary>
-        /// Initializes the Identity database
+        /// Initializes the Identity database roles
         /// </summary>
         /// <returns>A task representing the asynchronous operation</returns>
         public async Task InitializeAsync()
         {
             try
             {
-                _logger.LogInformation("Ensuring Identity database schema is created");
+                _logger.LogInformation("Initializing Identity roles (schema is created via migrations)");
                 
-                // Create the database schema if not exists
+                // Check database connectivity
                 bool canConnect = await _context.Database.CanConnectAsync();
-                _logger.LogInformation("Can connect to database: {CanConnect}", canConnect);
+                if (!canConnect) {
+                    _logger.LogWarning("Cannot connect to database - role initialization may fail");
+                    return;
+                }
                 
-                // Get a list of tables in the database
+                // Get a list of tables for diagnostics only
                 var tableNames = await GetDbTableNamesAsync();
                 _logger.LogInformation("Current database tables: {TableNames}", string.Join(", ", tableNames));
-                
-                // Make sure the database exists
-                await _context.Database.EnsureCreatedAsync();
-                _logger.LogInformation("Identity database schema creation attempt completed");
-                
-                // Check if the Identity_Users table was created
-                tableNames = await GetDbTableNamesAsync();
-                bool hasIdentityUsers = tableNames.Contains("Identity_Users");
-                _logger.LogInformation("Identity_Users table exists: {HasTable}", hasIdentityUsers);
-                
-                if (!hasIdentityUsers)
-                {
-                    _logger.LogWarning("Identity_Users table does not exist yet, forcing schema creation");
-                    
-                    // Force model creation with SQL
-                    string sql = _context.Database.GenerateCreateScript();
-                    _logger.LogInformation("Generated SQL for schema creation: {SqlLength} chars", sql.Length);
-                    
-                    await _context.Database.ExecuteSqlRawAsync(sql);
-                    _logger.LogInformation("Executed SQL for schema creation");
-                    
-                    // Verify tables again
-                    tableNames = await GetDbTableNamesAsync();
-                    hasIdentityUsers = tableNames.Contains("Identity_Users");
-                    _logger.LogInformation("After SQL execution, Identity_Users table exists: {HasTable}", hasIdentityUsers);
-                }
                 
                 // Create default roles if they don't already exist
                 await EnsureRolesCreatedAsync();
                 
-                _logger.LogInformation("Identity database initialization completed successfully");
+                _logger.LogInformation("Identity roles initialization completed successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while initializing the Identity database: {Message}", ex.Message);
-                if (ex.InnerException != null)
-                {
-                    _logger.LogError("Inner exception: {Message}", ex.InnerException.Message);
-                }
-                throw;
+                _logger.LogError(ex, "An error occurred while initializing Identity roles: {Message}", ex.Message);
+                // Don't rethrow - let the application continue
             }
         }
         

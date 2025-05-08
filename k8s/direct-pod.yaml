@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yuzu-web-direct
+  labels:
+    app: yuzu-web
+spec:
+  containers:
+  - name: yuzu-web
+    image: yuzu-web:latest
+    imagePullPolicy: Never
+    ports:
+    - containerPort: 80
+    env:
+    - name: ASPNETCORE_ENVIRONMENT
+      value: "Production"
+    - name: ASPNETCORE_URLS
+      value: "http://+:80"
+    - name: KUBERNETES_SERVICE_HOST
+      value: "true"
+  restartPolicy: Always

@@ -23,25 +23,19 @@ namespace Yuzu.Data.Services
         /// Initializes a new instance of the BackgroundImageSeederService class
         /// </summary>
         /// <param name="backgroundImageService">The background image service</param>
-        /// <param name="storageServiceFactory">The storage service factory (Data interfaces)</param>
+        /// <param name="storageService">The storage service</param>
         /// <param name="configuration">The application configuration</param>
         /// <param name="logger">The logger</param>
         public BackgroundImageSeederService(
             IBackgroundImageService backgroundImageService,
-            Interfaces.IStorageServiceFactory storageServiceFactory,
+            IStorageService storageService,
             IConfiguration configuration,
             ILogger<BackgroundImageSeederService> logger)
         {
             _backgroundImageService = backgroundImageService ?? throw new ArgumentNullException(nameof(backgroundImageService));
+            _storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            
-            // Get storage service from factory
-            if (storageServiceFactory == null)
-            {
-                throw new ArgumentNullException(nameof(storageServiceFactory));
-            }
-            _storageService = storageServiceFactory.CreateStorageService();
             
             // Get backgrounds container name from configuration
             _backgroundsContainer = _configuration.GetSection("S3Settings")["BackgroundsContainer"] ?? 

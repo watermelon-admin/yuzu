@@ -33,9 +33,12 @@ RUN npm install
 WORKDIR /src
 COPY . .
 
-# Build TypeScript
+# Install TypeScript compiler and compile TypeScript files
 WORKDIR /src/Yuzu.Web
-RUN npm run build
+RUN npm install -g typescript
+RUN npx tsc --version
+# Checking if tsconfig.json exists and compiling if it does
+RUN if [ -f "tsconfig.json" ]; then npx tsc; else echo "No tsconfig.json found, skipping TypeScript compilation"; fi
 
 # Build and publish the .NET app
 WORKDIR /src

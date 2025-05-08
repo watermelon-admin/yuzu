@@ -201,8 +201,8 @@ namespace Yuzu.Web.Pages
             logger.LogInformation("Successfully fetched break type details for BreakTypeId: {BreakTypeId}", BreakDetails.BreakTypeId);
 
             // Get the backgrounds URL from the storage service factory
-            var storageServiceFactory = HttpContext.RequestServices.GetRequiredService<Yuzu.Web.Tools.StorageServices.IStorageServiceFactory>();
-            string backgroundImagesPath = storageServiceFactory.GetBackgroundsUrl();
+            var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
+            string backgroundImagesPath = storageService.GetBackgroundsUrl();
             
             if (BreakTypeDetails != null && !string.IsNullOrEmpty(BreakTypeDetails.ImageTitle))
             {

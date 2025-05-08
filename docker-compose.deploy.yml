@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  yuzu-web:
+    image: yuzu-web:latest
+    ports:
+      - "8081:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=host.docker.internal;Port=5432;Database=yuzu;Username=devuser;Password=devpassword;SslMode=Prefer
+      - S3Settings__ServiceUrl=http://host.docker.internal:9000
+      - S3Settings__BucketName=static
+      - S3Settings__BackgroundsContainer=backgrounds
+      - S3Settings__AccessKey=minioadmin
+      - S3Settings__SecretKey=minioadmin
+      - MailConnectionConfig__smtpServer=host.docker.internal
+      - MailConnectionConfig__smtpPort=1025
+      - MailConnectionConfig__smtpUsername=yuzu
+      - MailConnectionConfig__smtpPassword=Apollo13!
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

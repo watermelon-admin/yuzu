@@ -24,25 +24,19 @@ namespace Yuzu.Data.Services
         /// Initializes a new instance of the SystemBackgroundImageInitializer class
         /// </summary>
         /// <param name="backgroundImageService">The background image service</param>
-        /// <param name="storageServiceFactory">The storage service factory</param>
+        /// <param name="storageService">The storage service</param>
         /// <param name="s3Options">S3 configuration options</param>
         /// <param name="logger">The logger</param>
         public SystemBackgroundImageInitializer(
             IBackgroundImageService backgroundImageService,
-            IStorageServiceFactory storageServiceFactory,
+            IStorageService storageService,
             IOptions<Yuzu.Configuration.S3.S3Settings> s3Options,
             ILogger<SystemBackgroundImageInitializer> logger)
         {
             _backgroundImageService = backgroundImageService ?? throw new ArgumentNullException(nameof(backgroundImageService));
             _s3Settings = s3Options.Value ?? throw new ArgumentNullException(nameof(s3Options));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            
-            // Get storage service from factory
-            if (storageServiceFactory == null)
-            {
-                throw new ArgumentNullException(nameof(storageServiceFactory));
-            }
-            _storageService = storageServiceFactory.CreateStorageService();
+            _storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
             
             // Get backgrounds container name from configuration
             _backgroundsContainer = _s3Settings.BackgroundsContainer;
@@ -73,9 +67,27 @@ namespace Yuzu.Data.Services
                     return;
                 }
 
-                // List objects in the backgrounds container
-                var s3Objects = await _storageService.ListObjectsAsync(_backgroundsContainer);
-                _logger.LogInformation("Found {Count} objects in S3 {Container} container", s3Objects.Count(), _backgroundsContainer);
+                // Try to list objects in the backgrounds container
+                IEnumerable<StorageItem> s3Objects;
+                try
+                {
+                    s3Objects = await _storageService.ListObjectsAsync(_backgroundsContainer);
+                    _logger.LogInformation("Found {Count} objects in S3 {Container} container", s3Objects.Count(), _backgroundsContainer);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to list objects in S3 {Container} container. Detailed error: {ErrorMessage}", _backgroundsContainer, ex.ToString());
+                    return;
+                }
+                
+                // Already checked above, this is a duplicate check
+                
+                // Skip additional S3 diagnostics - simpler startup
+                
+                // Already checked above, this is a duplicate check
+                
+                // Log summary of objects found
+                _logger.LogInformation("Found {Count} S3 objects in {Container}", s3Objects.Count(), _backgroundsContainer);
                 
                 // Process full-size images (-fhd.jpg) and find corresponding thumbnails
                 int addedCount = 0;
@@ -85,6 +97,7 @@ namespace Yuzu.Data.Services
                     // Skip user images
                     if (obj.Name.StartsWith("user-") || obj.Name.StartsWith("zzz_"))
                     {
+                        _logger.LogInformation("Skipping user or disabled image: {FileName}", obj.Name);
                         continue;
                     }
                     
@@ -92,6 +105,7 @@ namespace Yuzu.Data.Services
                     var match = _fileNamePattern.Match(obj.Name);
                     if (!match.Success)
                     {
+                        _logger.LogInformation("Skipping non-full-size image: {FileName} (doesn't match pattern)", obj.Name);
                         continue; // Not a full-size image
                     }
 
