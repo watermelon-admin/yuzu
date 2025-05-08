@@ -18,12 +18,62 @@ namespace Yuzu.Data
         /// <returns>A new instance of YuzuDbContext</returns>
         public YuzuDbContext CreateDbContext(string[] args)
         {
-            // Load configuration from appsettings.json
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+            // Find the path to the Yuzu.Web project
+            var currentDirectory = Directory.GetCurrentDirectory();
+            string webProjectPath = Path.Combine(Directory.GetParent(currentDirectory)!.FullName, "Yuzu.Web");
+            
+            // If we're already in the Yuzu.Web directory or a different location, try to find the solution root
+            if (!Directory.Exists(webProjectPath))
+            {
+                // Try to find solution root by going up one level if needed
+                var parentDirectory = Directory.GetParent(currentDirectory);
+                if (parentDirectory != null)
+                {
+                    webProjectPath = Path.Combine(parentDirectory.FullName, "Yuzu.Web");
+                }
+            }
+            
+            // If we still can't find it, try one more level up
+            if (!Directory.Exists(webProjectPath))
+            {
+                var grandParentDirectory = Directory.GetParent(Directory.GetParent(currentDirectory)!.FullName);
+                if (grandParentDirectory != null)
+                {
+                    webProjectPath = Path.Combine(grandParentDirectory.FullName, "Yuzu.Web");
+                }
+            }
+            
+            // Fall back to current directory if we can't find the web project
+            if (!Directory.Exists(webProjectPath))
+            {
+                webProjectPath = currentDirectory;
+                Console.WriteLine("Warning: Could not locate Yuzu.Web directory. Using current directory for configuration.");
+            }
+            else
+            {
+                Console.WriteLine($"Using configuration from: {webProjectPath}");
+            }
+
+            // Load configuration from Web project's appsettings.json if found, otherwise use local
+            IConfigurationBuilder configBuilder = new ConfigurationBuilder()
+                .SetBasePath(webProjectPath)
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true);
+                
+            // If Web project appsettings not found, fall back to local directory
+            if (!File.Exists(Path.Combine(webProjectPath, "appsettings.json")))
+            {
+                Console.WriteLine("Web project appsettings.json not found, falling back to local directory");
+                configBuilder = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", optional: false)
+                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true);
+            }
+            
+            // Add environment variables to configuration
+            IConfigurationRoot configuration = configBuilder
                 .AddEnvironmentVariables()
+                .AddUserSecrets<YuzuDbContext>(optional: true)
                 .Build();
 
             // Get connection string
