@@ -29,12 +29,8 @@ namespace Yuzu.Data
         {
             try
             {
-                _logger.LogInformation("Checking database connectivity...");
-                
-                // Just verify connection
+                // Just verify connection without excessive logging
                 bool canConnect = await _dbContext.Database.CanConnectAsync();
-                
-                _logger.LogInformation("Database connection check: {Result}", canConnect ? "Success" : "Failed");
                 return canConnect;
             }
             catch (Exception ex)

@@ -11,6 +11,7 @@ using Yuzu.Mail;
 using Yuzu.Payments;
 using Yuzu.Web;
 using Yuzu.Web.Configuration;
+using Yuzu.Web.HealthChecks;
 using Yuzu.Web.Tools;
 // Storage service implementation is now in Yuzu.Data.Services
 using IEmailSender = Yuzu.Mail.IEmailSender;
@@ -32,7 +33,14 @@ builder.Configuration.AddKubernetesSecretsConfiguration(
     @namespace: "default",
     logger: logger);
 
+// Add service defaults first, but we'll overwrite the health checks
 builder.AddServiceDefaults();
+
+// Clear out any existing health checks to avoid duplication
+builder.Services.RemoveAll(sd => sd.ServiceType == typeof(Microsoft.Extensions.Diagnostics.HealthChecks.IHealthCheck));
+
+// Add our custom health checks
+builder.Services.AddYuzuHealthChecks();
 builder.Services.AddControllers();
 
 // Register all configuration
@@ -78,6 +86,8 @@ builder.Services.AddMemoryCache();
 
 // Add the cached timezone service
 builder.Services.AddScoped<Yuzu.Time.CachedTimeZoneService>();
+
+// Health checks already registered earlier
 
 // Register the simplified Scaleway S3 storage service
 builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageService, Yuzu.Data.Services.ScalewayS3StorageService>();
@@ -261,41 +271,10 @@ using (var scope = app.Services.CreateScope())
     app.Logger.LogInformation("=== End Configuration ===");
 }
 
-// Initialize roles will be done later alongside the database verification
-app.Logger.LogInformation("Identity initialization will be done alongside database verification");
+// Begin service connectivity checks
+app.Logger.LogInformation("Starting service connectivity checks...");
 
-// Check critical services during startup
-using (var scope = app.Services.CreateScope())
-{
-    // Test S3 connectivity and initialize background images
-    try
-    {
-        // Log in a consolidated format
-        var s3Settings = scope.ServiceProvider.GetRequiredService<IOptions<S3Settings>>().Value;
-        app.Logger.LogInformation("=== S3 Storage Check ===\n" +
-            $"  Service URL: {s3Settings.ServiceUrl}\n" +
-            $"  Bucket Name: {s3Settings.BucketName}\n" +
-            $"  Container: {s3Settings.BackgroundsContainer}");
-        
-        // Test connectivity with S3 and initialize background images in one operation
-        var storageService = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
-        var backgroundImageInitializer = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Services.SystemBackgroundImageInitializer>();
-        
-        // First verify connectivity
-        var items = await storageService.ListObjectsAsync(s3Settings.BackgroundsContainer);
-        
-        // Then initialize background images if connected
-        await backgroundImageInitializer.InitializeAsync();
-        
-        app.Logger.LogInformation($"S3 check success - found {items.Count()} items and initialized background images");
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogError(ex, "Error with S3 storage - backgrounds may not work");
-    }
-}
-
-// Database connectivity verification
+// Database connectivity verification first
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -311,18 +290,16 @@ using (var scope = app.Services.CreateScope())
         try {
             var connBuilder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
             
+            // Just check database connectivity - schema created manually with migrations
+            canConnect = await dbContext.Database.CanConnectAsync();
+            
             // Create a consolidated database info log
             var dbInfo = new System.Text.StringBuilder("=== Database Connection ===\n");
             dbInfo.AppendLine($"  Database: {connBuilder.Database}");
             dbInfo.AppendLine($"  Host: {connBuilder.Host}");
             dbInfo.AppendLine($"  Port: {connBuilder.Port}");
             dbInfo.AppendLine($"  Username: {connBuilder.Username}");
-            
-            // Initialize the database (will be created with migrations)
-            var dbInitializer = scope.ServiceProvider.GetRequiredService<Yuzu.Data.DbInitializer>();
-            canConnect = await dbInitializer.CheckDatabaseAccessAsync();
-            
-            dbInfo.AppendLine($"  Connection Status: {(canConnect ? "Connected" : "Failed to connect")}");
+            dbInfo.AppendLine($"  Status: {(canConnect ? "Connected ✓" : "Failed ✗")}");
             
             app.Logger.LogInformation(dbInfo.ToString());
             
@@ -331,26 +308,46 @@ using (var scope = app.Services.CreateScope())
             }
         }
         catch (Exception ex) {
-            app.Logger.LogWarning("Could not parse connection string or connect to database: {Message}", ex.Message);
-        }
-
-        // Initialize identity roles
-        if (canConnect) {
-            try
-            {
-                var identityDbInitializer = scope.ServiceProvider.GetRequiredService<IdentityDbInitializer>();
-                await identityDbInitializer.InitializeAsync();
-                app.Logger.LogInformation("Identity roles initialized successfully");
-            }
-            catch (Exception ex)
-            {
-                app.Logger.LogError(ex, "Error initializing Identity roles");
-            }
+            app.Logger.LogWarning("Could not connect to database: {Message}", ex.Message);
         }
     }
     catch (Exception ex)
     {
         app.Logger.LogError(ex, "An error occurred during database initialization");
+    }
+}
+
+// Check S3 storage connectivity
+using (var scope = app.Services.CreateScope())
+{
+    // Test S3 connectivity and initialize background images
+    try
+    {
+        // Get S3 settings
+        var s3Settings = scope.ServiceProvider.GetRequiredService<IOptions<S3Settings>>().Value;
+        var storageService = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
+        var backgroundImageInitializer = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Services.SystemBackgroundImageInitializer>();
+        
+        // First verify connectivity
+        var items = await storageService.ListObjectsAsync(s3Settings.BackgroundsContainer);
+        
+        // Then initialize background images
+        await backgroundImageInitializer.InitializeAsync();
+        
+        // Log consolidated S3 info with connection result
+        var s3Info = new System.Text.StringBuilder("=== S3 Storage Connection ===\n");
+        s3Info.AppendLine($"  Service URL: {s3Settings.ServiceUrl}");
+        s3Info.AppendLine($"  Bucket Name: {s3Settings.BucketName}");
+        s3Info.AppendLine($"  Container: {s3Settings.BackgroundsContainer}");
+        s3Info.AppendLine($"  Status: Connected ✓");
+        s3Info.AppendLine($"  Items Found: {items.Count()}");
+        s3Info.AppendLine($"  Background Images: Initialized");
+        
+        app.Logger.LogInformation(s3Info.ToString());
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Error with S3 storage - backgrounds may not work");
     }
 }
 
@@ -380,7 +377,11 @@ app.UseRouting(); // Enable routing
 app.UseAuthentication(); // Enable authentication
 app.UseAuthorization(); // Enable authorization
 
-app.MapDefaultEndpoints();
+// Map default endpoints - this is now a no-op in ServiceDefaults
+app.MapDefaultEndpoints(); 
+
+// Map standard health check endpoints for Kubernetes monitoring
+app.MapYuzuHealthChecks();
 app.MapControllers(); // Map controllers
 app.MapStaticAssets(); // Map static assets
 

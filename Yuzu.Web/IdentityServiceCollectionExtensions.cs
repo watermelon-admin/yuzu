@@ -50,8 +50,7 @@ namespace Yuzu.Web
             .AddEntityFrameworkStores<YuzuIdentityDbContext>()
             .AddDefaultTokenProviders();
 
-            // Configure Identity DbContext initializer
-            services.AddScoped<IdentityDbInitializer>();
+            // Identity DbContext initializer not needed at this point
 
             return services;
         }

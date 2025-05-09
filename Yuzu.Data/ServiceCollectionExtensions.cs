@@ -41,9 +41,6 @@ namespace Yuzu.Data
             // Register system background image initializer service
             services.AddScoped<SystemBackgroundImageInitializer>();
             
-            // Register database initializer
-            services.AddScoped<DbInitializer>();
-            
             // Add caching decorator for break type service
             services.Decorate<IBreakTypeService, CachedBreakTypeService>();
             
