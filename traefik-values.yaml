@@ -1,0 +1,29 @@
+service:
+  type: LoadBalancer
+  annotations:
+    "service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2": "1"
+    "service.beta.kubernetes.io/scw-loadbalancer-use-hostname": "1"
+ports:
+  web:
+    port: 8000
+    exposedPort: 80
+    proxyProtocol:
+      enabled: true
+    forwardedHeaders:
+      enabled: true
+  websecure:
+    port: 8443
+    exposedPort: 443
+    proxyProtocol:
+      enabled: true
+    forwardedHeaders:
+      enabled: true
+additionalArguments:
+  - "--entryPoints.web.proxyProtocol.trustedIPs=0.0.0.0/0"
+  - "--entryPoints.websecure.proxyProtocol.trustedIPs=0.0.0.0/0"
+  - "--entryPoints.web.forwardedHeaders.trustedIPs=0.0.0.0/0"
+  - "--entryPoints.websecure.forwardedHeaders.trustedIPs=0.0.0.0/0"
+securityContext:
+  capabilities:
+    add:
+      - NET_BIND_SERVICE

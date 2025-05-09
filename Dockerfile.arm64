@@ -1,0 +1,87 @@
+# Dockerfile.arm64 - Optimized for ARM64 builds
+# Build stage - using AMD64 SDK for cross-compilation
+FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Install Node.js for TypeScript compilation
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends nodejs npm && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy solution and project files first for better layer caching
+COPY *.sln ./
+COPY Yuzu.AppHost/*.csproj ./Yuzu.AppHost/
+COPY Yuzu.Configuration/*.csproj ./Yuzu.Configuration/
+COPY Yuzu.Data/*.csproj ./Yuzu.Data/
+COPY Yuzu.Mail/*.csproj ./Yuzu.Mail/
+COPY Yuzu.Payments/*.csproj ./Yuzu.Payments/
+COPY Yuzu.ServiceDefaults/*.csproj ./Yuzu.ServiceDefaults/
+COPY Yuzu.Time/*.csproj ./Yuzu.Time/
+COPY Yuzu.Web/*.csproj ./Yuzu.Web/
+
+# Restore dependencies with explicit RID targeting
+RUN dotnet restore -r linux-arm64
+
+# Copy the package.json and package-lock.json for npm
+COPY Yuzu.Web/package*.json ./Yuzu.Web/
+
+# Install npm dependencies
+WORKDIR /src/Yuzu.Web
+RUN npm install
+
+# Copy the rest of the code
+WORKDIR /src
+COPY . .
+
+# Install TypeScript compiler and compile TypeScript files
+WORKDIR /src/Yuzu.Web
+RUN npm install -g typescript
+RUN npx tsc --version
+# Checking if tsconfig.json exists and compiling if it does
+RUN if [ -f "tsconfig.json" ]; then npx tsc; else echo "No tsconfig.json found, skipping TypeScript compilation"; fi
+
+# Build and publish the .NET app with explicit ARM64 targeting
+WORKDIR /src
+# Build for ARM64 with self-contained false to use runtime from base image
+RUN dotnet publish "Yuzu.Web/Yuzu.Web.csproj" \
+    -c Release \
+    -o /app/publish \
+    -r linux-arm64 \
+    --self-contained false \
+    /p:UseAppHost=false
+
+# Runtime stage - explicitly using ARM64 runtime
+FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+
+# Create non-root user for security
+RUN groupadd -g 1000 dotnetuser && \
+    useradd -m -u 1000 -g dotnetuser dotnetuser
+
+# Install curl for health checks and troubleshooting
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set proper permissions
+RUN mkdir -p /app && chown -R dotnetuser:dotnetuser /app
+
+# Copy published files from build stage
+COPY --from=build --chown=dotnetuser:dotnetuser /app/publish .
+
+# Set environment variables
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:80/health || exit 1
+
+# Switch to non-root user
+USER dotnetuser
+
+EXPOSE 80
+ENTRYPOINT ["dotnet", "Yuzu.Web.dll"]
+

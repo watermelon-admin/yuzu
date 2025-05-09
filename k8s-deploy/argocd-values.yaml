@@ -1,0 +1,69 @@
+server:
+  extraArgs:
+    - --insecure # Disable HTTPS for simplicity (we're using Traefik for ingress)
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: true
+    ingressClassName: "traefik"
+    hosts:
+      - argocd.breakscreen.com
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    tls:
+      - hosts:
+          - argocd.breakscreen.com
+        secretName: breakscreen-tls
+  # Initial admin password (will be auto-generated if not specified)
+  # We'll retrieve it after install
+  # adminPassword: "changeme"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Metrics and Monitoring
+metrics:
+  enabled: true
+
+# Resource constraints for a small dev instance
+controller:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+repoServer:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+dex:
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+redis:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi

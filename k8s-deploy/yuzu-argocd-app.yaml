@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: yuzu-web
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/yuzu-repo.git  # Replace with your actual Git repository URL
+    targetRevision: main
+    path: k8s-deploy/app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true  # Automatically delete resources that are no longer in Git
+      selfHeal: true  # Automatically sync if drift is detected
