@@ -308,4 +308,8 @@
 	  <ProjectReference Include="..\Yuzu.Time\Yuzu.Time.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\js\pages\settings\time-zones\" />
+	</ItemGroup>
+
 </Project>
