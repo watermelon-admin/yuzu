@@ -374,6 +374,10 @@ app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
 app.UseStaticFiles();
 
 app.UseRouting(); // Enable routing
+
+// Add beta mode middleware - must be before authentication to handle unauthenticated requests
+app.UseBetaAuthentication();
+
 app.UseAuthentication(); // Enable authentication
 app.UseAuthorization(); // Enable authorization
 

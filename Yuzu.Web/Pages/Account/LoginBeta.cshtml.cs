@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
+using Microsoft.Extensions.Options;
+using Yuzu.Web.Configuration;
 
 namespace Yuzu.Web.Pages.Account
 {
@@ -16,11 +17,16 @@ namespace Yuzu.Web.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginBetaModel> _logger;
+        private readonly BetaSettings _betaSettings;
 
-        public LoginBetaModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginBetaModel> logger)
+        public LoginBetaModel(
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<LoginBetaModel> logger,
+            IOptions<BetaSettings> betaSettings)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _betaSettings = betaSettings.Value;
         }
 
         [BindProperty]
@@ -42,6 +48,10 @@ namespace Yuzu.Web.Pages.Account
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; } = string.Empty;
+
+            [Required]
+            [Display(Name = "Beta Access Code")]
+            public string BetaCode { get; set; } = string.Empty;
 
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }
@@ -68,7 +78,12 @@ namespace Yuzu.Web.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            // First validate the beta code
+            if (Input.BetaCode != _betaSettings.BetaCode)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid beta access code.");
+                return Page();
+            }
 
             if (ModelState.IsValid)
             {
@@ -77,7 +92,7 @@ namespace Yuzu.Web.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in via beta page.");
+                    _logger.LogInformation("User logged in via beta page with valid beta code.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

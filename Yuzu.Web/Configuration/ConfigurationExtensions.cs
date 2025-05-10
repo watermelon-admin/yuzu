@@ -43,6 +43,11 @@ namespace Yuzu.Web.Configuration
             services.AddOptions<Yuzu.Web.Configuration.DebugSettings>()
                 .Bind(configuration.GetSection("DebugSettings"));
 
+            services.AddOptions<Yuzu.Web.Configuration.BetaSettings>()
+                .Bind(configuration.GetSection("BetaSettings"))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
             return services;
         }
 
