@@ -10,7 +10,6 @@ export class TimeZonesManager {
      * @returns HTMLElement - The created card element
      */
     createTimeZoneCard(timeZone) {
-        // ALERT BOX: Show when a new card is being created
         // Format the UTC offset string
         const utcOffsetStr = `UTC ${timeZone.utcOffsetHours >= 0 ? '+' : ''}${timeZone.utcOffsetHours}${timeZone.utcOffsetMinutes ? ':' + timeZone.utcOffsetMinutes.toString().padStart(2, '0') : ':00'}`;
         let cardElement;
@@ -107,8 +106,6 @@ export class TimeZonesManager {
             const infoButton = cardElement.querySelector('.card-info-button');
             if (infoButton) {
                 infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(timeZone.zoneId));
-            }
-            else {
             }
         }
         else {
@@ -212,19 +209,13 @@ export class TimeZonesManager {
             if (homeButton) {
                 homeButton.addEventListener('click', () => this.setHomeTimeZone(timeZone.zoneId));
             }
-            else {
-            }
             const infoButton = cardElement.querySelector('.card-info-button');
             if (infoButton) {
                 infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(timeZone.zoneId));
             }
-            else {
-            }
             const deleteButton = cardElement.querySelector('.card-delete-button');
             if (deleteButton) {
                 deleteButton.addEventListener('click', () => this.deleteTimeZone(timeZone.zoneId));
-            }
-            else {
             }
         }
         // Apply weather information with icons for all card types
@@ -234,15 +225,12 @@ export class TimeZonesManager {
             if (weatherInfo) {
                 // Remove d-none class to ensure visibility
                 weatherInfo.classList.remove('d-none');
-                // CRITICAL FIX: Explicitly set style to ensure visibility
                 weatherInfo.style.display = 'block';
                 weatherInfo.style.visibility = 'visible';
                 weatherInfo.style.opacity = '1';
             }
             // Now update with icon and text
             this.updateWeatherInfoOnCard(timeZone, cardElement);
-        }
-        else {
         }
         return cardElement;
     }
@@ -258,7 +246,7 @@ export class TimeZonesManager {
      * @param cardElement The element containing the card (could be the card itself, card body, or a wrapper)
      */
     updateWeatherInfoOnCard(timeZone, cardElement) {
-        // CRITICAL: Get the card element data attribute to verify we're operating on the right card
+        // Get the card element data attribute to verify we're operating on the right card
         const cardId = cardElement.getAttribute ? cardElement.getAttribute('data-timezone-id') : null;
         // When using templates with DocumentFragment, we need to find the proper container
         let targetElement = cardElement;
@@ -302,9 +290,8 @@ export class TimeZonesManager {
      * This is extracted from updateWeatherInfoOnCard to avoid code duplication
      */
     updateWeatherContent(timeZone, weatherInfoElement, cardPath) {
-        // CRITICAL: Directly check if we have valid weather information
+        // Check if we have valid weather information
         if (timeZone.weatherInfo && timeZone.weatherInfo.length > 0) {
-            // ALERT BOX: Show when weather is being updated for a card
             // Make sure the element is visible
             weatherInfoElement.classList.remove('d-none');
             // Log the computed style to check if it's actually visible
@@ -341,14 +328,13 @@ export class TimeZonesManager {
             const newContent = `${weatherIcon} ${timeZone.weatherInfo}`;
             weatherInfoElement.innerHTML = newContent;
             // Verify the content was actually set
-            // CRITICAL FIX: Force visibility styles with multiple methods
-            // First, remove any display:none that might be from CSS
+            // Remove any display:none that might be from CSS
             weatherInfoElement.style.removeProperty('display');
-            // Now force visibility with multiple approaches
+            // Ensure visibility with multiple approaches
             weatherInfoElement.style.display = 'block';
             weatherInfoElement.style.visibility = 'visible';
             weatherInfoElement.style.opacity = '1';
-            // Use !important to override any conflicting styles
+            // Override any conflicting styles
             weatherInfoElement.setAttribute('style', 'display: block !important; visibility: visible !important; opacity: 1 !important');
         }
         else {
@@ -452,8 +438,6 @@ export class TimeZonesManager {
                 const delayedContainer = document.getElementById('time-zone-container');
                 if (delayedContainer) {
                     observer.observe(delayedContainer, { childList: true, subtree: true });
-                }
-                else {
                 }
             }, 1000);
         }
@@ -567,26 +551,16 @@ export class TimeZonesManager {
                                                 newTimeZone.weatherInfo = tzWithWeather.weatherInfo;
                                                 // Log the full updated object for verification
                                             }
-                                            else {
-                                            }
-                                        }
-                                        else {
                                         }
                                     }
-                                    else {
-                                    }
-                                }
-                                else {
                                 }
                             }
                             catch (error) {
                                 // Continue without weather info if there's an error
                             }
-                            // CRITICAL: Ensure weather info is kept and used when card is appended
-                            // Critical fix: Ensure weather info is available by double checking it's valid
+                            // Ensure weather info is kept and used when card is appended
+                            // Ensure weather info is available by double checking it's valid
                             if (newTimeZone.weatherInfo && newTimeZone.weatherInfo.length > 0) {
-                            }
-                            else {
                             }
                             // Append the card - weather info should be carried over if available
                             await this.appendTimeZoneCard(newTimeZone);
@@ -604,16 +578,11 @@ export class TimeZonesManager {
                                             weatherEl.setAttribute('style', 'display: block !important');
                                         }
                                     }
-                                    else {
-                                    }
-                                }
-                                else {
                                 }
                             }, 100);
                         }
                     }
                     catch (error) {
-                        console.error('Error adding timezone:', error);
                         createToast('Error: Failed to add timezone. Please try again.', false);
                     }
                 }
@@ -628,7 +597,6 @@ export class TimeZonesManager {
         // Get the container
         const container = document.getElementById('time-zone-container');
         if (!container) {
-            console.error('Time zone container not found: time-zone-container');
             return;
         }
         // Check if the container is already loaded using the data-loaded attribute
@@ -664,11 +632,10 @@ export class TimeZonesManager {
             container.setAttribute('data-loaded', 'true');
         }
         catch (error) {
-            console.error('Failed to load timezone data:', error);
             // Show error state in the container
             container.innerHTML = `
             <div class="col-12 text-center">
-                <p class="text-danger">Failed to load timezone data. 
+                <p class="text-danger">Failed to load timezone data.
                     <a href="#" onclick="event.preventDefault(); window.location.reload();">Refresh</a> to try again.
                 </p>
             </div>`;
@@ -686,7 +653,6 @@ export class TimeZonesManager {
         var _a;
         const timeZonesModalElement = document.getElementById('time-zones-search-modal');
         if (!timeZonesModalElement) {
-            console.error('Modal element not found: time-zones-search-modal');
             return;
         }
         // Reset state when opening modal
@@ -707,7 +673,6 @@ export class TimeZonesManager {
             await this.loadTimeZonesData();
         }
         catch (error) {
-            console.error('Failed to load timezone data:', error);
             return;
         }
         // Create or get the Bootstrap modal instance
@@ -720,7 +685,6 @@ export class TimeZonesManager {
                 });
         }
         else {
-            console.error('Bootstrap Modal not available');
             return;
         }
         // Clean up existing event listener to avoid duplicates
@@ -768,12 +732,10 @@ export class TimeZonesManager {
                 this.timeZoneList = responseData.data || [];
             }
             else {
-                console.error('API request failed:', responseData.message);
                 throw new Error(responseData.message || 'Failed to load available timezones');
             }
         }
         catch (error) {
-            console.error('Error loading available timezones:', error);
             throw error; // Re-throw to handle in calling function
         }
     }
@@ -836,8 +798,6 @@ export class TimeZonesManager {
             this.homeTimeZoneId = ((_c = responseData.data) === null || _c === void 0 ? void 0 : _c.homeTimeZoneId) || null;
             // Log the first timezone if available for debugging
             if (timeZones.length > 0) {
-            }
-            else {
             }
             // Clear the container again to remove loading indicator
             container.innerHTML = '';
@@ -1040,8 +1000,6 @@ export class TimeZonesManager {
                     // Log first child type for debugging
                 }
             }
-            else {
-            }
             // Load the user display for the selected page
             this.loadUserTimeZonesDisplay();
         }
@@ -1074,7 +1032,6 @@ export class TimeZonesManager {
         this.timeZonesSearchTerm = searchTerm; // Store the current search term
         const tableBody = document.getElementById('time-zones-search-table-body');
         if (!tableBody) {
-            console.error('Table body element not found: time-zones-search-table-body');
             return;
         }
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading...</td></tr>';
@@ -1128,7 +1085,6 @@ export class TimeZonesManager {
             this.setupPagination(searchTerm, totalCount);
         }
         catch (error) {
-            console.error('Error loading time zones for search:', error);
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">An error occurred while searching. Please try again.</td></tr>';
         }
     }
@@ -1151,7 +1107,6 @@ export class TimeZonesManager {
         const totalPages = Math.ceil(totalCount / this.timeZonesPageSize);
         const paginationContainer = document.getElementById('time-zones-search-pagination-controls');
         if (!paginationContainer) {
-            console.error('Modal pagination container not found');
             return;
         }
         // Clear existing pagination
@@ -1453,7 +1408,6 @@ export class TimeZonesManager {
         var _a, _b;
         const antiforgeryInput = document.querySelector('input[name="__RequestVerificationToken"]');
         if (!antiforgeryInput) {
-            console.error('Antiforgery token not found');
             createToast('Error: Security token not found. Please refresh the page and try again.', false);
             return;
         }
@@ -1519,7 +1473,6 @@ export class TimeZonesManager {
             // Refresh the entire view to maintain pagination integrity
             const container = document.getElementById('time-zone-container');
             if (!container) {
-                console.error('Time zone container not found for refreshing');
                 return;
             }
             try {
@@ -1584,8 +1537,6 @@ export class TimeZonesManager {
                                     if (infoButton) {
                                         infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(tz.zoneId));
                                     }
-                                    else {
-                                    }
                                     // Update weather with icon
                                     const cardBody = cardElement.querySelector('.card-body');
                                     if (cardBody && tz.weatherInfo) {
@@ -1629,19 +1580,13 @@ export class TimeZonesManager {
                                     if (homeButton) {
                                         homeButton.addEventListener('click', () => this.setHomeTimeZone(tz.zoneId));
                                     }
-                                    else {
-                                    }
                                     const infoButton = cardElement.querySelector('.card-info-button');
                                     if (infoButton) {
                                         infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(tz.zoneId));
                                     }
-                                    else {
-                                    }
                                     const deleteButton = cardElement.querySelector('.card-delete-button');
                                     if (deleteButton) {
                                         deleteButton.addEventListener('click', () => this.deleteTimeZone(tz.zoneId));
-                                    }
-                                    else {
                                     }
                                 }
                                 else {
@@ -1763,17 +1708,12 @@ export class TimeZonesManager {
                     // Ensure container is marked as loaded
                     container.setAttribute('data-loaded', 'true');
                 }
-                else {
-                    console.error('Failed to reload time zones after deletion');
-                }
             }
             catch (error) {
-                console.error('Error updating time zones after deletion:', error);
                 // Not critical, we've already deleted from server
             }
         }
         catch (error) {
-            console.error('Error deleting timezone:', error);
             createToast('Error: Failed to delete timezone. Please try again.', false);
             // Remove any loading overlays
             const overlays = document.querySelectorAll('[data-timezone-id] .position-absolute');
@@ -1790,7 +1730,6 @@ export class TimeZonesManager {
     async updateHomeTimeZoneDisplay(newHomeTimeZoneId) {
         const container = document.getElementById('time-zone-container');
         if (!container) {
-            console.error('Container not found for updating home timezone');
             return;
         }
         // Store the new home timezone ID
@@ -1902,8 +1841,6 @@ export class TimeZonesManager {
                 weatherInfoElement.style.opacity = '1';
             }
         }
-        else {
-        }
         // Reset currentPage to 1 to avoid asking for an empty page
         // This fixes the issue where adding a timezone while on a search results page
         // would try to fetch data for that page number in the user's timezone list
@@ -1915,7 +1852,7 @@ export class TimeZonesManager {
             // First add the timezone to the server
             // This was already done in the caller, so we just need to refresh the view
             // Get accurate count and update the view
-            // CRITICAL FIX: We MUST include weather info when refreshing after adding a new time zone
+            // Include weather info when refreshing after adding a new time zone
             // This is the root cause of the weather info disappearing after adding a new card
             const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=${this.timeZonesCurrentPage}&pageSize=${this.timeZonesPageSize}&includeWeather=true`;
             const response = await fetch(url, {
@@ -1945,15 +1882,10 @@ export class TimeZonesManager {
                     const totalCount = ((_b = data.data) === null || _b === void 0 ? void 0 : _b.totalItems) || 0;
                     // Log the first timezone if available for debugging
                     if (timeZones.length > 0) {
-                        // CRITICAL: Verify weather info is present in the received data
+                        // Verify weather info is present in the received data
                         const firstTz = timeZones[0];
                         if (firstTz.weatherInfo) {
-                            // ALERT BOX: Show when cards are being refreshed with weather data
                         }
-                        else {
-                        }
-                    }
-                    else {
                     }
                     if (timeZones.length > 0) {
                         // Create a document fragment to batch DOM operations
@@ -1964,9 +1896,8 @@ export class TimeZonesManager {
                             }
                             // Create card element using our reusable helper
                             const cardElement = this.createTimeZoneCard(tz);
-                            // CRITICAL: Explicitly ensure weather info is displayed on the card
+                            // Explicitly ensure weather info is displayed on the card
                             if (tz.weatherInfo) {
-                                // ALERT BOX: Show when explicitly applying weather info to a card
                                 // Get the weather element and make sure it's visible
                                 const weatherEl = cardElement.querySelector('.card-weather-info');
                                 if (weatherEl) {
@@ -1977,8 +1908,6 @@ export class TimeZonesManager {
                                     // Update the content with icon
                                     this.updateWeatherInfoOnCard(tz, cardElement);
                                     // Verify the weather info is now visible
-                                }
-                                else {
                                 }
                             }
                             fragment.appendChild(cardElement);
@@ -2059,8 +1988,6 @@ export class TimeZonesManager {
                 return;
             }
         }
-        else {
-        }
         // Find the selected timezone in our cached list
         const selectedTimeZone = this.timeZoneList.find(tz => tz.zoneId === timeZoneId);
         // For debugging which timezone is causing issues
@@ -2093,21 +2020,13 @@ export class TimeZonesManager {
                         if (!this.timeZoneList.some(tz => tz.zoneId === tzInfo.zoneId)) {
                             this.timeZoneList.push(tzInfo);
                         }
-                        else {
-                        }
                         const selectedTimeZoneNew = this.timeZoneList.find(tz => tz.zoneId === timeZoneId);
                         if (selectedTimeZoneNew) {
                             // Continue with the found timezone
                             this.setupTimeZoneInfoModal(selectedTimeZoneNew);
                             return;
                         }
-                        else {
-                        }
                     }
-                    else {
-                    }
-                }
-                else {
                 }
             }
             catch (error) {
@@ -2162,7 +2081,6 @@ export class TimeZonesManager {
                 });
         }
         else {
-            console.error('Bootstrap Modal not available');
             return;
         }
         // Clone the timezone data to ensure it cannot be modified by other code
@@ -2196,8 +2114,6 @@ export class TimeZonesManager {
             if (extElement._tzinfo_interval) {
                 window.clearInterval(extElement._tzinfo_interval);
                 extElement._tzinfo_interval = null;
-            }
-            else {
             }
             // Clean up by removing event listeners to prevent accumulation
             infoModalElement.removeEventListener('shown.bs.modal', shownEventHandler);
@@ -2284,8 +2200,6 @@ export class TimeZonesManager {
         if (currentText !== newText) {
             element.textContent = newText;
         }
-        else {
-        }
     }
     /**
      * Sets the home timezone for the user.
@@ -2294,7 +2208,6 @@ export class TimeZonesManager {
         var _a, _b;
         const antiforgeryInput = document.querySelector('input[name="__RequestVerificationToken"]');
         if (!antiforgeryInput) {
-            console.error('Antiforgery token not found');
             createToast('Error: Security token not found. Please refresh the page and try again.', false);
             return;
         }
@@ -2359,7 +2272,6 @@ export class TimeZonesManager {
             // Refresh the entire view to maintain consistency
             const container = document.getElementById('time-zone-container');
             if (!container) {
-                console.error('Time zone container not found for refreshing');
                 return;
             }
             try {
@@ -2424,8 +2336,6 @@ export class TimeZonesManager {
                                     if (infoButton) {
                                         infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(tz.zoneId));
                                     }
-                                    else {
-                                    }
                                     // Update weather with icon
                                     const cardBody = cardElement.querySelector('.card-body');
                                     if (cardBody && tz.weatherInfo) {
@@ -2469,19 +2379,13 @@ export class TimeZonesManager {
                                     if (homeButton) {
                                         homeButton.addEventListener('click', () => this.setHomeTimeZone(tz.zoneId));
                                     }
-                                    else {
-                                    }
                                     const infoButton = cardElement.querySelector('.card-info-button');
                                     if (infoButton) {
                                         infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(tz.zoneId));
                                     }
-                                    else {
-                                    }
                                     const deleteButton = cardElement.querySelector('.card-delete-button');
                                     if (deleteButton) {
                                         deleteButton.addEventListener('click', () => this.deleteTimeZone(tz.zoneId));
-                                    }
-                                    else {
                                     }
                                 }
                                 else {
@@ -2588,17 +2492,12 @@ export class TimeZonesManager {
                     // Ensure container is marked as loaded
                     container.setAttribute('data-loaded', 'true');
                 }
-                else {
-                    console.error('Failed to reload time zones after setting home timezone');
-                }
             }
             catch (error) {
-                console.error('Error updating time zones after setting home timezone:', error);
                 // Not critical, we've already updated on the server
             }
         }
         catch (error) {
-            console.error('Error setting home timezone:', error);
             createToast('Error: Failed to set home timezone', false);
             // Remove any loading overlays
             const overlays = document.querySelectorAll('[data-timezone-id] .position-absolute');
