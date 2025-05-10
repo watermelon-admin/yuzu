@@ -33,7 +33,13 @@
                                 <input asp-for="Input.Password" class="form-control" />
                                 <span asp-validation-for="Input.Password" class="text-danger"></span>
                             </div>
-                            
+
+                            <div class="mb-3">
+                                <label asp-for="Input.BetaCode" class="form-label">Beta Access Code</label>
+                                <input asp-for="Input.BetaCode" type="password" class="form-control" />
+                                <span asp-validation-for="Input.BetaCode" class="text-danger"></span>
+                            </div>
+
                             <div class="mb-3 form-check">
                                 <input asp-for="Input.RememberMe" class="form-check-input" />
                                 <label asp-for="Input.RememberMe" class="form-check-label">Remember me</label>

@@ -374,8 +374,12 @@ app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
 app.UseStaticFiles();
 
 app.UseRouting(); // Enable routing
-app.UseAuthentication(); // Enable authentication
-app.UseAuthorization(); // Enable authorization
+
+app.UseAuthentication(); // Enable authentication first
+app.UseAuthorization(); // Then authorization
+
+// Add beta mode middleware - must be AFTER authentication to properly check auth status
+app.UseBetaAuthentication();
 
 // Map default endpoints - this is now a no-op in ServiceDefaults
 app.MapDefaultEndpoints(); 
