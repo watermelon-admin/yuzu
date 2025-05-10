@@ -375,11 +375,11 @@ app.UseStaticFiles();
 
 app.UseRouting(); // Enable routing
 
-// Add beta mode middleware - must be before authentication to handle unauthenticated requests
-app.UseBetaAuthentication();
+app.UseAuthentication(); // Enable authentication first
+app.UseAuthorization(); // Then authorization
 
-app.UseAuthentication(); // Enable authentication
-app.UseAuthorization(); // Enable authorization
+// Add beta mode middleware - must be AFTER authentication to properly check auth status
+app.UseBetaAuthentication();
 
 // Map default endpoints - this is now a no-op in ServiceDefaults
 app.MapDefaultEndpoints(); 

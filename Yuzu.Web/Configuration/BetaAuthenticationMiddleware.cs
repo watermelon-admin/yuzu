@@ -28,31 +28,41 @@ namespace Yuzu.Web.Configuration
                 return;
             }
 
-            // Skip for static files, health checks, and the beta login page itself
+            // Get the lowercased path
             string path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
-            if (path.StartsWith("/lib/") || 
-                path.StartsWith("/css/") || 
-                path.StartsWith("/js/") || 
-                path.StartsWith("/img/") || 
+
+            // Allow the following paths without authentication:
+            // 1. Static resources
+            // 2. Health checks and system pages
+            // 3. The beta login page itself and related authentication paths
+            bool isAllowedWithoutAuth =
+                path.StartsWith("/lib/") ||
+                path.StartsWith("/css/") ||
+                path.StartsWith("/js/") ||
+                path.StartsWith("/img/") ||
                 path.StartsWith("/fonts/") ||
-                path.StartsWith("/favicon") || 
+                path.StartsWith("/favicon") ||
                 path.StartsWith("/health") ||
                 path.StartsWith("/account/loginbeta") ||
-                path.Equals("/robots.txt"))
+                path.StartsWith("/account/externallogin") ||
+                path.StartsWith("/signin-") ||  // OAuth endpoints like /signin-google
+                path.Equals("/robots.txt");
+
+            if (isAllowedWithoutAuth)
             {
                 await _next(context);
                 return;
             }
 
-            // If user is not authenticated, redirect to beta login page
-            if (!context.User.Identity?.IsAuthenticated ?? true)
+            // If user is authenticated, let them pass
+            if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
             {
-                context.Response.Redirect("/Account/LoginBeta");
+                await _next(context);
                 return;
             }
 
-            // If we get here, the user is authenticated and beta mode is enabled, so proceed
-            await _next(context);
+            // If user is not authenticated and path requires auth, redirect to beta login
+            context.Response.Redirect("/Account/LoginBeta");
         }
     }
 

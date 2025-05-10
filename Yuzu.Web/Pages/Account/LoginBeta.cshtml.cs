@@ -51,6 +51,7 @@ namespace Yuzu.Web.Pages.Account
 
             [Required]
             [Display(Name = "Beta Access Code")]
+            [DataType(DataType.Password)]
             public string BetaCode { get; set; } = string.Empty;
 
             [Display(Name = "Remember me?")]
@@ -93,7 +94,13 @@ namespace Yuzu.Web.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in via beta page with valid beta code.");
-                    return LocalRedirect(returnUrl);
+
+                    // Ensure we're not caching this response to prevent authentication issues
+                    Response.Headers.Append("Cache-Control", "no-store, no-cache");
+                    Response.Headers.Append("Pragma", "no-cache");
+
+                    // Always redirect to home page after successful login
+                    return LocalRedirect("~/");
                 }
                 if (result.RequiresTwoFactor)
                 {
