@@ -122,7 +122,16 @@ export async function loadBreakTypes(page) {
                     editButton.attr('data-image-title-2', item.imageTitle || '');
                 }
                 // Design Button
-                cardDiv.find('.btn-design').attr('href', `/designer?id=${item.id}`);
+                // For subscribers, link directly to the designer, for non-subscribers show premium modal
+                if (isSubscribed) {
+                    cardDiv.find('.btn-design').attr('href', `/designer?id=${item.id}`);
+                }
+                else {
+                    // For non-subscribers, prevent direct navigation and set up to show premium modal
+                    cardDiv.find('.btn-design').attr('href', 'javascript:;');
+                    cardDiv.find('.btn-design').attr('data-bs-toggle', 'modal');
+                    cardDiv.find('.btn-design').attr('data-bs-target', '#break-types-design-prompt-modal');
+                }
                 // Delete Button - Only show for non-locked break types and for subscribed users
                 if (!item.isLocked && isSubscribed) {
                     const deleteContainer = cardDiv.find('.btn-delete-container');
