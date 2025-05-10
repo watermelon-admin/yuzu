@@ -354,7 +354,7 @@ function handleDeleteClick(e) {
  * Event handler for add new break type button clicks
  */
 function handleAddButtonClick() {
-    var _a, _b, _c, _d;
+    var _a, _b;
     if (isSubscribed) {
         if (typeof window.createBreakType === 'function') {
             window.createBreakType();
@@ -365,14 +365,85 @@ function handleAddButtonClick() {
         }
     }
     else {
-        if (typeof window.initSimpleCreate === 'function') {
-            window.initSimpleCreate();
-        }
-        else {
-            console.error('initSimpleCreate function not found');
-            (_d = (_c = window).createToast) === null || _d === void 0 ? void 0 : _d.call(_c, 'Create function not available', false);
-        }
+        // For non-subscribers, show the Pro feature required modal
+        showProFeatureRequiredModal();
     }
+}
+/**
+ * Show the Pro feature required modal for non-subscribers
+ */
+function showProFeatureRequiredModal() {
+    var _a, _b;
+    // Get the modal element
+    const modalElement = document.getElementById('pro-feature-required-modal');
+    if (!modalElement) {
+        console.error('Pro feature required modal not found');
+        (_b = (_a = window).createToast) === null || _b === void 0 ? void 0 : _b.call(_a, 'Subscription required for this feature', false);
+        return;
+    }
+    // Initialize the bootstrap modal
+    const modal = new window.bootstrap.Modal(modalElement);
+    modal.show();
+}
+/**
+ * Initialize the simple create modal for break types (for non-subscribers)
+ */
+function initSimpleCreate() {
+    // Get the modal element
+    const modalElement = document.getElementById('break-type-simple-edit-modal');
+    if (!modalElement) {
+        console.error('Simple create modal not found');
+        return;
+    }
+    // Reset the form fields to default values
+    const idField = document.getElementById('simple-edit-break-type-id');
+    const nameField = document.getElementById('simple-edit-break-type-name');
+    const iconNameField = document.getElementById('simple-edit-icon-name');
+    const countdownMessageField = document.getElementById('simple-edit-countdown-message');
+    const countdownEndMessageField = document.getElementById('simple-edit-countdown-end-message');
+    const endTimeTitleField = document.getElementById('simple-edit-end-time-title');
+    const defaultDurationField = document.getElementById('simple-edit-default-duration');
+    const timeStepField = document.getElementById('simple-edit-time-step');
+    // Set default values
+    if (idField)
+        idField.value = '';
+    if (nameField)
+        nameField.value = 'New Break';
+    if (iconNameField)
+        iconNameField.value = 'bx-coffee-togo';
+    if (countdownMessageField)
+        countdownMessageField.value = 'Minutes until break ends';
+    if (countdownEndMessageField)
+        countdownEndMessageField.value = 'Break is over';
+    if (endTimeTitleField)
+        endTimeTitleField.value = 'Break Ends At';
+    if (defaultDurationField)
+        defaultDurationField.value = '15';
+    if (timeStepField)
+        timeStepField.value = '5';
+    // Set background image options
+    const backgroundOption1 = document.getElementById('background-option-1');
+    const backgroundOption2 = document.getElementById('background-option-2');
+    const backgroundOption1Radio = document.getElementById('background-option-1-radio');
+    // Get the background images URL
+    const backgroundImagesURL = getImagePath();
+    // Set default background image previews
+    if (backgroundOption1)
+        backgroundOption1.src = `${backgroundImagesURL}/coffee-thumb.jpg`;
+    if (backgroundOption2)
+        backgroundOption2.src = `${backgroundImagesURL}/break-thumb.jpg`;
+    // Select the first background option by default
+    if (backgroundOption1Radio) {
+        backgroundOption1Radio.checked = true;
+    }
+    // Update modal title to reflect creation instead of editing
+    const modalTitle = document.getElementById('break-type-simple-edit-modal-label');
+    if (modalTitle) {
+        modalTitle.textContent = 'Create New Break Type';
+    }
+    // Initialize the bootstrap modal
+    const modal = new window.bootstrap.Modal(modalElement);
+    modal.show();
 }
 /**
  * Opens the delete confirmation modal
