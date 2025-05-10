@@ -74,13 +74,6 @@ export function switchToTab(tabId: string): void {
      * Initializes the tab switching functionality for the settings page
      */
     export function initTabSwitching(): void {
-        // Get the initial section from hidden input or default to 'account-details'
-        const initialSectionInput = document.getElementById('initial-section') as HTMLInputElement;
-        const initialSection = initialSectionInput?.value || 'account-details';
-
-        // Switch to the initial tab
-        switchToTab(initialSection);
-
         // Add click event listeners to menu items
         const menuItems = document.querySelectorAll('#account-menu a[href^="#"]');
         menuItems.forEach(item => {
@@ -102,10 +95,20 @@ export function switchToTab(tabId: string): void {
             });
         });
 
-        // Handle initial hash (if present in URL)
+        // Priority order for determining which tab to show:
+        // 1. Hash in URL (takes precedence when page is reloaded)
+        // 2. Initial section from hidden input (used on first load)
+        // 3. Default to 'account-details' as fallback
+
         if (window.location.hash) {
+            // If URL has hash, use it (for page reloads)
             const hash = window.location.hash.substring(1);
             switchToTab(hash);
+        } else {
+            // Otherwise use the initial section from hidden input or default
+            const initialSectionInput = document.getElementById('initial-section') as HTMLInputElement;
+            const initialSection = initialSectionInput?.value || 'account-details';
+            switchToTab(initialSection);
         }
     }
 
