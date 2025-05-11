@@ -16,7 +16,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
+      - name: Install Docker
+        run: |
+          echo "Installing Docker..."
+          apk add --no-cache docker
+          rc-update add docker boot
+          service docker start
+          # Wait for Docker to start
+          sleep 5
+          docker version
+
       - name: Get version tag
         id: get_version
         run: |

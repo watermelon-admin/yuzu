@@ -19,13 +19,14 @@ The workflow runs:
 
 1. Runs on the `custom-runner` (with Alpine, .NET 9, and Node.js 20 pre-installed)
 2. Check out the repository code
-3. Generate a version tag (from Git tag or commit SHA)
-4. Log in to Scaleway Container Registry using the `SCW_SECRET_KEY` secret
-5. Build the Docker image locally
-6. Tag the image with:
+3. Install Docker on the runner using Alpine's package manager
+4. Generate a version tag (from Git tag or commit SHA)
+5. Log in to Scaleway Container Registry using the `SCW_SECRET_KEY` secret
+6. Build the Docker image locally
+7. Tag the image with:
    - `latest`
    - Version-specific tag (either the Git tag without 'v' prefix or short commit SHA)
-7. Push both tagged images to the Scaleway Container Registry
+8. Push both tagged images to the Scaleway Container Registry
 
 #### Required Secrets
 
