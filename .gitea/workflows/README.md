@@ -17,14 +17,15 @@ The workflow runs:
 
 #### Workflow Steps
 
-1. Check out the repository code
-2. Set up Docker Buildx for multi-platform builds
+1. Runs on the `custom-runner` (with Alpine, .NET 9, and Node.js 20 pre-installed)
+2. Check out the repository code
 3. Generate a version tag (from Git tag or commit SHA)
 4. Log in to Scaleway Container Registry using the `SCW_SECRET_KEY` secret
-5. Build and push the Docker image with two tags:
+5. Build the Docker image locally
+6. Tag the image with:
    - `latest`
    - Version-specific tag (either the Git tag without 'v' prefix or short commit SHA)
-6. Uses GitHub cache to speed up subsequent builds
+7. Push both tagged images to the Scaleway Container Registry
 
 #### Required Secrets
 
