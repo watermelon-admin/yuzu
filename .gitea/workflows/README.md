@@ -17,17 +17,15 @@ The workflow runs:
 
 #### Workflow Steps
 
-1. Runs on the `custom-runner` (with Alpine, .NET 9, and Node.js 20 pre-installed)
+1. Runs on the `custom-runner` (with .NET 9 and Node.js 20 pre-installed)
 2. Check out the repository code
-3. Setup Docker (detects existing installation or installs if needed)
-4. Generate a version tag (from Git tag or commit SHA)
-5. Configure Docker authentication using Docker credentials store directly
-6. Build the Docker image locally
-7. Tag the image with:
+3. Generate a version tag (from Git tag or commit SHA)
+4. Configure Docker authentication for Scaleway Container Registry
+5. Build the Docker image locally
+6. Tag the image with:
    - `latest`
    - Version-specific tag (either the Git tag without 'v' prefix or short commit SHA)
-8. Verify registry access permissions
-9. Push both tagged images to the Scaleway Container Registry
+7. Push both tagged images to the Scaleway Container Registry
 
 #### Required Secrets
 

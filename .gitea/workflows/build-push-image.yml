@@ -17,63 +17,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Docker
-        run: |
-          echo "Checking for Docker..."
-          if command -v docker &> /dev/null; then
-            echo "Docker command found, using existing installation"
-          else
-            echo "Docker command not found. Checking if Docker is installed but not in PATH..."
-
-            # Check common Docker binary locations
-            for docker_path in /usr/bin/docker /usr/local/bin/docker /var/lib/docker/bin/docker; do
-              if [ -x "$docker_path" ]; then
-                echo "Found Docker at $docker_path, adding to PATH"
-                export PATH="$(dirname $docker_path):$PATH"
-                break
-              fi
-            done
-
-            # If still not found, try to install it
-            if ! command -v docker &> /dev/null; then
-              echo "Installing Docker and dependencies..."
-              if command -v apk &> /dev/null; then
-                # Alpine
-                apk add --no-cache docker docker-cli-buildx
-              elif command -v apt-get &> /dev/null; then
-                # Ubuntu/Debian
-                apt-get update && apt-get install -y docker.io
-              else
-                echo "Unsupported package manager. Please install Docker manually."
-                exit 1
-              fi
-            fi
-          fi
-
-          # Verify Docker is running
-          docker info || {
-            echo "Docker not running, attempting to start it..."
-
-            # Try to start Docker daemon
-            if command -v service &> /dev/null; then
-              service docker start
-            elif command -v systemctl &> /dev/null; then
-              systemctl start docker
-            else
-              # Last resort, start dockerd directly
-              dockerd &
-              sleep 5
-            fi
-
-            # Final check
-            docker info || {
-              echo "Failed to start Docker. Check if Docker service is available."
-              exit 1
-            }
-          }
-
-          echo "Docker is ready to use"
-
       - name: Get version tag
         id: get_version
         run: |
@@ -87,62 +30,28 @@ jobs:
             echo "version=$SHORT_SHA" >> $GITHUB_OUTPUT
           fi
         
-      - name: Verify Secret and Configure Docker
+      - name: Configure Docker Credentials
+        env:
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
         run: |
-          # Check if secret is available (without revealing it)
-          if [ -z "${{ secrets.SCW_SECRET_KEY }}" ]; then
-            echo "ERROR: SCW_SECRET_KEY is empty or not set!"
-            exit 1
-          else
-            echo "Secret SCW_SECRET_KEY is available (length: ${#SCW_SECRET_KEY})"
-          fi
-
-          # Try to match exactly what works in local environment
-          echo "Configuring Docker credentials..."
-
-          # Method 1: Direct login with password from stdin (how it likely works locally)
-          echo "${{ secrets.SCW_SECRET_KEY }}" | docker login rg.fr-par.scw.cloud -u nologin --password-stdin || echo "Login method 1 failed"
-
-          # Method 2: Manual config.json creation (backup method)
-          mkdir -p ~/.docker
-          echo '{
-            "auths": {
-              "rg.fr-par.scw.cloud": {
-                "auth": "'$(echo -n "nologin:${{ secrets.SCW_SECRET_KEY }}" | base64)'"
-              }
-            }
-          }' > ~/.docker/config.json
-          chmod 600 ~/.docker/config.json
-
-          # Verify Docker can find the config
-          echo "Docker config is ready at: ~/.docker/config.json"
+          # Login to Scaleway registry
+          echo "$SCW_SECRET_KEY" | docker login rg.fr-par.scw.cloud -u nologin --password-stdin
+          echo "Docker login completed"
 
       - name: Build Docker image
         run: docker build -t yuzu:latest .
 
       - name: Tag Docker images
         run: |
-          # Get the exact registry path that works locally
-          echo "Tagging images for Scaleway registry"
           docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
           docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
 
-      - name: Verify registry access
-        run: |
-          echo "Checking registry access..."
-
-          # Display Docker config without sensitive info
-          echo "Current Docker config:"
-          cat ~/.docker/config.json | grep -v auth || true
-
-          # Try various verification methods
-          echo "Attempting registry access verification..."
-          docker search rg.fr-par.scw.cloud/cr-yuzu-par || true
-
       - name: Push Docker images to registry
+        env:
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
         run: |
           echo "Pushing image with tag: latest"
           docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
-
+          
           echo "Pushing image with tag: ${{ steps.get_version.outputs.version }}"
           docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
