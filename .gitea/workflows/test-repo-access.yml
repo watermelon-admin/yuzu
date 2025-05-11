@@ -121,13 +121,29 @@ jobs:
         if: ${{ github.event.inputs.skip_ssh_test != 'true' }}
         run: |
           echo "Testing SSH connection..."
-          
+
           if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            timeout 10 ssh -vvv -i ~/.ssh/id_rsa git@gitea.watermelonsoft.eu || true
+            # Try with the deployment key first
+            if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
+              echo "Testing with yuzu_deploy_rsa key..."
+              timeout 10 ssh -vvv -i /root/.ssh/yuzu_deploy_rsa git@gitea.watermelonsoft.eu || true
+            else
+              # Fall back to default key
+              echo "Testing with default id_rsa key..."
+              timeout 10 ssh -vvv -i ~/.ssh/id_rsa git@gitea.watermelonsoft.eu || true
+            fi
           else
-            timeout 10 ssh -vvv -i ~/.ssh/id_ed25519 git@gitea.watermelonsoft.eu || true
+            # Try with the deployment key first
+            if [ -f /root/.ssh/yuzu_deploy_ed25519 ]; then
+              echo "Testing with yuzu_deploy_ed25519 key..."
+              timeout 10 ssh -vvv -i /root/.ssh/yuzu_deploy_ed25519 git@gitea.watermelonsoft.eu || true
+            else
+              # Fall back to default key
+              echo "Testing with default id_ed25519 key..."
+              timeout 10 ssh -vvv -i ~/.ssh/id_ed25519 git@gitea.watermelonsoft.eu || true
+            fi
           fi
-          
+
           echo "SSH test completed"
 
       - name: Configure Git
@@ -138,20 +154,36 @@ jobs:
       - name: Test clone repository
         run: |
           echo "Attempting to clone repository..."
-          
+
           if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            # Use RSA key for SSH
-            GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes" \
-            git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+            # Try with the deployment key first
+            if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
+              echo "Cloning with yuzu_deploy_rsa key..."
+              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+            else
+              # Fall back to default key
+              echo "Cloning with default id_rsa key..."
+              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+            fi
           else
-            # Use ED25519 key for SSH
-            GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" \
-            git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+            # Try with the deployment key first
+            if [ -f /root/.ssh/yuzu_deploy_ed25519 ]; then
+              echo "Cloning with yuzu_deploy_ed25519 key..."
+              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+            else
+              # Fall back to default key
+              echo "Cloning with default id_ed25519 key..."
+              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+            fi
           fi
-          
+
           # Check repository contents
           cd test-clone
           echo "Successfully cloned repository. Contents:"
           ls -la
-          
+
           echo "Clone test successful!"
