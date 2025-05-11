@@ -5,7 +5,7 @@ This document explains how to set up the deployment workflow that updates Kubern
 ## Pre-requisites
 
 1. A Gitea runner with Docker installed
-2. Access to the YuzuDeploy repository via Personal Access Token (PAT)
+2. SSH key access to the YuzuDeploy repository
 3. Proper secrets configured in your Gitea repository
 
 ## Required Secrets
@@ -13,32 +13,28 @@ This document explains how to set up the deployment workflow that updates Kubern
 Add the following secrets to your Gitea repository:
 
 1. `SCW_SECRET_KEY` - Your Scaleway registry secret key
-2. `DEPLOY_PAT` - A Personal Access Token with write access to the YuzuDeploy repository
+2. `DEPLOY_SSH_KEY` - An SSH private key with write access to the YuzuDeploy repository
 
-## Creating a Personal Access Token (PAT)
+## Generating a Dedicated SSH Key for Deployment
 
-1. Go to your user settings in Gitea (click your profile picture > Settings)
-2. Navigate to "Applications" or "Access Tokens"
-3. Click "Generate New Token"
-4. Give it a descriptive name like "YuzuDeploy-CI"
-5. Select permissions: at minimum, check "repo" access
-6. Click "Generate Token"
-7. **Copy the generated token immediately** (you won't be able to see it again)
-8. Add this token as the `DEPLOY_PAT` secret in your Yuzu repository settings
+1. Generate a new SSH key pair specifically for deployment:
 
-## Configuring the Workflow
-
-Before using the workflow, you need to update the repository URL in the clone command to match your Gitea server address and organization/username:
-
-```yaml
-git clone https://${DEPLOY_PAT}@your-gitea-server.example.com/YourUsername/YuzuDeploy.git deploy-repo
+```bash
+ssh-keygen -t ed25519 -C "yuzu-deploy-key" -f ./deploy_key
 ```
 
-Replace `your-gitea-server.example.com` and `YourUsername` with your actual Gitea server hostname and username. For example:
+2. Add the public key as a deploy key in your YuzuDeploy repository:
+   - Go to YuzuDeploy repository settings
+   - Find "Deploy Keys" section
+   - Add a new deploy key with the content of `deploy_key.pub`
+   - Make sure to check "Allow write access"
+   - Give it a descriptive title like "Yuzu CI Deployment Key"
 
-```yaml
-git clone https://${DEPLOY_PAT}@gitea.example.org/DevOps/YuzuDeploy.git deploy-repo
-```
+3. Add the private key content as the `DEPLOY_SSH_KEY` secret in your Yuzu repository:
+   - Go to your Yuzu repository settings
+   - Navigate to "Secrets"
+   - Add a new secret named `DEPLOY_SSH_KEY`
+   - Paste the content of the `deploy_key` private key file
 
 ## How It Works
 
@@ -46,18 +42,21 @@ The workflow:
 
 1. Checks if git is installed, installs it if needed (for Alpine Linux)
 2. Builds and pushes Docker images to the Scaleway registry
-3. Clones the YuzuDeploy repository using the Personal Access Token
-4. Updates the image tag in the deployment files
-5. Commits and pushes the changes
+3. Sets up SSH key for Git operations
+4. Clones the YuzuDeploy repository
+5. Updates the image tag in the deployment files
+6. Commits and pushes the changes
 
 This enables automatic updates to your Kubernetes deployment files whenever a new image is built.
 
 ## Troubleshooting
 
-If the workflow fails at the Git or repository access steps:
+If the workflow fails at the Git or SSH steps:
 
-1. Check that your Personal Access Token hasn't expired
-2. Verify the PAT has write access to the YuzuDeploy repository
-3. Make sure the repository URL is correct (including the domain and username/organization)
-4. Confirm that the Gitea user associated with the PAT has appropriate permissions
-5. Check that your runner has outbound HTTPS access (port 443) to your Gitea server
+1. Verify that the SSH key has been added as a deploy key in the YuzuDeploy repository
+2. Ensure the deploy key has write access enabled
+3. Check that the SSH private key has been properly added as a secret
+4. Make sure the repository URL in the workflow file is correct
+5. Confirm the runner has outbound SSH access (port 22) to your Gitea server
+
+If the connection fails even with correct settings, you might need to modify your Gitea server's SSH settings or consider using an HTTP-based approach with a machine user account.

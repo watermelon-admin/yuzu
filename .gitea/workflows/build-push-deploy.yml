@@ -79,12 +79,26 @@ jobs:
           git config --global user.name "Gitea Workflow"
           git config --global user.email "noreply@gitea.local"
       
-      - name: Clone Deployment Repo with PAT
+      - name: Setup SSH key
         env:
-          DEPLOY_PAT: ${{ secrets.DEPLOY_PAT }}
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
-          # Clone using HTTPS with token authentication
-          git clone https://${DEPLOY_PAT}@gitea.watermelonsoft.eu/uwe/YuzuDeploy.git deploy-repo
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # Add gitea server to known hosts
+          ssh-keyscan -t ed25519 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+          # Test SSH connection (will likely fail with permission denied, but confirms connectivity)
+          echo "Testing SSH connection..."
+          ssh -T git@gitea.watermelonsoft.eu || true
+
+      - name: Clone Deployment Repo with SSH
+        run: |
+          # Clone using SSH
+          git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
           cd deploy-repo
           echo "Cloned deployment repository"
       
