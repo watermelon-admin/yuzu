@@ -81,13 +81,13 @@ jobs:
             fi
           fi
 
-          # Add gitea server to known hosts
-          ssh-keyscan gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
+          # Add gitea server to known hosts (with port 29418)
+          ssh-keyscan -p 29418 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-          # Test SSH connection
-          echo "Testing SSH connection..."
-          timeout 10 ssh -vvv -i ~/.ssh/id_rsa git@gitea.watermelonsoft.eu || true
+          # Test SSH connection with correct port
+          echo "Testing SSH connection on port 29418..."
+          timeout 10 ssh -vvv -i ~/.ssh/id_rsa -p 29418 git@gitea.watermelonsoft.eu || true
           echo "SSH test completed"
 
       - name: Setup SSH key (ED25519)
@@ -108,13 +108,13 @@ jobs:
           echo "ED25519 key fingerprint:"
           ssh-keygen -l -f ~/.ssh/id_ed25519.pub
 
-          # Add gitea server to known hosts
-          ssh-keyscan gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
+          # Add gitea server to known hosts (with port 29418)
+          ssh-keyscan -p 29418 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-          # Test SSH connection
-          echo "Testing SSH connection..."
-          timeout 10 ssh -vvv -i ~/.ssh/id_ed25519 git@gitea.watermelonsoft.eu || true
+          # Test SSH connection with correct port
+          echo "Testing SSH connection on port 29418..."
+          timeout 10 ssh -vvv -i ~/.ssh/id_ed25519 -p 29418 git@gitea.watermelonsoft.eu || true
           echo "SSH test completed"
 
       - name: Get version tag
