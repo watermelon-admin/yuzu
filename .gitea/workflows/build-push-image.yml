@@ -48,7 +48,12 @@ jobs:
         
       - name: Login to Scaleway Container Registry
         run: |
-          echo ${{ secrets.SCW_SECRET_KEY }} | docker login rg.fr-par.scw.cloud -u nologin --password-stdin
+          mkdir -p ~/.docker
+          echo '{"auths":{"rg.fr-par.scw.cloud":{"auth":"'$(echo -n "nologin:${{ secrets.SCW_SECRET_KEY }}" | base64)'"}}}' > ~/.docker/config.json
+          chmod 600 ~/.docker/config.json
+          # Verify the login worked
+          cat ~/.docker/config.json
+          echo "Docker login configured via config.json"
 
       - name: Build Docker image
         run: docker build -t yuzu:latest .

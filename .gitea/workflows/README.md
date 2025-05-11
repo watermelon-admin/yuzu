@@ -21,7 +21,7 @@ The workflow runs:
 2. Check out the repository code
 3. Install Docker on the runner using Alpine's package manager and start the Docker daemon
 4. Generate a version tag (from Git tag or commit SHA)
-5. Log in to Scaleway Container Registry using the `SCW_SECRET_KEY` secret
+5. Configure Docker authentication for Scaleway Container Registry using a config file
 6. Build the Docker image locally
 7. Tag the image with:
    - `latest`
