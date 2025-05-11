@@ -19,13 +19,19 @@ jobs:
 
       - name: Install Docker
         run: |
-          echo "Installing Docker..."
-          apk add --no-cache docker
-          rc-update add docker boot
-          service docker start
+          echo "Installing Docker and dependencies..."
+          apk add --no-cache docker docker-cli-buildx
+
+          # Start dockerd directly (without using service or rc-update)
+          echo "Starting Docker daemon..."
+          dockerd &
+
           # Wait for Docker to start
-          sleep 5
-          docker version
+          echo "Waiting for Docker to start..."
+          sleep 10
+
+          # Verify Docker is running
+          docker info || (echo "Docker failed to start properly" && exit 1)
 
       - name: Get version tag
         id: get_version
