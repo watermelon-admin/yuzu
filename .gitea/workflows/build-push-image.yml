@@ -1,12 +1,10 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Image (Manual Only)
+
+# NOTE: This workflow is for manual builds only.
+# For automated builds and deployment, use the build-push-deploy.yml workflow instead.
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
-  # Allows you to run this workflow manually from the Actions tab
+  # Only manual trigger is enabled
   workflow_dispatch:
 
 jobs:
