@@ -89,14 +89,27 @@ jobs:
         
       - name: Login to Scaleway Container Registry
         run: |
-          # Create a credential file for docker login
-          echo "${{ secrets.SCW_SECRET_KEY }}" > /tmp/scw_token.txt
+          # Use a simple script approach to avoid TTY issues
+          # Store secret in a variable and use it with -p instead
+          PASSWORD="${{ secrets.SCW_SECRET_KEY }}"
 
-          # Use the file for non-interactive login
-          docker login rg.fr-par.scw.cloud -u nologin --password-file /tmp/scw_token.txt
+          # Disable command tracing to avoid showing the password in logs
+          set +x
 
-          # Remove the credential file
-          rm /tmp/scw_token.txt
+          # Create a script to execute the login command
+          cat > /tmp/docker_login.sh << EOF
+          #!/bin/sh
+          docker login rg.fr-par.scw.cloud -u nologin -p "$PASSWORD"
+          EOF
+
+          # Make the script executable
+          chmod +x /tmp/docker_login.sh
+
+          # Run the script (won't show the password in logs)
+          /tmp/docker_login.sh
+
+          # Clean up
+          rm /tmp/docker_login.sh
 
           # Verify login status
           echo "Docker login completed"
