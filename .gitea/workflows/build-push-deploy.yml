@@ -32,17 +32,54 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.RSA_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
+
+          # Inspect key format before writing to file
+          echo "Inspecting RSA key format..."
+          echo "$SSH_PRIVATE_KEY" | grep -c "BEGIN .* PRIVATE KEY" || echo "ERROR: No private key header found"
+          echo "$SSH_PRIVATE_KEY" | grep -c "END .* PRIVATE KEY" || echo "ERROR: No private key footer found"
+          echo "$SSH_PRIVATE_KEY" | wc -l
+
+          # Write key to file and fix permissions
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-          # Generate public key from private key
-          echo "Generating RSA public key from private key..."
-          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
-          chmod 644 ~/.ssh/id_rsa.pub
+          # Check key format directly
+          echo "Contents of key file (first and last 3 lines):"
+          head -n 3 ~/.ssh/id_rsa
+          echo "..."
+          tail -n 3 ~/.ssh/id_rsa
 
-          # Display key fingerprint
-          echo "RSA key fingerprint:"
-          ssh-keygen -l -f ~/.ssh/id_rsa.pub
+          # Try to generate public key
+          echo "Generating RSA public key from private key..."
+          if ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub 2>/tmp/keygen_error; then
+            chmod 644 ~/.ssh/id_rsa.pub
+            echo "Public key generated successfully."
+
+            # Display key fingerprint
+            echo "RSA key fingerprint:"
+            ssh-keygen -l -f ~/.ssh/id_rsa.pub
+          else
+            echo "Error generating public key:"
+            cat /tmp/keygen_error
+            echo "Attempting to fix key format issues..."
+
+            # Sometimes keys need fixing if copied from Windows
+            sed -i 's/\r$//' ~/.ssh/id_rsa
+
+            # Try again after fixing
+            if ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub 2>/tmp/keygen_error2; then
+              chmod 644 ~/.ssh/id_rsa.pub
+              echo "Public key generated after fixing format."
+
+              # Display key fingerprint
+              echo "RSA key fingerprint:"
+              ssh-keygen -l -f ~/.ssh/id_rsa.pub
+            else
+              echo "Still failing after format fix:"
+              cat /tmp/keygen_error2
+              exit 1
+            fi
+          fi
 
           # Add gitea server to known hosts
           ssh-keyscan gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
