@@ -1,52 +1,76 @@
-# Gitea CI/CD Workflows
+# Yuzu CI/CD Workflows
 
-This directory contains Gitea workflow configurations for automating the build and deployment processes.
+This directory contains CI/CD workflows for the Yuzu project.
 
 ## Available Workflows
 
-### Build and Push Docker Image (`build-push-image.yml`)
+### 1. Test Repository Access (`test-repo-access.yml`)
 
-This workflow automatically builds and pushes the Yuzu application Docker image to the Scaleway Container Registry.
+This workflow is specifically for testing SSH repository access and cloning.
 
-#### Workflow Triggers
+#### Workflow Parameters
 
-The workflow runs:
-- On every push to the `main` branch
-- When a new tag with prefix `v` is pushed (e.g., `v1.0.0`, `v2.3.1`)
-- Manually via workflow dispatch
+- `ssh_key_type`: Select which key type to use (rsa or ed25519)
+- `skip_ssh_test`: Whether to skip the initial SSH connection test (true/false)
 
 #### Workflow Steps
 
-1. Runs on the `custom-runner` (with .NET 9 and Node.js 20 pre-installed)
-2. Check out the repository code
-3. Generate a version tag (from Git tag or commit SHA)
-4. Configure Docker authentication for Scaleway Container Registry
-5. Build the Docker image locally
-6. Tag the image with:
-   - `latest`
-   - Version-specific tag (either the Git tag without 'v' prefix or short commit SHA)
-7. Push both tagged images to the Scaleway Container Registry
+1. Sets up the selected SSH key
+2. Tests SSH connectivity to Gitea
+3. Attempts to clone the YuzuDeploy repository
 
-#### Required Secrets
+### 2. Build, Push and Deploy (`build-push-deploy.yml`)
 
-- `SCW_SECRET_KEY`: Your Scaleway Secret Key for authenticating with the container registry
+This workflow builds, pushes Docker images, and updates deployment manifests.
 
-#### How to Use
+#### Workflow Parameters
 
-1. **For regular development:**
-   - Push changes to the `main` branch
-   - The image will be built and pushed with tag format: `rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:<commit-sha>`
+- `ssh_key_type`: Select which key type to use (rsa or ed25519)
 
-2. **For releases:**
-   - Create and push a version tag: `git tag v1.0.0 && git push origin v1.0.0`
-   - The image will be built and pushed with tag format: `rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:1.0.0`
+#### Workflow Steps
 
-3. **For manual runs:**
-   - Go to Actions tab in Gitea
-   - Select "Build and Push Docker Image" workflow
-   - Click "Run workflow"
+1. Builds a Docker image for Yuzu
+2. Pushes the image to the Scaleway registry
+3. Updates the deployment manifests in the YuzuDeploy repository
 
-#### Customizing the Workflow
+### 3. Build and Push Docker Image Only (`build-push-image.yml`)
 
-- Edit `.gitea/workflows/build-push-image.yml` to modify build parameters or add additional steps
-- Adjust the registry path (`rg.fr-par.scw.cloud/cr-yuzu-par-1`) if needed
+This workflow only builds and pushes Docker images without deployment steps.
+
+#### Workflow Steps
+
+1. Builds a Docker image for Yuzu
+2. Pushes the image to the Scaleway registry
+
+## Setting Up SSH Keys
+
+The workflows support two types of SSH keys for repository authentication:
+
+1. RSA keys (`RSA_SSH_KEY` secret)
+2. ED25519 keys (`DEPLOY_SSH_KEY` secret)
+
+### Adding SSH Keys to Gitea
+
+1. Generate or use an existing SSH key pair
+2. Add the **private key** as a secret in the Yuzu repository:
+   - Go to repository settings → Secrets
+   - Add a new secret named `RSA_SSH_KEY` or `DEPLOY_SSH_KEY`
+   - Paste the private key content
+3. Add the **public key** to your Gitea user account:
+   - Go to user settings → SSH Keys
+   - Add a new key with the public key content
+
+## Required Secrets
+
+- `SCW_SECRET_KEY`: Your Scaleway Secret Key for container registry authentication
+- `RSA_SSH_KEY`: Private RSA key for SSH authentication (if using RSA)
+- `DEPLOY_SSH_KEY`: Private ED25519 key for SSH authentication (if using ED25519)
+
+## Troubleshooting
+
+If you encounter SSH authentication issues:
+
+1. Run the `test-repo-access.yml` workflow to diagnose connection problems
+2. Check that the SSH key has been added correctly to your Gitea account
+3. Verify the key fingerprints match between your account and the workflow output
+4. Ensure the repository URL is correct in the workflow files

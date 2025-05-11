@@ -1,0 +1,120 @@
+name: Test Repository Access
+
+# This workflow is only for testing repository access
+# It doesn't build or push Docker images
+
+on:
+  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      ssh_key_type:
+        description: 'SSH key type to use (rsa, ed25519)'
+        required: true
+        default: 'rsa'
+      skip_ssh_test:
+        description: 'Skip SSH connection test (true/false)'
+        required: true
+        default: 'false'
+
+jobs:
+  test-repo-access:
+    runs-on: custom-runner
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH tools
+        run: |
+          echo "Installing SSH tools..."
+          apk add --no-cache openssh-client
+          echo "SSH tools installed successfully"
+
+      - name: Setup SSH key (RSA)
+        if: ${{ github.event.inputs.ssh_key_type == 'rsa' }}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.RSA_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Generate public key from private key
+          echo "Generating RSA public key from private key..."
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+          chmod 644 ~/.ssh/id_rsa.pub
+          
+          # Display key fingerprint
+          echo "RSA key fingerprint:"
+          ssh-keygen -l -f ~/.ssh/id_rsa.pub
+          
+          echo "===== RSA PUBLIC KEY CONTENT ====="
+          cat ~/.ssh/id_rsa.pub
+          echo "=================================="
+
+      - name: Setup SSH key (ED25519)
+        if: ${{ github.event.inputs.ssh_key_type == 'ed25519' }}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Generate public key from private key
+          echo "Generating ED25519 public key from private key..."
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
+          chmod 644 ~/.ssh/id_ed25519.pub
+          
+          # Display key fingerprint
+          echo "ED25519 key fingerprint:"
+          ssh-keygen -l -f ~/.ssh/id_ed25519.pub
+          
+          echo "===== ED25519 PUBLIC KEY CONTENT ====="
+          cat ~/.ssh/id_ed25519.pub
+          echo "======================================"
+
+      - name: Add server to known hosts
+        run: |
+          # Add gitea server to known hosts
+          ssh-keyscan gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        if: ${{ github.event.inputs.skip_ssh_test != 'true' }}
+        run: |
+          echo "Testing SSH connection..."
+          
+          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
+            timeout 10 ssh -vvv -i ~/.ssh/id_rsa git@gitea.watermelonsoft.eu || true
+          else
+            timeout 10 ssh -vvv -i ~/.ssh/id_ed25519 git@gitea.watermelonsoft.eu || true
+          fi
+          
+          echo "SSH test completed"
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Gitea Workflow"
+          git config --global user.email "noreply@gitea.local"
+
+      - name: Test clone repository
+        run: |
+          echo "Attempting to clone repository..."
+          
+          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
+            # Use RSA key for SSH
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes" \
+            git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+          else
+            # Use ED25519 key for SSH
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" \
+            git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone
+          fi
+          
+          # Check repository contents
+          cd test-clone
+          echo "Successfully cloned repository. Contents:"
+          ls -la
+          
+          echo "Clone test successful!"
