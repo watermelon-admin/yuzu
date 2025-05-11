@@ -1,4 +1,4 @@
-name: Test Repository Access
+name: Test Repository Access (Custom Port)
 
 # This workflow is only for testing repository access
 # It doesn't build or push Docker images
@@ -36,29 +36,29 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.RSA_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-
+          
           # Inspect key format before writing to file
           echo "Inspecting RSA key format..."
           echo "$SSH_PRIVATE_KEY" | grep -c "BEGIN .* PRIVATE KEY" || echo "ERROR: No private key header found"
           echo "$SSH_PRIVATE_KEY" | grep -c "END .* PRIVATE KEY" || echo "ERROR: No private key footer found"
           echo "$SSH_PRIVATE_KEY" | wc -l
-
+          
           # Write key to file and fix permissions
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
+          
           # Check key format directly
           echo "Contents of key file (first and last 3 lines):"
           head -n 3 ~/.ssh/id_rsa
           echo "..."
           tail -n 3 ~/.ssh/id_rsa
-
+          
           # Try to generate public key
           echo "Generating RSA public key from private key..."
           if ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub 2>/tmp/keygen_error; then
             chmod 644 ~/.ssh/id_rsa.pub
             echo "Public key generated successfully."
-
+            
             # Display key fingerprint
             echo "RSA key fingerprint:"
             ssh-keygen -l -f ~/.ssh/id_rsa.pub
@@ -66,15 +66,15 @@ jobs:
             echo "Error generating public key:"
             cat /tmp/keygen_error
             echo "Attempting to fix key format issues..."
-
+            
             # Sometimes keys need fixing if copied from Windows
             sed -i 's/\r$//' ~/.ssh/id_rsa
-
+            
             # Try again after fixing
             if ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub 2>/tmp/keygen_error2; then
               chmod 644 ~/.ssh/id_rsa.pub
               echo "Public key generated after fixing format."
-
+              
               # Display key fingerprint
               echo "RSA key fingerprint:"
               ssh-keygen -l -f ~/.ssh/id_rsa.pub
@@ -121,7 +121,7 @@ jobs:
         if: ${{ github.event.inputs.skip_ssh_test != 'true' }}
         run: |
           echo "Testing SSH connection..."
-
+          
           if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
             # Try with the deployment key first
             if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
@@ -143,7 +143,7 @@ jobs:
               timeout 10 ssh -vvv -i ~/.ssh/id_ed25519 -p 29418 git@gitea.watermelonsoft.eu || true
             fi
           fi
-
+          
           echo "SSH test completed"
 
       - name: Configure Git
@@ -154,7 +154,7 @@ jobs:
       - name: Test clone repository (HTTPS fallback)
         run: |
           echo "Attempting to clone repository..."
-
+          
           # First try HTTPS to see if repository exists and is accessible
           echo "First attempting HTTPS clone to verify repository exists..."
           if git clone --depth=1 https://gitea.watermelonsoft.eu/uwe/YuzuDeploy.git https-test-clone; then
@@ -163,19 +163,19 @@ jobs:
           else
             echo "HTTPS clone failed - check if repository exists or URL is correct"
           fi
-
+          
           # Now try SSH
           if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
             # Try with the deployment key first
             if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
               echo "Cloning with yuzu_deploy_rsa key (with 3 minute timeout)..."
-
-              # More verbose GIT_SSH_COMMAND with debugging
+              
+              # Use the correct port in SSH command and in the URL
               export GIT_SSH_COMMAND="ssh -vvv -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-
-              # Try with timeout
-              timeout 180 git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git ssh-test-clone || echo "SSH clone timed out or failed"
-
+              
+              # Use SSH URL format with the port
+              timeout 180 git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git ssh-test-clone || echo "SSH clone timed out or failed"
+              
               if [ -d "ssh-test-clone" ]; then
                 echo "SSH clone succeeded!"
                 mv ssh-test-clone test-clone
@@ -187,17 +187,17 @@ jobs:
               fi
             else
               echo "Deployment key not found, using default key..."
-              export GIT_SSH_COMMAND="ssh -vvv -i ~/.ssh/id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-              timeout 180 git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone || \
+              export GIT_SSH_COMMAND="ssh -vvv -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+              timeout 180 git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git test-clone || \
               git clone https://gitea.watermelonsoft.eu/uwe/YuzuDeploy.git test-clone
             fi
           else
             # Similar pattern for ED25519
             if [ -f /root/.ssh/yuzu_deploy_ed25519 ]; then
               echo "Cloning with yuzu_deploy_ed25519 key (with 3 minute timeout)..."
-              export GIT_SSH_COMMAND="ssh -vvv -i /root/.ssh/yuzu_deploy_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-              timeout 180 git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git ssh-test-clone || echo "SSH clone timed out or failed"
-
+              export GIT_SSH_COMMAND="ssh -vvv -i /root/.ssh/yuzu_deploy_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+              timeout 180 git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git ssh-test-clone || echo "SSH clone timed out or failed"
+              
               if [ -d "ssh-test-clone" ]; then
                 echo "SSH clone succeeded!"
                 mv ssh-test-clone test-clone
@@ -207,12 +207,12 @@ jobs:
               fi
             else
               echo "Deployment key not found, using default key..."
-              export GIT_SSH_COMMAND="ssh -vvv -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-              timeout 180 git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git test-clone || \
+              export GIT_SSH_COMMAND="ssh -vvv -i ~/.ssh/id_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+              timeout 180 git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git test-clone || \
               git clone https://gitea.watermelonsoft.eu/uwe/YuzuDeploy.git test-clone
             fi
           fi
-
+          
           # Check if clone was successful
           if [ -d "test-clone" ]; then
             # Check repository contents

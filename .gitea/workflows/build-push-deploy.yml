@@ -169,25 +169,25 @@ jobs:
             # Try with the deployment key first
             if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
               echo "Cloning with yuzu_deploy_rsa key..."
-              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -o IdentitiesOnly=yes" \
-              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes" \
+              git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git deploy-repo
             else
               # Fall back to default key
               echo "Cloning with default id_rsa key..."
-              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes" \
-              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes" \
+              git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git deploy-repo
             fi
           else
             # Try with the deployment key first
             if [ -f /root/.ssh/yuzu_deploy_ed25519 ]; then
               echo "Cloning with yuzu_deploy_ed25519 key..."
-              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -o IdentitiesOnly=yes" \
-              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -p 29418 -o IdentitiesOnly=yes" \
+              git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git deploy-repo
             else
               # Fall back to default key
               echo "Cloning with default id_ed25519 key..."
-              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" \
-              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -p 29418 -o IdentitiesOnly=yes" \
+              git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git deploy-repo
             fi
           fi
 
