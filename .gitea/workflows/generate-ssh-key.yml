@@ -1,16 +1,12 @@
 name: Generate SSH Key
 
-# This workflow generates an unencrypted SSH key for use with deployments
+# This workflow generates an unencrypted RSA SSH key for use with deployments
 # It will output the public key to add to Gitea and the private key to add as a secret
 
 on:
   # Manual trigger only
   workflow_dispatch:
     inputs:
-      key_type:
-        description: 'SSH key type to generate (rsa, ed25519)'
-        required: true
-        default: 'rsa'
       key_name:
         description: 'Name for the generated key'
         required: true
@@ -19,7 +15,7 @@ on:
 jobs:
   generate-ssh-key:
     runs-on: custom-runner
-    
+
     steps:
       - name: Install SSH tools
         run: |
@@ -28,19 +24,18 @@ jobs:
           echo "SSH tools installed successfully"
 
       - name: Generate RSA key
-        if: ${{ github.event.inputs.key_type == 'rsa' }}
         run: |
           mkdir -p ~/.ssh
 
           # Use a different filename to preserve existing keys
-          KEY_FILE="/root/.ssh/yuzu_deploy_rsa"
+          KEY_FILE="/root/.ssh/id_rsa"
 
           # Generate a new RSA key
           echo "Generating RSA key pair..."
           ssh-keygen -t rsa -b 4096 -f $KEY_FILE -N "" -C "${{ github.event.inputs.key_name }}"
           chmod 600 $KEY_FILE
           chmod 644 $KEY_FILE.pub
-          
+
           echo "===== RSA PUBLIC KEY TO ADD TO GITEA ====="
           cat $KEY_FILE.pub
           echo "=========================================="
@@ -53,28 +48,9 @@ jobs:
           echo "RSA key fingerprint:"
           ssh-keygen -l -f $KEY_FILE.pub
 
-      - name: Generate ED25519 key
-        if: ${{ github.event.inputs.key_type == 'ed25519' }}
-        run: |
-          mkdir -p ~/.ssh
-
-          # Use a different filename to preserve existing keys
-          KEY_FILE="/root/.ssh/yuzu_deploy_ed25519"
-
-          # Generate a new ED25519 key
-          echo "Generating ED25519 key pair..."
-          ssh-keygen -t ed25519 -f $KEY_FILE -N "" -C "${{ github.event.inputs.key_name }}"
-          chmod 600 $KEY_FILE
-          chmod 644 $KEY_FILE.pub
-          
-          echo "===== ED25519 PUBLIC KEY TO ADD TO GITEA ====="
-          cat $KEY_FILE.pub
-          echo "=============================================="
-
-          echo "===== ED25519 PRIVATE KEY TO ADD AS SECRET ====="
-          cat $KEY_FILE
-          echo "================================================"
-
-          # Display key fingerprint
-          echo "ED25519 key fingerprint:"
-          ssh-keygen -l -f $KEY_FILE.pub
+          echo ""
+          echo "Instructions:"
+          echo "1. Copy the PUBLIC KEY above and add it to the YuzuDeploy repository's deploy keys"
+          echo "   (YuzuDeploy repository settings → Deploy Keys → Add Key → check 'Allow write access')"
+          echo "2. Copy the PRIVATE KEY above and add it as a secret named 'RSA_SSH_KEY' in your Yuzu repository"
+          echo "   (Yuzu repository settings → Secrets → Add Secret)"

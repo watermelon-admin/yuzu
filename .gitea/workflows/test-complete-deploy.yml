@@ -1,17 +1,12 @@
-name: Test Complete Deployment Flow
+name: Test Deployment Connection
 
 on:
   workflow_dispatch:
-    inputs:
-      ssh_key_type:
-        description: 'SSH key type to use (rsa, ed25519)'
-        required: true
-        default: 'rsa'
 
 jobs:
   test-deployment:
     runs-on: custom-runner
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,69 +17,44 @@ jobs:
           apk add --no-cache openssh-client git
           echo "SSH tools installed successfully"
 
-      - name: Generate deployment SSH key
+      - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.RSA_SSH_KEY }}
         run: |
-          mkdir -p /root/.ssh
-          chmod 700 /root/.ssh
-          
-          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            # Generate RSA key
-            echo "Generating RSA key without passphrase..."
-            ssh-keygen -t rsa -b 4096 -f /root/.ssh/yuzu_deploy_rsa -N "" -C "yuzu-deploy-key-test"
-            
-            # Display key fingerprint
-            echo "RSA key fingerprint:"
-            ssh-keygen -l -f /root/.ssh/yuzu_deploy_rsa.pub
-            
-            # Output public key for adding to Gitea
-            echo "PUBLIC KEY TO ADD TO GITEA:"
-            cat /root/.ssh/yuzu_deploy_rsa.pub
-            echo ""
-          else
-            # Generate ED25519 key
-            echo "Generating ED25519 key without passphrase..."
-            ssh-keygen -t ed25519 -f /root/.ssh/yuzu_deploy_ed25519 -N "" -C "yuzu-deploy-key-test"
-            
-            # Display key fingerprint
-            echo "ED25519 key fingerprint:"
-            ssh-keygen -l -f /root/.ssh/yuzu_deploy_ed25519.pub
-            
-            # Output public key for adding to Gitea
-            echo "PUBLIC KEY TO ADD TO GITEA:"
-            cat /root/.ssh/yuzu_deploy_ed25519.pub
-            echo ""
-          fi
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          # Write key to file and fix permissions
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Generate public key
+          echo "Generating public key from private key..."
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+          chmod 644 ~/.ssh/id_rsa.pub
+
+          # Display key fingerprint
+          echo "RSA key fingerprint:"
+          ssh-keygen -l -f ~/.ssh/id_rsa.pub
 
       - name: Add Gitea server to known hosts
         run: |
           # Add gitea server to known hosts (with port 29418)
-          ssh-keyscan -p 29418 gitea.watermelonsoft.eu >> /root/.ssh/known_hosts
-          chmod 644 /root/.ssh/known_hosts
+          ssh-keyscan -p 29418 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Test SSH connection
         run: |
-          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            echo "Testing SSH connection with RSA key on port 29418..."
-            chmod 600 /root/.ssh/yuzu_deploy_rsa
-            ssh -vvv -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no git@gitea.watermelonsoft.eu
-          else
-            echo "Testing SSH connection with ED25519 key on port 29418..."
-            chmod 600 /root/.ssh/yuzu_deploy_ed25519
-            ssh -vvv -i /root/.ssh/yuzu_deploy_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no git@gitea.watermelonsoft.eu
-          fi
+          echo "Testing SSH connection with RSA key on port 29418..."
+          timeout 10 ssh -vvv -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no git@gitea.watermelonsoft.eu || true
+          echo "SSH test completed"
 
       - name: Test Git Clone
         run: |
-          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            echo "Cloning with RSA key..."
-            GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-            git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
-          else
-            echo "Cloning with ED25519 key..."
-            GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-            git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
-          fi
-          
+          echo "Cloning repository..."
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
+          git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
+
           cd deploy-repo
           echo "Successfully cloned deployment repository"
           ls -la
@@ -97,30 +67,24 @@ jobs:
       - name: Test file modification
         run: |
           cd deploy-repo
-          
+
           # Create a test file change
           echo "# Test change by workflow at $(date)" >> README.md
-          
+
           # Display the changes
           echo "Changes to be committed:"
           git diff README.md
-          
+
           # Commit the changes
           git add README.md
           git commit -m "Test commit from workflow - DO NOT MERGE"
-          
+
           # Push changes to a test branch to avoid modifying main
           git checkout -b test-workflow-$(date +%s)
-          
-          # Push with the same SSH command used for cloning
-          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            echo "Pushing with RSA key..."
-            GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-            git push origin HEAD
-          else
-            echo "Pushing with ED25519 key..."
-            GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-            git push origin HEAD
-          fi
-          
+
+          # Push test branch
+          echo "Pushing test branch..."
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
+          git push origin HEAD
+
           echo "Successfully pushed test changes to a new branch in the deployment repository"

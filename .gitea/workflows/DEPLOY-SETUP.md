@@ -37,7 +37,7 @@ ssh-keygen -t rsa -b 4096 -C "yuzu-deploy-key" -f ./id_rsa -N ""
 3. Add the private key content as a secret in your Yuzu repository:
    - Go to your Yuzu repository settings
    - Navigate to "Secrets"
-   - Add a new secret named `RSA_SSH_KEY` or `DEPLOY_SSH_KEY` depending on key type
+   - Add a new secret named `RSA_SSH_KEY`
    - Paste the content of the private key file
 
 ## How It Works

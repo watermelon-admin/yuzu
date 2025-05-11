@@ -28,72 +28,50 @@ This workflow only builds and pushes Docker images without deployment steps.
 1. Builds a Docker image for Yuzu
 2. Pushes the image to the Scaleway registry
 
-### 3. Test Repository Access (`test-repo-access.yml`)
+### 3. Generate SSH Key (`generate-ssh-key.yml`)
 
-This workflow is specifically for testing SSH repository access and cloning.
-
-#### Workflow Parameters
-
-- `ssh_key_type`: Select which key type to use (rsa or ed25519)
-- `skip_ssh_test`: Whether to skip the initial SSH connection test (true/false)
+Utility workflow for generating unencrypted SSH keys for CI/CD use.
 
 #### Workflow Steps
 
-1. Sets up the selected SSH key
-2. Tests SSH connectivity to Gitea
-3. Attempts to clone the YuzuDeploy repository
-
-### 4. Test With Correct Port (`test-with-correct-port.yml`)
-
-Tests SSH connectivity using port 29418 specifically.
-
-### 5. Test Correct Repository (`test-correct-repo.yml`)
-
-Tests cloning the YuzuDeploy repository with the correct case-sensitive path.
-
-### 6. Generate SSH Key (`generate-ssh-key.yml`)
-
-Generates unencrypted SSH keys for use in CI/CD workflows.
+1. Generates an RSA key without passphrase
+2. Displays the public key for adding to Gitea
 
 ## Setting Up SSH Keys
 
-The workflows support two types of SSH keys for repository authentication:
-
-1. RSA keys (`RSA_SSH_KEY` secret)
-2. ED25519 keys (`DEPLOY_SSH_KEY` secret)
+The workflow uses RSA keys for repository authentication:
 
 ### Important Notes
 
-- SSH keys for CI/CD should be **unencrypted** (no passphrase)
+- SSH key for CI/CD should be **unencrypted** (no passphrase)
 - The Gitea server uses a non-standard port (29418) for SSH connections
 - The repository path must use the correct case: `Yuzu/YuzuDeploy`
 
-### Generating Unencrypted SSH Keys
+### Generating Unencrypted SSH Key
 
 ```bash
-# For RSA keys
-ssh-keygen -t rsa -b 4096 -f yuzu_deploy_rsa -N ""
-
-# For ED25519 keys
-ssh-keygen -t ed25519 -f yuzu_deploy_ed25519 -N ""
+# Generate RSA key without passphrase
+ssh-keygen -t rsa -b 4096 -f id_rsa -N "" -C "yuzu-deploy-key"
 ```
 
-### Adding SSH Keys to Gitea
+You can also use the `generate-ssh-key.yml` workflow to generate a key for you.
 
-1. Generate or use an existing SSH key pair
+### Adding SSH Key to Gitea
+
+1. Generate an unencrypted RSA key pair
 2. Add the **private key** as a secret in the Yuzu repository:
    - Go to repository settings → Secrets
-   - Add a new secret named `RSA_SSH_KEY` or `DEPLOY_SSH_KEY`
+   - Add a new secret named `RSA_SSH_KEY`
    - Paste the private key content
-3. Add the **public key** to your Gitea user account:
-   - Go to user settings → SSH Keys
-   - Add a new key with the public key content
+3. Add the **public key** to the YuzuDeploy repository:
+   - Go to YuzuDeploy repository settings → Deploy Keys
+   - Add a new deploy key with the public key content
+   - Make sure to check "Allow write access"
 
 ## Required Secrets
 
 - `SCW_SECRET_KEY`: Your Scaleway Secret Key for container registry authentication
-- `RSA_SSH_KEY`: Private RSA key for SSH authentication (if using RSA)
-- `DEPLOY_SSH_KEY`: Private ED25519 key for SSH authentication (if using ED25519)
+- `RSA_SSH_KEY`: Private RSA key for SSH authentication
 
 ## Troubleshooting
 
