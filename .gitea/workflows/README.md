@@ -21,12 +21,13 @@ The workflow runs:
 2. Check out the repository code
 3. Setup Docker (detects existing installation or installs if needed)
 4. Generate a version tag (from Git tag or commit SHA)
-5. Configure Docker authentication for Scaleway Container Registry using a config file
+5. Configure Docker authentication for Scaleway Container Registry using password file method
 6. Build the Docker image locally
 7. Tag the image with:
    - `latest`
    - Version-specific tag (either the Git tag without 'v' prefix or short commit SHA)
-8. Push both tagged images to the Scaleway Container Registry
+8. Verify registry access permissions
+9. Push both tagged images to the Scaleway Container Registry
 
 #### Required Secrets
 

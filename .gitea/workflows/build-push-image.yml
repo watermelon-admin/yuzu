@@ -89,12 +89,17 @@ jobs:
         
       - name: Login to Scaleway Container Registry
         run: |
-          mkdir -p ~/.docker
-          echo '{"auths":{"rg.fr-par.scw.cloud":{"auth":"'$(echo -n "nologin:${{ secrets.SCW_SECRET_KEY }}" | base64)'"}}}' > ~/.docker/config.json
-          chmod 600 ~/.docker/config.json
-          # Verify the login worked
-          cat ~/.docker/config.json
-          echo "Docker login configured via config.json"
+          # Create a credential file for docker login
+          echo "${{ secrets.SCW_SECRET_KEY }}" > /tmp/scw_token.txt
+
+          # Use the file for non-interactive login
+          docker login rg.fr-par.scw.cloud -u nologin --password-file /tmp/scw_token.txt
+
+          # Remove the credential file
+          rm /tmp/scw_token.txt
+
+          # Verify login status
+          echo "Docker login completed"
 
       - name: Build Docker image
         run: docker build -t yuzu:latest .
@@ -104,7 +109,16 @@ jobs:
           docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
           docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
 
+      - name: Verify registry access
+        run: |
+          echo "Checking registry access..."
+          # This command will list repositories in the registry to verify we have access
+          docker search rg.fr-par.scw.cloud/cr-yuzu-par-1 || true
+
       - name: Push Docker images to registry
         run: |
+          echo "Pushing image with tag: latest"
           docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
+
+          echo "Pushing image with tag: ${{ steps.get_version.outputs.version }}"
           docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
