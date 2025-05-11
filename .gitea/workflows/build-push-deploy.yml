@@ -3,19 +3,11 @@ name: Build, Push and Update Deployment
 on:
   # Manual trigger only
   workflow_dispatch:
-    inputs:
-      ssh_key_type:
-        description: 'SSH key type to use (rsa, ed25519)'
-        required: true
-        default: 'rsa'
 
 jobs:
   build-push-deploy:
     runs-on: custom-runner
-    env:
-      # Set to 'true' to skip SSH test (for debugging purposes)
-      SKIP_SSH_TEST: 'false'
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,38 +18,21 @@ jobs:
           apk add --no-cache openssh-client
           echo "SSH tools installed successfully"
 
-      - name: Setup SSH key (RSA)
-        if: ${{ github.event.inputs.ssh_key_type == 'rsa' }}
+      - name: Setup SSH key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.RSA_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
 
-          # Inspect key format before writing to file
-          echo "Inspecting RSA key format..."
-          echo "$SSH_PRIVATE_KEY" | grep -c "BEGIN .* PRIVATE KEY" || echo "ERROR: No private key header found"
-          echo "$SSH_PRIVATE_KEY" | grep -c "END .* PRIVATE KEY" || echo "ERROR: No private key footer found"
-          echo "$SSH_PRIVATE_KEY" | wc -l
-
           # Write key to file and fix permissions
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-          # Check key format directly
-          echo "Contents of key file (first and last 3 lines):"
-          head -n 3 ~/.ssh/id_rsa
-          echo "..."
-          tail -n 3 ~/.ssh/id_rsa
-
-          # Try to generate public key
+          # Generate public key
           echo "Generating RSA public key from private key..."
           if ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub 2>/tmp/keygen_error; then
             chmod 644 ~/.ssh/id_rsa.pub
             echo "Public key generated successfully."
-
-            # Display key fingerprint
-            echo "RSA key fingerprint:"
-            ssh-keygen -l -f ~/.ssh/id_rsa.pub
           else
             echo "Error generating public key:"
             cat /tmp/keygen_error
@@ -70,10 +45,6 @@ jobs:
             if ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub 2>/tmp/keygen_error2; then
               chmod 644 ~/.ssh/id_rsa.pub
               echo "Public key generated after fixing format."
-
-              # Display key fingerprint
-              echo "RSA key fingerprint:"
-              ssh-keygen -l -f ~/.ssh/id_rsa.pub
             else
               echo "Still failing after format fix:"
               cat /tmp/keygen_error2
@@ -84,38 +55,6 @@ jobs:
           # Add gitea server to known hosts (with port 29418)
           ssh-keyscan -p 29418 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
-
-          # Test SSH connection with correct port
-          echo "Testing SSH connection on port 29418..."
-          timeout 10 ssh -vvv -i ~/.ssh/id_rsa -p 29418 git@gitea.watermelonsoft.eu || true
-          echo "SSH test completed"
-
-      - name: Setup SSH key (ED25519)
-        if: ${{ github.event.inputs.ssh_key_type == 'ed25519' }}
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          # Generate public key from private key
-          echo "Generating ED25519 public key from private key..."
-          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
-          chmod 644 ~/.ssh/id_ed25519.pub
-
-          # Display key fingerprint
-          echo "ED25519 key fingerprint:"
-          ssh-keygen -l -f ~/.ssh/id_ed25519.pub
-
-          # Add gitea server to known hosts (with port 29418)
-          ssh-keyscan -p 29418 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-          # Test SSH connection with correct port
-          echo "Testing SSH connection on port 29418..."
-          timeout 10 ssh -vvv -i ~/.ssh/id_ed25519 -p 29418 git@gitea.watermelonsoft.eu || true
-          echo "SSH test completed"
 
       - name: Get version tag
         id: get_version
@@ -165,31 +104,9 @@ jobs:
         run: |
           echo "Attempting to clone via SSH (port 29418)..."
 
-          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            # Try with the deployment key first
-            if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
-              echo "Cloning with yuzu_deploy_rsa key..."
-              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
-            else
-              # Fall back to default key
-              echo "Cloning with default id_rsa key..."
-              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
-            fi
-          else
-            # Try with the deployment key first
-            if [ -f /root/.ssh/yuzu_deploy_ed25519 ]; then
-              echo "Cloning with yuzu_deploy_ed25519 key..."
-              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
-            else
-              # Fall back to default key
-              echo "Cloning with default id_ed25519 key..."
-              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
-            fi
-          fi
+          # Clone with RSA key
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
+          git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git deploy-repo
 
           cd deploy-repo
           echo "Successfully cloned deployment repository"
@@ -213,26 +130,8 @@ jobs:
           git commit -m "Update deployment to image version ${{ steps.get_version.outputs.version }}"
 
           # Push with the same SSH command used for cloning
-          if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
-              echo "Pushing with yuzu_deploy_rsa key..."
-              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git push origin main
-            else
-              echo "Pushing with default id_rsa key..."
-              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git push origin main
-            fi
-          else
-            if [ -f /root/.ssh/yuzu_deploy_ed25519 ]; then
-              echo "Pushing with yuzu_deploy_ed25519 key..."
-              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git push origin main
-            else
-              echo "Pushing with default id_ed25519 key..."
-              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
-              git push origin main
-            fi
-          fi
+          echo "Pushing with RSA key..."
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
+          git push origin main
 
           echo "Successfully pushed changes to the deployment repository"

@@ -15,18 +15,14 @@ Add the following secrets to your Gitea repository:
 
 1. `SCW_SECRET_KEY` - Your Scaleway registry secret key
 2. `RSA_SSH_KEY` - An RSA SSH private key with write access to the YuzuDeploy repository
-3. `DEPLOY_SSH_KEY` - An ED25519 SSH private key with write access to the YuzuDeploy repository
 
 ## Generating a Dedicated SSH Key for Deployment
 
-1. Generate a new SSH key pair specifically for deployment (choose one):
+Generate a new SSH key pair specifically for deployment:
 
 ```bash
 # RSA key (4096 bit, unencrypted)
-ssh-keygen -t rsa -b 4096 -C "yuzu-deploy-key" -f ./yuzu_deploy_rsa -N ""
-
-# ED25519 key (unencrypted)
-ssh-keygen -t ed25519 -C "yuzu-deploy-key" -f ./yuzu_deploy_ed25519 -N ""
+ssh-keygen -t rsa -b 4096 -C "yuzu-deploy-key" -f ./id_rsa -N ""
 ```
 
 **IMPORTANT**: The key MUST be generated WITHOUT a passphrase for CI/CD use.

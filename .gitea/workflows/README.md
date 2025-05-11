@@ -10,7 +10,7 @@ This workflow builds, pushes Docker images, and updates deployment manifests.
 
 #### Workflow Parameters
 
-- `ssh_key_type`: Select which key type to use (rsa or ed25519)
+- No parameters required (uses RSA key automatically)
 
 #### Workflow Steps
 
