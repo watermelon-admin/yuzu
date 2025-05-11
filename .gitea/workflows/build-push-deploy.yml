@@ -166,13 +166,29 @@ jobs:
           echo "Attempting to clone via SSH..."
 
           if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
-            # Use RSA key for SSH
-            GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes" \
-            git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+            # Try with the deployment key first
+            if [ -f /root/.ssh/yuzu_deploy_rsa ]; then
+              echo "Cloning with yuzu_deploy_rsa key..."
+              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+            else
+              # Fall back to default key
+              echo "Cloning with default id_rsa key..."
+              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+            fi
           else
-            # Use ED25519 key for SSH
-            GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" \
-            git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+            # Try with the deployment key first
+            if [ -f /root/.ssh/yuzu_deploy_ed25519 ]; then
+              echo "Cloning with yuzu_deploy_ed25519 key..."
+              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_ed25519 -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+            else
+              # Fall back to default key
+              echo "Cloning with default id_ed25519 key..."
+              GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" \
+              git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+            fi
           fi
 
           cd deploy-repo
