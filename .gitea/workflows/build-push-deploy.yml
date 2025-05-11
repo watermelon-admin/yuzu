@@ -12,6 +12,9 @@ on:
 jobs:
   build-push-deploy:
     runs-on: custom-runner
+    env:
+      # Set to 'true' to skip SSH test (for debugging purposes)
+      SKIP_SSH_TEST: 'false'
     
     steps:
       - name: Checkout repository
@@ -35,9 +38,14 @@ jobs:
           ssh-keyscan -t ed25519 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-          # Test SSH connection
-          echo "Testing SSH connection..."
-          ssh -T git@gitea.watermelonsoft.eu || true
+          # Test SSH connection with timeout and verbosity (can be skipped)
+          if [[ "$SKIP_SSH_TEST" != "true" ]]; then
+            echo "Testing SSH connection..."
+            timeout 10 ssh -vvv -T git@gitea.watermelonsoft.eu || true
+            echo "SSH test completed (timeout after 10 seconds)"
+          else
+            echo "Skipping SSH test as SKIP_SSH_TEST=true"
+          fi
           echo "SSH setup complete"
 
       - name: Get version tag
@@ -86,10 +94,15 @@ jobs:
 
       - name: Clone Deployment Repo with SSH
         run: |
-          # Clone using SSH
-          git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+          # Clone using SSH with timeout (10 minutes)
+          echo "Cloning deployment repository..."
+          timeout 600 git clone git@gitea.watermelonsoft.eu:uwe/YuzuDeploy.git deploy-repo
+
           cd deploy-repo
-          echo "Cloned deployment repository"
+          echo "Successfully cloned deployment repository"
+
+          # Verify we have the expected files
+          ls -la
       
       - name: Update Deployment Files
         run: |
