@@ -84,7 +84,7 @@ jobs:
           DEPLOY_PAT: ${{ secrets.DEPLOY_PAT }}
         run: |
           # Clone using HTTPS with token authentication
-          git clone https://${DEPLOY_PAT}@your-gitea-server.example.com/YourUsername/YuzuDeploy.git deploy-repo
+          git clone https://${DEPLOY_PAT}@gitea.watermelonsoft.eu/uwe/YuzuDeploy.git deploy-repo
           cd deploy-repo
           echo "Cloned deployment repository"
       
