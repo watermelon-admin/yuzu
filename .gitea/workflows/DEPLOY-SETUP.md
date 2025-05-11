@@ -5,7 +5,7 @@ This document explains how to set up the deployment workflow that updates Kubern
 ## Pre-requisites
 
 1. A Gitea runner with Docker installed
-2. SSH key access to the YuzuDeploy repository
+2. Access to the YuzuDeploy repository via Personal Access Token (PAT)
 3. Proper secrets configured in your Gitea repository
 
 ## Required Secrets
@@ -13,35 +13,32 @@ This document explains how to set up the deployment workflow that updates Kubern
 Add the following secrets to your Gitea repository:
 
 1. `SCW_SECRET_KEY` - Your Scaleway registry secret key
-2. `DEPLOY_SSH_KEY` - An SSH private key with write access to the YuzuDeploy repository
+2. `DEPLOY_PAT` - A Personal Access Token with write access to the YuzuDeploy repository
 
-## Generating an SSH Key for Deployment
+## Creating a Personal Access Token (PAT)
 
-1. Generate a new SSH key pair:
-
-```bash
-ssh-keygen -t ed25519 -C "yuzu-deployment-key" -f ./deploy_key
-```
-
-2. Add the public key (`deploy_key.pub`) to your YuzuDeploy repository as a deploy key with write access
-
-3. Add the private key content as the `DEPLOY_SSH_KEY` secret in your Yuzu repository
+1. Go to your user settings in Gitea (click your profile picture > Settings)
+2. Navigate to "Applications" or "Access Tokens"
+3. Click "Generate New Token"
+4. Give it a descriptive name like "YuzuDeploy-CI"
+5. Select permissions: at minimum, check "repo" access
+6. Click "Generate Token"
+7. **Copy the generated token immediately** (you won't be able to see it again)
+8. Add this token as the `DEPLOY_PAT` secret in your Yuzu repository settings
 
 ## Configuring the Workflow
 
-Before using the workflow, you need to update:
+Before using the workflow, you need to update the repository URL in the clone command to match your Gitea server address and organization/username:
 
-1. The Git server hostname in the SSH keyscan command:
-   ```yaml
-   ssh-keyscan -t rsa your-gitea-server.example.com >> ~/.ssh/known_hosts
-   ```
+```yaml
+git clone https://${DEPLOY_PAT}@your-gitea-server.example.com/YourUsername/YuzuDeploy.git deploy-repo
+```
 
-2. The repository URL in the clone command:
-   ```yaml
-   git clone git@your-gitea-server.example.com:YourUsername/YuzuDeploy.git deploy-repo
-   ```
+Replace `your-gitea-server.example.com` and `YourUsername` with your actual Gitea server hostname and username. For example:
 
-Replace `your-gitea-server.example.com` and `YourUsername` with your actual Gitea server hostname and username.
+```yaml
+git clone https://${DEPLOY_PAT}@gitea.example.org/DevOps/YuzuDeploy.git deploy-repo
+```
 
 ## How It Works
 
@@ -49,18 +46,18 @@ The workflow:
 
 1. Checks if git is installed, installs it if needed (for Alpine Linux)
 2. Builds and pushes Docker images to the Scaleway registry
-3. Sets up SSH access to the deployment repo
-4. Clones the YuzuDeploy repository
-5. Updates the image tag in the deployment files
-6. Commits and pushes the changes
+3. Clones the YuzuDeploy repository using the Personal Access Token
+4. Updates the image tag in the deployment files
+5. Commits and pushes the changes
 
 This enables automatic updates to your Kubernetes deployment files whenever a new image is built.
 
 ## Troubleshooting
 
-If the workflow fails at the Git or SSH steps:
+If the workflow fails at the Git or repository access steps:
 
-1. Check that your SSH key has proper permissions (should be `0600`)
-2. Verify the SSH key has write access to the YuzuDeploy repository
-3. Make sure the repository URL is correct
-4. Confirm that the runner has outbound SSH access (port 22) to your Gitea server
+1. Check that your Personal Access Token hasn't expired
+2. Verify the PAT has write access to the YuzuDeploy repository
+3. Make sure the repository URL is correct (including the domain and username/organization)
+4. Confirm that the Gitea user associated with the PAT has appropriate permissions
+5. Check that your runner has outbound HTTPS access (port 443) to your Gitea server
