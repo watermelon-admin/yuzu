@@ -167,8 +167,29 @@ jobs:
               # Use the correct port in SSH command and in the URL
               export GIT_SSH_COMMAND="ssh -vvv -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
               
-              # Use SSH URL format with the port
-              timeout 180 git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git ssh-test-clone || echo "SSH clone timed out or failed"
+              # Try with different repository path options
+              echo "Trying repository path: Yuzu/YuzuDeploy..."
+              timeout 30 git clone ssh://git@gitea.watermelonsoft.eu:29418/Yuzu/YuzuDeploy.git ssh-test-clone && REPO_FOUND=true || echo "Not found at Yuzu/YuzuDeploy"
+
+              if [ ! -d "ssh-test-clone" ]; then
+                echo "Trying repository path: yuzu/YuzuDeploy..."
+                timeout 30 git clone ssh://git@gitea.watermelonsoft.eu:29418/yuzu/YuzuDeploy.git ssh-test-clone && REPO_FOUND=true || echo "Not found at yuzu/YuzuDeploy"
+              fi
+
+              if [ ! -d "ssh-test-clone" ]; then
+                echo "Trying repository path: uwe/YuzuDeploy..."
+                timeout 30 git clone ssh://git@gitea.watermelonsoft.eu:29418/uwe/YuzuDeploy.git ssh-test-clone && REPO_FOUND=true || echo "Not found at uwe/YuzuDeploy"
+              fi
+
+              if [ ! -d "ssh-test-clone" ]; then
+                echo "Trying repository path: YuzuDeploy/YuzuDeploy..."
+                timeout 30 git clone ssh://git@gitea.watermelonsoft.eu:29418/YuzuDeploy/YuzuDeploy.git ssh-test-clone && REPO_FOUND=true || echo "Not found at YuzuDeploy/YuzuDeploy"
+              fi
+
+              # Try a git ls-remote to list available repositories
+              echo "Listing available repositories with git ls-remote:"
+              GIT_SSH_COMMAND="ssh -i /root/.ssh/yuzu_deploy_rsa -p 29418 -o IdentitiesOnly=yes" \
+              git ls-remote --heads ssh://git@gitea.watermelonsoft.eu:29418/ || echo "Unable to list repositories"
               
               if [ -d "ssh-test-clone" ]; then
                 echo "SSH clone succeeded!"
