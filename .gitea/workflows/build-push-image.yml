@@ -17,21 +17,62 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Docker
+      - name: Setup Docker
         run: |
-          echo "Installing Docker and dependencies..."
-          apk add --no-cache docker docker-cli-buildx
+          echo "Checking for Docker..."
+          if command -v docker &> /dev/null; then
+            echo "Docker command found, using existing installation"
+          else
+            echo "Docker command not found. Checking if Docker is installed but not in PATH..."
 
-          # Start dockerd directly (without using service or rc-update)
-          echo "Starting Docker daemon..."
-          dockerd &
+            # Check common Docker binary locations
+            for docker_path in /usr/bin/docker /usr/local/bin/docker /var/lib/docker/bin/docker; do
+              if [ -x "$docker_path" ]; then
+                echo "Found Docker at $docker_path, adding to PATH"
+                export PATH="$(dirname $docker_path):$PATH"
+                break
+              fi
+            done
 
-          # Wait for Docker to start
-          echo "Waiting for Docker to start..."
-          sleep 10
+            # If still not found, try to install it
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker and dependencies..."
+              if command -v apk &> /dev/null; then
+                # Alpine
+                apk add --no-cache docker docker-cli-buildx
+              elif command -v apt-get &> /dev/null; then
+                # Ubuntu/Debian
+                apt-get update && apt-get install -y docker.io
+              else
+                echo "Unsupported package manager. Please install Docker manually."
+                exit 1
+              fi
+            fi
+          fi
 
           # Verify Docker is running
-          docker info || (echo "Docker failed to start properly" && exit 1)
+          docker info || {
+            echo "Docker not running, attempting to start it..."
+
+            # Try to start Docker daemon
+            if command -v service &> /dev/null; then
+              service docker start
+            elif command -v systemctl &> /dev/null; then
+              systemctl start docker
+            else
+              # Last resort, start dockerd directly
+              dockerd &
+              sleep 5
+            fi
+
+            # Final check
+            docker info || {
+              echo "Failed to start Docker. Check if Docker service is available."
+              exit 1
+            }
+          }
+
+          echo "Docker is ready to use"
 
       - name: Get version tag
         id: get_version

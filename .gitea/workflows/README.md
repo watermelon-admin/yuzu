@@ -19,7 +19,7 @@ The workflow runs:
 
 1. Runs on the `custom-runner` (with Alpine, .NET 9, and Node.js 20 pre-installed)
 2. Check out the repository code
-3. Install Docker on the runner using Alpine's package manager and start the Docker daemon
+3. Setup Docker (detects existing installation or installs if needed)
 4. Generate a version tag (from Git tag or commit SHA)
 5. Configure Docker authentication for Scaleway Container Registry using a config file
 6. Build the Docker image locally
