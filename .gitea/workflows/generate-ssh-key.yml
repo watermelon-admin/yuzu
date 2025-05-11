@@ -1,0 +1,74 @@
+name: Generate SSH Key
+
+# This workflow generates an unencrypted SSH key for use with deployments
+# It will output the public key to add to Gitea and the private key to add as a secret
+
+on:
+  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      key_type:
+        description: 'SSH key type to generate (rsa, ed25519)'
+        required: true
+        default: 'rsa'
+      key_name:
+        description: 'Name for the generated key'
+        required: true
+        default: 'yuzu-deploy-key'
+
+jobs:
+  generate-ssh-key:
+    runs-on: custom-runner
+    
+    steps:
+      - name: Install SSH tools
+        run: |
+          echo "Installing SSH tools..."
+          apk add --no-cache openssh-client
+          echo "SSH tools installed successfully"
+
+      - name: Generate RSA key
+        if: ${{ github.event.inputs.key_type == 'rsa' }}
+        run: |
+          mkdir -p ~/.ssh
+          
+          # Generate a new RSA key
+          echo "Generating RSA key pair..."
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" -C "${{ github.event.inputs.key_name }}"
+          chmod 600 ~/.ssh/id_rsa
+          chmod 644 ~/.ssh/id_rsa.pub
+          
+          echo "===== RSA PUBLIC KEY TO ADD TO GITEA ====="
+          cat ~/.ssh/id_rsa.pub
+          echo "=========================================="
+          
+          echo "===== RSA PRIVATE KEY TO ADD AS SECRET ====="
+          cat ~/.ssh/id_rsa
+          echo "============================================"
+          
+          # Display key fingerprint
+          echo "RSA key fingerprint:"
+          ssh-keygen -l -f ~/.ssh/id_rsa.pub
+
+      - name: Generate ED25519 key
+        if: ${{ github.event.inputs.key_type == 'ed25519' }}
+        run: |
+          mkdir -p ~/.ssh
+          
+          # Generate a new ED25519 key
+          echo "Generating ED25519 key pair..."
+          ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "${{ github.event.inputs.key_name }}"
+          chmod 600 ~/.ssh/id_ed25519
+          chmod 644 ~/.ssh/id_ed25519.pub
+          
+          echo "===== ED25519 PUBLIC KEY TO ADD TO GITEA ====="
+          cat ~/.ssh/id_ed25519.pub
+          echo "=============================================="
+          
+          echo "===== ED25519 PRIVATE KEY TO ADD AS SECRET ====="
+          cat ~/.ssh/id_ed25519
+          echo "================================================"
+          
+          # Display key fingerprint
+          echo "ED25519 key fingerprint:"
+          ssh-keygen -l -f ~/.ssh/id_ed25519.pub
