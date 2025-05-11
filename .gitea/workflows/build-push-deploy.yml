@@ -163,7 +163,7 @@ jobs:
 
       - name: Clone Deployment Repo with SSH
         run: |
-          echo "Attempting to clone via SSH..."
+          echo "Attempting to clone via SSH (port 29418)..."
 
           if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
             # Try with the deployment key first

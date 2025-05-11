@@ -70,7 +70,8 @@ The workflows support two types of SSH keys for repository authentication:
 
 If you encounter SSH authentication issues:
 
-1. Run the `test-repo-access.yml` workflow to diagnose connection problems
+1. Run the `test-with-correct-port.yml` workflow to diagnose connection problems
 2. Check that the SSH key has been added correctly to your Gitea account
 3. Verify the key fingerprints match between your account and the workflow output
-4. Ensure the repository URL is correct in the workflow files
+4. Ensure the repository URL is correct and uses port 29418 in the workflow files
+5. Remember to use the SSH URL format: `ssh://git@gitea.watermelonsoft.eu:29418/path/to/repo.git`

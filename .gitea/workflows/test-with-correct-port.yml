@@ -151,18 +151,12 @@ jobs:
           git config --global user.name "Gitea Workflow"
           git config --global user.email "noreply@gitea.local"
 
-      - name: Test clone repository (HTTPS fallback)
+      - name: Test clone repository (SSH only)
         run: |
-          echo "Attempting to clone repository..."
-          
-          # First try HTTPS to see if repository exists and is accessible
-          echo "First attempting HTTPS clone to verify repository exists..."
-          if git clone --depth=1 https://gitea.watermelonsoft.eu/uwe/YuzuDeploy.git https-test-clone; then
-            echo "HTTPS clone successful - repository exists and is accessible"
-            rm -rf https-test-clone
-          else
-            echo "HTTPS clone failed - check if repository exists or URL is correct"
-          fi
+          echo "Attempting to clone repository via SSH..."
+
+          # Skip HTTPS test since it's hanging
+          echo "Skipping HTTPS clone test (known to hang)"
           
           # Now try SSH
           if [[ "${{ github.event.inputs.ssh_key_type }}" == "rsa" ]]; then
