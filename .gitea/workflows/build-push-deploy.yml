@@ -17,16 +17,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check if git is installed
-        id: check_git
+      - name: Install SSH tools
         run: |
-          if ! command -v git &> /dev/null; then
-            echo "Git is not installed. Will install it later."
-            echo "git_installed=false" >> $GITHUB_OUTPUT
-          else
-            echo "Git is already installed"
-            echo "git_installed=true" >> $GITHUB_OUTPUT
-          fi
+          echo "Installing SSH tools..."
+          apk add --no-cache openssh-client
+          echo "SSH tools installed successfully"
+
+      - name: Setup SSH key for deployment repo
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # Add gitea server to known hosts
+          ssh-keyscan -t ed25519 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+          # Test SSH connection
+          echo "Testing SSH connection..."
+          ssh -T git@gitea.watermelonsoft.eu || true
+          echo "SSH setup complete"
 
       - name: Get version tag
         id: get_version
@@ -67,33 +79,10 @@ jobs:
           echo "Pushing image with tag: ${{ steps.get_version.outputs.version }}"
           docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
       
-      - name: Install Git if needed
-        if: steps.check_git.outputs.git_installed == 'false'
-        run: |
-          echo "Installing git..."
-          apk add --no-cache git openssh-client
-          echo "Git installed successfully"
-      
       - name: Configure Git
         run: |
           git config --global user.name "Gitea Workflow"
           git config --global user.email "noreply@gitea.local"
-      
-      - name: Setup SSH key
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          # Add gitea server to known hosts
-          ssh-keyscan -t ed25519 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-          # Test SSH connection (will likely fail with permission denied, but confirms connectivity)
-          echo "Testing SSH connection..."
-          ssh -T git@gitea.watermelonsoft.eu || true
 
       - name: Clone Deployment Repo with SSH
         run: |
