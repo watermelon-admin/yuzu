@@ -87,11 +87,24 @@ jobs:
             echo "version=$SHORT_SHA" >> $GITHUB_OUTPUT
           fi
         
-      - name: Configure Docker Credentials
+      - name: Verify Secret and Configure Docker
         run: |
-          # Set up Docker credential store for the session directly
+          # Check if secret is available (without revealing it)
+          if [ -z "${{ secrets.SCW_SECRET_KEY }}" ]; then
+            echo "ERROR: SCW_SECRET_KEY is empty or not set!"
+            exit 1
+          else
+            echo "Secret SCW_SECRET_KEY is available (length: ${#SCW_SECRET_KEY})"
+          fi
+
+          # Try to match exactly what works in local environment
+          echo "Configuring Docker credentials..."
+
+          # Method 1: Direct login with password from stdin (how it likely works locally)
+          echo "${{ secrets.SCW_SECRET_KEY }}" | docker login rg.fr-par.scw.cloud -u nologin --password-stdin || echo "Login method 1 failed"
+
+          # Method 2: Manual config.json creation (backup method)
           mkdir -p ~/.docker
-          # Create a simple auth entry directly in config.json
           echo '{
             "auths": {
               "rg.fr-par.scw.cloud": {
@@ -99,26 +112,32 @@ jobs:
               }
             }
           }' > ~/.docker/config.json
-
           chmod 600 ~/.docker/config.json
 
-          # Print a safe version of the credentials file (without actual secrets)
-          echo "Docker credentials file created at ~/.docker/config.json"
-          grep -v auth ~/.docker/config.json || true
+          # Verify Docker can find the config
+          echo "Docker config is ready at: ~/.docker/config.json"
 
       - name: Build Docker image
         run: docker build -t yuzu:latest .
 
       - name: Tag Docker images
         run: |
+          # Get the exact registry path that works locally
+          echo "Tagging images for Scaleway registry"
           docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
           docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
 
       - name: Verify registry access
         run: |
           echo "Checking registry access..."
-          # This command will list repositories in the registry to verify we have access
-          docker search rg.fr-par.scw.cloud/cr-yuzu-par-1 || true
+
+          # Display Docker config without sensitive info
+          echo "Current Docker config:"
+          cat ~/.docker/config.json | grep -v auth || true
+
+          # Try various verification methods
+          echo "Attempting registry access verification..."
+          docker search rg.fr-par.scw.cloud/cr-yuzu-par || true
 
       - name: Push Docker images to registry
         run: |
