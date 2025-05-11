@@ -1,0 +1,113 @@
+name: Build, Push and Update Deployment
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-push-deploy:
+    runs-on: custom-runner
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if git is installed
+        id: check_git
+        run: |
+          if ! command -v git &> /dev/null; then
+            echo "Git is not installed. Will install it later."
+            echo "git_installed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Git is already installed"
+            echo "git_installed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get version tag
+        id: get_version
+        run: |
+          if [[ ${{ github.ref_type }} == 'tag' && ${{ github.ref_name }} == v* ]]; then
+            # If this is a tag push like v1.2.3, use that as version without the 'v'
+            VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            # Otherwise use commit SHA for untagged builds
+            SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
+            echo "version=$SHORT_SHA" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Configure Docker Credentials
+        env:
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+        run: |
+          # Login to Scaleway registry
+          echo "$SCW_SECRET_KEY" | docker login rg.fr-par.scw.cloud -u nologin --password-stdin
+          echo "Docker login completed"
+
+      - name: Build Docker image
+        run: docker build -t yuzu:latest .
+
+      - name: Tag Docker images
+        run: |
+          docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
+          docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
+
+      - name: Push Docker images to registry
+        env:
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+        run: |
+          echo "Pushing image with tag: latest"
+          docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
+          
+          echo "Pushing image with tag: ${{ steps.get_version.outputs.version }}"
+          docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
+      
+      - name: Install Git if needed
+        if: steps.check_git.outputs.git_installed == 'false'
+        run: |
+          echo "Installing git..."
+          apk add --no-cache git openssh-client
+          echo "Git installed successfully"
+      
+      - name: Configure Git
+        run: |
+          git config --global user.name "Gitea Workflow"
+          git config --global user.email "noreply@gitea.local"
+      
+      - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Add your git server to known hosts - adjust hostname as needed
+          ssh-keyscan -t rsa your-gitea-server.example.com >> ~/.ssh/known_hosts
+          
+          # Test SSH connection (optional)
+          echo "Testing SSH connection..."
+          ssh -T git@your-gitea-server.example.com || true
+      
+      - name: Clone Deployment Repo
+        run: |
+          git clone git@your-gitea-server.example.com:YourUsername/YuzuDeploy.git deploy-repo
+          cd deploy-repo
+          echo "Cloned deployment repository"
+      
+      - name: Update Deployment Files
+        run: |
+          cd deploy-repo
+          
+          # Update the image tag in deployment files
+          sed -i "s|image: rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:.*|image: rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}|g" dev/scaleway-yuzu-deployment.yaml
+          
+          # Commit and push changes
+          git add dev/scaleway-yuzu-deployment.yaml
+          git commit -m "Update deployment to image version ${{ steps.get_version.outputs.version }}"
+          git push origin main
