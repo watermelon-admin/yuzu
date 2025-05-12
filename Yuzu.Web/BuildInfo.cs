@@ -21,11 +21,6 @@ namespace Yuzu.Web
         public const string Revision = "0";
 
         /// <summary>
-        /// The build number, typically from CI/CD system
-        /// </summary>
-        public const string Build = "#{BUILD_BUILDNUMBER}#";
-
-        /// <summary>
         /// The date and time of the build, formatted as ISO 8601
         /// </summary>
         public const string BuildDate = "#{BUILD_DATE}#";
@@ -38,14 +33,14 @@ namespace Yuzu.Web
         /// <summary>
         /// The full version string
         /// </summary>
-        public static string VersionString => $"{Major}.{Minor}.{Revision}.{Build}";
+        public static string VersionString => $"{Major}.{Minor}.{Revision}";
 
         /// <summary>
         /// Gets a user-friendly version string including build info
         /// </summary>
         public static string GetVersionInfo()
         {
-            return $"v{VersionString} ({BuildDate})";
+            return $"v{VersionString} ({GitCommit})";
         }
 
         /// <summary>

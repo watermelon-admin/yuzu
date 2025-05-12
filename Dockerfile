@@ -34,11 +34,11 @@ WORKDIR /src
 COPY . .
 
 # Update version information if build arguments are provided
-ARG BUILD_NUMBER=dev
 ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
 WORKDIR /src/build
 RUN chmod +x update-version-info.sh
-RUN ./update-version-info.sh "$BUILD_NUMBER" "$GIT_COMMIT" "../Yuzu.Web/BuildInfo.cs"
+RUN ./update-version-info.sh "$GIT_COMMIT" "$BUILD_DATE" "../Yuzu.Web/BuildInfo.cs"
 RUN cat ../Yuzu.Web/BuildInfo.cs
 
 # Install TypeScript compiler and compile TypeScript files

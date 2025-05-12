@@ -3,13 +3,11 @@
 # This script replaces placeholder values with actual build information
 
 # Default values
-BUILD_NUMBER="${1:-dev}"
-GIT_COMMIT="${2:-$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')}"
-BUILD_DATE="$(date -u '+%Y-%m-%dT%H:%M:%S')"
+GIT_COMMIT="${1:-$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')}"
+BUILD_DATE="${2:-$(date -u '+%Y-%m-%dT%H:%M:%S')}"
 BUILD_INFO_PATH="${3:-../Yuzu.Web/BuildInfo.cs}"
 
 echo "Updating version information..."
-echo "  Build Number: $BUILD_NUMBER"
 echo "  Build Date: $BUILD_DATE"
 echo "  Git Commit: $GIT_COMMIT"
 
@@ -24,7 +22,6 @@ TMP_FILE=$(mktemp)
 
 # Replace placeholders with actual values
 cat "$BUILD_INFO_PATH" | \
-    sed "s/#{BUILD_BUILDNUMBER}#/$BUILD_NUMBER/g" | \
     sed "s/#{BUILD_DATE}#/$BUILD_DATE/g" | \
     sed "s/#{GIT_COMMIT}#/$GIT_COMMIT/g" > "$TMP_FILE"
 
