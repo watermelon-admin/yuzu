@@ -33,6 +33,14 @@ RUN npm install
 WORKDIR /src
 COPY . .
 
+# Update version information if build arguments are provided
+ARG BUILD_NUMBER=dev
+ARG GIT_COMMIT=unknown
+WORKDIR /src/build
+RUN chmod +x update-version-info.sh
+RUN ./update-version-info.sh "$BUILD_NUMBER" "$GIT_COMMIT" "../Yuzu.Web/BuildInfo.cs"
+RUN cat ../Yuzu.Web/BuildInfo.cs
+
 # Install TypeScript compiler and compile TypeScript files
 WORKDIR /src/Yuzu.Web
 RUN npm install -g typescript

@@ -14,10 +14,10 @@ namespace Yuzu.Web.Pages.Dbg
         /// <summary>
         /// Handles GET requests to the Version page.
         /// </summary>
-        /// <returns>The build number as a content result.</returns>
+        /// <returns>Detailed version information as a content result.</returns>
         public IActionResult OnGet()
         {
-            return Content(BuildInfo.BuildNumber);
+            return Content(BuildInfo.GetDetailedVersionInfo());
         }
     }
 }

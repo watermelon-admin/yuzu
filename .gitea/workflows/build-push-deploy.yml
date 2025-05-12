@@ -56,15 +56,26 @@ jobs:
           ssh-keyscan -p 29418 gitea.watermelonsoft.eu >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Get version tag
+      - name: Get version tag and build number
         id: get_version
         run: |
+          # Make generate-build-number.sh executable
+          chmod +x build/generate-build-number.sh
+
+          # Use git commit count for build number
+          BUILD_NUMBER=$(./build/generate-build-number.sh)
+          echo "Build number from git commits: $BUILD_NUMBER"
+
+          # Store the build number for later steps
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+
+          # Get version tag as before
           if [[ ${{ github.ref_type }} == 'tag' && ${{ github.ref_name }} == v* ]]; then
             # If this is a tag push like v1.2.3, use that as version without the 'v'
             VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
             echo "version=$VERSION" >> $GITHUB_OUTPUT
           else
-            # Otherwise use commit SHA for untagged builds
+            # Otherwise use commit SHA for the version tag
             SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
             echo "version=$SHORT_SHA" >> $GITHUB_OUTPUT
           fi
@@ -77,8 +88,13 @@ jobs:
           echo "$SCW_SECRET_KEY" | docker login rg.fr-par.scw.cloud -u nologin --password-stdin
           echo "Docker login completed"
 
-      - name: Build Docker image
-        run: docker build -t yuzu:latest .
+      - name: Build Docker image with version information
+        run: |
+          # Pass build number and git commit to Docker build
+          docker build \
+            --build-arg BUILD_NUMBER=${{ steps.get_version.outputs.build_number }} \
+            --build-arg GIT_COMMIT=${{ github.sha }} \
+            -t yuzu:latest .
 
       - name: Tag Docker images
         run: |
