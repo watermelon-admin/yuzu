@@ -98,8 +98,16 @@ jobs:
 
       - name: Tag Docker images
         run: |
+          # Always tag with latest
           docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
-          docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
+
+          # Use build number as the primary tag
+          docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.build_number }}
+
+          # If we have a version tag, use that too
+          if [ ! -z "${{ steps.get_version.outputs.version }}" ]; then
+            docker tag yuzu:latest rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
+          fi
 
       - name: Push Docker images to registry
         env:
@@ -107,9 +115,15 @@ jobs:
         run: |
           echo "Pushing image with tag: latest"
           docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:latest
-          
-          echo "Pushing image with tag: ${{ steps.get_version.outputs.version }}"
-          docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
+
+          echo "Pushing image with tag: ${{ steps.get_version.outputs.build_number }}"
+          docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.build_number }}
+
+          # If we have a version tag, push that too
+          if [ ! -z "${{ steps.get_version.outputs.version }}" ]; then
+            echo "Pushing image with tag: ${{ steps.get_version.outputs.version }}"
+            docker push rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}
+          fi
       
       - name: Configure Git
         run: |
@@ -134,8 +148,8 @@ jobs:
         run: |
           cd deploy-repo
 
-          # Update the image tag in deployment files
-          sed -i "s|image: rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:.*|image: rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.version }}|g" dev/scaleway-yuzu-deployment.yaml
+          # Update the image tag in deployment files - use build number instead of version
+          sed -i "s|image: rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:.*|image: rg.fr-par.scw.cloud/cr-yuzu-par-1/yuzu-web:${{ steps.get_version.outputs.build_number }}|g" dev/scaleway-yuzu-deployment.yaml
 
           # Display the changes
           echo "Changes to be committed:"
@@ -143,7 +157,7 @@ jobs:
 
           # Commit and push changes
           git add dev/scaleway-yuzu-deployment.yaml
-          git commit -m "Update deployment to image version ${{ steps.get_version.outputs.version }}"
+          git commit -m "Update deployment to image version ${{ steps.get_version.outputs.build_number }} (commit ${{ github.sha }})"
 
           # Push with the same SSH command used for cloning
           echo "Pushing with RSA key..."
