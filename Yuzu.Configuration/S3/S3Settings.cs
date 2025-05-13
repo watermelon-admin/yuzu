@@ -8,11 +8,38 @@ namespace Yuzu.Configuration.S3
     public class S3Settings : IValidatableObject
     {
         /// <summary>
+        /// S3 service provider type
+        /// </summary>
+        public enum ProviderType
+        {
+            /// <summary>
+            /// Scaleway Object Storage
+            /// </summary>
+            Scaleway,
+            
+            /// <summary>
+            /// Cloudflare R2 Storage
+            /// </summary>
+            CloudflareR2
+        }
+
+        /// <summary>
+        /// The storage provider to use
+        /// </summary>
+        [Required]
+        public ProviderType Provider { get; set; } = ProviderType.Scaleway;
+
+        /// <summary>
         /// Service URL for the S3 service
         /// </summary>
         [Required]
         [Url]
         public string ServiceUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Cloudflare account ID (required for R2)
+        /// </summary>
+        public string? AccountId { get; set; }
 
         /// <summary>
         /// S3 bucket name
@@ -27,6 +54,11 @@ namespace Yuzu.Configuration.S3
         public string BackgroundsContainer { get; set; } = string.Empty;
 
         /// <summary>
+        /// Custom domain for direct access to bucket (optional)
+        /// </summary>
+        public string? CustomDomain { get; set; }
+
+        /// <summary>
         /// S3 access key
         /// </summary>
         [Required]
@@ -37,6 +69,16 @@ namespace Yuzu.Configuration.S3
         /// </summary>
         [Required]
         public string SecretKey { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Force path style for S3 URLs (default is virtual-hosted style)
+        /// </summary>
+        public bool ForcePathStyle { get; set; } = false;
+
+        /// <summary>
+        /// Disable payload signing (required for some providers like R2)
+        /// </summary>
+        public bool DisablePayloadSigning { get; set; } = false;
 
         /// <summary>
         /// Custom validation logic for S3 settings
@@ -57,6 +99,14 @@ namespace Yuzu.Configuration.S3
                 yield return new ValidationResult(
                     "BucketName must be between 3 and 63 characters, contain only lowercase letters, numbers, dots, and hyphens, and can't start or end with a dot or hyphen",
                     new[] { nameof(BucketName) });
+            }
+
+            // For Cloudflare R2, require AccountId
+            if (Provider == ProviderType.CloudflareR2 && string.IsNullOrEmpty(AccountId))
+            {
+                yield return new ValidationResult(
+                    "AccountId is required for Cloudflare R2 storage",
+                    new[] { nameof(AccountId) });
             }
         }
 

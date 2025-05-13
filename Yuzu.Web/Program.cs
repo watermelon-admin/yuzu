@@ -89,8 +89,29 @@ builder.Services.AddScoped<Yuzu.Time.CachedTimeZoneService>();
 
 // Health checks already registered earlier
 
-// Register the simplified Scaleway S3 storage service
-builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageService, Yuzu.Data.Services.ScalewayS3StorageService>();
+// Register the appropriate storage service based on configuration
+builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageService>(serviceProvider =>
+{
+    var logger = serviceProvider.GetRequiredService<ILogger<Yuzu.Data.Services.CloudflareR2StorageService>>();
+    var options = serviceProvider.GetRequiredService<IOptions<S3Settings>>();
+    
+    // Check provider type from settings
+    var settings = options.Value;
+    
+    // Create appropriate storage service based on provider type
+    if (settings.Provider == S3Settings.ProviderType.CloudflareR2)
+    {
+        logger.LogInformation("Using Cloudflare R2 storage provider");
+        return new Yuzu.Data.Services.CloudflareR2StorageService(logger, options);
+    }
+    else
+    {
+        // Default to Scaleway S3 for backward compatibility
+        logger.LogInformation("Using Scaleway S3 storage provider");
+        var scalewayLogger = serviceProvider.GetRequiredService<ILogger<Yuzu.Data.Services.ScalewayS3StorageService>>();
+        return new Yuzu.Data.Services.ScalewayS3StorageService(scalewayLogger, options);
+    }
+});
 
 // Register the adapter for backward compatibility
 builder.Services.AddScoped<Yuzu.Data.Services.StorageServiceAdapter>();
