@@ -36,3 +36,18 @@
     background-color: rgba(13, 110, 253, 0.8);
     color: white;
 }
+
+/* Modal styling */
+#backgrounds-preview-modal .modal-content {
+    border-radius: 0.5rem;
+}
+
+#backgrounds-preview-modal .modal-body {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#backgrounds-preview-modal .modal-body img {
+    display: block;
+}
