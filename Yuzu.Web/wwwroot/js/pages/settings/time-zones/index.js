@@ -17,8 +17,14 @@ export class TimeZonesManager {
         this.homeTimeZoneId = null;
         this.timeZonesSearchTerm = '';
         this.totalTimeZones = 0;
-        this.timeZonesCurrentPage = 1;
+        
+        // Main display pagination
+        this.timeZonesDisplayCurrentPage = 1;
         this.timeZonesPageSize = 10; // Increased to 10 cards per page
+        
+        // Search modal pagination (separate from main display)
+        this.timeZonesSearchCurrentPage = 1;
+        
         this.timeZoneModalFocusedRowIndex = -1;
         this.timeZoneModalSelectedRowIndex = -1;
         this.selectedTimeZoneId = null;
@@ -51,7 +57,7 @@ export class TimeZonesManager {
             searchInput.addEventListener('keyup', (event) => {
                 if (event.key === 'Enter') {
                     event.preventDefault();
-                    this.timeZonesCurrentPage = 1;
+                    this.timeZonesSearchCurrentPage = 1; // Reset to first page of search results
                     this.loadTimeZones(searchInput.value);
                 }
             });
@@ -61,7 +67,7 @@ export class TimeZonesManager {
         if (searchButton) {
             searchButton.addEventListener('click', () => {
                 const searchTerm = document.getElementById('time-zones-search-term').value;
-                this.timeZonesCurrentPage = 1;
+                this.timeZonesSearchCurrentPage = 1; // Reset to first page of search results
                 this.loadTimeZones(searchTerm);
             });
         }
@@ -112,6 +118,12 @@ export class TimeZonesManager {
                         }
                         // Show success message
                         createToast('Success: Timezone added successfully', true);
+                        
+                        // CRITICAL FIX: Reset to page 1 when a new timezone is added
+                        // This ensures the newly added timezone will be visible
+                        this.timeZonesDisplayCurrentPage = 1;
+                        this.logDebug('Reset to display page 1 after adding a new timezone');
+                        
                         // Let's manually append this timezone to the DOM
                         // First get the selected timezone info
                         const newTimeZone = this.timeZoneList.find(tz => tz.zoneId === this.selectedTimeZoneId);
@@ -120,6 +132,7 @@ export class TimeZonesManager {
                             try {
                                 // Fetch all timezone data with weather
                                 const weatherUrl = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=50&includeWeather=true`;
+                                this.logDebug(`Fetching timezone data with weather after adding new timezone: ${newTimeZone.zoneId}`);
                                 const weatherResponse = await fetch(weatherUrl, {
                                     method: 'GET',
                                     headers: {
@@ -242,7 +255,7 @@ export class TimeZonesManager {
             return;
         }
         // Reset state when opening modal
-        this.timeZonesCurrentPage = 1;
+        this.timeZonesSearchCurrentPage = 1; // Reset search modal pagination
         this.timeZoneModalFocusedRowIndex = -1;
         this.selectedTimeZoneId = null;
         this.timeZonesSearchTerm = '';
@@ -326,27 +339,50 @@ export class TimeZonesManager {
         }
     }
     /**
+     * Adds debug logging to the console with a consistent prefix
+     */
+    logDebug(message, ...args) {
+        console.log(`[DEBUG-TZLIST-JS] ${message}`, ...args);
+    }
+
+    /**
      * Loads and displays user's selected time zones in the main page container.
      */
     async loadUserTimeZonesDisplay() {
         var _a, _b, _c;
+        this.logDebug('loadUserTimeZonesDisplay called', {
+            currentPage: this.timeZonesDisplayCurrentPage,
+            pageSize: this.timeZonesPageSize,
+            homeTimeZoneId: this.homeTimeZoneId,
+            isDataLoaded: this.isTimeZoneDataLoaded
+        });
+        
         const container = document.getElementById('time-zone-container');
         if (!container) {
+            this.logDebug('Container not found, aborting!');
             return;
         }
+        
+        this.logDebug('Container before clearing:', container.innerHTML.substring(0, 100) + '...');
+        
         // Clear any existing content completely using a more efficient approach
         container.innerHTML = '';
+        
         // Show loading state immediately
         container.innerHTML = `
         <div class="col-12 text-center p-4">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading timezones for page ${this.timeZonesCurrentPage}...</span>
+                <span class="visually-hidden">Loading timezones for page ${this.timeZonesDisplayCurrentPage}...</span>
             </div>
             <p class="mt-2">Loading your timezones...</p>
         </div>`;
+        
         try {
             // Use current path for correct routing and include weather information
-            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=${this.timeZonesCurrentPage}&pageSize=${this.timeZonesPageSize}&includeWeather=true`;
+            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=${this.timeZonesDisplayCurrentPage}&pageSize=${this.timeZonesPageSize}&includeWeather=true`;
+            this.logDebug('Fetching timezone data from:', url);
+            
+            const startTime = performance.now();
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -356,52 +392,148 @@ export class TimeZonesManager {
                 // Add cache busting to prevent browser caching
                 cache: 'no-store'
             });
+            const fetchTime = performance.now() - startTime;
+            this.logDebug(`Fetch completed in ${fetchTime.toFixed(2)}ms, status: ${response.status}`);
+            
             if (!response.ok) {
+                this.logDebug('HTTP error response:', response);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
             // Log actual response text for debugging
             const responseText = await response.text();
+            this.logDebug(`Response text length: ${responseText.length} characters`);
+            this.logDebug('Response text preview:', responseText.substring(0, 200) + '...');
+            
             // Parse the JSON
             let responseData;
             try {
+                const parseStartTime = performance.now();
                 responseData = JSON.parse(responseText);
+                this.logDebug(`JSON parsed in ${(performance.now() - parseStartTime).toFixed(2)}ms`);
+                this.logDebug('Parsed data:', responseData);
             }
             catch (parseError) {
+                this.logDebug('JSON parse error:', parseError);
+                this.logDebug('Failed response text:', responseText.substring(0, 500) + '...');
                 throw new Error('Failed to parse server response as JSON');
             }
+            
             // Process the standardized response
             if (!responseData.success) {
+                this.logDebug('Response indicates failure:', responseData);
                 throw new Error(responseData.message || 'Failed to load user timezones');
             }
+            
+            // Extract and log data from response
             const timeZones = ((_a = responseData.data) === null || _a === void 0 ? void 0 : _a.data) || [];
             const totalCount = ((_b = responseData.data) === null || _b === void 0 ? void 0 : _b.totalItems) || 0;
             this.homeTimeZoneId = ((_c = responseData.data) === null || _c === void 0 ? void 0 : _c.homeTimeZoneId) || null;
+            
+            // Log errors if they exist
+            if (responseData.data && responseData.data.errors) {
+                this.logDebug('Server reported errors in time zone processing:', responseData.data.errors);
+            }
+            
+            this.logDebug('Received time zones data:', {
+                count: timeZones.length,
+                totalCount: totalCount,
+                homeTimeZoneId: this.homeTimeZoneId,
+                timeZones: timeZones
+            });
+            
             // Clear the container again to remove loading indicator
             container.innerHTML = '';
+            
             if (timeZones.length > 0) {
+                this.logDebug(`Rendering ${timeZones.length} timezone cards`);
+                
                 // Create a document fragment to batch DOM operations
                 const fragment = document.createDocumentFragment();
+                
                 // Use template elements when possible for better performance
                 const homeTemplate = document.getElementById('home-time-zone-card-template');
                 const regularTemplate = document.getElementById('time-zone-card-template');
+                
+                if (!homeTemplate) {
+                    this.logDebug('WARNING: Home template not found!');
+                }
+                if (!regularTemplate) {
+                    this.logDebug('WARNING: Regular template not found!');
+                }
+                
+                // Count successful renders
+                let successfulRenders = 0;
+                let failedRenders = 0;
+                
                 timeZones.forEach((timeZone, index) => {
                     try {
+                        this.logDebug(`Creating card ${index+1}/${timeZones.length} for:`, timeZone);
+                        
                         // Use our reusable helper to create the card
+                        const cardStartTime = performance.now();
                         const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.showTimeZoneInfoModal.bind(this), this.deleteTimeZone.bind(this));
+                        const cardCreateTime = performance.now() - cardStartTime;
+                        
+                        this.logDebug(`Card created in ${cardCreateTime.toFixed(2)}ms for ${timeZone.zoneId}`);
+                        
+                        if (!cardElement) {
+                            this.logDebug(`WARNING: Card element is null for ${timeZone.zoneId}!`);
+                            failedRenders++;
+                            return;
+                        }
+                        
                         // Add the card to our fragment
                         fragment.appendChild(cardElement);
+                        successfulRenders++;
+                        
+                        // Check for weather information to ensure it's being handled properly
+                        if (timeZone.weatherInfo) {
+                            const weatherElement = cardElement.querySelector('.card-weather-info');
+                            if (weatherElement) {
+                                this.logDebug(`Weather info for ${timeZone.zoneId}: ${timeZone.weatherInfo}`, {
+                                    element: weatherElement,
+                                    isHidden: weatherElement.classList.contains('d-none'),
+                                    style: weatherElement.getAttribute('style')
+                                });
+                            } else {
+                                this.logDebug(`Weather element not found in card for ${timeZone.zoneId}`);
+                            }
+                        }
                     }
                     catch (err) {
+                        this.logDebug(`ERROR creating card ${index+1}/${timeZones.length} for ${timeZone?.zoneId || 'unknown zone'}:`, err);
+                        failedRenders++;
                     }
                 });
+                
+                this.logDebug(`Card creation complete. Successful: ${successfulRenders}, Failed: ${failedRenders}`);
+                
                 // Now add all cards to the container at once
+                const appendStartTime = performance.now();
                 container.appendChild(fragment);
+                this.logDebug(`All cards appended to container in ${(performance.now() - appendStartTime).toFixed(2)}ms`);
+                
                 // Mark the container as loaded
                 container.setAttribute('data-loaded', 'true');
+                
                 // Setup pagination
-                setupPagination(totalCount, this.timeZonesCurrentPage, this.timeZonesPageSize, 'time-zones-pagination-controls', false);
+                this.logDebug('Setting up pagination', {
+                    totalCount,
+                    currentPage: this.timeZonesDisplayCurrentPage, // Use the display-specific page counter
+                    pageSize: this.timeZonesPageSize
+                });
+                setupPagination(totalCount, this.timeZonesDisplayCurrentPage, this.timeZonesPageSize, 'time-zones-pagination-controls', false);
+                
+                // Verify the DOM
+                const renderedCards = container.querySelectorAll('[data-timezone-id]');
+                this.logDebug(`DOM verification: ${renderedCards.length} cards found in container`);
+                if (renderedCards.length !== successfulRenders) {
+                    this.logDebug(`WARNING: DOM card count (${renderedCards.length}) doesn't match successful renders (${successfulRenders})`);
+                }
             }
             else {
+                this.logDebug('No time zones to display, showing empty state');
                 // Show empty state message
                 container.innerHTML = `
                 <div class="col-12 text-center">
@@ -415,48 +547,66 @@ export class TimeZonesManager {
                     paginationContainer.innerHTML = '';
                 }
             }
+            
+            this.logDebug('loadUserTimeZonesDisplay completed successfully');
         }
         catch (error) {
+            this.logDebug('ERROR in loadUserTimeZonesDisplay:', error);
+            
             container.innerHTML = `
             <div class="col-12 text-center">
                 <p class="text-danger">An error occurred while loading your timezones. Please try again.</p>
                 <button class="btn btn-sm btn-outline-primary mt-2" onclick="window.location.reload()">
                     <i class="bx bx-refresh me-1"></i> Reload Page
                 </button>
+                <div class="d-none">Error details: ${error.message || 'Unknown error'}</div>
             </div>`;
             // Mark as not loaded so we'll try again next time
             container.setAttribute('data-loaded', 'false');
         }
     }
     /**
-     * Changes the current page and reloads the user timezone list.
+     * Changes the current page and reloads the appropriate timezone list.
      * This function must be exposed to window to work with onclick handlers.
      */
     changePage(page, searchTerm) {
         if (page < 1) {
             return;
         }
-        // Update the current page first
-        this.timeZonesCurrentPage = page;
+        
+        this.logDebug(`changePage called with page=${page}, searchTerm=${searchTerm}`);
+        
         // Check if this is a modal search or main page navigation
         if (searchTerm !== null) {
             // This is for the modal search results
+            // Update the search page number
+            this.timeZonesSearchCurrentPage = page;
+            
             // Convert null to empty string if needed
             const term = searchTerm || '';
             this.timeZonesSearchTerm = term;
+            
+            this.logDebug(`Changing search results to page ${page} with term "${term}"`);
             this.loadTimeZones(term);
         }
         else {
             // This is for the user time zones pagination on the main page
+            // Update the display page number
+            this.timeZonesDisplayCurrentPage = page;
+            
+            this.logDebug(`Changing main display to page ${page}`);
+            
             // Reset the selection state when changing pages
             this.timeZoneModalFocusedRowIndex = -1;
             this.timeZoneModalSelectedRowIndex = -1;
+            
             // Reset the container's data-loaded attribute to false
             // to ensure content refreshes for the new page
             const container = document.getElementById('time-zone-container');
             if (container) {
                 container.setAttribute('data-loaded', 'false');
             }
+            
             // Load the user display for the selected page
             this.loadUserTimeZonesDisplay();
         }
@@ -465,12 +615,20 @@ export class TimeZonesManager {
      * Searches and paginates the time zone list based on the given search term.
      */
     searchTimeZones(searchTerm, page = 1, pageSize = 10) {
+        // Log debug info with current search context
+        this.logDebug(`Searching time zones with term: "${searchTerm}", page: ${page}, pageSize: ${pageSize}`);
+        
         const filteredTimeZones = this.timeZoneList.filter(tz => (tz.cities && tz.cities[0] && tz.cities[0].toLowerCase().includes(searchTerm.toLowerCase())) ||
             (tz.countryName && tz.countryName.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (tz.continent && tz.continent.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (tz.alias && tz.alias.toLowerCase().includes(searchTerm.toLowerCase())));
+        
+        this.logDebug(`Found ${filteredTimeZones.length} matching time zones`);
+        
         const startIndex = (page - 1) * pageSize;
         const pagedResults = filteredTimeZones.slice(startIndex, startIndex + pageSize);
+        
+        this.logDebug(`Returning page ${page} with ${pagedResults.length} results`);
         return { pagedResults, totalCount: filteredTimeZones.length };
     }
     /**
@@ -487,18 +645,26 @@ export class TimeZonesManager {
      */
     loadTimeZones(searchTerm) {
         this.timeZonesSearchTerm = searchTerm; // Store the current search term
+        
+        this.logDebug(`Loading time zones with search term: "${searchTerm}", search page: ${this.timeZonesSearchCurrentPage}`);
+        
         const tableBody = document.getElementById('time-zones-search-table-body');
         if (!tableBody) {
+            this.logDebug('Search table body not found, aborting loadTimeZones');
             return;
         }
+        
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading...</td></tr>';
+        
         try {
             // Use in-memory search for the modal table (we don't need to hit the server again)
             // This way we avoid additional server round-trips after initial data load
-            const { pagedResults, totalCount } = this.searchTimeZones(searchTerm, this.timeZonesCurrentPage, this.timeZonesPageSize);
+            const { pagedResults, totalCount } = this.searchTimeZones(searchTerm, this.timeZonesSearchCurrentPage, this.timeZonesPageSize);
             this.totalTimeZones = totalCount; // Store the total count
             tableBody.innerHTML = '';
             if (pagedResults.length > 0) {
+                this.logDebug(`Rendering ${pagedResults.length} time zone search results`);
+                
                 pagedResults.forEach((timeZone, index) => {
                     const row = document.createElement('tr');
                     row.setAttribute('role', 'option');
@@ -535,11 +701,15 @@ export class TimeZonesManager {
                 this.updateSearchResultsAnnouncement(totalCount, searchTerm);
             }
             else {
+                this.logDebug(`No search results found for "${searchTerm}" on page ${this.timeZonesSearchCurrentPage}`);
                 tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Sorry, I could not find any results. Please try again.</td></tr>';
                 this.updateSearchResultsAnnouncement(0, searchTerm);
                 this.timeZoneModalFocusedRowIndex = -1; // Reset focus when no results
             }
-            setupPagination(totalCount, this.timeZonesCurrentPage, this.timeZonesPageSize, 'time-zones-search-pagination-controls', true, searchTerm);
+            
+            // Set up search modal pagination
+            this.logDebug(`Setting up search pagination with ${totalCount} total results, current page: ${this.timeZonesSearchCurrentPage}`);
+            setupPagination(totalCount, this.timeZonesSearchCurrentPage, this.timeZonesPageSize, 'time-zones-search-pagination-controls', true, searchTerm);
         }
         catch (error) {
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">An error occurred while searching. Please try again.</td></tr>';
@@ -625,16 +795,18 @@ export class TimeZonesManager {
                         break;
                     case 'PageUp':
                         event.preventDefault();
-                        if (this.timeZonesCurrentPage > 1) {
-                            this.timeZonesCurrentPage--;
+                        if (this.timeZonesSearchCurrentPage > 1) {
+                            this.timeZonesSearchCurrentPage--;
+                            this.logDebug(`PageUp pressed, navigating to search page ${this.timeZonesSearchCurrentPage}`);
                             this.loadTimeZones(this.timeZonesSearchTerm);
                         }
                         break;
                     case 'PageDown':
                         event.preventDefault();
                         const maxPages = Math.ceil(this.totalTimeZones / this.timeZonesPageSize);
-                        if (this.timeZonesCurrentPage < maxPages) {
-                            this.timeZonesCurrentPage++;
+                        if (this.timeZonesSearchCurrentPage < maxPages) {
+                            this.timeZonesSearchCurrentPage++;
+                            this.logDebug(`PageDown pressed, navigating to search page ${this.timeZonesSearchCurrentPage}`);
                             this.loadTimeZones(this.timeZonesSearchTerm);
                         }
                         break;
@@ -922,6 +1094,10 @@ export class TimeZonesManager {
      * @param timeZone - The timezone to append
      */
     async appendTimeZoneCard(timeZone) {
+        // Always ensure we're on page 1 when appending a new card
+        this.timeZonesDisplayCurrentPage = 1;
+        this.logDebug(`appendTimeZoneCard called for ${timeZone?.zoneId}, ensuring we're on page 1`);
+        
         // This function is essentially a wrapper around loadUserTimeZonesDisplay
         // that forces a refresh after adding a new timezone
         this.loadUserTimeZonesDisplay();

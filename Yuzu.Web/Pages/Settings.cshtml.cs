@@ -779,27 +779,37 @@ namespace Yuzu.Web.Pages
         {
             return await this.SafeExecuteAsync(async () =>
             {
-                _logger.LogInformation("Getting user time zones");
+                _logger.LogInformation("[DEBUG-TZLIST] Getting user time zones. PageNumber={PageNumber}, PageSize={PageSize}, IncludeWeather={IncludeWeather}", 
+                    pageNumber, pageSize, includeWeather);
                 
                 // Check authentication
                 var authResult = this.EnsureAuthenticated(_userManager);
                 if (authResult != null)
                 {
+                    _logger.LogWarning("[DEBUG-TZLIST] Authentication failed in OnGetUserTimeZones");
                     return authResult;
                 }
                 
                 // Get the user ID, now we know it's not null
                 var userId = Users.GetUserIdOrThrow(_userManager, User);
+                _logger.LogInformation("[DEBUG-TZLIST] User authenticated, UserId={UserId}", userId);
                 
                 // Get the user's time zones
+                _logger.LogInformation("[DEBUG-TZLIST] Fetching time zones for UserId={UserId}", userId);
                 var userTimeZones = await GetUserTimeZonesAsync(userId);
                 var totalCount = userTimeZones.Count;
+                _logger.LogInformation("[DEBUG-TZLIST] Retrieved {TotalCount} time zones for UserId={UserId}. Raw data: {RawTimeZones}", 
+                    totalCount, userId, string.Join(", ", userTimeZones));
                 
                 // Get the user's home time zone
                 var homeTimeZone = await GetHomeTimeZoneAsync(userId);
+                _logger.LogInformation("[DEBUG-TZLIST] Home time zone for UserId={UserId} is {HomeTimeZone}", 
+                    userId, homeTimeZone);
                 
                 // Apply pagination
                 var pagedTimeZones = userTimeZones.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+                _logger.LogInformation("[DEBUG-TZLIST] After pagination: {PagedCount} time zones retrieved for page {PageNumber}. Raw data: {RawPagedTimeZones}", 
+                    pagedTimeZones.Count, pageNumber, string.Join(", ", pagedTimeZones));
                 
                 // Get weather data if requested
                 Dictionary<string, string> weatherInfoData = new();
@@ -807,29 +817,59 @@ namespace Yuzu.Web.Pages
                 {
                     try
                     {
+                        _logger.LogInformation("[DEBUG-TZLIST] Fetching weather data");
                         var weatherService = HttpContext.RequestServices.GetRequiredService<WeatherService>();
                         weatherInfoData = await weatherService.GetWeatherForTimeZonesAsync(pagedTimeZones);
-                        _logger.LogInformation("Weather data retrieved for {Count} time zones", weatherInfoData.Count);
+                        _logger.LogInformation("[DEBUG-TZLIST] Weather data retrieved for {Count} time zones: {WeatherData}", 
+                            weatherInfoData.Count, 
+                            string.Join("; ", weatherInfoData.Select(kvp => $"{kvp.Key}={kvp.Value}")));
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error retrieving weather data");
+                        _logger.LogError(ex, "[DEBUG-TZLIST] Error retrieving weather data");
                     }
                 }
                 
                 var now = DateTimeOffset.UtcNow;
-                var timeZones = pagedTimeZones
-                    .Select(id => _timeZoneService.GetTimeZoneById(id))
-                    .Where(tz => tz != null)
-                    .Select(tz =>
+                _logger.LogInformation("[DEBUG-TZLIST] Starting to process time zone objects at {Now}", now);
+                
+                var timeZoneDetails = new List<object>();
+                var timeZoneProcessingErrors = new List<string>();
+
+                // Process each time zone ID one by one for better error tracking
+                foreach (var id in pagedTimeZones)
+                {
+                    try
                     {
+                        var tz = _timeZoneService.GetTimeZoneById(id);
+                        if (tz == null)
+                        {
+                            _logger.LogWarning("[DEBUG-TZLIST] Time zone with ID {TimeZoneId} not found in time zone service", id);
+                            timeZoneProcessingErrors.Add($"Time zone with ID {id} not found");
+                            continue;
+                        }
+
+                        _logger.LogInformation("[DEBUG-TZLIST] Processing time zone {TimeZoneId} ({City}, {Country})", 
+                            tz.IanaId, tz.City, tz.Country);
+                        
                         // Get the current UTC offset for this timezone
-                        var systemTimeZone = System.TimeZoneInfo.FindSystemTimeZoneById(tz!.IanaId);
+                        System.TimeZoneInfo? systemTimeZone = null;
+                        try 
+                        {
+                            systemTimeZone = System.TimeZoneInfo.FindSystemTimeZoneById(tz.IanaId);
+                            _logger.LogInformation("[DEBUG-TZLIST] System time zone for {TimeZoneId} found: {SystemTimeZoneFound}", 
+                                tz.IanaId, systemTimeZone != null);
+                        }
+                        catch (Exception tzEx)
+                        {
+                            _logger.LogError(tzEx, "[DEBUG-TZLIST] Error finding system time zone for {TimeZoneId}", tz.IanaId);
+                        }
                         
                         if (systemTimeZone == null)
                         {
+                            _logger.LogWarning("[DEBUG-TZLIST] System time zone not found for {TimeZoneId}, using default values", tz.IanaId);
                             // Handle the null case - create a default object with 0 offset
-                            return new
+                            timeZoneDetails.Add(new
                             {
                                 zoneId = tz.IanaId,
                                 cities = new[] { tz.City },
@@ -840,41 +880,70 @@ namespace Yuzu.Web.Pages
                                 utcOffsetHours = 0,
                                 utcOffsetMinutes = 0,
                                 weatherInfo = includeWeather ? (weatherInfoData.TryGetValue(tz.IanaId, out var currentWeather) ? currentWeather : "Weather data unavailable") : null
-                            };
+                            });
                         }
-                        
-                        var offset = systemTimeZone.GetUtcOffset(now);
-
-                        // Create an object with all timezone information
-                        return new
+                        else
                         {
-                            zoneId = tz.IanaId,
-                            cities = new[] { tz.City },
-                            countryName = tz.Country,
-                            continent = tz.Continent,
-                            isHome = tz.IanaId == homeTimeZone,
+                            var offset = systemTimeZone.GetUtcOffset(now);
+                            _logger.LogInformation("[DEBUG-TZLIST] Time zone {TimeZoneId} has offset: {OffsetHours}:{OffsetMinutes}", 
+                                tz.IanaId, offset.Hours, offset.Minutes);
 
-                            // Store offset in three formats:
-                            utcOffset = offset.TotalMinutes / 60.0,     // Decimal hours (e.g., 5.5) - used for sorting
-                            utcOffsetHours = offset.Hours,              // Full hours (e.g., 5) - for display
-                            utcOffsetMinutes = offset.Minutes,          // Minutes part (e.g., 30) - for display
+                            // Create an object with all timezone information
+                            var tzObject = new
+                            {
+                                zoneId = tz.IanaId,
+                                cities = new[] { tz.City },
+                                countryName = tz.Country,
+                                continent = tz.Continent,
+                                isHome = tz.IanaId == homeTimeZone,
+
+                                // Store offset in three formats:
+                                utcOffset = offset.TotalMinutes / 60.0,     // Decimal hours (e.g., 5.5) - used for sorting
+                                utcOffsetHours = offset.Hours,              // Full hours (e.g., 5) - for display
+                                utcOffsetMinutes = offset.Minutes,          // Minutes part (e.g., 30) - for display
+                                
+                                // Weather information (if requested)
+                                weatherInfo = includeWeather ? (weatherInfoData.TryGetValue(tz.IanaId, out var locationWeather) ? locationWeather : "Weather data unavailable") : null
+                            };
                             
-                            // Weather information (if requested)
-                            weatherInfo = includeWeather ? (weatherInfoData.TryGetValue(tz.IanaId, out var locationWeather) ? locationWeather : "Weather data unavailable") : null
-                        };
-                    })
-                    // Sort timezones from west to east (negative UTC offsets to positive)
-                    .OrderBy(tz => tz.utcOffset)
+                            timeZoneDetails.Add(tzObject);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "[DEBUG-TZLIST] Error processing time zone ID {TimeZoneId}", id);
+                        timeZoneProcessingErrors.Add($"Error processing {id}: {ex.Message}");
+                    }
+                }
+                
+                // Sort timezones from west to east (negative UTC offsets to positive)
+                var timeZones = timeZoneDetails
+                    .OrderBy(tz => ((dynamic)tz).utcOffset)
                     .ToList();
+                
+                _logger.LogInformation("[DEBUG-TZLIST] Processed {ProcessedCount} time zones with {ErrorCount} errors", 
+                    timeZones.Count, timeZoneProcessingErrors.Count);
+                
+                if (timeZoneProcessingErrors.Count > 0)
+                {
+                    _logger.LogWarning("[DEBUG-TZLIST] Time zone processing errors: {Errors}", 
+                        string.Join("; ", timeZoneProcessingErrors));
+                }
 
-                return ErrorHandling.JsonSuccess("User time zones retrieved successfully", new
+                var result = new
                 {
                     data = timeZones,
                     totalItems = totalCount,
                     homeTimeZoneId = homeTimeZone,
                     currentPage = pageNumber,
-                    pageSize = pageSize
-                });
+                    pageSize = pageSize,
+                    errors = timeZoneProcessingErrors.Count > 0 ? timeZoneProcessingErrors : null
+                };
+
+                _logger.LogInformation("[DEBUG-TZLIST] Returning result with {DataCount} time zones, totalItems={TotalItems}", 
+                    timeZones.Count, totalCount);
+                
+                return ErrorHandling.JsonSuccess("User time zones retrieved successfully", result);
             }, _logger);
         }
         
@@ -1380,27 +1449,69 @@ namespace Yuzu.Web.Pages
         {
             try
             {
+                _logger.LogInformation("[DEBUG-TZLIST] GetUserTimeZonesAsync called for userId={UserId}", userId);
                 var timezonesData = await _userDataService.GetAsync(userId, UserDataKey.AdditionalTimeZones.ToString());
+                
+                if (timezonesData == null)
+                {
+                    _logger.LogInformation("[DEBUG-TZLIST] timezonesData is null for userId={UserId}", userId);
+                }
+                else 
+                {
+                    _logger.LogInformation("[DEBUG-TZLIST] timezonesData received: Key={Key}, Value={Value}", 
+                        timezonesData.DataKey, timezonesData.Value ?? "(null)");
+                }
                 
                 if (timezonesData == null || string.IsNullOrEmpty(timezonesData.Value))
                 {
+                    _logger.LogInformation("[DEBUG-TZLIST] No time zones found for userId={UserId}, initializing with defaults", userId);
                     // Initialize with default time zones if no data exists
                     var defaultTimezones = new List<string> { "Europe/Berlin", "Europe/London", "America/New_York", "Asia/Tokyo" };
                     await SaveUserTimeZonesAsync(userId, defaultTimezones);
+                    _logger.LogInformation("[DEBUG-TZLIST] Default time zones saved for userId={UserId}", userId);
                     return defaultTimezones;
                 }
                 
                 var timezones = new List<string>(timezonesData.Value.Split(','));
+                _logger.LogInformation("[DEBUG-TZLIST] Retrieved {Count} time zones for userId={UserId}: {TimeZones}", 
+                    timezones.Count, userId, string.Join(", ", timezones));
+                
+                // Validate each timezone to ensure it exists in the service
+                var invalidTimezones = new List<string>();
+                foreach (var tz in timezones.ToList()) // Use ToList to make a copy before modifying
+                {
+                    if (_timeZoneService.GetTimeZoneById(tz) == null)
+                    {
+                        _logger.LogWarning("[DEBUG-TZLIST] Invalid time zone found in user data: {TimeZone} for userId={UserId}", tz, userId);
+                        invalidTimezones.Add(tz);
+                        // Don't remove it here; we'll keep it in the list to help with debugging
+                    }
+                }
+                
+                if (invalidTimezones.Count > 0)
+                {
+                    _logger.LogWarning("[DEBUG-TZLIST] User {UserId} has {Count} invalid time zones: {InvalidTimeZones}", 
+                        userId, invalidTimezones.Count, string.Join(", ", invalidTimezones));
+                }
                 
                 return timezones;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting user time zones for user {UserId}", userId);
+                _logger.LogError(ex, "[DEBUG-TZLIST] Error getting user time zones for user {UserId}", userId);
                 
                 // Initialize with default time zones if an error occurred
                 var defaultTimezones = new List<string> { "Europe/Berlin", "Europe/London", "America/New_York", "Asia/Tokyo" };
-                await SaveUserTimeZonesAsync(userId, defaultTimezones);
+                try
+                {
+                    _logger.LogInformation("[DEBUG-TZLIST] Attempting to save default time zones after error for userId={UserId}", userId);
+                    await SaveUserTimeZonesAsync(userId, defaultTimezones);
+                    _logger.LogInformation("[DEBUG-TZLIST] Successfully saved default time zones after error for userId={UserId}", userId);
+                }
+                catch (Exception ex2)
+                {
+                    _logger.LogError(ex2, "[DEBUG-TZLIST] Error saving default time zones after initial error for userId={UserId}", userId);
+                }
                 return defaultTimezones;
             }
         }
