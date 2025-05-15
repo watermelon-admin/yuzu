@@ -6,6 +6,7 @@ import { createTimeZoneCard } from './card-creator.js';
 import { updateWeatherInfoOnCard, setupWeatherDisplayObserver, updateWeatherContent } from './weather-utils.js';
 import { updateTimeZoneInfoTime, updateElementTextIfDifferent, formatUtcOffset } from './time-utils.js';
 import { setupPagination } from './pagination.js';
+import { setupScrollFadeEffects as setupVpScrollFadeEffects } from './viewport-utils.js';
 
 /**
  * Manages the time zones section of the settings page
@@ -1293,65 +1294,10 @@ export class TimeZonesManager {
      * Shows/hides the top and bottom fade effects based on scroll position
      */
     private setupScrollFadeEffects(): void {
-        const viewportContainer = document.querySelector('.viewport-container') as HTMLElement;
-        const topFade = document.querySelector('.fade-overlay.fade-top') as HTMLElement;
-        const bottomFade = document.querySelector('.fade-overlay.fade-bottom') as HTMLElement;
-        
-        if (!viewportContainer || !topFade || !bottomFade) {
-            console.error('Required elements for fade effects not found');
-            return;
-        }
-        
-        // Apply initial fade states based on content
-        this.updateFadeEffects(viewportContainer, topFade, bottomFade);
-        
-        // Add scroll event listener
-        viewportContainer.addEventListener('scroll', () => {
-            this.updateFadeEffects(viewportContainer, topFade, bottomFade);
-        });
-        
-        // Listen for window resize events as they might change content layout
-        window.addEventListener('resize', () => {
-            this.updateFadeEffects(viewportContainer, topFade, bottomFade);
-        });
-        
-        console.log('Fade effects set up - will update based on scroll position');
+        // Use the utility from backgrounds/viewport-utils.js
+        setupVpScrollFadeEffects();
     }
     
-    /**
-     * Updates the fade effects based on scroll position
-     */
-    private updateFadeEffects(container: HTMLElement, topFade: HTMLElement, bottomFade: HTMLElement): void {
-        // Check if scrollable in either direction
-        const isScrollable = container.scrollHeight > container.clientHeight + 20; // Add a small buffer
-        
-        // Get scroll positions
-        const scrollTop = container.scrollTop;
-        const scrollBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-        
-        console.log(`Scroll check - Scrollable: ${isScrollable}, Top: ${scrollTop}, Bottom: ${scrollBottom}`);
-        
-        if (!isScrollable) {
-            // Not scrollable, hide both fades
-            topFade.classList.add('hidden');
-            bottomFade.classList.add('hidden');
-            return;
-        }
-        
-        // Handle top fade
-        if (scrollTop <= 10) {
-            topFade.classList.add('hidden');
-        } else {
-            topFade.classList.remove('hidden');
-        }
-        
-        // Handle bottom fade
-        if (scrollBottom <= 10) {
-            bottomFade.classList.add('hidden');
-        } else {
-            bottomFade.classList.remove('hidden');
-        }
-    }
     
     /**
      * Shows detailed information about a timezone in a modal dialog

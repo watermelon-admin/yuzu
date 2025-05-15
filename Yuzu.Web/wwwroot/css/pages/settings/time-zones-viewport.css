@@ -17,7 +17,7 @@
 }
 
 /* Fade overlay elements */
-.fade-overlay {
+#time-zones .viewport-container-wrapper .fade-overlay {
     position: absolute;
     left: 0;
     right: 0;
@@ -30,7 +30,7 @@
 }
 
 /* Top fade overlay - much softer gradient */
-.fade-overlay.fade-top {
+#time-zones .viewport-container-wrapper .fade-overlay.fade-top {
     top: 0;
     background: linear-gradient(to bottom, 
                 rgba(255, 255, 255, 0.9) 0%,
@@ -41,7 +41,7 @@
 }
 
 /* Bottom fade overlay - much softer gradient */
-.fade-overlay.fade-bottom {
+#time-zones .viewport-container-wrapper .fade-overlay.fade-bottom {
     bottom: 0;
     background: linear-gradient(to top, 
                 rgba(255, 255, 255, 0.9) 0%,
@@ -53,19 +53,19 @@
 
 /* Responsive fade heights */
 @media (max-width: 992px) {
-    .fade-overlay {
+    #time-zones .viewport-container-wrapper .fade-overlay {
         height: 70px;
     }
 }
 
 @media (max-width: 768px) {
-    .fade-overlay {
+    #time-zones .viewport-container-wrapper .fade-overlay {
         height: 60px;
     }
 }
 
 @media (max-width: 576px) {
-    .fade-overlay {
+    #time-zones .viewport-container-wrapper .fade-overlay {
         height: 50px;
     }
 }
@@ -74,8 +74,14 @@
 
 /* State classes for showing/hiding fades */
 .fade-overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Explicitly visible state to overcome any other styling */
+#time-zones .viewport-container-wrapper .fade-overlay:not(.hidden) {
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* Hide scrollbar by default but show on hover */

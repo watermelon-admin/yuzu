@@ -11,17 +11,23 @@
 </div>
 
 <!-- We don't need local hidden fields as they are defined in the parent Settings.cshtml -->
-<!-- Item Display Container -->
-<div id="break-type-container" class="row row-cols-1 row-cols-sm-2 gx-3 gx-lg-4">
-    <!-- BreakType items will be populated here via JavaScript -->
+<!-- Item Display Container with Fade Overlays -->
+<div class="viewport-container-wrapper">
+    <!-- Top fade overlay -->
+    <div class="fade-overlay fade-top"></div>
+    
+    <!-- Scrollable container -->
+    <div class="viewport-container">
+        <div id="break-type-container" class="row row-cols-1 row-cols-sm-2 gx-3 gx-lg-4">
+            <!-- BreakType items will be populated here via JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Bottom fade overlay -->
+    <div class="fade-overlay fade-bottom"></div>
 </div>
 
-<!-- Pagination Controls -->
-<nav aria-label="Break Types Page Navigation">
-    <ul class="pagination justify-content-center mt-4" id="break-types-pagination-controls">
-        <!-- Pagination items will be added here via JavaScript -->
-    </ul>
-</nav>
+<!-- Pagination Controls Removed - all cards will be shown with scrolling -->
 
 <!-- Break Type Card Template -->
 <template id="break-type-template">

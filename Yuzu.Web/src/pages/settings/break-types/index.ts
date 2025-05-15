@@ -5,10 +5,8 @@
  * Break Types management functionality for the Settings page
  */
 
-// Break types specific pagination state
-let breakTypesCurrentPage: number = 1;
-const breakTypesPageSize: number = 4;
-let breakTypesContinuationTokens: Record<number, string | null> = { 1: null };
+// Import viewport utilities for scroll effects
+import { setupScrollFadeEffects } from './viewport-utils.js';
 
 // Check if user is subscribed (Pro member)
 const isSubscribedElement = document.getElementById('backgrounds-is-subscribed') as HTMLInputElement | null;
@@ -55,22 +53,19 @@ interface BreakType {
 
 /**
  * Load break types from the server and populate the container.
- * @param page - The page number to load.
  * @returns Promise that resolves when the loading is complete
  */
-export async function loadBreakTypes(page: number): Promise<void> {
+export async function loadBreakTypes(): Promise<void> {
     try {
         // Show loading spinner
         const loadingElement = document.querySelector('.page-loading');
         if (loadingElement) {
             loadingElement.classList.add('active');
         }
-
-        // Retrieve the continuation token for the requested page
-        const continuationToken = breakTypesContinuationTokens[page] || '';
         
         // Use current path for correct routing (regardless of which page it's embedded in)
-        const url = `${document.location.pathname}?handler=BreakTypes&pageNumber=${page}&pageSize=${breakTypesPageSize}&continuationToken=${encodeURIComponent(continuationToken)}`;
+        // Get all items by passing a high page size value
+        const url = `${document.location.pathname}?handler=BreakTypes&pageSize=100&pageNumber=1`;
         
         const response = await fetch(url, {
             method: 'GET',
@@ -196,14 +191,11 @@ export async function loadBreakTypes(page: number): Promise<void> {
                 $('#break-type-container').append(cardDiv);
             });
             
-            // Update continuation tokens map
-            breakTypesContinuationTokens[page + 1] = responseData.data?.continuationToken;
-            
-            // Setup pagination controls with the data from the standardized response
-            setupPagination(responseData.data?.totalItems, responseData.data?.pageSize, responseData.data?.currentPage);
-            
             // Setup event listeners for the newly added cards
             setupEventListeners();
+            
+            // Setup scroll fade effects after content is loaded
+            setupScrollFadeEffects();
         } else {
             console.error('API request failed:', responseData.message);
             (window as any).createToast?.(responseData.message || 'Failed to load break types', false);
@@ -221,39 +213,7 @@ export async function loadBreakTypes(page: number): Promise<void> {
     }
 }
 
-/**
- * Setup pagination controls.
- */
-export function setupPagination(totalItems: number, pageSize: number, currentPageNum: number): void {
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const paginationControls = document.getElementById('break-types-pagination-controls');
-    
-    if (paginationControls) {
-        paginationControls.innerHTML = ''; // Clear existing pagination controls
-        
-        // Only show pagination if there's more than one page
-        if (totalPages > 1) {
-            // Create pagination items
-            for (let i = 1; i <= totalPages; i++) {
-                const isActive = i === currentPageNum ? 'active' : '';
-                const pageItem = document.createElement('li');
-                pageItem.className = `page-item ${isActive}`;
-                pageItem.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
-                paginationControls.appendChild(pageItem);
-            }
-            
-            // Add click event listeners to pagination links
-            paginationControls.querySelectorAll('.page-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = parseInt(this.getAttribute('data-page') || '1');
-                    breakTypesCurrentPage = page;
-                    loadBreakTypes(page);
-                });
-            });
-        }
-    }
-}
+// Pagination has been removed in favor of viewport scrolling
 
 /**
  * Set up event listeners for the break type card buttons
@@ -616,7 +576,7 @@ async function deleteBreakType(): Promise<void> {
             (window as any).createToast?.(data.message || 'Break type deleted successfully', true);
             
             // Reload break types
-            loadBreakTypes(breakTypesCurrentPage);
+            loadBreakTypes();
         } else {
             // Show error message
             (window as any).createToast?.(data.message || 'Failed to delete break type', false);
@@ -755,7 +715,7 @@ async function saveSimpleBreakTypeEdit(): Promise<void> {
             (window as any).createToast?.(data.message || 'Break type saved successfully', true);
             
             // Reload break types
-            loadBreakTypes(breakTypesCurrentPage);
+            loadBreakTypes();
         } else {
             // Show error message
             (window as any).createToast?.(data.message || 'Failed to save break type', false);
@@ -832,8 +792,8 @@ function initSwipers(): void {
 export function initBreakTypes(): void {
     console.debug('Break Types section initialized');
     
-    // Load break types
-    loadBreakTypes(breakTypesCurrentPage);
+    // Load break types - fade effects will be set up after loading
+    loadBreakTypes();
     
     // Initialize swipers
     initSwipers();
@@ -854,6 +814,5 @@ export function initBreakTypes(): void {
 (window as any).Yuzu.Settings = (window as any).Yuzu.Settings || {};
 (window as any).Yuzu.Settings.BreakTypes = {
     init: initBreakTypes,
-    loadBreakTypes: loadBreakTypes,
-    setupPagination: setupPagination
+    loadBreakTypes: loadBreakTypes
 };
