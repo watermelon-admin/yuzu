@@ -21,7 +21,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    height: 150px; /* Even taller for more extensive and subtle gradient */
+    height: 80px; /* Reduced height for smaller fade area */
     pointer-events: none;
     z-index: 100;
     opacity: 1;
@@ -29,52 +29,44 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Top fade overlay - stronger gradient */
+/* Top fade overlay - much softer gradient */
 .fade-overlay.fade-top {
     top: 0;
     background: linear-gradient(to bottom, 
-                rgba(255, 255, 255, 1) 0%,
-                rgba(255, 255, 255, 1) 10%,
-                rgba(255, 255, 255, 0.98) 20%, 
-                rgba(255, 255, 255, 0.95) 30%,
-                rgba(255, 255, 255, 0.85) 50%,
-                rgba(255, 255, 255, 0.6) 70%,
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.8) 20%, 
+                rgba(255, 255, 255, 0.6) 40%,
+                rgba(255, 255, 255, 0.3) 65%,
                 rgba(255, 255, 255, 0) 100%);
-    /* Optional subtle shadow to emphasize the fade */
-    box-shadow: 0 5px 20px -5px rgba(0, 0, 0, 0.03);
 }
 
-/* Bottom fade overlay - stronger gradient */
+/* Bottom fade overlay - much softer gradient */
 .fade-overlay.fade-bottom {
     bottom: 0;
     background: linear-gradient(to top, 
-                rgba(255, 255, 255, 1) 0%,
-                rgba(255, 255, 255, 1) 10%,
-                rgba(255, 255, 255, 0.98) 20%,
-                rgba(255, 255, 255, 0.95) 30%,
-                rgba(255, 255, 255, 0.85) 50%,
-                rgba(255, 255, 255, 0.6) 70%, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.8) 20%,
+                rgba(255, 255, 255, 0.6) 40%,
+                rgba(255, 255, 255, 0.3) 65%, 
                 rgba(255, 255, 255, 0) 100%);
-    /* Optional subtle shadow to emphasize the fade */
-    box-shadow: 0 -5px 20px -5px rgba(0, 0, 0, 0.03);
 }
 
 /* Responsive fade heights */
 @media (max-width: 992px) {
     .fade-overlay {
-        height: 100px;
+        height: 70px;
     }
 }
 
 @media (max-width: 768px) {
     .fade-overlay {
-        height: 85px;
+        height: 60px;
     }
 }
 
 @media (max-width: 576px) {
     .fade-overlay {
-        height: 70px;
+        height: 50px;
     }
 }
 
