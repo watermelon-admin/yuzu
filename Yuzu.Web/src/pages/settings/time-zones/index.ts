@@ -882,7 +882,7 @@ export class TimeZonesManager {
     }
 
     /**
-     * Deletes a timezone from the user's list
+     * Deletes a timezone from the user's list with animation
      */
     public async deleteTimeZone(timeZoneId: string): Promise<void> {
         const antiforgeryInput = document.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement;
@@ -892,31 +892,34 @@ export class TimeZonesManager {
         }
 
         try {
+            // Find the card element to be removed
+            const cardElement = document.querySelector(`[data-timezone-id="${timeZoneId}"]`);
+            if (!cardElement) {
+                throw new Error('Card element not found');
+            }
+            
             // Show a loading state on the card
-            const card = document.querySelector(`[data-timezone-id="${timeZoneId}"]`);
-            if (card) {
-                const cardBody = card.querySelector('.card-body');
-                const cardFooter = card.querySelector('.card-footer');
+            const cardBody = cardElement.querySelector('.card-body');
+            const cardFooter = cardElement.querySelector('.card-footer');
+            
+            if (cardBody) {
+                // Add overlay with spinner (light color to avoid black flash)
+                const overlay = document.createElement('div');
+                overlay.className = 'position-absolute top-0 start-0 w-100 h-100 bg-light bg-opacity-50 d-flex align-items-center justify-content-center';
+                overlay.style.zIndex = '1000';
+                overlay.innerHTML = `
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Deleting...</span>
+                    </div>`;
                 
-                if (cardBody) {
-                    // Add overlay with spinner (light color to avoid black flash)
-                    const overlay = document.createElement('div');
-                    overlay.className = 'position-absolute top-0 start-0 w-100 h-100 bg-light bg-opacity-50 d-flex align-items-center justify-content-center';
-                    overlay.style.zIndex = '1000';
-                    overlay.innerHTML = `
-                        <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Deleting...</span>
-                        </div>`;
-                    
-                    // Make the card relative positioned
-                    (card as HTMLElement).style.position = 'relative';
-                    card.appendChild(overlay);
-                    
-                    // Disable buttons
-                    if (cardFooter) {
-                        const buttons = cardFooter.querySelectorAll('button');
-                        buttons.forEach(button => button.setAttribute('disabled', 'disabled'));
-                    }
+                // Make the card relative positioned
+                (cardElement as HTMLElement).style.position = 'relative';
+                cardElement.appendChild(overlay);
+                
+                // Disable buttons
+                if (cardFooter) {
+                    const buttons = cardFooter.querySelectorAll('button');
+                    buttons.forEach(button => button.setAttribute('disabled', 'disabled'));
                 }
             }
             
@@ -960,8 +963,8 @@ export class TimeZonesManager {
             // Show success message
             createToast('Success: Timezone deleted successfully', true);
             
-            // Refresh the list
-            this.loadUserTimeZonesDisplay();
+            // Animate the removal of the card instead of refreshing the entire list
+            this.animateCardRemoval(cardElement as HTMLElement);
             
         } catch (error) {
             createToast('Error: Failed to delete timezone. Please try again.', false);
@@ -975,9 +978,51 @@ export class TimeZonesManager {
             buttons.forEach(button => button.removeAttribute('disabled'));
         }
     }
+    
+    /**
+     * Animates the removal of a card from the DOM
+     * @param cardElement The card element to remove with animation
+     */
+    private animateCardRemoval(cardElement: HTMLElement): void {
+        // Get the parent column element which is what we'll actually remove
+        const columnElement = cardElement.closest('.col') as HTMLElement;
+        if (!columnElement) return;
+        
+        // Use CSS transitions for smooth animation
+        // First, set up transition properties
+        columnElement.style.transition = 'all 0.3s ease-out';
+        
+        // Apply initial transition to fade out and shrink
+        // We'll move this to a setTimeout to ensure the transition applies
+        setTimeout(() => {
+            columnElement.style.opacity = '0';
+            columnElement.style.transform = 'scale(0.8)';
+            columnElement.style.maxHeight = '0';
+            columnElement.style.margin = '0';
+            columnElement.style.padding = '0';
+            columnElement.style.overflow = 'hidden';
+            
+            // After animation completes, remove the element from DOM
+            setTimeout(() => {
+                columnElement.remove();
+                
+                // If this was the last card, show the empty state
+                const container = document.getElementById('time-zone-container');
+                if (container && container.querySelectorAll('[data-timezone-id]').length === 0) {
+                    container.innerHTML = `
+                    <div class="col-12 text-center">
+                        <p class="text-muted">You have not selected any timezones yet. Click "Add Time Zones" to get started.</p>
+                    </div>`;
+                }
+                
+                // Update fade effects to adapt to new content height
+                this.setupScrollFadeEffects();
+            }, 300); // Same duration as the transition
+        }, 10);
+    }
 
     /**
-     * Updates the display when a timezone is set as home
+     * Updates the display when a timezone is set as home with animations and proper event handlers
      * @param newHomeTimeZoneId The ID of the new home timezone
      */
     private async updateHomeTimeZoneDisplay(newHomeTimeZoneId: string): Promise<void> {
@@ -991,16 +1036,31 @@ export class TimeZonesManager {
         
         // Find all timezone cards
         const cards = container.querySelectorAll('[data-timezone-id]');
+        
+        // Track the previous home timezone element to animate it
+        let previousHomeElement: Element | null = null;
+        let newHomeElement: Element | null = null;
+        
         cards.forEach(card => {
             const cardId = card.getAttribute('data-timezone-id');
-            const article = card.querySelector('article');
+            const article = card.querySelector('article') as HTMLElement;
             const title = card.querySelector('.card-title');
-            const footer = card.querySelector('.card-footer');
+            const footer = card.querySelector('.card-footer') as HTMLElement;
             
             if (cardId === newHomeTimeZoneId) {
                 // This is the new home timezone
+                newHomeElement = card;
+                
                 if (article) {
+                    // Apply transition for smooth border color change
+                    article.style.transition = 'border-color 0.3s ease, background-color 0.3s ease';
                     article.classList.add('border-primary');
+                    // Highlight background color change with animation
+                    setTimeout(() => {
+                        if (article) {
+                            article.style.backgroundColor = '#f0f7ff';
+                        }
+                    }, 10);
                 }
                 
                 // Add the home badge if it doesn't exist
@@ -1008,34 +1068,111 @@ export class TimeZonesManager {
                     const badge = document.createElement('span');
                     badge.className = 'badge bg-primary ms-2';
                     badge.textContent = 'Home';
+                    badge.style.opacity = '0';
+                    badge.style.transform = 'scale(0.8)';
+                    badge.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                     title.appendChild(badge);
+                    
+                    // Animate the badge appearing
+                    setTimeout(() => {
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1)';
+                    }, 10);
                 }
                 
-                // Remove the footer with buttons
+                // Remove the footer with buttons with animation
                 if (footer) {
-                    footer.remove();
-                }
-            } else {
-                // For all other cards, ensure they're not marked as home
-                if (article) {
-                    article.classList.remove('border-primary');
+                    footer.style.transition = 'opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease';
+                    footer.style.opacity = '0';
+                    footer.style.transform = 'translateY(10px)';
+                    footer.style.maxHeight = '0';
+                    footer.style.overflow = 'hidden';
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        footer.remove();
+                        
+                        // Add info-only footer
+                        if (article) {
+                            const infoFooter = document.createElement('div');
+                            infoFooter.className = 'card-footer d-flex align-items-center py-3';
+                            infoFooter.style.backgroundColor = '#e6f0ff';
+                            infoFooter.style.borderTopColor = '#c9d9f9';
+                            infoFooter.style.opacity = '0';
+                            infoFooter.style.transition = 'opacity 0.3s ease';
+                            infoFooter.innerHTML = `
+                                <div class="d-flex">
+                                    <button type="button" class="card-info-button btn btn-sm btn-outline-primary">
+                                        <i class="bx bx-info-circle fs-xl me-1"></i>
+                                        <span class="d-none d-md-inline">Info</span>
+                                    </button>
+                                </div>
+                            `;
+                            
+                            // Add event handler for info button
+                            const infoButton = infoFooter.querySelector('.card-info-button');
+                            if (infoButton && cardId) {
+                                infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(cardId));
+                            }
+                            
+                            article.appendChild(infoFooter);
+                            
+                            // Animate the new footer appearing
+                            setTimeout(() => {
+                                infoFooter.style.opacity = '1';
+                            }, 10);
+                        }
+                    }, 300);
                 }
                 
-                // Remove any home badge
-                const badge = title?.querySelector('.badge');
+                // Scroll this card into view if needed
+                setTimeout(() => {
+                    this.scrollCardIntoView(card as HTMLElement);
+                }, 350);
+                
+            } else if (article && article.classList.contains('border-primary')) {
+                // This was the previous home timezone
+                previousHomeElement = card;
+                
+                // Apply transition for smooth border color change
+                article.style.transition = 'border-color 0.3s ease, background-color 0.3s ease';
+                article.classList.remove('border-primary');
+                // Reset background color with animation
+                setTimeout(() => {
+                    if (article) {
+                        article.style.backgroundColor = '#f5f7fa';
+                    }
+                }, 10);
+                
+                // Remove home badge with animation
+                const badge = title?.querySelector('.badge') as HTMLElement;
                 if (badge) {
-                    badge.remove();
+                    badge.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    badge.style.opacity = '0';
+                    badge.style.transform = 'scale(0.8)';
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        badge.remove();
+                    }, 300);
                 }
                 
-                // Ensure they have a footer with buttons
+                // Add standard footer with buttons
                 if (!footer && article) {
                     const newFooter = document.createElement('div');
                     newFooter.className = 'card-footer d-flex align-items-center py-3';
+                    newFooter.style.opacity = '0';
+                    newFooter.style.transform = 'translateY(10px)';
+                    newFooter.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                     newFooter.innerHTML = `
                         <div class="d-flex">
-                            <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-3">
+                            <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-2">
                                 <i class="bx bx-home fs-xl me-1"></i>
                                 <span class="d-none d-md-inline">Set as Home</span>
+                            </button>
+                            <button type="button" class="card-info-button btn btn-sm btn-outline-primary me-2">
+                                <i class="bx bx-info-circle fs-xl me-1"></i>
+                                <span class="d-none d-md-inline">Info</span>
                             </button>
                             <button type="button" class="card-delete-button btn btn-sm btn-outline-danger">
                                 <i class="bx bx-trash-alt fs-xl me-1"></i>
@@ -1061,13 +1198,22 @@ export class TimeZonesManager {
                     }
                     
                     article.appendChild(newFooter);
+                    
+                    // Animate the footer appearing
+                    setTimeout(() => {
+                        newFooter.style.opacity = '1';
+                        newFooter.style.transform = 'translateY(0)';
+                    }, 10);
                 }
             }
         });
+        
+        // Update fade effects in case layout changed
+        this.setupScrollFadeEffects();
     }
     
     /**
-     * Directly appends a timezone card to the container
+     * Directly appends a timezone card to the container with animation
      * This is used when adding a new timezone to avoid refreshing the entire list
      * @param timeZone - The timezone to append
      */
@@ -1078,6 +1224,12 @@ export class TimeZonesManager {
         }
         
         try {
+            // Check if there's an empty state message and remove it
+            const emptyState = container.querySelector('.col-12.text-center');
+            if (emptyState) {
+                container.innerHTML = '';
+            }
+            
             // Create the card using our helper function
             const cardElement = createTimeZoneCard(
                 timeZone, 
@@ -1086,14 +1238,53 @@ export class TimeZonesManager {
                 this.deleteTimeZone.bind(this)
             );
             
-            // Add it directly to the container - no need to refresh the entire list
+            // Add animation class to the column element
+            cardElement.classList.add('card-new');
+            
+            // Add it directly to the container
             container.appendChild(cardElement);
             
-            // Update scroll fade effects
-            this.setupScrollFadeEffects();
+            // Scroll the new card into view with a slight delay to let the animation start
+            setTimeout(() => {
+                this.scrollCardIntoView(cardElement);
+                
+                // Update scroll fade effects
+                this.setupScrollFadeEffects();
+            }, 50);
         } catch (error) {
             // If there's an error, fall back to refreshing the entire list
+            console.error('Error appending time zone card:', error);
             this.loadUserTimeZonesDisplay();
+        }
+    }
+    
+    /**
+     * Scrolls a card element into view if it's not currently visible
+     * @param cardElement The card element to scroll into view
+     */
+    private scrollCardIntoView(cardElement: HTMLElement): void {
+        const viewportContainer = document.querySelector('.viewport-container') as HTMLElement;
+        if (!viewportContainer) return;
+        
+        // Get the viewport container's bounds
+        const containerRect = viewportContainer.getBoundingClientRect();
+        const cardRect = cardElement.getBoundingClientRect();
+        
+        // Check if the card is partially or fully outside the viewport container
+        const isVisible = (
+            cardRect.top >= containerRect.top &&
+            cardRect.bottom <= containerRect.bottom
+        );
+        
+        if (!isVisible) {
+            // Calculate how to scroll to make the card fully visible
+            // If the card is too tall to fit in the viewport, scroll to its top
+            if (cardRect.height > containerRect.height) {
+                cardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                // Otherwise, scroll to the center of the card
+                cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     }
     
@@ -1371,7 +1562,7 @@ export class TimeZonesManager {
     }
     
     /**
-     * Sets the home timezone for the user.
+     * Sets the home timezone for the user with in-place updates and animations.
      */
     public async setHomeTimeZone(timeZoneId: string): Promise<void> {
         const antiforgeryInput = document.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement;
@@ -1448,8 +1639,15 @@ export class TimeZonesManager {
             // Show success toast notification
             createToast('Success: Home timezone updated successfully', true);
             
-            // Refresh the list
-            this.loadUserTimeZonesDisplay();
+            // Remove any loading overlays first
+            const overlays = document.querySelectorAll('[data-timezone-id] .position-absolute');
+            overlays.forEach(overlay => {
+                (overlay as HTMLElement).style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+            });
+            
+            // Update the UI in-place with animations
+            this.updateHomeTimeZoneDisplay(timeZoneId);
             
         } catch (error) {
             createToast('Error: Failed to set home timezone', false);

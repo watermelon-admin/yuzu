@@ -260,11 +260,11 @@ export function createTimeZoneCard(
         if (weatherInfo) {
             // Remove d-none class to ensure visibility
             weatherInfo.classList.remove('d-none');
+            weatherInfo.classList.add('animate-in'); // Add animation class
 
             (weatherInfo as HTMLElement).style.display = 'block';
             (weatherInfo as HTMLElement).style.visibility = 'visible';
             (weatherInfo as HTMLElement).style.opacity = '1';
-
         }
         // Now update with icon and text
         updateWeatherInfoOnCard(timeZone, cardElement);

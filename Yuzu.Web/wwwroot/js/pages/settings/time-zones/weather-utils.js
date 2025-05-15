@@ -49,13 +49,15 @@ export function updateWeatherInfoOnCard(timeZone, cardElement) {
  * This is extracted from updateWeatherInfoOnCard to avoid code duplication
  */
 export function updateWeatherContent(timeZone, weatherInfoElement, cardPath) {
+    // Cast to HTMLElement to access style properties
+    const htmlElement = weatherInfoElement;
     // Check if we have valid weather information
     if (timeZone.weatherInfo && timeZone.weatherInfo.length > 0) {
         // Make sure the element is visible
-        weatherInfoElement.classList.remove('d-none');
+        htmlElement.classList.remove('d-none');
         // Log the computed style to check if it's actually visible
         try {
-            const computedStyle = window.getComputedStyle(weatherInfoElement);
+            const computedStyle = window.getComputedStyle(htmlElement);
         }
         catch (error) {
         }
@@ -85,18 +87,20 @@ export function updateWeatherContent(timeZone, weatherInfoElement, cardPath) {
         }
         // Set the HTML directly with the weather icon
         const newContent = `${weatherIcon} ${timeZone.weatherInfo}`;
-        weatherInfoElement.innerHTML = newContent;
+        htmlElement.innerHTML = newContent;
         // Remove any display:none that might be from CSS
-        weatherInfoElement.style.removeProperty('display');
+        htmlElement.style.removeProperty('display');
+        // Add animation class if not already present
+        htmlElement.classList.add('animate-in');
         // Ensure visibility with multiple approaches
-        weatherInfoElement.style.display = 'block';
-        weatherInfoElement.style.visibility = 'visible';
-        weatherInfoElement.style.opacity = '1';
-        // Override any conflicting styles
-        weatherInfoElement.setAttribute('style', 'display: block !important; visibility: visible !important; opacity: 1 !important');
+        htmlElement.style.display = 'block';
+        htmlElement.style.visibility = 'visible';
+        htmlElement.style.opacity = '1';
+        // Override any conflicting styles - but keep animation properties
+        htmlElement.setAttribute('style', 'display: block !important; visibility: visible !important; opacity: 1 !important');
     }
     else {
-        weatherInfoElement.classList.add('d-none');
+        htmlElement.classList.add('d-none');
     }
 }
 /**
@@ -123,6 +127,8 @@ export function setupWeatherDisplayObserver() {
                     weatherElement.style.display = 'block';
                     weatherElement.style.visibility = 'visible';
                     weatherElement.style.opacity = '1';
+                    // Add animation class
+                    weatherElement.classList.add('animate-in');
                     // Add weather icon if not present
                     if (!weatherElement.querySelector('i.bx')) {
                         const weatherText = content.toLowerCase();

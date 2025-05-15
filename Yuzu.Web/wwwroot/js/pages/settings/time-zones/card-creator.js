@@ -225,6 +225,7 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
         if (weatherInfo) {
             // Remove d-none class to ensure visibility
             weatherInfo.classList.remove('d-none');
+            weatherInfo.classList.add('animate-in'); // Add animation class
             weatherInfo.style.display = 'block';
             weatherInfo.style.visibility = 'visible';
             weatherInfo.style.opacity = '1';

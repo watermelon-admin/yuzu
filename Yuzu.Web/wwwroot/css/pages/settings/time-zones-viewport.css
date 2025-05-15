@@ -121,12 +121,69 @@
 
 /* Card animations and hover effects */
 .viewport-container .settings-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #f5f7fa; /* Light grey background */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+    border-color: #e5e7eb; /* Slightly darker border */
 }
 
 .viewport-container .settings-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+}
+
+/* Special styling for home timezone card */
+.viewport-container .settings-card.border-primary {
+    background-color: #f0f7ff; /* Slightly blueish light grey */
+    border-color: #2563EB; /* Keep the primary blue border */
+}
+
+.viewport-container .settings-card.border-primary .card-footer {
+    background-color: #e6f0ff; /* Slightly darker blue-grey for footer */
+    border-top-color: #c9d9f9;
+}
+
+/* Card parent element for animations */
+.viewport-container .col {
+    transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease, 
+                margin 0.3s ease, padding 0.3s ease;
+}
+
+/* Animation for new cards being added */
+.viewport-container .col.card-new {
+    opacity: 0;
+    transform: scale(0.8);
+    animation: card-appear 0.4s forwards;
+}
+
+@keyframes card-appear {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Weather info display animations */
+.card-weather-info {
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.card-weather-info.animate-in {
+    animation: weather-appear 0.4s forwards;
+}
+
+@keyframes weather-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Responsive height adjustments */
