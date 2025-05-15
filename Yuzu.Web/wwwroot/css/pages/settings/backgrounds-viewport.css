@@ -15,6 +15,7 @@
     padding: 1rem 0.5rem;
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-gutter: stable; /* Prevent layout shifts when scrollbar appears/disappears */
 }
 
 /* Fade overlay elements */
@@ -22,7 +23,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    height: 80px; /* Reduced height for smaller fade area */
+    height: 100px; /* Increased height for a more gradual fade */
     pointer-events: none;
     z-index: 100;
     opacity: 1;
@@ -30,25 +31,31 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Top fade overlay - soft gradient */
+/* Top fade overlay - stronger gradient with complete fade */
 #backgrounds .viewport-container-wrapper .fade-overlay.fade-top {
     top: 0;
+    height: 100px; /* Increased height for a more gradual fade */
     background: linear-gradient(to bottom, 
-                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 1) 0%,      /* Fully opaque at the very top */
+                rgba(255, 255, 255, 0.95) 5%,   /* Still very opaque */
+                rgba(255, 255, 255, 0.9) 10%,
                 rgba(255, 255, 255, 0.8) 20%, 
                 rgba(255, 255, 255, 0.6) 40%,
-                rgba(255, 255, 255, 0.3) 65%,
+                rgba(255, 255, 255, 0.3) 70%,
                 rgba(255, 255, 255, 0) 100%);
 }
 
-/* Bottom fade overlay - soft gradient */
+/* Bottom fade overlay - stronger gradient with complete fade */
 #backgrounds .viewport-container-wrapper .fade-overlay.fade-bottom {
     bottom: 0;
+    height: 100px; /* Increased height for a more gradual fade */
     background: linear-gradient(to top, 
-                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 1) 0%,      /* Fully opaque at the very bottom */
+                rgba(255, 255, 255, 0.95) 5%,   /* Still very opaque */
+                rgba(255, 255, 255, 0.9) 10%,
                 rgba(255, 255, 255, 0.8) 20%,
                 rgba(255, 255, 255, 0.6) 40%,
-                rgba(255, 255, 255, 0.3) 65%, 
+                rgba(255, 255, 255, 0.3) 70%, 
                 rgba(255, 255, 255, 0) 100%);
 }
 
@@ -147,8 +154,8 @@
         height: 500px;
     }
     
-    .fade-overlay {
-        height: 70px;
+    #backgrounds .viewport-container-wrapper .fade-overlay {
+        height: 80px;
     }
 }
 
@@ -157,8 +164,8 @@
         height: 400px;
     }
     
-    .fade-overlay {
-        height: 60px;
+    #backgrounds .viewport-container-wrapper .fade-overlay {
+        height: 70px;
     }
 }
 
