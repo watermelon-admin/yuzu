@@ -21,26 +21,30 @@
     </div>
 </div>
 
-<!-- Background images gallery -->
-<div id="backgrounds-gallery-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4">
-    <!-- Background images will be populated here via JavaScript -->
-    <div class="col loading-placeholder">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex align-items-center justify-content-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+<!-- Background images gallery with viewport container -->
+<div class="viewport-container-wrapper">
+    <!-- Top fade overlay (hidden initially) -->
+    <div class="fade-overlay fade-top hidden"></div>
+    
+    <!-- Scrollable container -->
+    <div class="viewport-container">
+        <div id="backgrounds-gallery-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4" data-loaded="false">
+            <!-- Background images will be populated here via JavaScript -->
+            <div class="col loading-placeholder">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Bottom fade overlay (hidden initially) -->
+    <div class="fade-overlay fade-bottom hidden"></div>
 </div>
-
-<!-- Pagination Controls -->
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mt-4" id="backgrounds-pagination-controls">
-        <!-- Pagination items will be added here via JavaScript -->
-    </ul>
-</nav>
 
 <!-- Upload Modal -->
 <div class="modal fade" id="backgrounds-upload-modal" tabindex="-1" aria-labelledby="backgrounds-upload-modal-label" aria-hidden="true">

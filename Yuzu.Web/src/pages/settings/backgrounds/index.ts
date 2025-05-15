@@ -2,6 +2,7 @@
 /// <reference types="bootstrap" />
 /// <reference types="filepond" />
 import { createToast } from '../../../common/toast-util.js';
+import { setupScrollFadeEffects, updateFadeEffects, animateCardRemoval, createNoBackgroundsMessage } from './viewport-utils.js';
 
 /**
  * Background image management functionality for the Settings page
@@ -45,12 +46,15 @@ interface ApiResponse<T = any> {
  * Load background images from the server
  */
 async function loadBackgroundImages(): Promise<void> {
+    // Get the container outside of try/catch for scope access
+    const container = document.getElementById('backgrounds-gallery-container');
+    
     try {
         // Show loading state
-        const container = document.getElementById('backgrounds-gallery-container');
         if (container) {
             // Clear the container first
             container.innerHTML = '';
+            container.setAttribute('data-loaded', 'false');
             
             // Create loading placeholder
             const loadingDiv = document.createElement('div');
@@ -98,12 +102,25 @@ async function loadBackgroundImages(): Promise<void> {
             })) || [];
             
             displayBackgrounds();
+            
+            // Mark as loaded
+            if (container) {
+                container.setAttribute('data-loaded', 'true');
+                
+                // Initialize scroll fade effects after content is loaded
+                setupScrollFadeEffects();
+            }
         } else {
             createToast(`Error: ${data.message || 'Failed to load background images'}`, false);
         }
     } catch (error) {
         console.error('Error loading backgrounds:', error);
         createToast('Error: Failed to load background images', false);
+        
+        // Mark as not loaded in case of error
+        if (container) {
+            container.setAttribute('data-loaded', 'false');
+        }
     }
 }
 
@@ -128,6 +145,19 @@ function createBackgroundCard(background: BackgroundImage): DocumentFragment {
     if (img) {
         img.src = background.thumbnailUrl;
         img.alt = background.title;
+    }
+    
+    // Add data attribute to track the image name for easier lookup
+    const cardRoot = card.querySelector('.col');
+    if (cardRoot) {
+        cardRoot.setAttribute('data-background-name', background.name);
+        // Removed tooltip attributes as requested
+    }
+    
+    // Set card styles for viewport container
+    const cardElement = card.querySelector('.settings-card');
+    if (cardElement) {
+        cardElement.classList.add('h-100'); // Ensure full height
     }
     
     // Set title
@@ -172,20 +202,7 @@ function createBackgroundCard(background: BackgroundImage): DocumentFragment {
     return card;
 }
 
-/**
- * Creates a "no backgrounds" message element
- * @returns The message element
- */
-function createNoBackgroundsMessage(): HTMLElement {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'col-12 text-center py-5';
-    messageDiv.innerHTML = `
-        <i class="bx bx-image fs-1 text-muted mb-3"></i>
-        <h5>No Background Images</h5>
-        <p class="text-muted">Upload your own images or wait for new system backgrounds.</p>
-    `;
-    return messageDiv;
-}
+// createNoBackgroundsMessage now imported from viewport-utils.js
 
 /**
  * Display background images with pagination
@@ -200,28 +217,27 @@ function displayBackgrounds(): void {
     // Clear the container
     container.innerHTML = '';
 
-    // Calculate pagination
-    const totalPages = Math.ceil(backgrounds.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, backgrounds.length);
+    // With viewport layout, we show all backgrounds at once instead of paginating
     
-    // Initialize tooltips for new elements
-    function initTooltips(): void {
-        const tooltips = document.querySelectorAll('[title]');
-        tooltips.forEach(el => {
-            new (window as any).bootstrap.Tooltip(el);
-        });
-    }
+    // Tooltips removed as requested
     
     // Handle empty state
     if (backgrounds.length === 0) {
         container.appendChild(createNoBackgroundsMessage());
+        // Update the container's data-loaded attribute
+        container.setAttribute('data-loaded', 'true');
+        // Hide pagination
+        const paginationControls = document.getElementById('backgrounds-pagination-controls');
+        if (paginationControls) {
+            paginationControls.style.display = 'none';
+        }
+        // Set up fade effects but they should hide themselves since there's no scrollable content
+        setupScrollFadeEffects();
         return;
     }
 
-    // Get backgrounds for current page and create cards
-    const currentPageBackgrounds = backgrounds.slice(startIndex, endIndex);
-    currentPageBackgrounds.forEach(background => {
+    // Get all backgrounds and create cards (no pagination)
+    backgrounds.forEach(background => {
         try {
             const card = createBackgroundCard(background);
             container.appendChild(card);
@@ -230,11 +246,16 @@ function displayBackgrounds(): void {
         }
     });
 
-    // Initialize tooltips
-    initTooltips();
+    // Tooltips removed as requested
     
-    // Update pagination controls
-    updatePagination(totalPages);
+    // Hide pagination controls since we're using the viewport scroll
+    const paginationControls = document.getElementById('backgrounds-pagination-controls');
+    if (paginationControls) {
+        paginationControls.style.display = 'none';
+    }
+    
+    // Update fade effects after content is loaded
+    setupScrollFadeEffects();
 }
 
 /**
@@ -432,14 +453,33 @@ async function deleteSelectedImage(): Promise<void> {
         }
 
         if (data.success) {
+            // Find the card before removing from array
+            const card = document.querySelector(`[data-background-name="${imageName}"]`);
+            const cardElement = card?.closest('.col');
+            
             // Remove the image from the array
             backgrounds = backgrounds.filter(bg => bg.name !== imageName);
             
-            // Refresh the display
-            displayBackgrounds();
+            if (cardElement) {
+                // Use animation to remove the card
+                animateCardRemoval(cardElement as HTMLElement);
+                
+                // If this was the last card, show empty state after animation completes
+                if (backgrounds.length === 0) {
+                    setTimeout(() => {
+                        displayBackgrounds(); // This will show the empty state message
+                    }, 350); // Wait for animation to complete
+                }
+            } else {
+                // Fall back to full refresh if card element not found
+                displayBackgrounds();
+            }
             
             // Show success message
             createToast('Success: Background image deleted successfully', true);
+            
+            // Update fade effects
+            setupScrollFadeEffects();
         } else {
             createToast(`Error: ${data.message || 'Failed to delete image'}`, false);
         }
@@ -625,8 +665,29 @@ function initializeFilePond(): void {
                         console.log('Background added to list');
                         console.log('Current backgrounds list length:', backgrounds.length);
                         
-                        // Display the updated backgrounds
-                        displayBackgrounds();
+                        // Check if it's the first background (replacing empty state)
+                        const container = document.getElementById('backgrounds-gallery-container');
+                        if (container && backgrounds.length === 1) {
+                            // If this is the first background, do a full refresh to replace the empty state
+                            displayBackgrounds();
+                        } else if (container) {
+                            // For additional backgrounds, just insert the new card at the beginning with animation
+                            const card = createBackgroundCard(newBackground);
+                            const cardElement = card.querySelector('.col');
+                            if (cardElement) {
+                                cardElement.classList.add('card-new'); // Add animation class
+                                container.insertBefore(card, container.firstChild as Node);
+                                
+                                // Update fade effects after adding the new card
+                                setupScrollFadeEffects();
+                            } else {
+                                // Fall back to full refresh if card creation fails
+                                displayBackgrounds();
+                            }
+                        } else {
+                            // Fall back to full refresh if container not found
+                            displayBackgrounds();
+                        }
                         
                         // Clear the form
                         const titleInput = document.getElementById('backgrounds-image-title') as HTMLInputElement;
@@ -896,8 +957,29 @@ function initializeFilePond(): void {
                                 console.log('Background added to list');
                                 console.log('Current backgrounds list length:', backgrounds.length);
                                 
-                                // Display the updated backgrounds
-                                displayBackgrounds();
+                                // Check if it's the first background (replacing empty state)
+                                const container = document.getElementById('backgrounds-gallery-container');
+                                if (container && backgrounds.length === 1) {
+                                    // If this is the first background, do a full refresh to replace the empty state
+                                    displayBackgrounds();
+                                } else if (container) {
+                                    // For additional backgrounds, just insert the new card at the beginning with animation
+                                    const card = createBackgroundCard(newBackground);
+                                    const cardElement = card.querySelector('.col');
+                                    if (cardElement) {
+                                        cardElement.classList.add('card-new'); // Add animation class
+                                        container.insertBefore(card, container.firstChild as Node);
+                                        
+                                        // Update fade effects after adding the new card
+                                        setupScrollFadeEffects();
+                                    } else {
+                                        // Fall back to full refresh if card creation fails
+                                        displayBackgrounds();
+                                    }
+                                } else {
+                                    // Fall back to full refresh if container not found
+                                    displayBackgrounds();
+                                }
                                 
                                 // Reset form
                                 if (titleInput) titleInput.value = '';
@@ -1021,8 +1103,22 @@ export function initBackgrounds(): void {
     // Initialize FilePond
     initializeFilePond();
     
-    // Load background images
+    // Load background images - fade effects will be set up after loading content
     loadBackgroundImages();
+    
+    // Check browser console for any errors
+    console.log('Fade overlays will be initialized after content loads');
+    
+    // Debug the state of fade overlays
+    const topFade = document.querySelector('.fade-overlay.fade-top');
+    const bottomFade = document.querySelector('.fade-overlay.fade-bottom');
+    console.log('Initial fade overlay states:', {
+        topFade: topFade ? (topFade.classList.contains('hidden') ? 'hidden' : 'visible') : 'not found',
+        bottomFade: bottomFade ? (bottomFade.classList.contains('hidden') ? 'hidden' : 'visible') : 'not found'
+    });
+    
+    // Fade effects will be properly set up by the setupScrollFadeEffects function
+    // which includes event listeners for scrolling and resizing
 }
 
 // Make function available globally
