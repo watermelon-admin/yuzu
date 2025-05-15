@@ -23,11 +23,11 @@
 
 <!-- Background images gallery with viewport container -->
 <div class="viewport-container-wrapper">
-    <!-- Top fade overlay (hidden initially) -->
-    <div class="fade-overlay fade-top hidden"></div>
+    <!-- Top fade overlay -->
+    <div class="fade-overlay fade-top"></div>
     
     <!-- Scrollable container -->
-    <div class="viewport-container">
+    <div class="viewport-container" id="backgrounds-viewport-container">
         <div id="backgrounds-gallery-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4" data-loaded="false">
             <!-- Background images will be populated here via JavaScript -->
             <div class="col loading-placeholder">
@@ -42,8 +42,20 @@
         </div>
     </div>
     
-    <!-- Bottom fade overlay (hidden initially) -->
-    <div class="fade-overlay fade-bottom hidden"></div>
+    <!-- Bottom fade overlay -->
+    <div class="fade-overlay fade-bottom"></div>
+</div>
+
+<!-- Storage info section - divider and centered text -->
+<div class="mt-3 mb-4">
+    <!-- Subtle divider line -->
+    <hr class="opacity-25 mb-3">
+    <!-- Centered storage info text -->
+    <div class="text-center">
+        <p id="backgrounds-storage-info" class="text-muted fs-6 mb-0">
+            Loading background storage information...
+        </p>
+    </div>
 </div>
 
 <!-- Upload Modal -->

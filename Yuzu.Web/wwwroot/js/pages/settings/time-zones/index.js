@@ -42,8 +42,9 @@ export class TimeZonesManager {
         window.confirmSelection = this.confirmSelection.bind(this);
         // Set up a mutation observer to ensure weather info is displayed correctly when cards are added
         setupWeatherDisplayObserver();
-        // Set up scroll fade effects for viewport
-        setTimeout(() => this.setupScrollFadeEffects(), 500); // Slight delay to ensure DOM is ready
+        // Load time zones data first - don't set up fade effects yet
+        // The fade effects will be properly set up from the initTimeZones function
+        this.loadUserTimeZonesDisplay();
     }
     /**
      * Sets up event handlers for search and pagination.
@@ -403,9 +404,13 @@ export class TimeZonesManager {
                 container.appendChild(fragment);
                 // Mark the container as loaded
                 container.setAttribute('data-loaded', 'true');
-                // No need to setup pagination anymore - all cards are displayed
-                // Set up scroll fade effects for the viewport
-                this.setupScrollFadeEffects();
+                // Properly update fade effects based on content (don't force scrollbars)
+                const viewportContainer = document.getElementById('timezones-viewport-container');
+                if (viewportContainer) {
+                    // Instead of forcing styles, let the fade effect system handle this naturally
+                    // Just trigger a scroll event to update fade effects based on content
+                    viewportContainer.dispatchEvent(new Event('scroll'));
+                }
             }
             else {
                 // Show empty state message
@@ -1028,11 +1033,9 @@ export class TimeZonesManager {
                         deleteButton.addEventListener('click', () => this.deleteTimeZone(cardId));
                     }
                     article.appendChild(newFooter);
-                    // Animate the footer appearing
-                    setTimeout(() => {
-                        newFooter.style.opacity = '1';
-                        newFooter.style.transform = 'translateY(0)';
-                    }, 10);
+                    // Set the footer style directly
+                    newFooter.style.opacity = '1';
+                    newFooter.style.transform = 'translateY(0)';
                 }
             }
         });
@@ -1061,12 +1064,10 @@ export class TimeZonesManager {
             cardElement.classList.add('card-new');
             // Add it directly to the container
             container.appendChild(cardElement);
-            // Scroll the new card into view with a slight delay to let the animation start
-            setTimeout(() => {
-                this.scrollCardIntoView(cardElement);
-                // Update scroll fade effects
-                this.setupScrollFadeEffects();
-            }, 50);
+            // Scroll the new card into view immediately
+            this.scrollCardIntoView(cardElement);
+            // Update scroll fade effects immediately
+            this.setupScrollFadeEffects();
         }
         catch (error) {
             // If there's an error, fall back to refreshing the entire list
@@ -1105,8 +1106,60 @@ export class TimeZonesManager {
      * Shows/hides the top and bottom fade effects based on scroll position
      */
     setupScrollFadeEffects() {
-        // Use the utility from backgrounds/viewport-utils.js
+        console.log('[DEBUG] TimeZonesManager.setupScrollFadeEffects - START');
+        // Check DOM elements before calling the shared function
+        const container = document.getElementById('timezones-viewport-container');
+        const topFade = document.querySelector('#time-zones .fade-overlay.fade-top');
+        const bottomFade = document.querySelector('#time-zones .fade-overlay.fade-bottom');
+        console.log('[DEBUG] TimeZonesManager.setupScrollFadeEffects - DOM elements before setup:', {
+            container: container ? {
+                id: container.id,
+                clientHeight: container.clientHeight,
+                scrollHeight: container.scrollHeight,
+                overflowY: window.getComputedStyle(container).overflowY
+            } : 'not found',
+            topFade: topFade ? {
+                classList: Array.from(topFade.classList),
+                isHidden: topFade.classList.contains('hidden'),
+                opacity: window.getComputedStyle(topFade).opacity,
+                display: window.getComputedStyle(topFade).display,
+                visibility: window.getComputedStyle(topFade).visibility
+            } : 'not found',
+            bottomFade: bottomFade ? {
+                classList: Array.from(bottomFade.classList),
+                isHidden: bottomFade.classList.contains('hidden'),
+                opacity: window.getComputedStyle(bottomFade).opacity,
+                display: window.getComputedStyle(bottomFade).display,
+                visibility: window.getComputedStyle(bottomFade).visibility
+            } : 'not found'
+        });
+        // Use the utility from viewport-utils.js
         setupVpScrollFadeEffects();
+        // Check again after setting up
+        setTimeout(() => {
+            console.log('[DEBUG] TimeZonesManager.setupScrollFadeEffects - DOM elements after setup:', {
+                container: container ? {
+                    clientHeight: container.clientHeight,
+                    scrollHeight: container.scrollHeight,
+                    overflowY: window.getComputedStyle(container).overflowY
+                } : 'not found',
+                topFade: topFade ? {
+                    classList: Array.from(topFade.classList),
+                    isHidden: topFade.classList.contains('hidden'),
+                    opacity: window.getComputedStyle(topFade).opacity,
+                    display: window.getComputedStyle(topFade).display,
+                    visibility: window.getComputedStyle(topFade).visibility
+                } : 'not found',
+                bottomFade: bottomFade ? {
+                    classList: Array.from(bottomFade.classList),
+                    isHidden: bottomFade.classList.contains('hidden'),
+                    opacity: window.getComputedStyle(bottomFade).opacity,
+                    display: window.getComputedStyle(bottomFade).display,
+                    visibility: window.getComputedStyle(bottomFade).visibility
+                } : 'not found'
+            });
+        }, 200);
+        console.log('[DEBUG] TimeZonesManager.setupScrollFadeEffects - END');
     }
     /**
      * Shows detailed information about a timezone in a modal dialog
@@ -1364,29 +1417,261 @@ export class TimeZonesManager {
         }
     }
 }
+// Already imported as setupVpScrollFadeEffects at the top
 // Shared global variable to track if initialization has occurred
 let initialized = false;
 let globalManager = null;
 // Initialize the time zones section
 export function initTimeZones() {
+    console.log('[DEBUG] TimeZones.initTimeZones - START');
+    console.log('[DEBUG] TimeZones.initTimeZones - Initialization state:', { initialized, hasGlobalManager: !!globalManager });
     // If already initialized, refresh the data
     if (initialized && globalManager) {
+        console.log('[DEBUG] TimeZones.initTimeZones - Already initialized, refreshing data');
         globalManager.loadTimeZonesData(true);
         return;
     }
     initialized = true;
-    // Create a new manager and store globally
+    console.log('[DEBUG] TimeZones.initTimeZones - Setting initialized=true');
+    // Create a new manager first
+    console.log('[DEBUG] TimeZones.initTimeZones - Creating new TimeZonesManager');
     globalManager = new TimeZonesManager();
-    // Load time zone data once
+    // Set up scroll fade effects after manager creation
+    console.log('[DEBUG] TimeZones.initTimeZones - Setting up scroll fade effects');
+    setupVpScrollFadeEffects();
+    // Force-add hidden class to fade overlays to ensure they start hidden
+    console.log('[DEBUG] TimeZones.initTimeZones - Forcing hidden class on fade overlays');
+    const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top');
+    const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom');
+    if (fadeTop) {
+        console.log('[DEBUG] TimeZones.initTimeZones - Adding hidden class to top fade');
+        fadeTop.classList.add('hidden');
+    }
+    if (fadeBottom) {
+        console.log('[DEBUG] TimeZones.initTimeZones - Adding hidden class to bottom fade');
+        fadeBottom.classList.add('hidden');
+    }
+    // Check fade overlay elements right after setup
+    setTimeout(() => {
+        console.log('[DEBUG] TimeZones.initTimeZones - Checking fade overlay elements after setup');
+        const container = document.getElementById('timezones-viewport-container');
+        const topFade = document.querySelector('#time-zones .fade-overlay.fade-top');
+        const bottomFade = document.querySelector('#time-zones .fade-overlay.fade-bottom');
+        console.log('[DEBUG] TimeZones.initTimeZones - Container:', {
+            id: container === null || container === void 0 ? void 0 : container.id,
+            scrollHeight: container === null || container === void 0 ? void 0 : container.scrollHeight,
+            clientHeight: container === null || container === void 0 ? void 0 : container.clientHeight,
+            isOverflowing: container ? (container.scrollHeight > container.clientHeight) : false,
+            overflowY: container ? window.getComputedStyle(container).overflowY : 'unknown',
+            display: container ? window.getComputedStyle(container).display : 'unknown'
+        });
+        console.log('[DEBUG] TimeZones.initTimeZones - Fade overlays:', {
+            topFade: topFade ? {
+                classList: Array.from(topFade.classList),
+                isHidden: topFade.classList.contains('hidden'),
+                opacity: window.getComputedStyle(topFade).opacity,
+                display: window.getComputedStyle(topFade).display
+            } : 'not found',
+            bottomFade: bottomFade ? {
+                classList: Array.from(bottomFade.classList),
+                isHidden: bottomFade.classList.contains('hidden'),
+                opacity: window.getComputedStyle(bottomFade).opacity,
+                display: window.getComputedStyle(bottomFade).display
+            } : 'not found'
+        });
+    }, 500);
+    console.log('[DEBUG] TimeZones.initTimeZones - END');
+    // Debug the state of fade overlays and compare with backgrounds
+    const topFade = document.querySelector('#time-zones .fade-overlay.fade-top');
+    const bottomFade = document.querySelector('#time-zones .fade-overlay.fade-bottom');
+    // Compare with backgrounds section to detect differences
+    const bgTopFade = document.querySelector('.viewport-container-wrapper .fade-overlay.fade-top');
+    const bgBottomFade = document.querySelector('.viewport-container-wrapper .fade-overlay.fade-bottom:not(#time-zones .fade-overlay)');
+    const tzContainer = document.getElementById('timezones-viewport-container');
+    const bgContainer = document.getElementById('backgrounds-viewport-container');
+    console.log('[DEBUG] TimeZones.initTimeZones - HTML STRUCTURE COMPARISON:', {
+        timeZones: {
+            container: tzContainer ? {
+                tagName: tzContainer.tagName,
+                id: tzContainer.id,
+                classes: Array.from(tzContainer.classList),
+                parentNode: tzContainer.parentNode && tzContainer.parentNode instanceof Element ? {
+                    tagName: tzContainer.parentNode.tagName,
+                    id: tzContainer.parentNode.id,
+                    classes: Array.from(tzContainer.parentNode.classList)
+                } : 'none',
+                html: tzContainer.outerHTML.substring(0, 150) + '...' // First 150 chars
+            } : 'not found',
+            topFade: topFade ? {
+                tagName: topFade.tagName,
+                classes: Array.from(topFade.classList),
+                parentNode: topFade.parentNode && topFade.parentNode instanceof Element ? {
+                    tagName: topFade.parentNode.tagName,
+                    id: topFade.parentNode.id,
+                    classes: Array.from(topFade.parentNode.classList)
+                } : 'none',
+                html: topFade.outerHTML
+            } : 'not found',
+            bottomFade: bottomFade ? {
+                tagName: bottomFade.tagName,
+                classes: Array.from(bottomFade.classList),
+                html: bottomFade.outerHTML
+            } : 'not found'
+        },
+        backgrounds: {
+            container: bgContainer ? {
+                tagName: bgContainer.tagName,
+                id: bgContainer.id,
+                classes: Array.from(bgContainer.classList),
+                parentNode: bgContainer.parentNode && bgContainer.parentNode instanceof Element ? {
+                    tagName: bgContainer.parentNode.tagName,
+                    id: bgContainer.parentNode.id,
+                    classes: Array.from(bgContainer.parentNode.classList)
+                } : 'none',
+                html: bgContainer.outerHTML.substring(0, 150) + '...' // First 150 chars
+            } : 'not found',
+            topFade: bgTopFade ? {
+                tagName: bgTopFade.tagName,
+                classes: Array.from(bgTopFade.classList),
+                parentNode: bgTopFade.parentNode && bgTopFade.parentNode instanceof Element ? {
+                    tagName: bgTopFade.parentNode.tagName,
+                    id: bgTopFade.parentNode.id,
+                    classes: Array.from(bgTopFade.parentNode.classList)
+                } : 'none',
+                html: bgTopFade.outerHTML
+            } : 'not found',
+            bottomFade: bgBottomFade ? {
+                tagName: bgBottomFade.tagName,
+                classes: Array.from(bgBottomFade.classList),
+                html: bgBottomFade.outerHTML
+            } : 'not found'
+        }
+    });
+    // Additional checking specifically for the nested structure
+    const tzWrapper = document.querySelector('#time-zones .viewport-container-wrapper');
+    const bgWrapper = document.querySelector('.viewport-container-wrapper:not(#time-zones .viewport-container-wrapper)');
+    console.log('[DEBUG] TimeZones.initTimeZones - WRAPPER COMPARISON:', {
+        timeZonesWrapper: tzWrapper ? {
+            tagName: tzWrapper.tagName,
+            id: tzWrapper.id,
+            classes: Array.from(tzWrapper.classList),
+            childNodes: Array.from(tzWrapper.childNodes).map(node => ({
+                nodeType: node.nodeType,
+                nodeName: node.nodeName,
+                classes: node instanceof Element ? Array.from(node.classList) : []
+            }))
+        } : 'not found',
+        backgroundsWrapper: bgWrapper ? {
+            tagName: bgWrapper.tagName,
+            id: bgWrapper.id,
+            classes: Array.from(bgWrapper.classList),
+            childNodes: Array.from(bgWrapper.childNodes).map(node => ({
+                nodeType: node.nodeType,
+                nodeName: node.nodeName,
+                classes: node instanceof Element ? Array.from(node.classList) : []
+            }))
+        } : 'not found'
+    });
+    console.log('Time zones scrollbar setup initialized immediately');
+    // Load time zone data once and add special handler for container modifications
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             if (globalManager)
                 globalManager.loadTimeZonesData();
+            // Set up special observer for content loading
+            setupContentLoadingObserver();
         });
     }
     else {
         // DOM is already loaded
         globalManager.loadTimeZonesData();
+        // Set up special observer for content loading
+        setupContentLoadingObserver();
+    }
+    // Function to observe content loading and update fade effects accordingly
+    function setupContentLoadingObserver() {
+        console.log('[DEBUG] TimeZones.setupContentLoadingObserver - Setting up content observer');
+        const container = document.getElementById('time-zone-container');
+        if (!container) {
+            console.error('[DEBUG] TimeZones.setupContentLoadingObserver - Container not found');
+            return;
+        }
+        // Also set up direct event listener to the scroll container
+        const scrollContainer = document.getElementById('timezones-viewport-container');
+        if (scrollContainer) {
+            console.log('[DEBUG] TimeZones.setupContentLoadingObserver - Adding direct scroll listener');
+            scrollContainer.addEventListener('scroll', () => {
+                // Force update fade overlays on scroll
+                const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top');
+                const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom');
+                if (fadeTop && fadeBottom) {
+                    // Content is overflowing, update fade visibility based on scroll position
+                    if (scrollContainer.scrollTop <= 10) {
+                        fadeTop.classList.add('hidden');
+                    }
+                    else {
+                        fadeTop.classList.remove('hidden');
+                    }
+                    const isAtBottom = Math.abs(scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight) < 10;
+                    if (isAtBottom) {
+                        fadeBottom.classList.add('hidden');
+                    }
+                    else {
+                        fadeBottom.classList.remove('hidden');
+                    }
+                    console.log(`[DEBUG] Manual scroll handler - top: ${fadeTop.classList.contains('hidden') ? 'hidden' : 'visible'}, bottom: ${fadeBottom.classList.contains('hidden') ? 'hidden' : 'visible'}`);
+                }
+            }, { passive: true });
+        }
+        // Create observer to watch for data loaded attribute changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-loaded') {
+                    const isLoaded = container.getAttribute('data-loaded') === 'true';
+                    console.log(`[DEBUG] TimeZones.contentObserver - Content loaded state changed to: ${isLoaded}`);
+                    if (isLoaded) {
+                        // Content is loaded, force update fade effects
+                        setTimeout(() => {
+                            console.log('[DEBUG] TimeZones.contentObserver - Content loaded, forcing update of fade effects');
+                            const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top');
+                            const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom');
+                            const viewportContainer = document.getElementById('timezones-viewport-container');
+                            if (fadeTop && fadeBottom && viewportContainer) {
+                                // Check if content is overflowing
+                                const isOverflowing = viewportContainer.scrollHeight > viewportContainer.clientHeight;
+                                console.log(`[DEBUG] TimeZones.contentObserver - Content overflow check: ${isOverflowing}`);
+                                // If not overflowing, both fades should be hidden
+                                if (!isOverflowing) {
+                                    fadeTop.classList.add('hidden');
+                                    fadeBottom.classList.add('hidden');
+                                    console.log('[DEBUG] TimeZones.contentObserver - Forcing both fades to be hidden (no overflow)');
+                                }
+                                else {
+                                    // Otherwise check scroll position
+                                    if (viewportContainer.scrollTop <= 10) {
+                                        fadeTop.classList.add('hidden');
+                                    }
+                                    else {
+                                        fadeTop.classList.remove('hidden');
+                                    }
+                                    const isAtBottom = Math.abs(viewportContainer.scrollHeight - viewportContainer.scrollTop - viewportContainer.clientHeight) < 10;
+                                    if (isAtBottom) {
+                                        fadeBottom.classList.add('hidden');
+                                    }
+                                    else {
+                                        fadeBottom.classList.remove('hidden');
+                                    }
+                                    console.log('[DEBUG] TimeZones.contentObserver - Updated fade states based on scroll position');
+                                }
+                            }
+                        }, 100);
+                    }
+                }
+            });
+        });
+        // Start observing the container for attribute changes
+        observer.observe(container, { attributes: true });
+        console.log('[DEBUG] TimeZones.setupContentLoadingObserver - Observer set up successfully');
     }
 }
 // Make function and manager available globally

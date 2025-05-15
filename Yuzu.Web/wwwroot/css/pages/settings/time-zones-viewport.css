@@ -1,175 +1,21 @@
 /* Time zone viewport layout styles */
 
-/* Container wrapper - positions the fade overlays */
-.viewport-container-wrapper {
-    position: relative;
-    margin-bottom: 1.5rem;
+/* Match the structure of backgrounds section, no special CSS needed */
+#timezones-viewport-container {
+    max-height: 600px; /* Set a reasonable height that ensures scrolling */
 }
 
-/* Main viewport container */
-.viewport-container {
-    height: 975px; /* Increased and made consistent with other sections */
-    overflow-y: auto;
-    width: 100%;
-    padding: 1rem 0.5rem;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
-
-/* Fade overlay elements */
-#time-zones .viewport-container-wrapper .fade-overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 80px; /* Reduced height for smaller fade area */
-    pointer-events: none;
-    z-index: 100;
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-/* Top fade overlay - much softer gradient */
-#time-zones .viewport-container-wrapper .fade-overlay.fade-top {
-    top: 0;
-    background: linear-gradient(to bottom, 
-                rgba(255, 255, 255, 0.9) 0%,
-                rgba(255, 255, 255, 0.8) 20%, 
-                rgba(255, 255, 255, 0.6) 40%,
-                rgba(255, 255, 255, 0.3) 65%,
-                rgba(255, 255, 255, 0) 100%);
-}
-
-/* Bottom fade overlay - much softer gradient */
-#time-zones .viewport-container-wrapper .fade-overlay.fade-bottom {
-    bottom: 0;
-    background: linear-gradient(to top, 
-                rgba(255, 255, 255, 0.9) 0%,
-                rgba(255, 255, 255, 0.8) 20%,
-                rgba(255, 255, 255, 0.6) 40%,
-                rgba(255, 255, 255, 0.3) 65%, 
-                rgba(255, 255, 255, 0) 100%);
-}
-
-/* Responsive fade heights */
-@media (max-width: 992px) {
-    #time-zones .viewport-container-wrapper .fade-overlay {
-        height: 70px;
-    }
-}
-
-@media (max-width: 768px) {
-    #time-zones .viewport-container-wrapper .fade-overlay {
-        height: 60px;
-    }
-}
-
-@media (max-width: 576px) {
-    #time-zones .viewport-container-wrapper .fade-overlay {
-        height: 50px;
-    }
-}
-
-/* All arrow-related CSS has been removed */
-
-/* State classes for showing/hiding fades */
-.fade-overlay.hidden {
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-
-/* Explicitly visible state to overcome any other styling */
-#time-zones .viewport-container-wrapper .fade-overlay:not(.hidden) {
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* Hide scrollbar by default but show on hover */
-.viewport-container {
-    /* Firefox */
-    scrollbar-width: none;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera by default */
-.viewport-container::-webkit-scrollbar {
-    width: 0;
-    background: transparent;
-    display: none;
-}
-
-/* Show scrollbar on hover for Chrome, Safari and Opera */
-.viewport-container:hover::-webkit-scrollbar {
-    width: 8px;
-    display: block;
-}
-
-.viewport-container:hover::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 8px;
-}
-
-.viewport-container:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(37, 99, 235, 0.2); /* Light blue color */
-    border-radius: 8px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-}
-
-.viewport-container:hover::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(37, 99, 235, 0.4); /* Darker blue on hover */
-}
-
-/* Firefox hover support */
-.viewport-container:hover {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(37, 99, 235, 0.2) transparent;
-}
-
-/* Card animations and hover effects */
-.viewport-container .settings-card {
-    background-color: #f5f7fa; /* Light grey background */
-    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
-    border-color: #e5e7eb; /* Slightly darker border */
-}
-
-.viewport-container .settings-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
-}
+/* Section-specific overrides below */
 
 /* Special styling for home timezone card */
-.viewport-container .settings-card.border-primary {
+#timezones-viewport-container .settings-card.border-primary {
     background-color: #f0f7ff; /* Slightly blueish light grey */
     border-color: #2563EB; /* Keep the primary blue border */
 }
 
-.viewport-container .settings-card.border-primary .card-footer {
+#timezones-viewport-container .settings-card.border-primary .card-footer {
     background-color: #e6f0ff; /* Slightly darker blue-grey for footer */
     border-top-color: #c9d9f9;
-}
-
-/* Card parent element for animations */
-.viewport-container .col {
-    transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease, 
-                margin 0.3s ease, padding 0.3s ease;
-}
-
-/* Animation for new cards being added */
-.viewport-container .col.card-new {
-    opacity: 0;
-    transform: scale(0.8);
-    animation: card-appear 0.4s forwards;
-}
-
-@keyframes card-appear {
-    0% {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
 }
 
 /* Weather info display animations */
@@ -189,25 +35,5 @@
     100% {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-/* Responsive height adjustments */
-@media (max-width: 768px) {
-    .viewport-container {
-        height: 750px; /* Increased by 50% from 500px */
-    }
-}
-
-@media (max-width: 576px) {
-    .viewport-container {
-        height: 600px; /* Increased by 50% from 400px */
-    }
-}
-
-/* High-resolution displays */
-@media (min-width: 1400px) {
-    .viewport-container {
-        height: 1050px; /* Increased by 50% from 700px */
     }
 }

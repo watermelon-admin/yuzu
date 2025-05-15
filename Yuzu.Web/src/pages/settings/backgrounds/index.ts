@@ -2,7 +2,7 @@
 /// <reference types="bootstrap" />
 /// <reference types="filepond" />
 import { createToast } from '../../../common/toast-util.js';
-import { setupScrollFadeEffects, updateFadeEffects, animateCardRemoval, createNoBackgroundsMessage } from './viewport-utils.js';
+import { setupScrollFadeEffects, animateCardRemoval, createNoBackgroundsMessage, scrollToNewCard } from './viewport-utils.js';
 
 /**
  * Background image management functionality for the Settings page
@@ -29,12 +29,21 @@ interface BackgroundImage {
 }
 
 /**
+ * Interface for storage metrics
+ */
+interface StorageMetrics {
+    imageCount: number;
+    totalSizeBytes: number;
+    formattedSize: string;
+}
+
+/**
  * Interface for API responses
  */
 interface ApiResponse<T = any> {
     success: boolean;
     message: string;
-    data?: T; // For collections like backgrounds
+    data?: T; // For collections like backgrounds and storageMetrics
     name?: string; // For single background properties
     title?: string;
     thumbnailUrl?: string;
@@ -92,16 +101,31 @@ async function loadBackgroundImages(): Promise<void> {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const data = await response.json() as ApiResponse<{ backgrounds: BackgroundImage[] }>;
+        const data = await response.json() as ApiResponse<{ 
+            backgrounds: BackgroundImage[],
+            storageMetrics: StorageMetrics 
+        }>;
         
-        if (data.success) {
-            backgrounds = data.data?.backgrounds.map(bg => ({
+        // Debug logging for the response
+        console.log('Background images API response:', data);
+        
+        if (data.success && data.data) {
+            // Process background images
+            backgrounds = (data.data.backgrounds || []).map(bg => ({
                 ...bg,
                 // Determine if this is a user uploaded image based on the filename pattern
                 isUserUploaded: bg.name.startsWith('user-')
-            })) || [];
+            }));
             
             displayBackgrounds();
+            
+            // Display storage metrics if available
+            if (data.data.storageMetrics) {
+                console.log('Found storage metrics:', data.data.storageMetrics);
+                updateStorageInfo(data.data.storageMetrics);
+            } else {
+                console.warn('No storage metrics found in response');
+            }
             
             // Mark as loaded
             if (container) {
@@ -206,8 +230,9 @@ function createBackgroundCard(background: BackgroundImage): DocumentFragment {
 
 /**
  * Display background images with pagination
+ * @param scrollToTop - Whether to scroll to the top after displaying (defaults to false)
  */
-function displayBackgrounds(): void {
+function displayBackgrounds(scrollToTop: boolean = false): void {
     const container = document.getElementById('backgrounds-gallery-container');
     if (!container) {
         console.error('Background container not found');
@@ -478,6 +503,9 @@ async function deleteSelectedImage(): Promise<void> {
             // Show success message
             createToast('Success: Background image deleted successfully', true);
             
+            // Refresh background list and storage metrics
+            loadBackgroundImages();
+            
             // Update fade effects
             setupScrollFadeEffects();
         } else {
@@ -676,10 +704,14 @@ function initializeFilePond(): void {
                             const cardElement = card.querySelector('.col');
                             if (cardElement) {
                                 cardElement.classList.add('card-new'); // Add animation class
+                                cardElement.setAttribute('id', `bg-card-${Date.now()}`); // Add unique ID for scrolling
                                 container.insertBefore(card, container.firstChild as Node);
                                 
                                 // Update fade effects after adding the new card
                                 setupScrollFadeEffects();
+                                
+                                // Scroll to the newly added card
+                                scrollToNewCard(cardElement as HTMLElement);
                             } else {
                                 // Fall back to full refresh if card creation fails
                                 displayBackgrounds();
@@ -962,16 +994,23 @@ function initializeFilePond(): void {
                                 if (container && backgrounds.length === 1) {
                                     // If this is the first background, do a full refresh to replace the empty state
                                     displayBackgrounds();
+                                    
+                                    // After refresh, scroll to the top of the viewport
+                                    scrollToNewCard(null);
                                 } else if (container) {
                                     // For additional backgrounds, just insert the new card at the beginning with animation
                                     const card = createBackgroundCard(newBackground);
                                     const cardElement = card.querySelector('.col');
                                     if (cardElement) {
                                         cardElement.classList.add('card-new'); // Add animation class
+                                        cardElement.setAttribute('id', `bg-card-${Date.now()}`); // Add unique ID for scrolling
                                         container.insertBefore(card, container.firstChild as Node);
                                         
                                         // Update fade effects after adding the new card
                                         setupScrollFadeEffects();
+                                        
+                                        // Scroll to the newly added card
+                                        scrollToNewCard(cardElement as HTMLElement);
                                     } else {
                                         // Fall back to full refresh if card creation fails
                                         displayBackgrounds();
@@ -998,6 +1037,9 @@ function initializeFilePond(): void {
                                 
                                 // Show success message
                                 createToast('Success: Background image uploaded successfully', true);
+                        
+                        // Refresh background images and storage metrics
+                        loadBackgroundImages();
                             } else {
                                 // Show error in the form
                                 const validationMessageElement = document.getElementById('backgrounds-form-validation-message');
@@ -1088,6 +1130,58 @@ function initializeFilePond(): void {
     return pond;
 }
 
+// scrollToNewCard is now imported from viewport-utils.ts
+
+/**
+ * Update the storage info section with metrics
+ * @param metrics - The storage metrics to display
+ */
+function updateStorageInfo(metrics: StorageMetrics): void {
+    console.log('updateStorageInfo called with metrics:', metrics);
+    const infoElement = document.getElementById('backgrounds-storage-info');
+    
+    if (!infoElement) {
+        console.error('Could not find backgrounds-storage-info element');
+        return;
+    }
+    
+    try {
+        // Check if metrics is valid
+        if (!metrics) {
+            console.error('Invalid metrics object:', metrics);
+            infoElement.textContent = 'Error loading storage information.';
+            return;
+        }
+        
+        // Use safe access with defaults
+        const userImagesCount = metrics.imageCount || 0;
+        const storageSize = metrics.formattedSize || '0 B';
+        
+        // Count the non-user images by checking our loaded backgrounds
+        const systemImagesCount = backgrounds.filter(bg => !bg.isUserUploaded).length;
+        const totalImagesCount = userImagesCount + systemImagesCount;
+        
+        // Create the info text - cleaner and more concise
+        let infoText = '';
+        
+        if (isSubscribed) {
+            if (userImagesCount > 0) {
+                infoText = `${totalImagesCount} background images (${systemImagesCount} system + ${userImagesCount} custom) · ${storageSize} storage used`;
+            } else {
+                infoText = `${totalImagesCount} background images (all system) · No custom storage used`;
+            }
+        } else {
+            infoText = `${totalImagesCount} background images · Subscribe to Pro to upload custom backgrounds`;
+        }
+        
+        console.log('Setting info text to:', infoText);
+        infoElement.textContent = infoText;
+    } catch (error) {
+        console.error('Error updating storage info:', error);
+        infoElement.textContent = 'Error displaying storage information.';
+    }
+}
+
 /**
  * Initialize backgrounds section
  */
@@ -1103,11 +1197,14 @@ export function initBackgrounds(): void {
     // Initialize FilePond
     initializeFilePond();
     
-    // Load background images - fade effects will be set up after loading content
+    // Set up scroll fade effects immediately to ensure scrollbars are visible right away
+    setupScrollFadeEffects();
+    
+    // Load background images - fade effects will be set up again after loading content
     loadBackgroundImages();
     
     // Check browser console for any errors
-    console.log('Fade overlays will be initialized after content loads');
+    console.log('Fade overlays initialized immediately and will update when content loads');
     
     // Debug the state of fade overlays
     const topFade = document.querySelector('.fade-overlay.fade-top');

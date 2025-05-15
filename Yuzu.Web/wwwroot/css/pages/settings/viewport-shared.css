@@ -1,0 +1,164 @@
+/* Shared viewport layout styles for settings sections */
+
+/* Container wrapper - positions the fade overlays */
+.viewport-container-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+/* Main viewport container */
+.viewport-container {
+    height: 975px !important;
+    overflow-y: scroll !important; /* Force scrollbar to always show */
+    overflow-x: hidden !important;
+    width: 100%;
+    padding: 1rem 0.5rem;
+    box-sizing: border-box; /* Ensure padding doesn't cause horizontal scrollbar */
+    display: block !important; /* Ensure proper display type */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Time zones viewport container - special override to ensure scrollbar visibility */
+#timezones-viewport-container {
+    height: 975px !important;
+    overflow-y: scroll !important; /* Force scrollbar to always show */
+    overflow-x: hidden !important;
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+}
+
+/* Fade overlay elements - base styles */
+.fade-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 100px;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Top fade overlay */
+.fade-overlay.fade-top {
+    top: 0;
+    background: linear-gradient(to bottom, 
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 0.95) 5%,
+                rgba(255, 255, 255, 0.9) 10%,
+                rgba(255, 255, 255, 0.8) 20%, 
+                rgba(255, 255, 255, 0.6) 40%,
+                rgba(255, 255, 255, 0.3) 70%,
+                rgba(255, 255, 255, 0) 100%);
+}
+
+/* Bottom fade overlay */
+.fade-overlay.fade-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, 
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 0.95) 5%,
+                rgba(255, 255, 255, 0.9) 10%,
+                rgba(255, 255, 255, 0.8) 20%,
+                rgba(255, 255, 255, 0.6) 40%,
+                rgba(255, 255, 255, 0.3) 70%, 
+                rgba(255, 255, 255, 0) 100%);
+}
+
+/* State classes for showing/hiding fades */
+.fade-overlay.hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Explicitly visible state to overcome any other styling */
+.viewport-container-wrapper .fade-overlay:not(.hidden) {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Scrollbar styling - simple and direct */
+.viewport-container::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+}
+
+.viewport-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+/* Firefox scrollbar settings */
+.viewport-container {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+/* Card animations and hover effects */
+.viewport-container .settings-card {
+    background-color: #f5f7fa; /* Light grey background */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+    border-color: #e5e7eb; /* Slightly darker border */
+}
+
+.viewport-container .settings-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+}
+
+/* Card parent element for animations */
+.viewport-container .col {
+    transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease, 
+                margin 0.3s ease, padding 0.3s ease;
+}
+
+/* Animation for new cards being added */
+.viewport-container .col.card-new {
+    opacity: 0;
+    transform: scale(0.8);
+    animation: card-appear 0.4s forwards;
+}
+
+@keyframes card-appear {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive height adjustments */
+@media (max-width: 768px) {
+    .viewport-container {
+        height: 750px !important;
+        overflow-y: scroll !important; /* Force scrollbar to always show */
+    }
+    
+    .viewport-container-wrapper .fade-overlay {
+        height: 80px;
+    }
+}
+
+@media (max-width: 576px) {
+    .viewport-container {
+        height: 600px !important;
+        overflow-y: scroll !important; /* Force scrollbar to always show */
+    }
+    
+    .viewport-container-wrapper .fade-overlay {
+        height: 70px;
+    }
+}
+
+/* High-resolution displays */
+@media (min-width: 1400px) {
+    .viewport-container {
+        height: 1050px !important;
+        overflow-y: scroll !important; /* Force scrollbar to always show */
+    }
+}
