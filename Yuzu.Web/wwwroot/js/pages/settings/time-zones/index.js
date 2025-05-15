@@ -873,6 +873,8 @@ export class TimeZonesManager {
                 this.setupScrollFadeEffects();
             }, 300); // Same duration as the transition
         }, 10);
+        // Note: We kept the original implementation rather than using the common utility
+        // because this method handles the empty state message specific to time zones
     }
     /**
      * Updates the display when a timezone is set as home with animations and proper event handlers

@@ -1,135 +1,61 @@
 /**
  * Viewport utilities for time zones
- * Manages fade effects when scrolling content
+ * Re-exports common viewport utilities with section-specific parameters
  */
+import { setupScrollFadeEffects as commonSetupScrollFadeEffects, animateCardRemoval as commonAnimateCardRemoval, updateFadeEffects as commonUpdateFadeEffects, showLoadingState as commonShowLoadingState, showErrorState as commonShowErrorState, showEmptyStateIfNeeded as commonShowEmptyStateIfNeeded } from '../../../common/viewport-utils.js';
+// Container ID for time zones section
+const CONTAINER_ID = 'time-zone-container';
+const SECTION_ID = 'time-zones';
+const ITEM_SELECTOR = '[data-timezone-id]';
 /**
- * Creates a debounced function that delays invoking the provided function
- * until after the specified wait time has elapsed since the last time it was invoked
- * @param func - The function to debounce
- * @param wait - The wait time in milliseconds
+ * Sets up scroll fade effects for the time zones viewport
  */
-export function debounce(func, wait) {
-    let timeout = null;
-    return (...args) => {
-        const later = () => {
-            timeout = null;
-            func(...args);
-        };
-        if (timeout !== null) {
-            clearTimeout(timeout);
-        }
-        timeout = window.setTimeout(later, wait);
-    };
+export function setupScrollFadeEffects() {
+    // Use the common function with the time-zones section ID
+    commonSetupScrollFadeEffects(SECTION_ID);
 }
 /**
- * Updates the visibility of fade overlays based on scroll position
+ * Updates the fade effects based on scroll position
+ * Preserved for backward compatibility
  * @param container - The scrollable container element
  * @param topFade - The top fade overlay element
  * @param bottomFade - The bottom fade overlay element
  */
 export function updateFadeEffects(container, topFade, bottomFade) {
-    // First check if content is overflowing - only show fades if there's scrollable content
-    const isOverflowing = container.scrollHeight > container.clientHeight;
-    if (!isOverflowing) {
-        // No overflow, hide both fades
-        topFade.classList.add('hidden');
-        bottomFade.classList.add('hidden');
-        return;
-    }
-    // Content is overflowing, now check scroll position for top fade
-    if (container.scrollTop <= 10) {
-        topFade.classList.add('hidden');
-    }
-    else {
-        topFade.classList.remove('hidden');
-    }
-    // Check scroll position for bottom fade
-    // We need to account for small rounding differences in scroll calculations
-    const isAtBottom = Math.abs((container.scrollHeight - container.scrollTop - container.clientHeight)) < 10;
-    if (isAtBottom) {
-        bottomFade.classList.add('hidden');
-    }
-    else {
-        bottomFade.classList.remove('hidden');
-    }
+    // Use the common function
+    commonUpdateFadeEffects(container, topFade, bottomFade);
 }
 /**
- * Sets up scroll fade effects for the viewport
+ * Shows loading state in the time zones container
  */
-export function setupScrollFadeEffects() {
-    var _a;
-    // Target only the time zones section
-    const timeZonesSection = document.getElementById('time-zones');
-    if (!timeZonesSection) {
-        console.error('Time zones section not found');
-        return;
-    }
-    const viewportContainer = timeZonesSection.querySelector('.viewport-container');
-    const topFade = timeZonesSection.querySelector('.fade-overlay.fade-top');
-    const bottomFade = timeZonesSection.querySelector('.fade-overlay.fade-bottom');
-    if (!viewportContainer || !topFade || !bottomFade) {
-        console.error('Required elements for fade effects not found');
-        return;
-    }
-    // Remove previous listeners if any by replacing with cloned element
-    const newViewportContainer = viewportContainer.cloneNode(false);
-    while (viewportContainer.firstChild) {
-        newViewportContainer.appendChild(viewportContainer.firstChild);
-    }
-    (_a = viewportContainer.parentNode) === null || _a === void 0 ? void 0 : _a.replaceChild(newViewportContainer, viewportContainer);
-    // Now work with the new clean container
-    const updatedContainer = timeZonesSection.querySelector('.viewport-container');
-    // Apply initial fade states based on content
-    updateFadeEffects(updatedContainer, topFade, bottomFade);
-    // Create debounced handlers for better performance
-    const debouncedScrollHandler = debounce(() => {
-        updateFadeEffects(updatedContainer, topFade, bottomFade);
-    }, 10);
-    const debouncedResizeHandler = debounce(() => {
-        updateFadeEffects(updatedContainer, topFade, bottomFade);
-    }, 100);
-    // Add scroll event listener with debounce
-    updatedContainer.addEventListener('scroll', debouncedScrollHandler, { passive: true });
-    // Listen for window resize events with debounce
-    window.addEventListener('resize', debouncedResizeHandler, { passive: true });
-    // Listen for images loading to update fade effects
-    const imageElements = updatedContainer.querySelectorAll('img');
-    if (imageElements.length > 0) {
-        imageElements.forEach(element => {
-            // Type guard to ensure we're working with an HTMLImageElement
-            const img = element;
-            // Listen for load event on each image
-            if (img && !img.complete) {
-                img.addEventListener('load', () => {
-                    updateFadeEffects(updatedContainer, topFade, bottomFade);
-                }, { once: true });
-            }
-        });
-    }
-    // Listen for content changes using MutationObserver
-    const contentObserver = new MutationObserver(() => {
-        updateFadeEffects(updatedContainer, topFade, bottomFade);
-        // Check if new images were added and attach load listeners
-        const newImages = updatedContainer.querySelectorAll('img:not([data-fade-load-tracked])');
-        newImages.forEach(element => {
-            // Type guard to ensure we're working with an HTMLImageElement
-            const img = element;
-            if (img) {
-                img.setAttribute('data-fade-load-tracked', 'true');
-                if (!img.complete) {
-                    img.addEventListener('load', () => {
-                        updateFadeEffects(updatedContainer, topFade, bottomFade);
-                    }, { once: true });
-                }
-            }
-        });
-    });
-    // Observe content changes in the container
-    contentObserver.observe(updatedContainer, {
-        childList: true,
-        subtree: true,
-        attributes: false,
-        characterData: false
+export function showLoadingState() {
+    commonShowLoadingState(CONTAINER_ID, SECTION_ID);
+}
+/**
+ * Shows error state in the time zones container
+ * @param message Optional custom error message
+ */
+export function showErrorState(message) {
+    commonShowErrorState(CONTAINER_ID, SECTION_ID, message);
+}
+/**
+ * Shows empty state in the time zones container if needed
+ * @returns True if empty state was shown, false otherwise
+ */
+export function showEmptyStateIfNeeded() {
+    return commonShowEmptyStateIfNeeded(CONTAINER_ID, SECTION_ID, ITEM_SELECTOR);
+}
+/**
+ * Animates the removal of a card from the DOM with time zone specific handling
+ * @param cardElement The card element to remove with animation
+ * @param onComplete Optional callback after removal completes
+ */
+export function animateCardRemoval(cardElement, onComplete) {
+    // Use the common function with the time-zones section ID
+    commonAnimateCardRemoval(cardElement, SECTION_ID, {
+        containerId: CONTAINER_ID,
+        itemSelector: ITEM_SELECTOR,
+        onRemoveComplete: onComplete
     });
 }
 //# sourceMappingURL=viewport-utils.js.map
