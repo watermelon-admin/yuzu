@@ -9,13 +9,11 @@
 /* Main viewport container */
 .viewport-container {
     height: 650px;
-    overflow-y: auto;
+    overflow-y: scroll; /* Always show scrollbar to prevent layout shifts */
     overflow-x: hidden; /* Prevent horizontal scrolling */
     width: 100%;
     padding: 1rem 0.5rem;
-    scrollbar-width: thin;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    scrollbar-gutter: stable; /* Prevent layout shifts when scrollbar appears/disappears */
 }
 
 /* Fade overlay elements */
@@ -71,45 +69,34 @@
     visibility: visible !important;
 }
 
-/* Hide scrollbar by default but show on hover */
+/* Subtle, always-visible scrollbar */
 .viewport-container {
     /* Firefox */
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(37, 99, 235, 0.15) transparent;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera by default */
+/* Styling for Chrome, Safari and Opera */
 .viewport-container::-webkit-scrollbar {
-    width: 0;
-    background: transparent;
-    display: none;
-}
-
-/* Show scrollbar on hover for Chrome, Safari and Opera */
-.viewport-container:hover::-webkit-scrollbar {
     width: 8px;
-    display: block;
-}
-
-.viewport-container:hover::-webkit-scrollbar-track {
     background: transparent;
-    border-radius: 8px;
 }
 
-.viewport-container:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(37, 99, 235, 0.2); /* Light blue color */
+.viewport-container::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 5px 0; /* Add some margin to avoid content overlap */
+}
+
+.viewport-container::-webkit-scrollbar-thumb {
+    background-color: rgba(37, 99, 235, 0.15); /* Very light blue color */
     border-radius: 8px;
     border: 2px solid transparent;
     background-clip: padding-box;
 }
 
-.viewport-container:hover::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(37, 99, 235, 0.4); /* Darker blue on hover */
-}
-
-/* Firefox hover support */
-.viewport-container:hover {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(37, 99, 235, 0.2) transparent;
+/* Slightly darker on hover for better visibility */
+.viewport-container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(37, 99, 235, 0.3); /* Darker blue on hover */
 }
 
 /* Card animations and hover effects */
