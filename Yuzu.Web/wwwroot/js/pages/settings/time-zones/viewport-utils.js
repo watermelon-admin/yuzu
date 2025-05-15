@@ -92,9 +92,37 @@ export function setupScrollFadeEffects() {
     updatedContainer.addEventListener('scroll', debouncedScrollHandler, { passive: true });
     // Listen for window resize events with debounce
     window.addEventListener('resize', debouncedResizeHandler, { passive: true });
+    // Listen for images loading to update fade effects
+    const imageElements = updatedContainer.querySelectorAll('img');
+    if (imageElements.length > 0) {
+        imageElements.forEach(element => {
+            // Type guard to ensure we're working with an HTMLImageElement
+            const img = element;
+            // Listen for load event on each image
+            if (img && !img.complete) {
+                img.addEventListener('load', () => {
+                    updateFadeEffects(updatedContainer, topFade, bottomFade);
+                }, { once: true });
+            }
+        });
+    }
     // Listen for content changes using MutationObserver
     const contentObserver = new MutationObserver(() => {
         updateFadeEffects(updatedContainer, topFade, bottomFade);
+        // Check if new images were added and attach load listeners
+        const newImages = updatedContainer.querySelectorAll('img:not([data-fade-load-tracked])');
+        newImages.forEach(element => {
+            // Type guard to ensure we're working with an HTMLImageElement
+            const img = element;
+            if (img) {
+                img.setAttribute('data-fade-load-tracked', 'true');
+                if (!img.complete) {
+                    img.addEventListener('load', () => {
+                        updateFadeEffects(updatedContainer, topFade, bottomFade);
+                    }, { once: true });
+                }
+            }
+        });
     });
     // Observe content changes in the container
     contentObserver.observe(updatedContainer, {

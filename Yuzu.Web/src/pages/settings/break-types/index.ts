@@ -6,7 +6,7 @@
  */
 
 // Import viewport utilities for scroll effects
-import { setupScrollFadeEffects } from './viewport-utils.js';
+import { setupScrollFadeEffects, animateCardRemoval } from './viewport-utils.js';
 
 // Check if user is subscribed (Pro member)
 const isSubscribedElement = document.getElementById('backgrounds-is-subscribed') as HTMLInputElement | null;
@@ -575,8 +575,38 @@ async function deleteBreakType(): Promise<void> {
             // Show success message
             (window as any).createToast?.(data.message || 'Break type deleted successfully', true);
             
-            // Reload break types
-            loadBreakTypes();
+            // Find the card for the deleted break type
+            const breakTypeId = idField.value;
+            const card = document.querySelector(`article[data-id="${breakTypeId}"]`);
+            
+            if (card) {
+                // Use the animation utility to smoothly remove the card from DOM
+                animateCardRemoval(card as HTMLElement);
+                
+                // Check if this was the last break type and show empty state if needed
+                setTimeout(() => {
+                    const container = document.getElementById('break-type-container');
+                    if (container && container.children.length === 0) {
+                        container.innerHTML = `
+                            <div class="col-12 text-center py-4">
+                                <p class="text-muted mb-3">You haven't created any break types yet.</p>
+                                <button type="button" class="btn btn-primary" id="add-new-break-type-button">
+                                    <i class="bx bx-plus-circle me-2"></i>Add Break Type
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Re-attach event listener for the new button
+                        const addButton = document.getElementById('add-new-break-type-button');
+                        if (addButton) {
+                            addButton.addEventListener('click', handleAddButtonClick);
+                        }
+                    }
+                }, 400); // Wait a bit longer than the animation duration
+            } else {
+                // Fallback to full reload if card not found
+                loadBreakTypes();
+            }
         } else {
             // Show error message
             (window as any).createToast?.(data.message || 'Failed to delete break type', false);

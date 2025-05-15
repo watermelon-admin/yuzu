@@ -27,6 +27,38 @@ export function debounce(func: Function, wait: number): (...args: any[]) => void
 }
 
 /**
+ * Animates the removal of a card from the DOM
+ * @param cardElement The card element to remove with animation
+ */
+export function animateCardRemoval(cardElement: HTMLElement): void {
+    // Get the parent column element which is what we'll actually remove
+    const columnElement = cardElement.closest('.col') as HTMLElement;
+    if (!columnElement) return;
+    
+    // Use CSS transitions for smooth animation
+    // First, set up transition properties
+    columnElement.style.transition = 'all 0.3s ease-out';
+    
+    // Apply initial transition to fade out and shrink
+    setTimeout(() => {
+        columnElement.style.opacity = '0';
+        columnElement.style.transform = 'scale(0.8)';
+        columnElement.style.maxHeight = '0';
+        columnElement.style.margin = '0';
+        columnElement.style.padding = '0';
+        columnElement.style.overflow = 'hidden';
+        
+        // After animation completes, remove the element from DOM
+        setTimeout(() => {
+            columnElement.remove();
+            
+            // Update fade effects to adapt to new content height
+            setupScrollFadeEffects();
+        }, 300); // Same duration as the transition
+    }, 10);
+}
+
+/**
  * Updates the visibility of fade overlays based on scroll position
  * @param container - The scrollable container element
  * @param topFade - The top fade overlay element

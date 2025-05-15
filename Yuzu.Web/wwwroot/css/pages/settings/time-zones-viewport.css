@@ -8,7 +8,7 @@
 
 /* Main viewport container */
 .viewport-container {
-    height: 600px;
+    height: 975px; /* Increased and made consistent with other sections */
     overflow-y: auto;
     width: 100%;
     padding: 1rem 0.5rem;
@@ -195,19 +195,19 @@
 /* Responsive height adjustments */
 @media (max-width: 768px) {
     .viewport-container {
-        height: 500px;
+        height: 750px; /* Increased by 50% from 500px */
     }
 }
 
 @media (max-width: 576px) {
     .viewport-container {
-        height: 400px;
+        height: 600px; /* Increased by 50% from 400px */
     }
 }
 
 /* High-resolution displays */
 @media (min-width: 1400px) {
     .viewport-container {
-        height: 700px;
+        height: 1050px; /* Increased by 50% from 700px */
     }
 }

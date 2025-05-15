@@ -8,7 +8,7 @@
 
 /* Main viewport container */
 .viewport-container {
-    height: 650px;
+    height: 975px; /* Increased by 50% from 650px and made consistent with other sections */
     overflow-y: scroll; /* Always show scrollbar to prevent layout shifts */
     overflow-x: hidden; /* Prevent horizontal scrolling */
     width: 100%;
@@ -138,7 +138,7 @@
 /* Responsive height adjustments */
 @media (max-width: 768px) {
     .viewport-container {
-        height: 500px;
+        height: 750px; /* Increased by 50% from 500px */
     }
     
     #break-types .viewport-container-wrapper .fade-overlay {
@@ -148,7 +148,7 @@
 
 @media (max-width: 576px) {
     .viewport-container {
-        height: 400px;
+        height: 600px; /* Increased by 50% from 400px */
     }
     
     #break-types .viewport-container-wrapper .fade-overlay {
@@ -159,6 +159,6 @@
 /* High-resolution displays */
 @media (min-width: 1400px) {
     .viewport-container {
-        height: 700px;
+        height: 1050px; /* Increased by 50% from 700px */
     }
 }
