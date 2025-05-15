@@ -16,8 +16,9 @@ export class TimeZonesManager {
     private homeTimeZoneId: string | null = null;
     private timeZonesSearchTerm: string = '';
     private totalTimeZones: number = 0;
-    private timeZonesCurrentPage: number = 1;
-    private timeZonesPageSize: number = 10; // Increased to 10 cards per page
+    // Keep these properties for search modal pagination
+    private timeZonesCurrentPage: number = 1; // Used in search modal pagination only
+    private timeZonesPageSize: number = 10; // Used in search modal pagination only
     private timeZoneModalFocusedRowIndex: number = -1;
     private timeZoneModalSelectedRowIndex: number = -1;
     private selectedTimeZoneId: string | null = null;
@@ -40,7 +41,7 @@ export class TimeZonesManager {
         (window as any).showTimeZoneInfoModal = this.showTimeZoneInfoModal.bind(this);
         (window as any).setHomeTimeZone = this.setHomeTimeZone.bind(this);
         (window as any).deleteTimeZone = this.deleteTimeZone.bind(this);
-        // This is particularly important for pagination to work
+        // Keep the changePage binding for search modal pagination
         (window as any).changePage = this.changePage.bind(this);
         (window as any).selectAndConfirmTimeZone = this.selectAndConfirmTimeZone.bind(this);
         (window as any).confirmSelection = this.confirmSelection.bind(this);
@@ -273,7 +274,7 @@ export class TimeZonesManager {
         }
 
         // Reset state when opening modal
-        this.timeZonesCurrentPage = 1;
+        this.timeZonesCurrentPage = 1; // Reset page for search modal
         this.timeZoneModalFocusedRowIndex = -1;
         this.selectedTimeZoneId = null;
         this.timeZonesSearchTerm = '';
@@ -383,15 +384,16 @@ export class TimeZonesManager {
         container.innerHTML = `
         <div class="col-12 text-center p-4">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading timezones for page ${this.timeZonesCurrentPage}...</span>
+                <span class="visually-hidden">Loading all your timezones...</span>
             </div>
             <p class="mt-2">Loading your timezones...</p>
         </div>`;
         
 
         try {
+            // Request all timezones at once with a large page size to get everything
             // Use current path for correct routing and include weather information
-            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=${this.timeZonesCurrentPage}&pageSize=${this.timeZonesPageSize}&includeWeather=true`;
+            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000&includeWeather=true`;
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -463,14 +465,7 @@ export class TimeZonesManager {
                 // Mark the container as loaded
                 container.setAttribute('data-loaded', 'true');
                 
-                // Setup pagination
-                setupPagination(
-                    totalCount, 
-                    this.timeZonesCurrentPage, 
-                    this.timeZonesPageSize, 
-                    'time-zones-pagination-controls',
-                    false
-                );
+                // No need to setup pagination anymore - all cards are displayed
                 
             } else {
                 // Show empty state message
@@ -503,8 +498,9 @@ export class TimeZonesManager {
     }
     
     /**
-     * Changes the current page and reloads the user timezone list.
+     * Changes the page for search results modal (pagination still needed there)
      * This function must be exposed to window to work with onclick handlers.
+     * Main page pagination has been removed.
      */
     public changePage(page: number, searchTerm: string | null): void {
         
@@ -512,34 +508,19 @@ export class TimeZonesManager {
             return;
         }
         
-        // Update the current page first
+        // Update the current page first (for search modal only)
         this.timeZonesCurrentPage = page;
         
-        // Check if this is a modal search or main page navigation
+        // Only handle search modal pagination now
         if (searchTerm !== null) {
             // This is for the modal search results
             
             // Convert null to empty string if needed
             const term = searchTerm || '';
             this.timeZonesSearchTerm = term;
-            this.loadTimeZones(term);
-        } else {
-            // This is for the user time zones pagination on the main page
-            
-            // Reset the selection state when changing pages
-            this.timeZoneModalFocusedRowIndex = -1;
-            this.timeZoneModalSelectedRowIndex = -1;
-            
-            // Reset the container's data-loaded attribute to false
-            // to ensure content refreshes for the new page
-            const container = document.getElementById('time-zone-container');
-            if (container) {
-                container.setAttribute('data-loaded', 'false');
-            }
-            
-            // Load the user display for the selected page
-            this.loadUserTimeZonesDisplay();
+            this.loadTimeZones(term, page);
         }
+        // Main page pagination has been removed - we show all cards in the viewport
     }
     
     /**
@@ -575,8 +556,10 @@ export class TimeZonesManager {
     
     /**
      * Loads and displays time zones based on the current search term and pagination.
+     * @param searchTerm The search term to filter time zones
+     * @param page The page number for the search results modal (defaults to 1)
      */
-    private loadTimeZones(searchTerm: string): void {
+    private loadTimeZones(searchTerm: string, page: number = 1): void {
         this.timeZonesSearchTerm = searchTerm; // Store the current search term
         const tableBody = document.getElementById('time-zones-search-table-body');
         if (!tableBody) {
@@ -588,7 +571,8 @@ export class TimeZonesManager {
         try {
             // Use in-memory search for the modal table (we don't need to hit the server again)
             // This way we avoid additional server round-trips after initial data load
-            const { pagedResults, totalCount } = this.searchTimeZones(searchTerm, this.timeZonesCurrentPage, this.timeZonesPageSize);
+            const pageSize = 10; // Fixed page size for search results
+            const { pagedResults, totalCount } = this.searchTimeZones(searchTerm, page, pageSize);
             this.totalTimeZones = totalCount; // Store the total count
 
             tableBody.innerHTML = '';
@@ -643,8 +627,8 @@ export class TimeZonesManager {
 
             setupPagination(
                 totalCount, 
-                this.timeZonesCurrentPage, 
-                this.timeZonesPageSize, 
+                page, 
+                pageSize, 
                 'time-zones-search-pagination-controls',
                 true,
                 searchTerm
@@ -747,16 +731,17 @@ export class TimeZonesManager {
                         event.preventDefault();
                         if (this.timeZonesCurrentPage > 1) {
                             this.timeZonesCurrentPage--;
-                            this.loadTimeZones(this.timeZonesSearchTerm);
+                            this.loadTimeZones(this.timeZonesSearchTerm, this.timeZonesCurrentPage);
                         }
                         break;
 
                     case 'PageDown':
                         event.preventDefault();
-                        const maxPages = Math.ceil(this.totalTimeZones / this.timeZonesPageSize);
+                        const pageSize = 10; // Fixed page size for search results
+                        const maxPages = Math.ceil(this.totalTimeZones / pageSize);
                         if (this.timeZonesCurrentPage < maxPages) {
                             this.timeZonesCurrentPage++;
-                            this.loadTimeZones(this.timeZonesSearchTerm);
+                            this.loadTimeZones(this.timeZonesSearchTerm, this.timeZonesCurrentPage);
                         }
                         break;
 
@@ -1081,9 +1066,26 @@ export class TimeZonesManager {
      * @param timeZone - The timezone to append
      */
     private async appendTimeZoneCard(timeZone: TimeZoneInfo): Promise<void> {
-        // This function is essentially a wrapper around loadUserTimeZonesDisplay
-        // that forces a refresh after adding a new timezone
-        this.loadUserTimeZonesDisplay();
+        const container = document.getElementById('time-zone-container');
+        if (!container) {
+            return;
+        }
+        
+        try {
+            // Create the card using our helper function
+            const cardElement = createTimeZoneCard(
+                timeZone, 
+                this.setHomeTimeZone.bind(this),
+                this.showTimeZoneInfoModal.bind(this),
+                this.deleteTimeZone.bind(this)
+            );
+            
+            // Add it directly to the container - no need to refresh the entire list
+            container.appendChild(cardElement);
+        } catch (error) {
+            // If there's an error, fall back to refreshing the entire list
+            this.loadUserTimeZonesDisplay();
+        }
     }
     
     /**

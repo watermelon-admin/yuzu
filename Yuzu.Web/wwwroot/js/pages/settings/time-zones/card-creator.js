@@ -2,13 +2,6 @@
 import { formatUtcOffset } from './time-utils.js';
 import { updateWeatherInfoOnCard } from './weather-utils.js';
 /**
- * Helper function to log debugging information with a consistent tag
- */
-function logDebug(message, ...args) {
-    console.log(`[DEBUG-TZLIST-JS-CARD] ${message}`, ...args);
-}
-
-/**
  * Creates a time zone card element based on the given time zone information
  * @param timeZone - The time zone information to create a card for
  * @param onSetHomeTimeZone - Callback for when the 'Set as Home' button is clicked
@@ -17,44 +10,25 @@ function logDebug(message, ...args) {
  * @returns HTMLElement - The created card element
  */
 export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneInfoModal, onDeleteTimeZone) {
-    logDebug('Creating card for time zone:', timeZone);
-    
-    if (!timeZone) {
-        logDebug('ERROR: timeZone is null or undefined');
-        throw new Error('timeZone parameter is required');
-    }
-    
-    if (!timeZone.zoneId) {
-        logDebug('ERROR: timeZone.zoneId is missing', timeZone);
-        throw new Error('timeZone must have a zoneId property');
-    }
-    
     // Format the UTC offset string
     const utcOffsetStr = formatUtcOffset(timeZone);
-    logDebug(`Formatted UTC offset for ${timeZone.zoneId}: ${utcOffsetStr}`);
-    
     let cardElement;
     if (timeZone.isHome) {
-        logDebug(`Creating home card for ${timeZone.zoneId}`);
         // Get the template for home time zone cards
         const homeTemplate = document.getElementById('home-time-zone-card-template');
         if (!homeTemplate) {
-            logDebug('Home template not found, creating card manually');
             // Create element without template
             cardElement = document.createElement('div');
             cardElement.className = 'col pb-lg-2 mb-4';
             cardElement.setAttribute('data-timezone-id', timeZone.zoneId);
-            
             // Set inner HTML manually as fallback
             // This is a fallback for when the home template isn't available
             // Determine weather visibility class and create weather HTML with icon if needed
             const weatherVisibilityClass = !timeZone.weatherInfo ? 'd-none' : '';
             const weatherText = timeZone.weatherInfo || '';
             let weatherHTML = weatherText;
-            
             // Add icon if we have weather info
             if (timeZone.weatherInfo) {
-                logDebug(`Processing weather info for home card: ${weatherText}`);
                 const weatherLower = timeZone.weatherInfo.toLowerCase();
                 let weatherIcon = '<i class="bx bx-cloud me-1"></i>'; // Default icon
                 if (weatherLower.includes('clear') || weatherLower.includes('sunny')) {
@@ -68,8 +42,7 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                 }
                 weatherHTML = `${weatherIcon} ${weatherText}`;
             }
-            
-            const cardHtml = `
+            cardElement.innerHTML = `
                 <article class="card settings-card h-100 border-primary">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
@@ -90,39 +63,22 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                     </div>
                 </article>
             `;
-            
-            logDebug(`Generated home card HTML for ${timeZone.zoneId}`, cardHtml);
-            cardElement.innerHTML = cardHtml;
-            
             // Verify that the weather HTML was applied correctly
             const weatherElement = cardElement.querySelector('.card-weather-info');
             if (weatherElement) {
-                logDebug(`Weather element for home card ${timeZone.zoneId}:`, {
-                    element: weatherElement,
-                    classes: weatherElement.className,
-                    style: weatherElement.getAttribute('style'),
-                    display: getComputedStyle(weatherElement).display,
-                    visibility: getComputedStyle(weatherElement).visibility
-                });
-            } else {
-                logDebug(`Weather element not found for home card ${timeZone.zoneId}`);
             }
         }
         else {
-            logDebug(`Using home template for ${timeZone.zoneId}`);
             // Use the home template
             const templateClone = homeTemplate.content.cloneNode(true);
-            
             // Get the wrapper element
             const wrapper = templateClone.querySelector('.col');
             if (wrapper) {
-                logDebug(`Found wrapper in home template for ${timeZone.zoneId}`);
                 wrapper.setAttribute('data-timezone-id', timeZone.zoneId);
                 // Use the wrapper as our card element
                 cardElement = wrapper;
             }
             else {
-                logDebug(`No wrapper found in home template for ${timeZone.zoneId}, using fallback`);
                 // Fallback if wrapper is not found
                 cardElement = document.createElement('div');
                 cardElement.className = 'col pb-lg-2 mb-4';
@@ -132,62 +88,42 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                     cardElement.appendChild(templateClone.firstChild);
                 }
             }
-            
             // Fill in the data
             const cityCountry = cardElement.querySelector('.card-city-country');
             if (cityCountry) {
                 cityCountry.textContent = `${timeZone.cities[0]}, ${timeZone.countryName}`;
-                logDebug(`Set city/country text to: ${cityCountry.textContent}`);
-            } else {
-                logDebug(`City/country element not found for home card ${timeZone.zoneId}`);
             }
-            
             const continent = cardElement.querySelector('.card-continent');
             if (continent) {
                 continent.textContent = timeZone.continent;
-                logDebug(`Set continent text to: ${continent.textContent}`);
-            } else {
-                logDebug(`Continent element not found for home card ${timeZone.zoneId}`);
             }
-            
             const utcOffsetEl = cardElement.querySelector('.card-utc-offset');
             if (utcOffsetEl) {
                 utcOffsetEl.textContent = utcOffsetStr;
-                logDebug(`Set UTC offset text to: ${utcOffsetEl.textContent}`);
-            } else {
-                logDebug(`UTC offset element not found for home card ${timeZone.zoneId}`);
             }
         }
         // Add event handler for info button
         const infoButton = cardElement.querySelector('.card-info-button');
         if (infoButton) {
-            logDebug(`Adding info button click handler for home card ${timeZone.zoneId}`);
             infoButton.addEventListener('click', () => onShowTimeZoneInfoModal(timeZone.zoneId));
-        } else {
-            logDebug(`Info button not found for home card ${timeZone.zoneId}`);
         }
     }
     else {
-        logDebug(`Creating regular card for ${timeZone.zoneId}`);
         // Get the template for regular time zone cards
         const regularTemplate = document.getElementById('time-zone-card-template');
         if (!regularTemplate) {
-            logDebug('Regular template not found, creating card manually');
             // Create element without template
             cardElement = document.createElement('div');
             cardElement.className = 'col pb-lg-2 mb-4';
             cardElement.setAttribute('data-timezone-id', timeZone.zoneId);
-            
             // Set inner HTML manually as fallback
             // This is a fallback for when the template isn't available
             // Determine weather visibility class and create weather HTML with icon if needed
             const weatherVisibilityClass = !timeZone.weatherInfo ? 'd-none' : '';
             const weatherText = timeZone.weatherInfo || '';
             let weatherHTML = weatherText;
-            
             // Add icon if we have weather info
             if (timeZone.weatherInfo) {
-                logDebug(`Processing weather info for regular card: ${weatherText}`);
                 const weatherLower = timeZone.weatherInfo.toLowerCase();
                 let weatherIcon = '<i class="bx bx-cloud me-1"></i>'; // Default icon
                 if (weatherLower.includes('clear') || weatherLower.includes('sunny')) {
@@ -201,8 +137,7 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                 }
                 weatherHTML = `${weatherIcon} ${weatherText}`;
             }
-            
-            const cardHtml = `
+            cardElement.innerHTML = `
                 <article class="card settings-card h-100">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
@@ -230,36 +165,22 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                     </div>
                 </article>
             `;
-            
-            logDebug(`Generated regular card HTML for ${timeZone.zoneId}`);
-            cardElement.innerHTML = cardHtml;
-            
             // Verify that the weather HTML was applied correctly
             const weatherElement = cardElement.querySelector('.card-weather-info');
             if (weatherElement) {
-                logDebug(`Weather element for regular card ${timeZone.zoneId}:`, {
-                    classes: weatherElement.className,
-                    style: weatherElement.getAttribute('style')
-                });
-            } else {
-                logDebug(`Weather element not found for regular card ${timeZone.zoneId}`);
             }
         }
         else {
-            logDebug(`Using regular template for ${timeZone.zoneId}`);
             // Use the regular template
             const templateClone = regularTemplate.content.cloneNode(true);
-            
             // Set timezone ID on the wrapper div
             const wrapper = templateClone.querySelector('.col');
             if (wrapper) {
-                logDebug(`Found wrapper in regular template for ${timeZone.zoneId}`);
                 wrapper.setAttribute('data-timezone-id', timeZone.zoneId);
                 // Use the wrapper as our card element
                 cardElement = wrapper;
             }
             else {
-                logDebug(`No wrapper found in regular template for ${timeZone.zoneId}, using fallback`);
                 // Fallback if wrapper is not found
                 cardElement = document.createElement('div');
                 cardElement.className = 'col pb-lg-2 mb-4';
@@ -269,30 +190,18 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                     cardElement.appendChild(templateClone.firstChild);
                 }
             }
-            
             // Fill in the data
             const cityCountry = cardElement.querySelector('.card-city-country');
             if (cityCountry) {
                 cityCountry.textContent = `${timeZone.cities[0]}, ${timeZone.countryName}`;
-                logDebug(`Set city/country text to: ${cityCountry.textContent}`);
-            } else {
-                logDebug(`City/country element not found for regular card ${timeZone.zoneId}`);
             }
-            
             const continent = cardElement.querySelector('.card-continent');
             if (continent) {
                 continent.textContent = timeZone.continent;
-                logDebug(`Set continent text to: ${continent.textContent}`);
-            } else {
-                logDebug(`Continent element not found for regular card ${timeZone.zoneId}`);
             }
-            
             const utcOffsetEl = cardElement.querySelector('.card-utc-offset');
             if (utcOffsetEl) {
                 utcOffsetEl.textContent = utcOffsetStr;
-                logDebug(`Set UTC offset text to: ${utcOffsetEl.textContent}`);
-            } else {
-                logDebug(`UTC offset element not found for regular card ${timeZone.zoneId}`);
             }
         }
         // Add event handlers for buttons
@@ -311,55 +220,18 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
     }
     // Apply weather information with icons for all card types
     if (timeZone.weatherInfo) {
-        logDebug(`Ensuring weather info is visible for ${timeZone.zoneId}`);
         // Force explicit display of weather info on the card
         const weatherInfo = cardElement.querySelector('.card-weather-info');
         if (weatherInfo) {
-            // Before state
-            const beforeState = {
-                classes: weatherInfo.className,
-                style: weatherInfo.getAttribute('style'),
-                display: getComputedStyle(weatherInfo).display,
-                visibility: getComputedStyle(weatherInfo).visibility,
-                opacity: getComputedStyle(weatherInfo).opacity
-            };
-            logDebug(`Weather info element before changes:`, beforeState);
-            
             // Remove d-none class to ensure visibility
             weatherInfo.classList.remove('d-none');
             weatherInfo.style.display = 'block';
             weatherInfo.style.visibility = 'visible';
             weatherInfo.style.opacity = '1';
-            
-            // After state
-            const afterState = {
-                classes: weatherInfo.className,
-                style: weatherInfo.getAttribute('style'),
-                display: getComputedStyle(weatherInfo).display,
-                visibility: getComputedStyle(weatherInfo).visibility,
-                opacity: getComputedStyle(weatherInfo).opacity
-            };
-            logDebug(`Weather info element after changes:`, afterState);
-            
-            // Now update with icon and text
-            updateWeatherInfoOnCard(timeZone, cardElement);
-            
-            // Verify the weather text was set
-            logDebug(`Final weather text: "${weatherInfo.textContent}"`);
-        } else {
-            logDebug(`ERROR: Weather info element not found for ${timeZone.zoneId} during final processing`);
         }
-    } else {
-        logDebug(`No weather info for ${timeZone.zoneId}, skipping weather display`);
+        // Now update with icon and text
+        updateWeatherInfoOnCard(timeZone, cardElement);
     }
-    
-    // Final verification of the card
-    if (!cardElement) {
-        logDebug(`ERROR: Card element is null or undefined at the end of creation for ${timeZone?.zoneId}`);
-    } else {
-        logDebug(`Card creation complete for ${timeZone.zoneId}. Card HTML:`, cardElement.outerHTML.substring(0, 200) + '...');
-    }
-    
     return cardElement;
 }
 //# sourceMappingURL=card-creator.js.map

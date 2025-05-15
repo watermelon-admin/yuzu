@@ -8,17 +8,14 @@
 
 
 <!-- Item Display Container -->
-<div id="time-zone-container" class="row row-cols-1 row-cols-sm-2 gx-3 gy-3" data-loaded="false">
-    <!-- Timezones will be dynamically inserted here -->
-    <!-- data-loaded attribute prevents multiple initializations -->
+<div class="viewport-container">
+    <div id="time-zone-container" class="row row-cols-1 row-cols-sm-2 gx-3 gy-3" data-loaded="false">
+        <!-- Timezones will be dynamically inserted here -->
+        <!-- data-loaded attribute prevents multiple initializations -->
+    </div>
 </div>
 
-<!-- Pagination Controls -->
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mt-4" id="time-zones-pagination-controls">
-        <!-- Pagination items will be added here via JavaScript -->
-    </ul>
-</nav>
+<!-- Pagination controls removed - all cards will be shown with scrolling -->
 
 <!-- Time zone card templates -->
 <template id="time-zone-card-template">
