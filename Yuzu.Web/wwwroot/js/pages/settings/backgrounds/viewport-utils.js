@@ -14,36 +14,24 @@ export function updateFadeEffects(container, topFade, bottomFade) {
     // Get scroll positions
     const scrollTop = container.scrollTop;
     const scrollBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    console.log('Updating fade effects:', {
-        containerHeight: container.clientHeight,
-        scrollHeight: container.scrollHeight,
-        isScrollable,
-        scrollTop,
-        scrollBottom
-    });
     if (!isScrollable) {
         // Not scrollable, hide both fades
-        console.log('Content not scrollable, hiding both fade overlays');
         topFade.classList.add('hidden');
         bottomFade.classList.add('hidden');
         return;
     }
     // Handle top fade
     if (scrollTop <= 10) {
-        console.log('At top of content, hiding top fade');
         topFade.classList.add('hidden');
     }
     else {
-        console.log('Scrolled down, showing top fade');
         topFade.classList.remove('hidden');
     }
     // Handle bottom fade
     if (scrollBottom <= 10) {
-        console.log('At bottom of content, hiding bottom fade');
         bottomFade.classList.add('hidden');
     }
     else {
-        console.log('Not at bottom, showing bottom fade');
         bottomFade.classList.remove('hidden');
     }
 }
@@ -71,8 +59,7 @@ function debounce(func, wait) {
  */
 export function setupScrollFadeEffects() {
     var _a;
-    console.log('Setting up scroll fade effects');
-    // First, let's make sure we're only targeting the backgrounds section
+    // Target only the backgrounds section
     const backgroundsSection = document.getElementById('backgrounds');
     if (!backgroundsSection) {
         console.error('Backgrounds section not found');
@@ -82,35 +69,10 @@ export function setupScrollFadeEffects() {
     const viewportContainer = backgroundsSection.querySelector('.viewport-container');
     const topFade = backgroundsSection.querySelector('.fade-overlay.fade-top');
     const bottomFade = backgroundsSection.querySelector('.fade-overlay.fade-bottom');
-    if (!viewportContainer) {
-        console.error('Viewport container element not found in backgrounds section');
-        // Do a global search to see if it exists elsewhere
-        const anyContainer = document.querySelector('.viewport-container');
-        console.log('Global viewport container search result:', anyContainer);
+    if (!viewportContainer || !topFade || !bottomFade) {
+        console.error('Required elements for fade effects not found');
         return;
     }
-    if (!topFade) {
-        console.error('Top fade overlay element not found in backgrounds section');
-        return;
-    }
-    if (!bottomFade) {
-        console.error('Bottom fade overlay element not found in backgrounds section');
-        return;
-    }
-    console.log('All required elements found:', {
-        viewportContainerId: viewportContainer.id,
-        viewportContainerClasses: viewportContainer.className,
-        topFadeClasses: topFade.className,
-        bottomFadeClasses: bottomFade.className,
-        isTopFadeHidden: topFade.classList.contains('hidden'),
-        isBottomFadeHidden: bottomFade.classList.contains('hidden')
-    });
-    // Log current dimensions
-    console.log('Container dimensions:', {
-        clientHeight: viewportContainer.clientHeight,
-        scrollHeight: viewportContainer.scrollHeight,
-        isScrollable: viewportContainer.scrollHeight > viewportContainer.clientHeight
-    });
     // Remove previous listeners if any by replacing with cloned elements
     const newViewportContainer = viewportContainer.cloneNode(false);
     while (viewportContainer.firstChild) {
@@ -120,40 +82,22 @@ export function setupScrollFadeEffects() {
     // Now work with the new clean container
     const updatedContainer = backgroundsSection.querySelector('.viewport-container');
     // Apply initial fade states based on content
-    console.log('Applying initial fade states');
     updateFadeEffects(updatedContainer, topFade, bottomFade);
     // Create debounced handlers for better performance
     const debouncedScrollHandler = debounce(() => {
-        console.log('Scroll event triggered');
         updateFadeEffects(updatedContainer, topFade, bottomFade);
     }, 10); // Small debounce to improve scroll performance
     const debouncedResizeHandler = debounce(() => {
-        console.log('Resize event triggered');
         updateFadeEffects(updatedContainer, topFade, bottomFade);
     }, 100); // Longer debounce for resize events
     // Add scroll event listener with debounce
-    console.log('Adding scroll event listener');
     updatedContainer.addEventListener('scroll', debouncedScrollHandler, { passive: true });
-    // Force a manual scroll event dispatch to ensure the listener works
-    setTimeout(() => {
-        console.log('Simulating scroll event');
-        const scrollEvent = new Event('scroll');
-        updatedContainer.dispatchEvent(scrollEvent);
-    }, 100);
-    console.log('Scroll event listener attached');
     // Listen for window resize events with debounce
-    console.log('Adding resize event listener');
     window.addEventListener('resize', debouncedResizeHandler);
-    console.log('Resize event listener attached');
     // Run another check after a short delay to ensure everything is properly initialized
     setTimeout(() => {
-        console.log('Running delayed initialization check');
         updateFadeEffects(updatedContainer, topFade, bottomFade);
-    }, 1000);
-    console.log('Resize event listener attached');
-    // Mark as having listeners attached
-    viewportContainer._hasScrollListener = true;
-    window._hasResizeListener = true;
+    }, 100);
 }
 /**
  * Animates the removal of a card from the DOM
