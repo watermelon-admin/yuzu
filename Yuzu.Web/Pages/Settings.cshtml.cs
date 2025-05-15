@@ -519,6 +519,17 @@ namespace Yuzu.Web.Pages
                 // Get all user-uploaded and system background images from database
                 var backgrounds = await _backgroundImageService.GetForUserWithSystemAsync(userId);
                 
+                // Get storage metrics for the user's background images
+                var storageMetrics = await BackgroundImageService.GetStorageMetricsAsync(
+                    _storageService,
+                    _configuration,
+                    userId,
+                    _logger);
+                
+                // Log the metrics for debugging
+                _logger.LogInformation("Storage metrics for user {UserId}: {StorageMetrics}", 
+                    userId, storageMetrics.ToString());
+                
                 // If there are no background images in the database, try to load from S3 as fallback
                 if (backgrounds == null || backgrounds.Count == 0)
                 {
@@ -532,7 +543,8 @@ namespace Yuzu.Web.Pages
                     
                     // Return in the standard response format
                     return ErrorHandling.JsonSuccess("Backgrounds retrieved from S3 successfully", new { 
-                        backgrounds = s3Backgrounds 
+                        backgrounds = s3Backgrounds,
+                        storageMetrics = storageMetrics
                     });
                 }
 
@@ -547,7 +559,8 @@ namespace Yuzu.Web.Pages
                 
                 // Return in the standard response format
                 return ErrorHandling.JsonSuccess("Backgrounds retrieved successfully", new { 
-                    backgrounds = backgroundDtos 
+                    backgrounds = backgroundDtos,
+                    storageMetrics = storageMetrics
                 });
             }, _logger);
         }
@@ -1233,12 +1246,12 @@ namespace Yuzu.Web.Pages
                         "image/jpeg",
                         metadata);
                     
-                    // Create thumbnail (150x150)
+                    // Create thumbnail (240x180)
                     using var thumbnailImage = Image.Load(memoryStream.ToArray());
                     thumbnailImage.Mutate(x => x.Resize(new ResizeOptions
                     {
                         Mode = ResizeMode.Crop,
-                        Size = new Size(150, 150)
+                        Size = new Size(240, 180)
                     }));
                     
                     // Save the thumbnail

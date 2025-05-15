@@ -103,5 +103,138 @@ namespace Yuzu.Web.Tools
 
             return backgrounds;
         }
+        
+        /// <summary>
+        /// Gets storage metrics for a user's background images
+        /// </summary>
+        /// <param name="storageService">Storage service</param>
+        /// <param name="configuration">Application configuration</param>
+        /// <param name="userId">User ID</param>
+        /// <param name="logger">Logger for the service</param>
+        /// <returns>Storage metrics for the user's background images</returns>
+        public static async Task<BackgroundStorageMetrics> GetStorageMetricsAsync(
+            Yuzu.Data.Services.Interfaces.IStorageService storageService,
+            IConfiguration configuration,
+            string userId,
+            ILogger logger)
+        {
+            // Get the container name
+            string containerName = configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
+            
+            // Create metrics object
+            var metrics = new BackgroundStorageMetrics
+            {
+                ImageCount = 0,
+                TotalSizeBytes = 0
+            };
+            
+            try
+            {
+                // List all objects in the container
+                var items = await storageService.ListObjectsAsync(containerName);
+                
+                // Filter for user's images and count unique images (not both thumb and full)
+                // We're looking for user-{userId}- prefix and -thumb suffix
+                var userThumbPattern = new Regex($@"^user-{userId}-(.+)-thumb\.(jpe?g|png|gif|webp|svg)$", RegexOptions.IgnoreCase);
+                var userFullPattern = new Regex($@"^user-{userId}-(.+)-fhd\.(jpe?g|png|gif|webp|svg)$", RegexOptions.IgnoreCase);
+                
+                // Count unique images based on matching thumbnails
+                var uniqueImageIds = new HashSet<string>();
+                
+                foreach (var item in items)
+                {
+                    // Check if this is a user's image
+                    Match thumbMatch = userThumbPattern.Match(item.Name);
+                    Match fullMatch = userFullPattern.Match(item.Name);
+                    
+                    if (thumbMatch.Success)
+                    {
+                        string imageId = thumbMatch.Groups[1].Value;
+                        uniqueImageIds.Add(imageId);
+                        metrics.TotalSizeBytes += item.Size;
+                    }
+                    else if (fullMatch.Success)
+                    {
+                        metrics.TotalSizeBytes += item.Size;
+                    }
+                }
+                
+                // Set final count
+                metrics.ImageCount = uniqueImageIds.Count;
+                
+                logger.LogInformation("User {UserId} has {Count} background images using {SizeBytes} bytes", 
+                    userId, metrics.ImageCount, metrics.TotalSizeBytes);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error fetching background image metrics for user {UserId}", userId);
+                // Return empty metrics in case of error
+                metrics = new BackgroundStorageMetrics
+                {
+                    ImageCount = 0,
+                    TotalSizeBytes = 0
+                };
+            }
+            
+            return metrics;
+        }
+    }
+    
+    /// <summary>
+    /// Storage metrics for background images
+    /// </summary>
+    public class BackgroundStorageMetrics
+    {
+        /// <summary>
+        /// The number of background images
+        /// </summary>
+        public int ImageCount { get; set; }
+        
+        /// <summary>
+        /// The total size in bytes
+        /// </summary>
+        public long TotalSizeBytes { get; set; }
+        
+        /// <summary>
+        /// Gets the size in a human-readable format
+        /// </summary>
+        public string FormattedSize 
+        { 
+            get
+            {
+                return FormatSize(TotalSizeBytes);
+            }
+        }
+        
+        /// <summary>
+        /// For debugging - always include this string representation
+        /// </summary>
+        public override string ToString()
+        {
+            return $"ImageCount: {ImageCount}, TotalSizeBytes: {TotalSizeBytes}, FormattedSize: {FormattedSize}";
+        }
+        
+        /// <summary>
+        /// Formats a size in bytes to a human-readable string
+        /// </summary>
+        private string FormatSize(long bytes)
+        {
+            if (bytes < 1024)
+            {
+                return $"{bytes} B";
+            }
+            else if (bytes < 1024 * 1024)
+            {
+                return $"{bytes / 1024.0:F1} KB";
+            }
+            else if (bytes < 1024 * 1024 * 1024)
+            {
+                return $"{bytes / (1024.0 * 1024):F1} MB";
+            }
+            else
+            {
+                return $"{bytes / (1024.0 * 1024 * 1024):F1} GB";
+            }
+        }
     }
 }
