@@ -2,15 +2,17 @@
  * Viewport utilities for backgrounds
  * Re-exports common viewport utilities with section-specific parameters
  */
-import { setupScrollFadeEffects as commonSetupScrollFadeEffects, animateCardRemoval as commonAnimateCardRemoval, updateFadeEffects as commonUpdateFadeEffects, showLoadingState as commonShowLoadingState, showErrorState as commonShowErrorState, showEmptyStateIfNeeded as commonShowEmptyStateIfNeeded } from '../../../common/viewport-utils.js';
+import { setupScrollFadeEffects as commonSetupScrollFadeEffects, animateCardRemoval as commonAnimateCardRemoval, updateFadeEffects as commonUpdateFadeEffects, showLoadingState as commonShowLoadingState, showErrorState as commonShowErrorState, showEmptyStateIfNeeded as commonShowEmptyStateIfNeeded, scrollToNewCard as commonScrollToNewCard } from '../../../common/viewport-utils.js';
 // Container ID for backgrounds section
 const CONTAINER_ID = 'backgrounds-gallery-container';
 const SECTION_ID = 'backgrounds';
+const VIEWPORT_CONTAINER_ID = 'backgrounds-viewport-container';
 const ITEM_SELECTOR = '[data-background-name]';
 /**
  * Sets up scroll fade effects for the backgrounds viewport
  */
 export function setupScrollFadeEffects() {
+    console.log('Setting up scroll fade effects for backgrounds section');
     // Use the common function with the backgrounds section ID
     commonSetupScrollFadeEffects(SECTION_ID);
 }
@@ -71,5 +73,17 @@ export function createNoBackgroundsMessage() {
         <p class="text-muted">Upload your own images or wait for new system backgrounds.</p>
     `;
     return messageDiv;
+}
+/**
+ * Scrolls to a newly added card in the backgrounds section
+ * @param cardElement The card element to scroll to (pass null to scroll to top)
+ */
+export function scrollToNewCard(cardElement) {
+    // Use the common function with the backgrounds section ID
+    commonScrollToNewCard(cardElement, {
+        sectionId: SECTION_ID,
+        behavior: 'smooth',
+        offset: 15 // Slightly larger offset for backgrounds
+    });
 }
 //# sourceMappingURL=viewport-utils.js.map

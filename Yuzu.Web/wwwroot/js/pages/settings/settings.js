@@ -28,22 +28,44 @@ export function switchToTab(tabId) {
     if (activeContainer) {
         // Add fade-out animation class
         activeContainer.classList.add('fade-out');
-        // After animation completes, remove active and fade-out classes
-        setTimeout(() => {
+        // Remove active and fade-out classes immediately (prevents flickering)
+        // Use requestAnimationFrame to ensure it happens after the browser's next paint
+        requestAnimationFrame(() => {
             activeContainer.classList.remove('active', 'fade-out');
-        }, transitionDuration);
+        });
     }
-    // Fade in the target container after a slight delay
-    setTimeout(() => {
-        // Make the target container visible but still faded out
+    // Make the target container visible immediately
+    // Use requestAnimationFrame to ensure it happens right after removing the previous container
+    requestAnimationFrame(() => {
+        // Make the target container visible
         targetContainer.classList.add('active');
         // Add fade-in animation class
         targetContainer.classList.add('fade-in');
-        // After animation completes, remove the fade-in class
-        setTimeout(() => {
-            targetContainer.classList.remove('fade-in');
-        }, transitionDuration);
-    }, activeContainer ? transitionDuration : 0); // Add delay only if fading out another tab
+        // After animation completes, just remove the fade-in class
+        // Use requestAnimationFrame to ensure smooth transitions
+        requestAnimationFrame(() => {
+            var _a, _b, _c;
+            // Ensure any viewport container gets its fade effects updated
+            if (tabId === 'backgrounds' || tabId === 'time-zones' || tabId === 'break-types' || tabId === 'membership') {
+                console.log(`Switched to ${tabId} tab`);
+                // Force update of fade effects for the tab's viewport containers
+                const viewportContainer = targetContainer.querySelector('.viewport-container');
+                const topFade = targetContainer.querySelector('.fade-overlay.fade-top');
+                const bottomFade = targetContainer.querySelector('.fade-overlay.fade-bottom');
+                if (viewportContainer && topFade && bottomFade) {
+                    // Import common function from window namespace
+                    const setupScrollFadeEffects = (_c = (_b = (_a = window.Yuzu) === null || _a === void 0 ? void 0 : _a.Settings) === null || _b === void 0 ? void 0 : _b.viewportUtils) === null || _c === void 0 ? void 0 : _c.setupScrollFadeEffects;
+                    if (typeof setupScrollFadeEffects === 'function') {
+                        setupScrollFadeEffects(tabId);
+                    }
+                }
+            }
+            // Remove the fade-in class to finalize the transition
+            setTimeout(() => {
+                targetContainer.classList.remove('fade-in');
+            }, 50); // Short delay to ensure transition completes
+        });
+    });
     // Update active state in menu
     const menuItems = document.querySelectorAll('#account-menu a.list-group-item');
     menuItems.forEach(item => {

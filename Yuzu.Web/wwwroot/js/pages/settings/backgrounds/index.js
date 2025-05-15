@@ -20,6 +20,7 @@ async function loadBackgroundImages() {
     // Get the container outside of try/catch for scope access
     const container = document.getElementById('backgrounds-gallery-container');
     try {
+        console.log('Loading background images from server');
         // Show loading state
         if (container) {
             // Clear the container first
@@ -61,6 +62,8 @@ async function loadBackgroundImages() {
             backgrounds = (data.data.backgrounds || []).map(bg => (Object.assign(Object.assign({}, bg), { 
                 // Determine if this is a user uploaded image based on the filename pattern
                 isUserUploaded: bg.name.startsWith('user-') })));
+            console.log(`Processed ${backgrounds.length} background images`);
+            // Display the backgrounds
             displayBackgrounds();
             // Display storage metrics if available
             if (data.data.storageMetrics) {
@@ -78,14 +81,40 @@ async function loadBackgroundImages() {
             }
         }
         else {
+            console.error('API returned error:', data.message);
             createToast(`Error: ${data.message || 'Failed to load background images'}`, false);
+            // Show error state in the container
+            if (container) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-4">
+                        <div class="alert alert-danger">
+                            <i class="bx bx-error-circle me-2"></i>
+                            Failed to load background images. Please try again.
+                        </div>
+                        <button class="btn btn-sm btn-primary mt-3" onclick="window.location.reload()">
+                            <i class="bx bx-refresh me-2"></i>Reload Page
+                        </button>
+                    </div>
+                `;
+            }
         }
     }
     catch (error) {
         console.error('Error loading backgrounds:', error);
         createToast('Error: Failed to load background images', false);
-        // Mark as not loaded in case of error
+        // Show error state in the container
         if (container) {
+            container.innerHTML = `
+                <div class="col-12 text-center py-4">
+                    <div class="alert alert-danger">
+                        <i class="bx bx-error-circle me-2"></i>
+                        Failed to load background images. Please try again.
+                    </div>
+                    <button class="btn btn-sm btn-primary mt-3" onclick="window.location.reload()">
+                        <i class="bx bx-refresh me-2"></i>Reload Page
+                    </button>
+                </div>
+            `;
             container.setAttribute('data-loaded', 'false');
         }
     }
@@ -96,6 +125,7 @@ async function loadBackgroundImages() {
  * @returns The populated card element
  */
 function createBackgroundCard(background) {
+    console.log(`Creating card for ${background.title}`, background);
     // Get the template
     const template = document.getElementById('backgrounds-card-template');
     if (!template) {
@@ -109,6 +139,30 @@ function createBackgroundCard(background) {
     if (img) {
         img.src = background.thumbnailUrl;
         img.alt = background.title;
+        // Add error handling for images
+        img.onerror = function () {
+            console.error(`Failed to load image: ${background.thumbnailUrl}`);
+            img.src = ''; // Clear the src to prevent further errors
+            img.alt = 'Image loading failed';
+            // Add a placeholder
+            const imgContainer = img.closest('.position-relative');
+            if (imgContainer) {
+                const errorPlaceholder = document.createElement('div');
+                errorPlaceholder.className = 'image-error-placeholder d-flex align-items-center justify-content-center';
+                errorPlaceholder.style.height = '180px';
+                errorPlaceholder.style.backgroundColor = '#f8f9fa';
+                errorPlaceholder.style.borderRadius = '0.5rem 0.5rem 0 0';
+                errorPlaceholder.innerHTML = '<i class="bx bx-image text-muted" style="font-size: 3rem;"></i>';
+                // Insert before the img
+                imgContainer.insertBefore(errorPlaceholder, img);
+                // Hide the original img
+                img.style.display = 'none';
+            }
+        };
+        console.log(`Set image src: ${img.src}`);
+    }
+    else {
+        console.error('Image element not found in card template');
     }
     // Add data attribute to track the image name for easier lookup
     const cardRoot = card.querySelector('.col');
@@ -116,15 +170,24 @@ function createBackgroundCard(background) {
         cardRoot.setAttribute('data-background-name', background.name);
         // Removed tooltip attributes as requested
     }
+    else {
+        console.error('Col element not found in card template');
+    }
     // Set card styles for viewport container
     const cardElement = card.querySelector('.settings-card');
     if (cardElement) {
         cardElement.classList.add('h-100'); // Ensure full height
     }
+    else {
+        console.error('Settings card element not found in card template');
+    }
     // Set title
     const titleElement = card.querySelector('.backgrounds-card-title');
     if (titleElement) {
         titleElement.textContent = background.title;
+    }
+    else {
+        console.error('Title element not found in card template');
     }
     // Add appropriate badge based on image type
     const imgContainer = card.querySelector('.position-relative');
@@ -140,10 +203,16 @@ function createBackgroundCard(background) {
         }
         imgContainer.appendChild(badge);
     }
+    else {
+        console.error('Image container not found in card template');
+    }
     // Set up preview button
     const previewButton = card.querySelector('.backgrounds-preview-button');
     if (previewButton) {
         previewButton.addEventListener('click', () => previewImage(background));
+    }
+    else {
+        console.error('Preview button not found in card template');
     }
     // Set up delete button
     const deleteButton = card.querySelector('.backgrounds-delete-button');
@@ -156,6 +225,10 @@ function createBackgroundCard(background) {
             deleteButton.style.display = 'none';
         }
     }
+    else {
+        console.error('Delete button not found in card template');
+    }
+    console.log('Card created successfully');
     return card;
 }
 // createNoBackgroundsMessage now imported from viewport-utils.js
@@ -169,12 +242,14 @@ function displayBackgrounds(scrollToTop = false) {
         console.error('Background container not found');
         return;
     }
+    console.log(`displayBackgrounds called with ${backgrounds.length} backgrounds`);
     // Clear the container
     container.innerHTML = '';
     // With viewport layout, we show all backgrounds at once instead of paginating
     // Tooltips removed as requested
     // Handle empty state
     if (backgrounds.length === 0) {
+        console.log('No backgrounds found, showing empty state message');
         container.appendChild(createNoBackgroundsMessage());
         // Update the container's data-loaded attribute
         container.setAttribute('data-loaded', 'true');
@@ -187,9 +262,11 @@ function displayBackgrounds(scrollToTop = false) {
         setupScrollFadeEffects();
         return;
     }
+    console.log(`Creating ${backgrounds.length} background cards`);
     // Get all backgrounds and create cards (no pagination)
-    backgrounds.forEach(background => {
+    backgrounds.forEach((background, index) => {
         try {
+            console.log(`Creating card for background ${index + 1}: ${background.title}`);
             const card = createBackgroundCard(background);
             container.appendChild(card);
         }
@@ -203,8 +280,11 @@ function displayBackgrounds(scrollToTop = false) {
     if (paginationControls) {
         paginationControls.style.display = 'none';
     }
+    // Set the container's data-loaded attribute to indicate content is loaded
+    container.setAttribute('data-loaded', 'true');
     // Update fade effects after content is loaded
     setupScrollFadeEffects();
+    console.log('Background cards created and displayed successfully');
 }
 /**
  * Creates a pagination button
@@ -1012,6 +1092,14 @@ function updateStorageInfo(metrics) {
  */
 export function initBackgrounds() {
     console.debug('Backgrounds section initialized');
+    // Ensure the title and container is visible
+    const backgroundsSection = document.getElementById('backgrounds');
+    if (backgroundsSection) {
+        console.log('Found backgrounds section');
+    }
+    else {
+        console.error('Could not find backgrounds section');
+    }
     // Set up delete confirmation button event listener
     const confirmDeleteButton = document.getElementById('backgrounds-confirm-delete-button');
     if (confirmDeleteButton) {
@@ -1022,7 +1110,9 @@ export function initBackgrounds() {
     // Set up scroll fade effects immediately to ensure scrollbars are visible right away
     setupScrollFadeEffects();
     // Load background images - fade effects will be set up again after loading content
-    loadBackgroundImages();
+    setTimeout(() => {
+        loadBackgroundImages();
+    }, 100);
     // Check browser console for any errors
     console.log('Fade overlays initialized immediately and will update when content loads');
     // Debug the state of fade overlays
@@ -1032,6 +1122,10 @@ export function initBackgrounds() {
         topFade: topFade ? (topFade.classList.contains('hidden') ? 'hidden' : 'visible') : 'not found',
         bottomFade: bottomFade ? (bottomFade.classList.contains('hidden') ? 'hidden' : 'visible') : 'not found'
     });
+    // Log the DOM structure of the backgrounds section to help with debugging
+    if (backgroundsSection) {
+        console.log('Backgrounds section HTML structure:', backgroundsSection.innerHTML.substring(0, 500) + '...');
+    }
     // Fade effects will be properly set up by the setupScrollFadeEffects function
     // which includes event listeners for scrolling and resizing
 }

@@ -23,8 +23,10 @@
 <style>
     /* Fixed-height content wrapper to prevent footer jump */
     .settings-content-wrapper {
-        min-height: 1300px; /* Adjusted height to fit 10 time zone cards while being more compact */
+        min-height: auto; /* Changed from 1300px to auto */
         position: relative;
+        height: auto;
+        overflow: visible; /* Ensure content flows naturally */
     }
 </style>
 

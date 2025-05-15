@@ -176,85 +176,109 @@ export function setupScrollFadeEffects(sectionId: string): void {
         return;
     }
     
+    // Debug the structure of the section
+    console.log(`Setting up fade effects for section "${sectionId}"`);
+    
     const viewportContainer = section.querySelector('.viewport-container') as HTMLElement;
     const topFade = section.querySelector('.fade-overlay.fade-top') as HTMLElement;
     const bottomFade = section.querySelector('.fade-overlay.fade-bottom') as HTMLElement;
     
-    if (!viewportContainer || !topFade || !bottomFade) {
-        console.error(`Required elements for fade effects not found in section "${sectionId}"`);
+    // Enhanced error reporting
+    if (!viewportContainer) {
+        console.error(`Viewport container not found in section "${sectionId}"`);
+        // Try to create a report of what was found
+        console.log('Section contents:', section.innerHTML.substring(0, 200) + '...');
         return;
     }
     
+    if (!topFade) {
+        console.error(`Top fade overlay not found in section "${sectionId}"`);
+        return;
+    }
+    
+    if (!bottomFade) {
+        console.error(`Bottom fade overlay not found in section "${sectionId}"`);
+        return;
+    }
+    
+    console.log(`Found all required elements for section "${sectionId}"`);
+    
     // Remove previous listeners if any by replacing with cloned element
-    const newViewportContainer = viewportContainer.cloneNode(false) as HTMLElement;
-    while (viewportContainer.firstChild) {
-        newViewportContainer.appendChild(viewportContainer.firstChild);
-    }
-    viewportContainer.parentNode?.replaceChild(newViewportContainer, viewportContainer);
-    
-    // Now work with the new clean container
-    const updatedContainer = section.querySelector('.viewport-container') as HTMLElement;
-    
-    // Apply initial fade states based on content
-    updateFadeEffects(updatedContainer, topFade, bottomFade);
-    
-    // Create debounced handlers for better performance
-    const debouncedScrollHandler = debounce(() => {
-        updateFadeEffects(updatedContainer, topFade, bottomFade);
-    }, 10);
-    
-    const debouncedResizeHandler = debounce(() => {
-        updateFadeEffects(updatedContainer, topFade, bottomFade);
-    }, 100);
-    
-    // Add scroll event listener with debounce
-    updatedContainer.addEventListener('scroll', debouncedScrollHandler, { passive: true });
-    
-    // Listen for window resize events with debounce
-    window.addEventListener('resize', debouncedResizeHandler, { passive: true });
-    
-    // Listen for images loading to update fade effects
-    const imageElements = updatedContainer.querySelectorAll('img');
-    if (imageElements.length > 0) {
-        imageElements.forEach(element => {
-            // Type guard to ensure we're working with an HTMLImageElement
-            const img = element as HTMLImageElement;
-            // Listen for load event on each image
-            if (img && !img.complete) {
-                img.addEventListener('load', () => {
-                    updateFadeEffects(updatedContainer, topFade, bottomFade);
-                }, { once: true });
-            }
-        });
-    }
-    
-    // Listen for content changes using MutationObserver
-    const contentObserver = new MutationObserver(() => {
+    try {
+        const newViewportContainer = viewportContainer.cloneNode(false) as HTMLElement;
+        while (viewportContainer.firstChild) {
+            newViewportContainer.appendChild(viewportContainer.firstChild);
+        }
+        viewportContainer.parentNode?.replaceChild(newViewportContainer, viewportContainer);
+        
+        // Now work with the new clean container
+        const updatedContainer = section.querySelector('.viewport-container') as HTMLElement;
+        
+        // Apply initial fade states based on content
         updateFadeEffects(updatedContainer, topFade, bottomFade);
         
-        // Check if new images were added and attach load listeners
-        const newImages = updatedContainer.querySelectorAll('img:not([data-fade-load-tracked])');
-        newImages.forEach(element => {
-            // Type guard to ensure we're working with an HTMLImageElement
-            const img = element as HTMLImageElement;
-            if (img) {
-                img.setAttribute('data-fade-load-tracked', 'true');
-                if (!img.complete) {
+        // Create debounced handlers for better performance
+        const debouncedScrollHandler = debounce(() => {
+            updateFadeEffects(updatedContainer, topFade, bottomFade);
+        }, 10);
+        
+        const debouncedResizeHandler = debounce(() => {
+            updateFadeEffects(updatedContainer, topFade, bottomFade);
+        }, 100);
+        
+        // Add scroll event listener with debounce
+        updatedContainer.addEventListener('scroll', debouncedScrollHandler, { passive: true });
+        
+        // Listen for window resize events with debounce
+        window.addEventListener('resize', debouncedResizeHandler, { passive: true });
+        
+        // Listen for images loading to update fade effects
+        const imageElements = updatedContainer.querySelectorAll('img');
+        if (imageElements.length > 0) {
+            imageElements.forEach(element => {
+                // Type guard to ensure we're working with an HTMLImageElement
+                const img = element as HTMLImageElement;
+                // Listen for load event on each image
+                if (img && !img.complete) {
                     img.addEventListener('load', () => {
                         updateFadeEffects(updatedContainer, topFade, bottomFade);
                     }, { once: true });
                 }
-            }
+            });
+        }
+        
+        // Listen for content changes using MutationObserver
+        const contentObserver = new MutationObserver(() => {
+            updateFadeEffects(updatedContainer, topFade, bottomFade);
+            
+            // Check if new images were added and attach load listeners
+            const newImages = updatedContainer.querySelectorAll('img:not([data-fade-load-tracked])');
+            newImages.forEach(element => {
+                // Type guard to ensure we're working with an HTMLImageElement
+                const img = element as HTMLImageElement;
+                if (img) {
+                    img.setAttribute('data-fade-load-tracked', 'true');
+                    if (!img.complete) {
+                        img.addEventListener('load', () => {
+                            updateFadeEffects(updatedContainer, topFade, bottomFade);
+                        }, { once: true });
+                    }
+                }
+            });
         });
-    });
-    
-    // Observe content changes in the container
-    contentObserver.observe(updatedContainer, { 
-        childList: true, 
-        subtree: true,
-        attributes: false,
-        characterData: false 
-    });
+        
+        // Observe content changes in the container
+        contentObserver.observe(updatedContainer, { 
+            childList: true, 
+            subtree: true,
+            attributes: false,
+            characterData: false 
+        });
+        
+        console.log(`Fade effects successfully set up for section "${sectionId}"`);
+    } catch (error) {
+        console.error(`Error setting up fade effects for section "${sectionId}":`, error);
+    }
 }
 
 /**
@@ -387,4 +411,63 @@ export function animateCardRemoval(
             setupScrollFadeEffects(sectionId);
         }, 300); // Same duration as the transition
     }, 10);
+}
+
+/**
+ * Scrolls to a newly added card element
+ * @param cardElement The card element to scroll to (pass null to scroll to top)
+ * @param options Optional configuration for scrolling behavior
+ */
+export function scrollToNewCard(
+    cardElement: HTMLElement | null,
+    options: {
+        sectionId?: string;
+        behavior?: ScrollBehavior;
+        offset?: number;
+    } = {}
+): void {
+    // Default options
+    const defaults = {
+        behavior: 'smooth' as ScrollBehavior,
+        offset: 10,
+        sectionId: null
+    };
+    
+    const settings = { ...defaults, ...options };
+    
+    // If no card element is provided, scroll to the top of the viewport
+    if (!cardElement) {
+        const section = settings.sectionId ? document.getElementById(settings.sectionId) : null;
+        const viewportContainer = section 
+            ? section.querySelector('.viewport-container') as HTMLElement
+            : document.querySelector('.viewport-container') as HTMLElement;
+            
+        if (viewportContainer) {
+            viewportContainer.scrollTo({
+                top: 0,
+                behavior: settings.behavior
+            });
+        }
+        return;
+    }
+    
+    // Find the viewport container (parent element with overflow)
+    const viewportContainer = cardElement.closest('.viewport-container') as HTMLElement;
+    if (!viewportContainer) return;
+    
+    // Calculate the position to scroll to
+    const cardRect = cardElement.getBoundingClientRect();
+    const containerRect = viewportContainer.getBoundingClientRect();
+    
+    // Calculate the relative position of the card within the viewport container
+    const relativeTop = cardRect.top - containerRect.top;
+    
+    // Adjust the current scroll position to show the new card
+    const scrollTarget = viewportContainer.scrollTop + relativeTop - settings.offset;
+    
+    // Scroll to the target position
+    viewportContainer.scrollTo({
+        top: scrollTarget,
+        behavior: settings.behavior
+    });
 }

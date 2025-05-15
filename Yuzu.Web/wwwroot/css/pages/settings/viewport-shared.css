@@ -4,11 +4,16 @@
 .viewport-container-wrapper {
     position: relative;
     margin-bottom: 1.5rem;
+    margin-top: 0 !important; /* Prevent unexpected top margin */
+    padding-top: 0 !important; /* Prevent unexpected top padding */
+    top: 0 !important; /* Ensure it starts from the top */
 }
 
 /* Main viewport container */
 .viewport-container {
-    height: 975px !important;
+    height: auto !important; /* Changed from fixed 975px to auto */
+    min-height: 300px !important; /* Minimum height to ensure usability */
+    max-height: 800px !important; /* Maximum height to limit expansion */
     overflow-y: scroll !important; /* Force scrollbar to always show */
     overflow-x: hidden !important;
     width: 100%;
@@ -16,11 +21,15 @@
     box-sizing: border-box; /* Ensure padding doesn't cause horizontal scrollbar */
     display: block !important; /* Ensure proper display type */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    position: relative !important; /* Ensure proper positioning in the flow */
+    top: 0 !important; /* Prevent top offset */
 }
 
 /* Time zones viewport container - special override to ensure scrollbar visibility */
 #timezones-viewport-container {
-    height: 975px !important;
+    height: auto !important; /* Changed from fixed 975px to auto */
+    min-height: 300px !important; /* Minimum height to ensure usability */
+    max-height: 800px !important; /* Maximum height to limit expansion */
     overflow-y: scroll !important; /* Force scrollbar to always show */
     overflow-x: hidden !important;
     width: 100% !important;
@@ -135,7 +144,8 @@
 /* Responsive height adjustments */
 @media (max-width: 768px) {
     .viewport-container {
-        height: 750px !important;
+        min-height: 250px !important;
+        max-height: 650px !important;
         overflow-y: scroll !important; /* Force scrollbar to always show */
     }
     
@@ -146,7 +156,8 @@
 
 @media (max-width: 576px) {
     .viewport-container {
-        height: 600px !important;
+        min-height: 200px !important;
+        max-height: 500px !important;
         overflow-y: scroll !important; /* Force scrollbar to always show */
     }
     
@@ -158,7 +169,8 @@
 /* High-resolution displays */
 @media (min-width: 1400px) {
     .viewport-container {
-        height: 1050px !important;
+        min-height: 350px !important;
+        max-height: 900px !important;
         overflow-y: scroll !important; /* Force scrollbar to always show */
     }
 }
