@@ -7,12 +7,21 @@
 </div>
 
 
-<!-- Item Display Container -->
-<div class="viewport-container">
-    <div id="time-zone-container" class="row row-cols-1 row-cols-sm-2 gx-3 gy-3" data-loaded="false">
-        <!-- Timezones will be dynamically inserted here -->
-        <!-- data-loaded attribute prevents multiple initializations -->
+<!-- Item Display Container with Fade Overlays -->
+<div class="viewport-container-wrapper">
+    <!-- Top fade overlay (arrow removed) -->
+    <div class="fade-overlay fade-top"></div>
+    
+    <!-- Scrollable container -->
+    <div class="viewport-container">
+        <div id="time-zone-container" class="row row-cols-1 row-cols-sm-2 gx-3 gy-3" data-loaded="false">
+            <!-- Timezones will be dynamically inserted here -->
+            <!-- data-loaded attribute prevents multiple initializations -->
+        </div>
     </div>
+    
+    <!-- Bottom fade overlay (arrow removed) -->
+    <div class="fade-overlay fade-bottom"></div>
 </div>
 
 <!-- Pagination controls removed - all cards will be shown with scrolling -->

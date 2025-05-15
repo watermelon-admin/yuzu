@@ -48,6 +48,9 @@ export class TimeZonesManager {
 
         // Set up a mutation observer to ensure weather info is displayed correctly when cards are added
         setupWeatherDisplayObserver();
+        
+        // Set up scroll fade effects for viewport
+        setTimeout(() => this.setupScrollFadeEffects(), 500); // Slight delay to ensure DOM is ready
     }
     
     /**
@@ -466,6 +469,9 @@ export class TimeZonesManager {
                 container.setAttribute('data-loaded', 'true');
                 
                 // No need to setup pagination anymore - all cards are displayed
+                
+                // Set up scroll fade effects for the viewport
+                this.setupScrollFadeEffects();
                 
             } else {
                 // Show empty state message
@@ -1082,9 +1088,77 @@ export class TimeZonesManager {
             
             // Add it directly to the container - no need to refresh the entire list
             container.appendChild(cardElement);
+            
+            // Update scroll fade effects
+            this.setupScrollFadeEffects();
         } catch (error) {
             // If there's an error, fall back to refreshing the entire list
             this.loadUserTimeZonesDisplay();
+        }
+    }
+    
+    /**
+     * Sets up the fade effects for the viewport container
+     * Shows/hides the top and bottom fade effects based on scroll position
+     */
+    private setupScrollFadeEffects(): void {
+        const viewportContainer = document.querySelector('.viewport-container') as HTMLElement;
+        const topFade = document.querySelector('.fade-overlay.fade-top') as HTMLElement;
+        const bottomFade = document.querySelector('.fade-overlay.fade-bottom') as HTMLElement;
+        
+        if (!viewportContainer || !topFade || !bottomFade) {
+            console.error('Required elements for fade effects not found');
+            return;
+        }
+        
+        // Apply initial fade states based on content
+        this.updateFadeEffects(viewportContainer, topFade, bottomFade);
+        
+        // Add scroll event listener
+        viewportContainer.addEventListener('scroll', () => {
+            this.updateFadeEffects(viewportContainer, topFade, bottomFade);
+        });
+        
+        // Listen for window resize events as they might change content layout
+        window.addEventListener('resize', () => {
+            this.updateFadeEffects(viewportContainer, topFade, bottomFade);
+        });
+        
+        console.log('Fade effects set up - will update based on scroll position');
+    }
+    
+    /**
+     * Updates the fade effects based on scroll position
+     */
+    private updateFadeEffects(container: HTMLElement, topFade: HTMLElement, bottomFade: HTMLElement): void {
+        // Check if scrollable in either direction
+        const isScrollable = container.scrollHeight > container.clientHeight + 20; // Add a small buffer
+        
+        // Get scroll positions
+        const scrollTop = container.scrollTop;
+        const scrollBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+        
+        console.log(`Scroll check - Scrollable: ${isScrollable}, Top: ${scrollTop}, Bottom: ${scrollBottom}`);
+        
+        if (!isScrollable) {
+            // Not scrollable, hide both fades
+            topFade.classList.add('hidden');
+            bottomFade.classList.add('hidden');
+            return;
+        }
+        
+        // Handle top fade
+        if (scrollTop <= 10) {
+            topFade.classList.add('hidden');
+        } else {
+            topFade.classList.remove('hidden');
+        }
+        
+        // Handle bottom fade
+        if (scrollBottom <= 10) {
+            bottomFade.classList.add('hidden');
+        } else {
+            bottomFade.classList.remove('hidden');
         }
     }
     
