@@ -1117,12 +1117,8 @@ export function initBackgrounds() {
     initializeFilePond();
     // Set up scroll fade effects immediately to ensure scrollbars are visible right away
     setupScrollFadeEffects();
-    // Load background images - fade effects will be set up again after loading content
-    setTimeout(() => {
-        loadBackgroundImages();
-    }, 100);
-    // Check browser console for any errors
-    console.log('Fade overlays initialized immediately and will update when content loads');
+    // The new approach is to let settings.ts load the data for all sections
+    // We don't need to load data here directly anymore
     // Debug the state of fade overlays
     const topFade = document.querySelector('.fade-overlay.fade-top');
     const bottomFade = document.querySelector('.fade-overlay.fade-bottom');

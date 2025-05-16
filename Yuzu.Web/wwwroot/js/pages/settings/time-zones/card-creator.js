@@ -102,10 +102,37 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                 utcOffsetEl.textContent = utcOffsetStr;
             }
         }
-        // Add event handler for info button
+        // Add event handler for info button - use global function to ensure correct 'this' binding
         const infoButton = cardElement.querySelector('.card-info-button');
         if (infoButton) {
-            infoButton.addEventListener('click', () => onShowTimeZoneInfoModal(timeZone.zoneId));
+            // Attach both addEventListener and direct onclick property for maximum compatibility
+            infoButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Info button clicked for (home card):', timeZone.zoneId);
+                // Use the global function to ensure correct context
+                if (typeof window.showTimeZoneInfoModal === 'function') {
+                    window.showTimeZoneInfoModal(timeZone.zoneId);
+                }
+                else {
+                    // Fallback to passed callback if global function is not available
+                    onShowTimeZoneInfoModal(timeZone.zoneId);
+                }
+            });
+            // Also set direct onclick property as a fallback
+            infoButton.onclick = function (e) {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Info button onclick fired for (home card):', timeZone.zoneId);
+                // Use the global function to ensure correct context
+                if (typeof window.showTimeZoneInfoModal === 'function') {
+                    window.showTimeZoneInfoModal(timeZone.zoneId);
+                }
+                else {
+                    // Fallback to passed callback if global function is not available
+                    onShowTimeZoneInfoModal(timeZone.zoneId);
+                }
+            };
+            // Set an onclick HTML attribute as a final fallback
+            infoButton.setAttribute('onclick', "event.preventDefault(); if(typeof window.showTimeZoneInfoModal==='function'){window.showTimeZoneInfoModal('" + timeZone.zoneId + "')};");
         }
     }
     else {
@@ -204,18 +231,90 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                 utcOffsetEl.textContent = utcOffsetStr;
             }
         }
-        // Add event handlers for buttons
+        // Add event handlers for buttons - use global functions to ensure correct 'this' binding
         const homeButton = cardElement.querySelector('.card-home-button');
         if (homeButton) {
-            homeButton.addEventListener('click', () => onSetHomeTimeZone(timeZone.zoneId));
+            homeButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Set Home button clicked for:', timeZone.zoneId);
+                // Use the global function to ensure correct context
+                if (typeof window.setHomeTimeZone === 'function') {
+                    window.setHomeTimeZone(timeZone.zoneId);
+                }
+                else {
+                    // Fallback to passed callback if global function is not available
+                    onSetHomeTimeZone(timeZone.zoneId);
+                }
+            });
+            // Also set direct onclick property as a fallback
+            homeButton.onclick = function (e) {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Set Home button onclick fired for:', timeZone.zoneId);
+                if (typeof window.setHomeTimeZone === 'function') {
+                    window.setHomeTimeZone(timeZone.zoneId);
+                }
+                else {
+                    onSetHomeTimeZone(timeZone.zoneId);
+                }
+            };
+            // Set an onclick HTML attribute as a final fallback
+            homeButton.setAttribute('onclick', "event.preventDefault(); if(typeof window.setHomeTimeZone==='function'){window.setHomeTimeZone('" + timeZone.zoneId + "')};");
         }
         const infoButton = cardElement.querySelector('.card-info-button');
         if (infoButton) {
-            infoButton.addEventListener('click', () => onShowTimeZoneInfoModal(timeZone.zoneId));
+            infoButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Info button clicked for:', timeZone.zoneId);
+                // Use the global function to ensure correct context
+                if (typeof window.showTimeZoneInfoModal === 'function') {
+                    window.showTimeZoneInfoModal(timeZone.zoneId);
+                }
+                else {
+                    // Fallback to passed callback if global function is not available
+                    onShowTimeZoneInfoModal(timeZone.zoneId);
+                }
+            });
+            // Also set direct onclick property as a fallback
+            infoButton.onclick = function (e) {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Info button onclick fired for:', timeZone.zoneId);
+                if (typeof window.showTimeZoneInfoModal === 'function') {
+                    window.showTimeZoneInfoModal(timeZone.zoneId);
+                }
+                else {
+                    onShowTimeZoneInfoModal(timeZone.zoneId);
+                }
+            };
+            // Set an onclick HTML attribute as a final fallback
+            infoButton.setAttribute('onclick', "event.preventDefault(); if(typeof window.showTimeZoneInfoModal==='function'){window.showTimeZoneInfoModal('" + timeZone.zoneId + "')};");
         }
         const deleteButton = cardElement.querySelector('.card-delete-button');
         if (deleteButton) {
-            deleteButton.addEventListener('click', () => onDeleteTimeZone(timeZone.zoneId));
+            deleteButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Delete button clicked for:', timeZone.zoneId);
+                // Use the global function to ensure correct context
+                if (typeof window.deleteTimeZone === 'function') {
+                    window.deleteTimeZone(timeZone.zoneId);
+                }
+                else {
+                    // Fallback to passed callback if global function is not available
+                    onDeleteTimeZone(timeZone.zoneId);
+                }
+            });
+            // Also set direct onclick property as a fallback
+            deleteButton.onclick = function (e) {
+                e.preventDefault();
+                console.log('[TIMEZONE-CARD] Delete button onclick fired for:', timeZone.zoneId);
+                if (typeof window.deleteTimeZone === 'function') {
+                    window.deleteTimeZone(timeZone.zoneId);
+                }
+                else {
+                    onDeleteTimeZone(timeZone.zoneId);
+                }
+            };
+            // Set an onclick HTML attribute as a final fallback
+            deleteButton.setAttribute('onclick', "event.preventDefault(); if(typeof window.deleteTimeZone==='function'){window.deleteTimeZone('" + timeZone.zoneId + "')};");
         }
     }
     // Apply weather information with icons for all card types

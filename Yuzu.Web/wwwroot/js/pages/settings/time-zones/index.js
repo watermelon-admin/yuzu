@@ -12,6 +12,10 @@ export class TimeZonesManager {
      * Initialize the time zones manager
      */
     constructor() {
+        // CRITICAL: The order here matters
+        // 1. Make our methods available in the global namespace
+        // 2. Set up instance access via getInstance()
+        // 3. Setup event handlers for the modal
         // Time zones properties
         this.timeZoneList = [];
         this.homeTimeZoneId = null;
@@ -27,158 +31,209 @@ export class TimeZonesManager {
         // State tracking
         this.isTimeZoneDataLoading = false;
         this.isTimeZoneDataLoaded = false;
-        // Initialize data and set up event handlers
-        this.setupTimeZoneEventHandlers();
-        // Export necessary methods to window for access from HTML attributes
-        // Critical: These must be bound to the instance to work properly
+        // Make methods available in the global namespace (used by HTML attributes & card buttons)
         window.showTimeZonesModal = this.showTimeZonesModal.bind(this);
         window.showTimeZoneInfoModal = this.showTimeZoneInfoModal.bind(this);
         window.setHomeTimeZone = this.setHomeTimeZone.bind(this);
         window.deleteTimeZone = this.deleteTimeZone.bind(this);
-        // Keep the changePage binding for search modal pagination
         window.changePage = this.changePage.bind(this);
         window.selectAndConfirmTimeZone = this.selectAndConfirmTimeZone.bind(this);
         window.confirmSelection = this.confirmSelection.bind(this);
-        // Make the instance globally available
+        // Make the instance globally available via getInstance()
         window.Yuzu = window.Yuzu || {};
         window.Yuzu.Settings = window.Yuzu.Settings || {};
         window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
         window.Yuzu.Settings.TimeZones.getInstance = () => this;
-        // Load time zones data immediately
-        this.loadTimeZonesData(true);
+        // Set up event handlers for the search and select in the modal
+        this.setupTimeZoneEventHandlers();
+        // The new approach is to let settings.ts load the data for all sections
+        // We don't load data here directly anymore
     }
     /**
      * Sets up event handlers for search and pagination.
+     * NOTE: IMPORTANT: This method is only for event handlers in the search modal,
+     * not for the main time zone cards, which are handled by the card-creator.
      */
     setupTimeZoneEventHandlers() {
-        // Search input handler
+        console.log('[TIME ZONES] Setting up modal event handlers');
+        // Search input handler - for the search term in modal
         const searchInput = document.getElementById('time-zones-search-term');
         if (searchInput) {
             searchInput.addEventListener('keyup', (event) => {
                 if (event.key === 'Enter') {
                     event.preventDefault();
+                    console.log('[TIME ZONES] Search input Enter key pressed with value:', searchInput.value);
                     this.timeZonesCurrentPage = 1;
                     this.loadTimeZones(searchInput.value);
                 }
             });
+            console.log('[TIME ZONES] Search input handler set up');
         }
-        // Search button handler
+        else {
+            console.warn('[TIME ZONES] Search input element not found');
+        }
+        // Search button handler - for the search button in modal
         const searchButton = document.getElementById('time-zones-search-button');
         if (searchButton) {
             searchButton.addEventListener('click', () => {
-                const searchTerm = document.getElementById('time-zones-search-term').value;
+                var _a;
+                const searchTerm = ((_a = document.getElementById('time-zones-search-term')) === null || _a === void 0 ? void 0 : _a.value) || '';
+                console.log('[TIME ZONES] Search button clicked with value:', searchTerm);
                 this.timeZonesCurrentPage = 1;
                 this.loadTimeZones(searchTerm);
             });
+            console.log('[TIME ZONES] Search button handler set up');
         }
-        // Select button handler
+        else {
+            console.warn('[TIME ZONES] Search button element not found');
+        }
+        // Select button handler - for the select button in modal
+        // This is the button that adds the selected time zone
         const selectButton = document.getElementById('time-zones-search-select-button');
         if (selectButton) {
-            selectButton.addEventListener('click', async () => {
-                var _a;
-                if (this.selectedTimeZoneId) {
-                    const antiforgeryInput = document.querySelector('input[name="__RequestVerificationToken"]');
-                    if (!antiforgeryInput)
-                        return;
-                    try {
-                        // Use current path for correct routing
-                        const url = `${document.location.pathname}?handler=SelectTimeZone`;
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json',
-                                'RequestVerificationToken': antiforgeryInput.value
-                            },
-                            body: JSON.stringify({ selectedTimeZoneId: this.selectedTimeZoneId }),
-                            credentials: 'same-origin'
-                        });
-                        // First, try to read the response as text
-                        const responseText = await response.text();
-                        // Try to parse as JSON
-                        let data;
+            console.log('[TIME ZONES] Select button found, setting up handler');
+            // First remove any existing listeners by cloning
+            let newSelectButton = selectButton;
+            try {
+                if (selectButton.parentNode) {
+                    newSelectButton = selectButton.cloneNode(true);
+                    selectButton.parentNode.replaceChild(newSelectButton, selectButton);
+                    console.log('[TIME ZONES] Select button cloned to remove old handlers');
+                }
+            }
+            catch (error) {
+                console.warn('[TIME ZONES] Error cloning select button:', error);
+                // Continue with original button
+            }
+            // Use direct function instead of async lambda for clearer binding
+            newSelectButton.addEventListener('click', this.handleSelectButtonClick.bind(this));
+            console.log('[TIME ZONES] Select button handler attached');
+            // Also assign directly to onclick as a fallback
+            newSelectButton.onclick = this.handleSelectButtonClick.bind(this);
+        }
+        else {
+            console.warn('[TIME ZONES] Select button element not found');
+        }
+    }
+    /**
+     * Handler for the select button click in the modal
+     * Extracted to a separate method for clearer binding
+     * Must be public so it can be referenced from outside the class
+     */
+    async handleSelectButtonClick(event) {
+        var _a;
+        // If an event is passed, prevent default behavior
+        if (event) {
+            event.preventDefault();
+        }
+        console.log('[TIME ZONES] Select button clicked with selectedTimeZoneId:', this.selectedTimeZoneId);
+        if (!this.selectedTimeZoneId) {
+            console.warn('[TIME ZONES] No timezone selected, cannot add');
+            return;
+        }
+        const antiforgeryInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (!antiforgeryInput) {
+            console.error('[TIME ZONES] Antiforgery token not found');
+            return;
+        }
+        try {
+            // Use current path for correct routing
+            const url = `${document.location.pathname}?handler=SelectTimeZone`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'RequestVerificationToken': antiforgeryInput.value
+                },
+                body: JSON.stringify({ selectedTimeZoneId: this.selectedTimeZoneId }),
+                credentials: 'same-origin'
+            });
+            // First, try to read the response as text
+            const responseText = await response.text();
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            }
+            catch (e) {
+                // Check if we got HTML and the request failed
+                if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html>')) {
+                    throw new Error('Server returned HTML instead of JSON - request may have been processed incorrectly');
+                }
+                throw new Error('Failed to parse server response');
+            }
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || data.message || 'Failed to add timezone');
+            }
+            // Close the modal first
+            const modal = this.bootstrap.Modal.getInstance(document.getElementById('time-zones-search-modal'));
+            if (modal) {
+                modal.hide();
+            }
+            // Show success message
+            createToast('Success: Timezone added successfully', true);
+            // Let's manually append this timezone to the DOM
+            // First get the selected timezone info
+            const newTimeZone = this.timeZoneList.find(tz => tz.zoneId === this.selectedTimeZoneId);
+            if (newTimeZone) {
+                // Fetch weather info for this timezone before displaying it
+                try {
+                    // Fetch all timezone data with weather
+                    const weatherUrl = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=50&includeWeather=true`;
+                    const weatherResponse = await fetch(weatherUrl, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        cache: 'no-store' // Prevent caching
+                    });
+                    if (weatherResponse.ok) {
+                        const responseText = await weatherResponse.text();
+                        // Parse the response
+                        let weatherData;
                         try {
-                            data = JSON.parse(responseText);
+                            weatherData = JSON.parse(responseText);
                         }
-                        catch (e) {
-                            // Check if we got HTML and the request failed
-                            if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html>')) {
-                                throw new Error('Server returned HTML instead of JSON - request may have been processed incorrectly');
+                        catch (parseError) {
+                            throw new Error('Failed to parse weather data response');
+                        }
+                        if (weatherData.success && ((_a = weatherData.data) === null || _a === void 0 ? void 0 : _a.data)) {
+                            // Find our time zone in the data
+                            const tzWithWeather = weatherData.data.data.find((tz) => tz.zoneId === newTimeZone.zoneId);
+                            if (tzWithWeather && tzWithWeather.weatherInfo) {
+                                // Add weather info to our time zone object
+                                newTimeZone.weatherInfo = tzWithWeather.weatherInfo;
                             }
-                            throw new Error('Failed to parse server response');
                         }
-                        if (!response.ok || !data.success) {
-                            throw new Error(data.error || data.message || 'Failed to add timezone');
-                        }
-                        // Close the modal first
-                        const modal = this.bootstrap.Modal.getInstance(document.getElementById('time-zones-search-modal'));
-                        if (modal) {
-                            modal.hide();
-                        }
-                        // Show success message
-                        createToast('Success: Timezone added successfully', true);
-                        // Let's manually append this timezone to the DOM
-                        // First get the selected timezone info
-                        const newTimeZone = this.timeZoneList.find(tz => tz.zoneId === this.selectedTimeZoneId);
-                        if (newTimeZone) {
-                            // Fetch weather info for this timezone before displaying it
-                            try {
-                                // Fetch all timezone data with weather
-                                const weatherUrl = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=50&includeWeather=true`;
-                                const weatherResponse = await fetch(weatherUrl, {
-                                    method: 'GET',
-                                    headers: {
-                                        'X-Requested-With': 'XMLHttpRequest',
-                                        'Accept': 'application/json'
-                                    },
-                                    cache: 'no-store' // Prevent caching
-                                });
-                                if (weatherResponse.ok) {
-                                    const responseText = await weatherResponse.text();
-                                    // Parse the response
-                                    let weatherData;
-                                    try {
-                                        weatherData = JSON.parse(responseText);
-                                    }
-                                    catch (parseError) {
-                                        throw new Error('Failed to parse weather data response');
-                                    }
-                                    if (weatherData.success && ((_a = weatherData.data) === null || _a === void 0 ? void 0 : _a.data)) {
-                                        // Find our time zone in the data
-                                        const tzWithWeather = weatherData.data.data.find((tz) => tz.zoneId === newTimeZone.zoneId);
-                                        if (tzWithWeather && tzWithWeather.weatherInfo) {
-                                            // Add weather info to our time zone object
-                                            newTimeZone.weatherInfo = tzWithWeather.weatherInfo;
-                                        }
-                                    }
-                                }
-                            }
-                            catch (error) {
-                                // Continue without weather info if there's an error
-                            }
-                            // Append the card - weather info should be carried over if available
-                            await this.appendTimeZoneCard(newTimeZone);
-                            // Final verification: Find the newly added card and check its weather info
-                            setTimeout(() => {
-                                const newCard = document.querySelector(`[data-timezone-id="${newTimeZone.zoneId}"]`);
-                                if (newCard) {
-                                    const weatherEl = newCard.querySelector('.card-weather-info');
-                                    if (weatherEl && newTimeZone.weatherInfo && newTimeZone.weatherInfo.length > 0) {
-                                        weatherEl.classList.remove('d-none');
-                                        weatherEl.style.display = 'block';
-                                        weatherEl.style.visibility = 'visible';
-                                        weatherEl.setAttribute('style', 'display: block !important');
-                                    }
-                                }
-                            }, 100);
-                        }
-                    }
-                    catch (error) {
-                        createToast('Error: Failed to add timezone. Please try again.', false);
                     }
                 }
-            });
+                catch (error) {
+                    // Continue without weather info if there's an error
+                    console.warn('[TIME ZONES] Error fetching weather data:', error);
+                }
+                // Append the card - weather info should be carried over if available
+                await this.appendTimeZoneCard(newTimeZone);
+                // Final verification: Find the newly added card and check its weather info
+                setTimeout(() => {
+                    const newCard = document.querySelector(`[data-timezone-id="${newTimeZone.zoneId}"]`);
+                    if (newCard) {
+                        const weatherEl = newCard.querySelector('.card-weather-info');
+                        if (weatherEl && newTimeZone.weatherInfo && newTimeZone.weatherInfo.length > 0) {
+                            weatherEl.classList.remove('d-none');
+                            weatherEl.style.display = 'block';
+                            weatherEl.style.visibility = 'visible';
+                            weatherEl.setAttribute('style', 'display: block !important');
+                        }
+                    }
+                }, 100);
+            }
+        }
+        catch (error) {
+            console.error('[TIME ZONES] Error adding timezone:', error);
+            createToast('Error: Failed to add timezone. Please try again.', false);
         }
     }
     /**
@@ -186,51 +241,55 @@ export class TimeZonesManager {
      * @param forceRefresh - If true, force a fresh load from server even if already loaded
      */
     async loadTimeZonesData(forceRefresh = false) {
+        console.log('[TIME ZONES] Starting data load...');
         // Get the container
         const container = document.getElementById('time-zone-container');
         if (!container) {
+            console.error('[TIME ZONES] Container not found');
             return;
         }
         // If data is already being loaded, don't start another load operation
         if (this.isTimeZoneDataLoading && !forceRefresh) {
+            console.log('[TIME ZONES] Already loading and no force refresh, skipping');
             return;
         }
-        // Show loading state
-        container.setAttribute('data-loaded', 'false');
-        // Create loading placeholder
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'col loading-placeholder';
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card h-100 border-0 shadow-sm';
-        const cardBodyDiv = document.createElement('div');
-        cardBodyDiv.className = 'card-body d-flex align-items-center justify-content-center';
-        const spinnerDiv = document.createElement('div');
-        spinnerDiv.className = 'spinner-border text-primary';
-        spinnerDiv.setAttribute('role', 'status');
-        const spinnerSpan = document.createElement('span');
-        spinnerSpan.className = 'visually-hidden';
-        spinnerSpan.textContent = 'Loading...';
-        spinnerDiv.appendChild(spinnerSpan);
-        cardBodyDiv.appendChild(spinnerDiv);
-        cardDiv.appendChild(cardBodyDiv);
-        loadingDiv.appendChild(cardDiv);
-        // Clear the container and add the loading placeholder
-        container.innerHTML = '';
-        container.appendChild(loadingDiv);
-        // Track that we're loading
+        // IMPORTANT: For the preloaded data approach, we always keep the container marked as loaded
+        // This prevents the loading indicator from showing during data load operations
+        container.setAttribute('data-loaded', 'true');
+        console.log('[TIME ZONES] Ensuring container stays in loaded state');
+        // Store the original content so we can restore it if needed
+        const originalContent = container.innerHTML;
+        // Track that we're loading internally, but don't show a loading indicator
         this.isTimeZoneDataLoading = true;
         try {
+            console.log('[TIME ZONES] Loading available time zones...');
             // Load available time zones first (needed for search functionality)
             await this.loadAvailableTimeZones();
+            console.log(`[TIME ZONES] Loaded ${this.timeZoneList.length} available time zones`);
+            console.log('[TIME ZONES] Loading user time zones display...');
             // Then load and display user time zones
             await this.loadUserTimeZonesDisplay();
+            // Verify that cards are actually rendered
+            const cards = container.querySelectorAll('.settings-card');
+            console.log(`[TIME ZONES] Rendered ${cards.length} time zone cards`);
+            // If we have no cards but also no error, we should show the empty state
+            if (cards.length === 0 && container.querySelector('.col-12.text-center .text-muted') === null) {
+                console.log('[TIME ZONES] No cards found, showing empty state');
+                container.innerHTML = `
+                <div class="col-12 text-center">
+                    <p class="text-muted">You have not selected any timezones yet. Click "Add Time Zones" to get started.</p>
+                </div>`;
+            }
             // Mark data as loaded
             this.isTimeZoneDataLoaded = true;
             container.setAttribute('data-loaded', 'true');
+            console.log('[TIME ZONES] Data loaded successfully, container marked as loaded');
             // Update fade effects
             setupVpScrollFadeEffects();
+            console.log('[TIME ZONES] Fade effects updated');
         }
         catch (error) {
+            console.error('[TIME ZONES] Error loading data:', error);
             // Show error state
             container.innerHTML = `
             <div class="col-12 text-center">
@@ -240,10 +299,12 @@ export class TimeZonesManager {
             </div>`;
             // Mark as loaded even though it failed, to prevent loading indicators
             container.setAttribute('data-loaded', 'true');
+            console.log('[TIME ZONES] Error shown, container still marked as loaded');
         }
         finally {
             this.isTimeZoneDataLoading = false;
         }
+        console.log('[TIME ZONES] Data load complete');
     }
     /**
      * Shows the time zones modal dialog.
@@ -263,16 +324,15 @@ export class TimeZonesManager {
         this.selectedTimeZoneId = null;
         this.timeZonesSearchTerm = '';
         console.log("[DEBUG] showTimeZonesModal - Reset state variables");
-        // Initialize select button state
+        // Initialize select button state - KEEP THE EXISTING HANDLER
         const selectButton = document.getElementById('time-zones-search-select-button');
         if (selectButton) {
+            // Just reset the button state - don't replace it
             selectButton.setAttribute('disabled', '');
             selectButton.classList.remove('btn-primary');
             selectButton.classList.add('btn-secondary');
-            console.log("[DEBUG] showTimeZonesModal - Select button initialized");
-        }
-        else {
-            console.warn("[DEBUG] showTimeZonesModal - Select button not found");
+            selectButton.innerHTML = 'Select Timezone';
+            console.log("[DEBUG] showTimeZonesModal - Select button reset to default state");
         }
         // Load all timezone data first
         try {
@@ -303,6 +363,21 @@ export class TimeZonesManager {
         // Define our shown event handler
         const handleModalShown = () => {
             console.log("[DEBUG] showTimeZonesModal - Modal shown event fired");
+            // Ensure the Select button has the correct handler
+            const selectButton = document.getElementById('time-zones-search-select-button');
+            if (selectButton) {
+                console.log("[DEBUG] showTimeZonesModal - Re-binding select button handler");
+                // Remove any existing listeners to avoid duplicates
+                const newSelectButton = selectButton.cloneNode(true);
+                if (selectButton.parentNode) {
+                    selectButton.parentNode.replaceChild(newSelectButton, selectButton);
+                    // Add our event handler
+                    newSelectButton.addEventListener('click', this.handleSelectButtonClick.bind(this));
+                    // Also assign to onclick as a fallback
+                    newSelectButton.onclick = this.handleSelectButtonClick.bind(this);
+                    console.log("[DEBUG] showTimeZonesModal - Select button handler rebound");
+                }
+            }
             const searchInput = document.getElementById('time-zones-search-term');
             if (searchInput) {
                 searchInput.value = '';
@@ -402,6 +477,8 @@ export class TimeZonesManager {
         if (!container) {
             return;
         }
+        // Keep track of the original content in case we need to restore it
+        const originalContent = container.innerHTML;
         try {
             // Request all timezones with weather information
             const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000&includeWeather=true`;
@@ -426,8 +503,9 @@ export class TimeZonesManager {
             // Extract data
             const timeZones = ((_a = responseData.data) === null || _a === void 0 ? void 0 : _a.data) || [];
             this.homeTimeZoneId = ((_b = responseData.data) === null || _b === void 0 ? void 0 : _b.homeTimeZoneId) || null;
-            // Clear the container and prepare to render cards
-            container.innerHTML = '';
+            // IMPORTANT: Prepare a new container in memory first, don't modify the DOM right away
+            // This prevents flickering or showing a loading indicator
+            const tempContainer = document.createElement('div');
             if (timeZones.length > 0) {
                 // Use document fragment for better performance
                 const fragment = document.createDocumentFragment();
@@ -441,8 +519,10 @@ export class TimeZonesManager {
                         // Silent error handling
                     }
                 });
-                // Add all cards to the container at once
-                container.appendChild(fragment);
+                // Add all cards to the temporary container
+                tempContainer.appendChild(fragment);
+                // Only after preparing everything, update the real container
+                container.innerHTML = tempContainer.innerHTML;
                 // Update fade effects based on content
                 const viewportContainer = document.getElementById('timezones-viewport-container');
                 if (viewportContainer) {
@@ -458,6 +538,7 @@ export class TimeZonesManager {
             }
         }
         catch (error) {
+            console.error('[TIME ZONES] Error loading user timezones:', error);
             // Show error state
             container.innerHTML = `
             <div class="col-12 text-center">
@@ -467,6 +548,8 @@ export class TimeZonesManager {
                 </button>
             </div>`;
         }
+        // Always ensure the container is marked as loaded
+        container.setAttribute('data-loaded', 'true');
     }
     /**
      * Changes the page for search results modal (pagination still needed there)
@@ -837,7 +920,9 @@ export class TimeZonesManager {
                 selectButton.removeAttribute('disabled');
                 selectButton.classList.remove('btn-secondary');
                 selectButton.classList.add('btn-primary');
-                selectButton.innerHTML = `Select &nbsp;<b>${(_a = row.querySelector('td:nth-child(3)')) === null || _a === void 0 ? void 0 : _a.textContent}</b>`;
+                // Just update the text - no need to replace the button or re-bind events
+                const cityName = ((_a = row.querySelector('td:nth-child(3)')) === null || _a === void 0 ? void 0 : _a.textContent) || '';
+                selectButton.innerHTML = `Select &nbsp;<b>${cityName}</b>`;
             }
             else {
                 // Disable button when nothing selected
@@ -858,18 +943,82 @@ export class TimeZonesManager {
     }
     /**
      * Selects and confirms a timezone from the search results
+     * This method is exposed globally and must handle any context issues
      */
     selectAndConfirmTimeZone(row) {
-        this.selectTimeZone(row);
-        this.confirmSelection();
+        console.log('[TIME ZONES] selectAndConfirmTimeZone called for row:', row);
+        try {
+            // First select the timezone
+            this.selectTimeZone(row);
+            // Then trigger confirmation after a short delay to ensure UI updates
+            setTimeout(() => {
+                try {
+                    console.log('[TIME ZONES] Calling confirmSelection after timeout');
+                    this.confirmSelection();
+                }
+                catch (error) {
+                    console.error('[TIME ZONES] Error in delayed confirmSelection:', error);
+                    // Last resort: try to click the button directly
+                    const selectButton = document.getElementById('time-zones-search-select-button');
+                    if (selectButton && !selectButton.hasAttribute('disabled')) {
+                        console.log('[TIME ZONES] Directly clicking select button');
+                        selectButton.click();
+                    }
+                }
+            }, 50);
+        }
+        catch (error) {
+            console.error('[TIME ZONES] Error in selectAndConfirmTimeZone:', error);
+        }
     }
     /**
-     * Confirms the current selection
+     * Confirms the current selection by clicking the select button
+     * This method is critical for the double-click functionality in the modal
      */
     confirmSelection() {
-        const selectButton = document.getElementById('time-zones-search-select-button');
-        if (selectButton && !selectButton.hasAttribute('disabled')) {
-            selectButton.click();
+        console.log('[DEBUG] confirmSelection called');
+        try {
+            // First try to get the button by ID
+            const selectButton = document.getElementById('time-zones-search-select-button');
+            if (selectButton && !selectButton.hasAttribute('disabled')) {
+                console.log('[DEBUG] Triggering click on select button');
+                // Try multiple approaches to trigger the click
+                // 1. Use the click() method
+                selectButton.click();
+                // 2. Try to trigger a synthetic click event as a backup
+                try {
+                    const clickEvent = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    });
+                    selectButton.dispatchEvent(clickEvent);
+                }
+                catch (e) {
+                    console.warn('[DEBUG] Error dispatching synthetic click:', e);
+                }
+                // 3. Final fallback: call our handler directly
+                setTimeout(() => {
+                    if (this.selectedTimeZoneId) {
+                        console.log('[DEBUG] Calling handleSelectButtonClick directly');
+                        this.handleSelectButtonClick();
+                    }
+                }, 100);
+            }
+            else {
+                console.log('[DEBUG] Select button not found or disabled');
+                // Try a different approach to find the button
+                const modalFooterButtons = document.querySelectorAll('#time-zones-search-modal .modal-footer button');
+                modalFooterButtons.forEach(btn => {
+                    if (btn.innerText.includes('Select')) {
+                        console.log('[DEBUG] Found select button by text content');
+                        btn.click();
+                    }
+                });
+            }
+        }
+        catch (error) {
+            console.error('[DEBUG] Error in confirmSelection:', error);
         }
     }
     /**
@@ -1540,43 +1689,237 @@ let globalManager = null;
 export function initTimeZones() {
     // If already initialized, don't initialize again
     if (initialized && globalManager) {
+        console.log('[TIME ZONES] Already initialized, skipping');
+        ensureEventListenersAreAttached();
         return;
     }
-    // Mark as initialized 
-    initialized = true;
-    // Set up scroll fade effects immediately to ensure scrollbars are visible right away
-    setupVpScrollFadeEffects();
-    // Create the TimeZonesManager which will load data immediately
-    globalManager = new TimeZonesManager();
-    // Set up scroll listener for fade effects
-    const scrollContainer = document.getElementById('timezones-viewport-container');
-    if (scrollContainer) {
-        scrollContainer.addEventListener('scroll', () => {
-            const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top');
-            const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom');
-            if (fadeTop && fadeBottom) {
-                if (scrollContainer.scrollTop <= 10) {
-                    fadeTop.classList.add('hidden');
-                }
-                else {
-                    fadeTop.classList.remove('hidden');
-                }
-                const isAtBottom = Math.abs(scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight) < 10;
-                if (isAtBottom) {
-                    fadeBottom.classList.add('hidden');
-                }
-                else {
-                    fadeBottom.classList.remove('hidden');
+    console.log('[TIME ZONES] Initializing time zones section');
+    try {
+        // Create the TimeZonesManager first - this registers global handlers
+        globalManager = new TimeZonesManager();
+        console.log('[TIME ZONES] TimeZonesManager created');
+        // Verify our global functions are available
+        const globalFunctionsStatus = {
+            showTimeZonesModal: typeof window.showTimeZonesModal === 'function',
+            showTimeZoneInfoModal: typeof window.showTimeZoneInfoModal === 'function',
+            setHomeTimeZone: typeof window.setHomeTimeZone === 'function',
+            deleteTimeZone: typeof window.deleteTimeZone === 'function',
+            changePage: typeof window.changePage === 'function',
+            selectAndConfirmTimeZone: typeof window.selectAndConfirmTimeZone === 'function',
+            confirmSelection: typeof window.confirmSelection === 'function'
+        };
+        console.log('[TIME ZONES] Global functions available:', globalFunctionsStatus);
+        // Set up the Add Time Zones button click handler
+        ensureAddButtonHasHandler();
+        // Set up scroll fade effects for viewport
+        setupVpScrollFadeEffects();
+        // Add scroll listener for fade effects
+        setupScrollListener();
+        // Now mark as initialized after everything is successfully set up
+        initialized = true;
+        // Setup DOM listeners for any dynamically added/replaced elements
+        setupMutationObserver();
+        console.log('[TIME ZONES] Initialization complete');
+    }
+    catch (error) {
+        console.error('[TIME ZONES] Error during initialization:', error);
+        // Try to recover from initialization error
+        if (!globalManager) {
+            globalManager = new TimeZonesManager();
+        }
+        // Still try to set up button handlers
+        ensureEventListenersAreAttached();
+    }
+}
+/**
+ * Ensures all required event listeners are attached
+ * This is a defensive measure to make sure event handlers persist
+ */
+function ensureEventListenersAreAttached() {
+    console.log('[TIME ZONES] Ensuring event listeners are attached');
+    ensureAddButtonHasHandler();
+    // Also recheck global functions and ensure they're properly bound
+    if (globalManager) {
+        // Re-bind global functions if they're not available
+        if (typeof window.showTimeZonesModal !== 'function') {
+            console.log('[TIME ZONES] Re-binding showTimeZonesModal');
+            window.showTimeZonesModal = globalManager.showTimeZonesModal.bind(globalManager);
+        }
+        if (typeof window.showTimeZoneInfoModal !== 'function') {
+            console.log('[TIME ZONES] Re-binding showTimeZoneInfoModal');
+            window.showTimeZoneInfoModal = globalManager.showTimeZoneInfoModal.bind(globalManager);
+        }
+        if (typeof window.setHomeTimeZone !== 'function') {
+            console.log('[TIME ZONES] Re-binding setHomeTimeZone');
+            window.setHomeTimeZone = globalManager.setHomeTimeZone.bind(globalManager);
+        }
+        if (typeof window.deleteTimeZone !== 'function') {
+            console.log('[TIME ZONES] Re-binding deleteTimeZone');
+            window.deleteTimeZone = globalManager.deleteTimeZone.bind(globalManager);
+        }
+        // Double-check the Select button handler in the modal
+        const selectButton = document.getElementById('time-zones-search-select-button');
+        if (selectButton) {
+            // Make sure it has a click handler - check the first registered onclick handler
+            const hasClickHandler = !!selectButton._click ||
+                !!selectButton.onclick ||
+                selectButton.getAttribute('onclick');
+            if (!hasClickHandler) {
+                console.log('[TIME ZONES] Re-attaching select button handler');
+                selectButton.addEventListener('click', globalManager.handleSelectButtonClick.bind(globalManager));
+            }
+        }
+    }
+}
+/**
+ * Ensures the Add Time Zones button has the correct handler
+ */
+function ensureAddButtonHasHandler() {
+    const addButton = document.getElementById('add-time-zones-button');
+    if (!addButton) {
+        console.warn('[TIME ZONES] Add Time Zones button not found');
+        return;
+    }
+    // First, check if the button already has a click handler attached
+    // This is a bit of a hack but can sometimes indicate if an event handler exists
+    const hasClickHandler = !!addButton._click ||
+        !!addButton.onclick ||
+        addButton.getAttribute('onclick');
+    // If it seems to have a handler already, don't replace it
+    if (hasClickHandler && initialized) {
+        console.log('[TIME ZONES] Add Time Zones button already has a handler');
+        return;
+    }
+    console.log('[TIME ZONES] Setting up Add Time Zones button handler');
+    // Remove existing listeners by cloning (safer approach)
+    let newButton = addButton.cloneNode(true);
+    if (addButton.parentNode) {
+        addButton.parentNode.replaceChild(newButton, addButton);
+        console.log('[TIME ZONES] Add Time Zones button cloned to remove old handlers');
+    }
+    else {
+        console.warn('[TIME ZONES] Add Time Zones button has no parent node, cannot clone');
+        // Fall back to working with the original button
+        newButton = addButton;
+    }
+    // Now add our click handler to the button
+    newButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        console.log('[TIME ZONES] Add Time Zones button clicked');
+        // First try the global function 
+        if (typeof window.showTimeZonesModal === 'function') {
+            console.log('[TIME ZONES] Calling global showTimeZonesModal function');
+            window.showTimeZonesModal();
+        }
+        // Then try the globalManager instance 
+        else if (globalManager) {
+            console.log('[TIME ZONES] Calling globalManager.showTimeZonesModal method');
+            globalManager.showTimeZonesModal();
+        }
+        // Finally, try to create a new manager and call the method
+        else {
+            console.error('[TIME ZONES] No handler available for showTimeZonesModal, creating new manager');
+            globalManager = new TimeZonesManager();
+            globalManager.showTimeZonesModal();
+        }
+    });
+    console.log('[TIME ZONES] Add Time Zones button handler attached');
+}
+/**
+ * Sets up a scroll listener for fade effects
+ */
+function setupScrollListener() {
+    const scrollContainer = document.getElementById('time-zone-viewport-container');
+    if (!scrollContainer) {
+        console.warn('[TIME ZONES] Scroll container not found');
+        return;
+    }
+    scrollContainer.addEventListener('scroll', () => {
+        const fadeTop = document.querySelector('#time-zone .fade-overlay.fade-top');
+        const fadeBottom = document.querySelector('#time-zone .fade-overlay.fade-bottom');
+        if (fadeTop && fadeBottom) {
+            if (scrollContainer.scrollTop <= 10) {
+                fadeTop.classList.add('hidden');
+            }
+            else {
+                fadeTop.classList.remove('hidden');
+            }
+            const isAtBottom = Math.abs(scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight) < 10;
+            if (isAtBottom) {
+                fadeBottom.classList.add('hidden');
+            }
+            else {
+                fadeBottom.classList.remove('hidden');
+            }
+        }
+    }, { passive: true });
+    console.log('[TIME ZONES] Scroll listener set up');
+}
+/**
+ * Sets up a mutation observer to watch for DOM changes
+ * This helps ensure button handlers are maintained if elements are replaced
+ */
+function setupMutationObserver() {
+    if (!window.MutationObserver) {
+        console.warn('[TIME ZONES] MutationObserver not available');
+        return;
+    }
+    // Watch for changes in the time-zone-container
+    const container = document.getElementById('time-zone-container');
+    if (!container) {
+        console.warn('[TIME ZONES] Container not found for mutation observer');
+        return;
+    }
+    const observer = new MutationObserver((mutations) => {
+        let buttonChanged = false;
+        let modalChanged = false;
+        for (const mutation of mutations) {
+            // Check if nodes were added or removed
+            if (mutation.type === 'childList') {
+                // Check if any card or button was affected
+                const addedNodes = Array.from(mutation.addedNodes);
+                const hasRelevantAddedNode = addedNodes.some(node => {
+                    if (node.nodeType !== Node.ELEMENT_NODE)
+                        return false;
+                    const element = node;
+                    return element.matches('[data-timezone-id]') ||
+                        element.querySelectorAll('[data-timezone-id], #add-time-zones-button, #time-zones-search-select-button').length > 0;
+                });
+                if (hasRelevantAddedNode) {
+                    buttonChanged = true;
+                    modalChanged = true;
                 }
             }
-        }, { passive: true });
-    }
+        }
+        // If buttons might have been changed, ensure handlers are reattached
+        if (buttonChanged) {
+            console.log('[TIME ZONES] DOM changed, ensuring event handlers are attached');
+            ensureEventListenersAreAttached();
+        }
+        // If modal content changed, verify the select button has a handler
+        if (modalChanged) {
+            const selectButton = document.getElementById('time-zones-search-select-button');
+            if (selectButton && globalManager) {
+                console.log('[TIME ZONES] Modal changed, reattaching select button handler');
+                selectButton.addEventListener('click', globalManager.handleSelectButtonClick.bind(globalManager));
+            }
+        }
+    });
+    // Observe changes to the DOM structure
+    observer.observe(container, {
+        childList: true, // Watch for changes to child nodes
+        subtree: true, // Watch all descendants
+        attributes: false, // Don't watch for attribute changes
+        characterData: false // Don't watch for text changes
+    });
+    console.log('[TIME ZONES] Mutation observer set up');
 }
 // Make function and manager available globally
 window.Yuzu = window.Yuzu || {};
 window.Yuzu.Settings = window.Yuzu.Settings || {};
 window.Yuzu.Settings.TimeZones = {
     init: initTimeZones,
+    loadTimeZonesData: () => globalManager === null || globalManager === void 0 ? void 0 : globalManager.loadTimeZonesData(true), // Add direct access to the load function
     Manager: TimeZonesManager, // Make the class available
     getInstance: () => globalManager // Provide access to the singleton instance
 };

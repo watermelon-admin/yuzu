@@ -822,8 +822,8 @@ function initSwipers(): void {
 export function initBreakTypes(): void {
     console.debug('Break Types section initialized');
     
-    // Load break types - fade effects will be set up after loading
-    loadBreakTypes();
+    // The new approach is to let settings.ts load the data for all sections
+    // We don't need to load data here directly anymore
     
     // Initialize swipers
     initSwipers();
