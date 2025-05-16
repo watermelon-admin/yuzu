@@ -285,8 +285,7 @@ export class TimeZonesManager {
             const newTimeZone = this.timeZoneList.find(tz => tz.zoneId === this.selectedTimeZoneId);
             if (newTimeZone) {
                 
-                // We'll show the success message with View link after the card is created
-                // Fetch weather info for this timezone before displaying it
+                    // Fetch weather info for this timezone before displaying it
                 try {
                     // Fetch all timezone data with weather
                     const weatherUrl = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=50&includeWeather=true`;
@@ -343,14 +342,12 @@ export class TimeZonesManager {
                             (weatherEl as HTMLElement).setAttribute('style', 'display: block !important');
                         }
                         
-                        // Show a success toast with a View link to the newly added card
                         createViewCardToast(
                             'Success: Timezone added successfully', 
                             newCard as HTMLElement,
                             true
                         );
                     } else {
-                        // Fallback to regular toast if card not found
                         createToast('Success: Timezone added successfully', true);
                     }
                 }, 100);
@@ -1601,8 +1598,35 @@ export class TimeZonesManager {
             // Add animation class to the column element
             cardElement.classList.add('card-new');
             
-            // Add it directly to the container
-            container.appendChild(cardElement);
+            let inserted = false;
+            
+            const existingCards = container.querySelectorAll('[data-timezone-id]');
+            
+            if (existingCards.length > 0) {
+                const newOffset = timeZone.utcOffset || 0;
+                
+                for (let i = 0; i < existingCards.length; i++) {
+                    const cardId = existingCards[i].getAttribute('data-timezone-id');
+                    if (cardId) {
+                        const existingTimezone = this.timeZoneList.find(tz => tz.zoneId === cardId);
+                        if (existingTimezone) {
+                            const existingOffset = existingTimezone.utcOffset || 0;
+                            
+                            if (newOffset < existingOffset || 
+                                (newOffset === existingOffset && 
+                                 timeZone.zoneId.localeCompare(existingTimezone.zoneId) < 0)) {
+                                container.insertBefore(cardElement, existingCards[i]);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (!inserted) {
+                container.appendChild(cardElement);
+            }
             
             // Scroll the new card into view immediately
             scrollToNewCard(cardElement, {
@@ -1625,9 +1649,6 @@ export class TimeZonesManager {
      * @param cardElement The card element to scroll into view
      */
     private scrollCardIntoView(cardElement: HTMLElement): void {
-        // Use the common scrollToNewCard function from viewport-utils
-        // The sectionId needs to match the div ID in Settings.cshtml, which is "time-zones"
-        // This is different from the SectionId in _TimeZonesPartial.cshtml which is "time-zone" (without s)
         scrollToNewCard(cardElement, {
             sectionId: 'time-zones',
             behavior: 'smooth',
@@ -1643,10 +1664,7 @@ export class TimeZonesManager {
         console.log('[DEBUG] TimeZonesManager.setupScrollFadeEffects - START');
         
         // Check DOM elements before calling the shared function
-        // This ID comes from _StandardSectionTemplate.cshtml and is generated as @(sectionId)-viewport-container
-        // where sectionId is "time-zone" (no 's') from _TimeZonesPartial.cshtml
         const container = document.getElementById('time-zone-viewport-container');
-        // The section ID in Settings.cshtml is "time-zones" (with 's')
         const topFade = document.querySelector('#time-zones .fade-overlay.fade-top');
         const bottomFade = document.querySelector('#time-zones .fade-overlay.fade-bottom');
         
@@ -1673,8 +1691,6 @@ export class TimeZonesManager {
             } : 'not found'
         });
         
-        // Use the utility from viewport-utils.js
-        // This will call commonSetupScrollFadeEffects with the correct section ID ('time-zones')
         setupVpScrollFadeEffects();
         
         // Check again after setting up

@@ -1351,8 +1351,39 @@ export class TimeZonesManager {
             );
             // Add animation class to the column element
             cardElement.classList.add('card-new');
-            // Add it directly to the container
-            container.appendChild(cardElement);
+            // Find the correct position to insert the card based on UTC offset
+            let inserted = false;
+            // Get all existing timezone cards
+            const existingCards = container.querySelectorAll('[data-timezone-id]');
+            if (existingCards.length > 0) {
+                // Get the new timezone's UTC offset for comparison
+                const newOffset = timeZone.utcOffset || 0;
+                // Iterate through existing cards to find the right position
+                for (let i = 0; i < existingCards.length; i++) {
+                    const cardId = existingCards[i].getAttribute('data-timezone-id');
+                    if (cardId) {
+                        // Find the timezone info for this card
+                        const existingTimezone = this.timeZoneList.find(tz => tz.zoneId === cardId);
+                        if (existingTimezone) {
+                            const existingOffset = existingTimezone.utcOffset || 0;
+                            // If the new card's offset is less than the current card's offset
+                            // or if they're equal but the new timezone name comes first alphabetically
+                            if (newOffset < existingOffset ||
+                                (newOffset === existingOffset &&
+                                    timeZone.zoneId.localeCompare(existingTimezone.zoneId) < 0)) {
+                                // Insert before this card
+                                container.insertBefore(cardElement, existingCards[i]);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            // If we didn't find a position to insert or there are no cards, append to the end
+            if (!inserted) {
+                container.appendChild(cardElement);
+            }
             // Scroll the new card into view immediately
             scrollToNewCard(cardElement, {
                 sectionId: 'time-zones',
