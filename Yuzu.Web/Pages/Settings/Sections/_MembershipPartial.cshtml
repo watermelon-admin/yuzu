@@ -1,13 +1,23 @@
-<div class="d-flex align-items-center justify-content-between pt-xl-1 mb-3 pb-3">
-    <h1 class="h2 mb-0 mt-4">Membership</h1>
-@*     @if (!Model.IsSubscribed)
+@{
+    // Configure the standardized template (header only, no viewport container)
+    ViewData["SectionId"] = "membership";
+    ViewData["SectionTitle"] = "Membership";
+    ViewData["ShowViewport"] = false;
+    
+    // Conditional button - commented out in original
+    /*if (!Model.IsSubscribed)
     {
-        <a href="~/pricing" class="btn btn-primary px-3 px-sm-4" id="membership-upgrade-button">
-            <i class="fa-solid fa-rectangle-pro fs-xl me-sm-2"></i>
-            <span class="d-none d-sm-inline">Upgrade to Pro</span>
-        </a>
-    } *@
-</div>
+        ViewData["ActionButton"] = new Dictionary<string, string>
+        {
+            { "id", "membership-upgrade-button" },
+            { "icon", "fa-solid fa-rectangle-pro" },
+            { "text", "Upgrade to Pro" }
+        };
+    }*/
+}
+
+@* Include the standardized template *@
+<partial name="~/Pages/Settings/Shared/_StandardSectionTemplate.cshtml" />
 
 <!-- Current Plan Section -->
 <div class="card border-0 shadow-sm mb-4" id="membership-current-plan-card">

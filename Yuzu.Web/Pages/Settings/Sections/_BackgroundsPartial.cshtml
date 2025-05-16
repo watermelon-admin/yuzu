@@ -1,50 +1,39 @@
-<div class="d-flex align-items-center justify-content-between pt-xl-1 mb-3 pb-3">
-    <h1 class="h2 mb-0 mt-4">Backgrounds</h1>
-    <div id="backgrounds-upload-container">
-        @if (Model.IsSubscribed)
+@{
+    // Configure the standardized template with container IDs matching JavaScript expectations
+    ViewData["SectionId"] = "backgrounds-gallery";
+    ViewData["SectionTitle"] = "Backgrounds";
+    ViewData["ContainerColumns"] = "row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4";
+    ViewData["ShowViewport"] = true;
+    
+    // Conditional button based on subscription status
+    if (Model.IsSubscribed)
+    {
+        ViewData["ActionButton"] = new Dictionary<string, string>
         {
-            <!-- File upload button for subscribed users -->
-            <button type="button" class="btn btn-primary px-3 px-sm-4" data-bs-toggle="modal" data-bs-target="#backgrounds-upload-modal">
-                <i class="bx bx-upload fs-xl me-sm-2"></i>
-                <span class="d-none d-sm-inline">Upload Background</span>
-            </button>
-        }
-        else
+            { "id", "backgrounds-upload-button" },
+            { "icon", "bx bx-upload" },
+            { "text", "Upload Background" },
+            { "data-bs-toggle", "modal" },
+            { "data-bs-target", "#backgrounds-upload-modal" }
+        };
+    }
+    else
+    {
+        ViewData["ActionButton"] = new Dictionary<string, string>
         {
-            <!-- Pro badge for non-subscribed users -->
-            <button type="button" class="btn btn-primary px-3 px-sm-4" data-bs-toggle="modal" data-bs-target="#backgrounds-subscription-prompt-modal">
-                <i class="bx bx-upload fs-xl me-sm-2"></i>
-                <span class="d-none d-sm-inline me-2">Upload Background</span>
-                <i class="fs-lg fa-solid fa-rectangle-pro text-warning"></i>
-            </button>
-        }
-    </div>
-</div>
+            { "id", "backgrounds-upload-button" },
+            { "icon", "bx bx-upload" },
+            { "text", "Upload Background" },
+            { "data-bs-toggle", "modal" },
+            { "data-bs-target", "#backgrounds-subscription-prompt-modal" },
+            { "requiresSubscription", "true" }
+        };
+    }
+}
 
-<!-- Background images gallery with viewport container -->
-<div class="viewport-container-wrapper">
-    <!-- Top fade overlay -->
-    <div class="fade-overlay fade-top"></div>
-    
-    <!-- Scrollable container -->
-    <div class="viewport-container" id="backgrounds-viewport-container">
-        <div id="backgrounds-gallery-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4" data-loaded="false">
-            <!-- Background images will be populated here via JavaScript -->
-            <div class="col loading-placeholder">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body d-flex align-items-center justify-content-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Bottom fade overlay -->
-    <div class="fade-overlay fade-bottom"></div>
-</div>
+
+@* Include the standardized template *@
+<partial name="~/Pages/Settings/Shared/_StandardSectionTemplate.cshtml" />
 
 <!-- Storage info section - divider and centered text -->
 <div class="mt-3 mb-4">
@@ -135,7 +124,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="backgrounds-upload-button" disabled>Upload</button>
+                    <button type="button" class="btn btn-primary" id="backgrounds-modal-upload-button">Upload</button>
                 </div>
             </form>
         </div>

@@ -600,10 +600,10 @@ function initializeFilePond() {
                     console.log('FilePond onload callback triggered');
                     console.log('FilePond response:', response.substring(0, 200) + (response.length > 200 ? '...' : ''));
                     // Reset button state
-                    const uploadButton = document.getElementById('backgrounds-upload-button');
-                    if (uploadButton) {
-                        uploadButton.disabled = false;
-                        uploadButton.textContent = 'Upload';
+                    const modalUploadButton = document.getElementById('backgrounds-modal-upload-button');
+                    if (modalUploadButton) {
+                        modalUploadButton.disabled = false;
+                        modalUploadButton.textContent = 'Upload';
                     }
                     // Parse the response
                     let result;
@@ -710,10 +710,10 @@ function initializeFilePond() {
                 onerror: (error) => {
                     console.error('FilePond onerror callback triggered with:', error);
                     // Reset button state in case of error
-                    const uploadButton = document.getElementById('backgrounds-upload-button');
-                    if (uploadButton) {
-                        uploadButton.disabled = false;
-                        uploadButton.textContent = 'Upload';
+                    const modalUploadButton = document.getElementById('backgrounds-modal-upload-button');
+                    if (modalUploadButton) {
+                        modalUploadButton.disabled = false;
+                        modalUploadButton.textContent = 'Upload';
                     }
                     // Show error in form too
                     const formValidationAlert = document.getElementById('backgrounds-form-validation-alert');
@@ -731,7 +731,8 @@ function initializeFilePond() {
     });
     // Add validation handlers
     const titleInput = document.getElementById('backgrounds-image-title');
-    const uploadButton = document.getElementById('backgrounds-upload-button');
+    // Get direct reference to the modal upload button
+    const uploadButton = document.getElementById('backgrounds-modal-upload-button');
     const titleValidationMessage = document.getElementById('backgrounds-title-validation-message');
     const fileValidationMessage = document.getElementById('backgrounds-file-validation-message');
     const formValidationAlert = document.getElementById('backgrounds-form-validation-alert');
@@ -801,6 +802,7 @@ function initializeFilePond() {
     const uploadModal = document.getElementById('backgrounds-upload-modal');
     if (uploadModal) {
         uploadModal.addEventListener('show.bs.modal', () => {
+            console.log('Upload modal is opening - resetting form');
             // Reset form fields
             if (titleInput)
                 titleInput.value = '';
@@ -814,13 +816,19 @@ function initializeFilePond() {
                 formValidationAlert.classList.add('d-none');
             // Reset interaction state
             hasInteracted = false;
-            // Disable upload button
+            // Reset button state
             if (uploadButton) {
                 uploadButton.disabled = true;
             }
         });
+        // Also listen for fully visible state to ensure button state is correct
+        uploadModal.addEventListener('shown.bs.modal', () => {
+            console.log('Upload modal is now fully visible');
+            // Validate form again once modal is fully visible
+            validateForm();
+        });
     }
-    // Set up upload button to manually handle the upload using the exact same approach as before
+    // Set up upload button click handler
     if (uploadButton) {
         uploadButton.addEventListener('click', async () => {
             // Validate before submission and force showing errors

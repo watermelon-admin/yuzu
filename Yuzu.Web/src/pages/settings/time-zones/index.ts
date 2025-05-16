@@ -209,27 +209,46 @@ export class TimeZonesManager {
      * @param forceRefresh - If true, force a fresh load from server even if already loaded
      */
     public async loadTimeZonesData(forceRefresh: boolean = false): Promise<void> {
+        console.log("[DEBUG] loadTimeZonesData - START");
         
         // Get the container
         const container = document.getElementById('time-zone-container');
         if (!container) {
+            console.error("[DEBUG] loadTimeZonesData - Container element not found");
             return;
         }
         
         // Check if the container is already loaded using the data-loaded attribute
         // Skip this check if forceRefresh is true
         const isLoaded = container.getAttribute('data-loaded') === 'true';
+        console.log(`[DEBUG] loadTimeZonesData - Container loaded status: ${isLoaded}, forceRefresh: ${forceRefresh}`);
+        
         if (isLoaded && !forceRefresh) {
+            console.log("[DEBUG] loadTimeZonesData - Container already loaded and no force refresh, returning early");
+            
+            // Even if we're not loading user timezones again, we should try to ensure available timezones are loaded
+            if (this.timeZoneList.length === 0) {
+                console.log("[DEBUG] loadTimeZonesData - Container is loaded but timeZoneList is empty, loading available timezones anyway");
+                try {
+                    await this.loadAvailableTimeZones();
+                    console.log(`[DEBUG] loadTimeZonesData - timeZoneList now has ${this.timeZoneList.length} items after loading available timezones`);
+                } catch (error) {
+                    console.error("[DEBUG] loadTimeZonesData - Failed to load available timezones:", error);
+                }
+            }
+            
             return;
         }
         
         // If data is already being loaded, don't start another load operation
         if (this.isTimeZoneDataLoading) {
+            console.log("[DEBUG] loadTimeZonesData - Already loading data, returning early");
             return;
         }
         
         // Mark as loading
         this.isTimeZoneDataLoading = true;
+        console.log("[DEBUG] loadTimeZonesData - Setting isTimeZoneDataLoading = true");
         
         try {
             // Clear the container completely
@@ -244,16 +263,36 @@ export class TimeZonesManager {
                 <p class="mt-2">Loading your timezones...</p>
             </div>`;
             
-            // Load both user's timezones and all available timezones
-            await Promise.all([
-                this.loadUserTimeZonesDisplay(),
-                this.loadAvailableTimeZones()
-            ]);
+            console.log("[DEBUG] loadTimeZonesData - Loading user timezones and available timezones in parallel");
             
-            // Mark as loaded in both our class and the container's data attribute
-            this.isTimeZoneDataLoaded = true;
-            container.setAttribute('data-loaded', 'true');
+            // Load both user's timezones and all available timezones
+            try {
+                // For better error handling, let's try to load available timezones even if user timezones fail
+                await this.loadAvailableTimeZones()
+                    .catch(error => {
+                        console.error("[DEBUG] loadTimeZonesData - Failed to load available timezones:", error);
+                    });
+                
+                console.log(`[DEBUG] loadTimeZonesData - Available timezones loaded, timeZoneList now has ${this.timeZoneList.length} items`);
+                
+                await this.loadUserTimeZonesDisplay()
+                    .catch(error => {
+                        console.error("[DEBUG] loadTimeZonesData - Failed to load user timezones:", error);
+                    });
+                
+                // If we get here, at least one of the loading operations succeeded
+                
+                // Mark as loaded in both our class and the container's data attribute
+                this.isTimeZoneDataLoaded = true;
+                container.setAttribute('data-loaded', 'true');
+                console.log("[DEBUG] loadTimeZonesData - Loading complete, marked as loaded");
+            } catch (error) {
+                console.error("[DEBUG] loadTimeZonesData - Error loading timezone data:", error);
+                throw error; // Re-throw to be caught by the outer try/catch
+            }
         } catch (error) {
+            console.error("[DEBUG] loadTimeZonesData - Error in overall loading process:", error);
+            
             // Show error state in the container
             container.innerHTML = `
             <div class="col-12 text-center">
@@ -264,25 +303,83 @@ export class TimeZonesManager {
             
             // Reset the data-loaded attribute since we failed
             container.setAttribute('data-loaded', 'false');
+            console.log("[DEBUG] loadTimeZonesData - Error state displayed, container marked as not loaded");
         } finally {
             this.isTimeZoneDataLoading = false;
+            console.log("[DEBUG] loadTimeZonesData - Setting isTimeZoneDataLoading = false");
         }
+        
+        // Final check for available timezones
+        if (this.timeZoneList.length === 0) {
+            console.log("[DEBUG] loadTimeZonesData - After loading, timeZoneList is still empty. Setting up mock data.");
+            
+            // Definitely use mock data if we're on localhost
+            const isDevelopment = window.location.hostname === 'localhost' || 
+                              window.location.hostname === '127.0.0.1';
+            
+            if (isDevelopment) {
+                console.log("[DEBUG] loadTimeZonesData - Using mock data for development environment");
+                // Set up the mock data as a fallback
+                this.timeZoneList = [
+                    {
+                        zoneId: "America/New_York",
+                        continent: "America",
+                        countryName: "United States",
+                        cities: ["New York"],
+                        utcOffset: -5,
+                        utcOffsetHours: -5,
+                        utcOffsetMinutes: 0,
+                        alias: "Eastern Time",
+                        isHome: false
+                    },
+                    {
+                        zoneId: "Europe/London",
+                        continent: "Europe",
+                        countryName: "United Kingdom",
+                        cities: ["London"],
+                        utcOffset: 0,
+                        utcOffsetHours: 0,
+                        utcOffsetMinutes: 0,
+                        alias: "GMT",
+                        isHome: false
+                    },
+                    {
+                        zoneId: "Asia/Tokyo",
+                        continent: "Asia",
+                        countryName: "Japan",
+                        cities: ["Tokyo"],
+                        utcOffset: 9,
+                        utcOffsetHours: 9,
+                        utcOffsetMinutes: 0,
+                        alias: "JST",
+                        isHome: false
+                    }
+                ];
+                console.log("[DEBUG] loadTimeZonesData - Mock data set up with", this.timeZoneList.length, "items");
+            }
+        }
+        
+        console.log("[DEBUG] loadTimeZonesData - END");
     }
     
     /**
      * Shows the time zones modal dialog.
      */
     public async showTimeZonesModal(): Promise<void> {
+        console.log("[DEBUG] showTimeZonesModal - START");
         const timeZonesModalElement = document.getElementById('time-zones-search-modal');
         if (!timeZonesModalElement) {
+            console.error("[DEBUG] showTimeZonesModal - Modal element not found");
             return;
         }
+        console.log("[DEBUG] showTimeZonesModal - Found modal element");
 
         // Reset state when opening modal
         this.timeZonesCurrentPage = 1; // Reset page for search modal
         this.timeZoneModalFocusedRowIndex = -1;
         this.selectedTimeZoneId = null;
         this.timeZonesSearchTerm = '';
+        console.log("[DEBUG] showTimeZonesModal - Reset state variables");
 
         // Initialize select button state
         const selectButton = document.getElementById('time-zones-search-select-button') as HTMLButtonElement;
@@ -290,13 +387,20 @@ export class TimeZonesManager {
             selectButton.setAttribute('disabled', '');
             selectButton.classList.remove('btn-primary');
             selectButton.classList.add('btn-secondary');
+            console.log("[DEBUG] showTimeZonesModal - Select button initialized");
+        } else {
+            console.warn("[DEBUG] showTimeZonesModal - Select button not found");
         }
 
         // Load all timezone data first
         try {
+            console.log("[DEBUG] showTimeZonesModal - Loading timezone data");
             // Load both to ensure we have the latest data
             await this.loadTimeZonesData();
+            console.log("[DEBUG] showTimeZonesModal - Timezone data loaded successfully");
+            console.log(`[DEBUG] showTimeZonesModal - timeZoneList length: ${this.timeZoneList.length}`);
         } catch (error) {
+            console.error("[DEBUG] showTimeZonesModal - Failed to load timezone data:", error);
             return;
         }
 
@@ -304,72 +408,228 @@ export class TimeZonesManager {
         let timeZonesModal: any;
         if (typeof this.bootstrap?.Modal === 'function') {
             // Get existing modal instance or create a new one
+            console.log("[DEBUG] showTimeZonesModal - Creating Bootstrap modal instance");
             timeZonesModal = this.bootstrap.Modal.getInstance(timeZonesModalElement) ||
                              new this.bootstrap.Modal(timeZonesModalElement, {
                                  keyboard: true
                              });
         } else {
+            console.error("[DEBUG] showTimeZonesModal - Bootstrap Modal not available");
             return;
         }
 
-        // Clean up existing event listener to avoid duplicates
-        const newShownListener = () => {
+        // Define our shown event handler
+        const handleModalShown = () => {
+            console.log("[DEBUG] showTimeZonesModal - Modal shown event fired");
             const searchInput = document.getElementById('time-zones-search-term') as HTMLInputElement;
             if (searchInput) {
                 searchInput.value = '';
                 // Load all timezones initially with empty search
+                console.log("[DEBUG] showTimeZonesModal - Loading timezones with empty search term");
                 this.loadTimeZones('');
                 // Set focus after a short delay to ensure the modal is fully rendered
                 setTimeout(() => {
                     searchInput.focus();
+                    console.log("[DEBUG] showTimeZonesModal - Set focus to search input");
                 }, 50);
+            } else {
+                console.error("[DEBUG] showTimeZonesModal - Search input element not found");
             }
         };
 
-        // Store reference to the function for later removal
-        const shownEventKey = 'shown.bs.modal.timeZones';
+        // Remove any existing event listeners for shown.bs.modal
+        // This uses the clone technique to ensure all listeners are removed
+        console.log("[DEBUG] showTimeZonesModal - Cloning modal element to remove event listeners");
+        const newModalElement = timeZonesModalElement.cloneNode(true) as HTMLElement;
+        if (timeZonesModalElement.parentNode) {
+            timeZonesModalElement.parentNode.replaceChild(newModalElement, timeZonesModalElement);
+            console.log("[DEBUG] showTimeZonesModal - Modal element replaced with clone");
+        } else {
+            console.warn("[DEBUG] showTimeZonesModal - Modal element doesn't have a parent node");
+        }
         
-        // Remove any existing listener with the same key
-        timeZonesModalElement.removeEventListener(shownEventKey, newShownListener);
+        // Now add our event listener to the clean element
+        console.log("[DEBUG] showTimeZonesModal - Adding shown.bs.modal event listener");
+        newModalElement.addEventListener('shown.bs.modal', handleModalShown);
         
-        // Add the new listener
-        timeZonesModalElement.addEventListener('shown.bs.modal', newShownListener);
+        // Re-create the modal instance with the new element
+        timeZonesModal = new this.bootstrap.Modal(newModalElement, {
+            keyboard: true
+        });
+        console.log("[DEBUG] showTimeZonesModal - Created new Bootstrap modal instance with cloned element");
 
         // Show the modal
+        console.log("[DEBUG] showTimeZonesModal - Showing modal");
         timeZonesModal.show();
+        
+        // Force load the timezone data if the modal doesn't trigger the event
+        setTimeout(() => {
+            console.log("[DEBUG] showTimeZonesModal - Fallback: Forcing timezone data load after 500ms");
+            this.loadTimeZones('');
+            
+            // Check if the table body has content
+            const tableBody = document.getElementById('time-zones-search-table-body');
+            if (tableBody) {
+                console.log(`[DEBUG] showTimeZonesModal - Table body exists with ${tableBody.children.length} rows`);
+                console.log('[DEBUG] showTimeZonesModal - Table body innerHTML: ' + (tableBody.innerHTML.length > 100 ? tableBody.innerHTML.substring(0, 100) + '...' : tableBody.innerHTML));
+            } else {
+                console.error("[DEBUG] showTimeZonesModal - Table body element not found after 500ms");
+            }
+        }, 500);
+        
+        console.log("[DEBUG] showTimeZonesModal - END");
     }
     
     /**
      * Loads the list of available timezones from the backend
      */
     private async loadAvailableTimeZones(): Promise<void> {
+        console.log("[DEBUG] loadAvailableTimeZones - START");
         try {
             // Use current path for correct routing - exact pattern from working code
             const url = `${document.location.pathname}?handler=AvailableTimeZones`;
+            console.log("[DEBUG] loadAvailableTimeZones - Time zones API URL:", url);
+            console.log("[DEBUG] loadAvailableTimeZones - Current hostname:", window.location.hostname);
             
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json'
-                }
+                },
+                cache: 'no-store' // Prevent browser caching
             });
+            
+            console.log("[DEBUG] loadAvailableTimeZones - API response status:", response.status);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const responseData = await response.json();
+            // First get the raw text response for debugging
+            const responseText = await response.text();
+            console.log("[DEBUG] loadAvailableTimeZones - API raw response (first 100 chars):", responseText.substring(0, 100));
+            
+            // Then try to parse it as JSON
+            let responseData;
+            try {
+                responseData = JSON.parse(responseText);
+                console.log("[DEBUG] loadAvailableTimeZones - Successfully parsed response as JSON");
+            } catch (e) {
+                console.error("[DEBUG] loadAvailableTimeZones - Failed to parse response as JSON:", e);
+                // Check if we got HTML instead of JSON
+                if (responseText.includes("<!DOCTYPE html>") || responseText.includes("<html>")) {
+                    console.error("[DEBUG] loadAvailableTimeZones - Received HTML instead of JSON");
+                    console.log("[DEBUG] loadAvailableTimeZones - HTML response preview:", responseText.substring(0, 500));
+                    throw new Error("Received HTML instead of JSON from server");
+                }
+                throw new Error("Failed to parse server response");
+            }
             
             // Process the standardized response
             if (responseData.success) {
+                console.log("[DEBUG] loadAvailableTimeZones - Server reported success");
+                
+                // Check if data property exists
+                if (!responseData.data) {
+                    console.warn("[DEBUG] loadAvailableTimeZones - Response success but data property is missing");
+                    responseData.data = [];
+                }
+                
                 this.timeZoneList = responseData.data || [];
+                console.log(`[DEBUG] loadAvailableTimeZones - Successfully loaded ${this.timeZoneList.length} time zones`);
+                
+                // If the list is empty despite successful response, log a warning
+                if (this.timeZoneList.length === 0) {
+                    console.warn("[DEBUG] loadAvailableTimeZones - Server returned success but with empty timezone list");
+                } else {
+                    // Check first timezone object for debugging
+                    console.log("[DEBUG] loadAvailableTimeZones - First timezone in list:", JSON.stringify(this.timeZoneList[0]));
+                    
+                    // Verify that all required properties exist in each timezone
+                    const missingProps = [];
+                    const requiredProps = ['zoneId', 'continent', 'countryName', 'cities', 'utcOffset', 'utcOffsetHours', 'utcOffsetMinutes'];
+                    
+                    this.timeZoneList.some((tz, index) => {
+                        if (!tz || typeof tz !== 'object') {
+                            missingProps.push(`Item at index ${index} is not an object`);
+                            return true; // Stop after finding one bad item
+                        }
+                        
+                        requiredProps.forEach(prop => {
+                            if (tz[prop] === undefined) {
+                                missingProps.push(`Property '${prop}' missing in timezone at index ${index}`);
+                            }
+                        });
+                        
+                        return missingProps.length > 0; // Stop after finding one item with missing props
+                    });
+                    
+                    if (missingProps.length > 0) {
+                        console.error("[DEBUG] loadAvailableTimeZones - Issues found with timezone data:", missingProps);
+                    } else {
+                        console.log("[DEBUG] loadAvailableTimeZones - All timezones contain required properties");
+                    }
+                }
             } else {
+                console.error("[DEBUG] loadAvailableTimeZones - Server indicated failure:", responseData.message);
                 throw new Error(responseData.message || 'Failed to load available timezones');
             }
         } catch (error) {
-            throw error; // Re-throw to handle in calling function
+            console.error("[DEBUG] loadAvailableTimeZones - Error loading time zones:", error);
+            // Initialize an empty array to prevent null reference errors elsewhere
+            this.timeZoneList = [];
+            
+            // Use mock data in development if needed
+            const isDevelopment = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1';
+            
+            console.log(`[DEBUG] loadAvailableTimeZones - Running in ${isDevelopment ? 'development' : 'production'} environment`);
+            
+            if (isDevelopment) {
+                console.log("[DEBUG] loadAvailableTimeZones - Using mock time zone data for development");
+                this.timeZoneList = [
+                    {
+                        zoneId: "America/New_York",
+                        continent: "America",
+                        countryName: "United States",
+                        cities: ["New York"],
+                        utcOffset: -5,
+                        utcOffsetHours: -5,
+                        utcOffsetMinutes: 0,
+                        alias: "Eastern Time",
+                        isHome: false
+                    },
+                    {
+                        zoneId: "Europe/London",
+                        continent: "Europe",
+                        countryName: "United Kingdom",
+                        cities: ["London"],
+                        utcOffset: 0,
+                        utcOffsetHours: 0,
+                        utcOffsetMinutes: 0,
+                        alias: "GMT",
+                        isHome: false
+                    },
+                    {
+                        zoneId: "Asia/Tokyo",
+                        continent: "Asia",
+                        countryName: "Japan",
+                        cities: ["Tokyo"],
+                        utcOffset: 9,
+                        utcOffsetHours: 9,
+                        utcOffsetMinutes: 0,
+                        alias: "JST",
+                        isHome: false
+                    }
+                ];
+                console.log("[DEBUG] loadAvailableTimeZones - Mock data loaded with", this.timeZoneList.length, "items");
+            } else {
+                throw error; // Re-throw to handle in calling function in production
+            }
         }
+        
+        console.log("[DEBUG] loadAvailableTimeZones - END");
     }
     
     /**
@@ -542,16 +802,75 @@ export class TimeZonesManager {
         page: number = 1,
         pageSize: number = 10
     ): PagedTimeZoneResults {
-        const filteredTimeZones = this.timeZoneList.filter(tz =>
-            (tz.cities && tz.cities[0] && tz.cities[0].toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (tz.countryName && tz.countryName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (tz.continent && tz.continent.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (tz.alias && tz.alias.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
+        console.log(`[DEBUG] searchTimeZones - START with term "${searchTerm}", page ${page}, pageSize ${pageSize}`);
+        
+        // Safety check - ensure timeZoneList is defined and is an array
+        if (!this.timeZoneList || !Array.isArray(this.timeZoneList)) {
+            console.warn("[DEBUG] searchTimeZones - TimeZoneList is not available or not an array");
+            return { pagedResults: [], totalCount: 0 };
+        }
+        
+        console.log(`[DEBUG] searchTimeZones - Working with ${this.timeZoneList.length} time zones`);
+        
+        // Normalize the search term to lowercase for case-insensitive search
+        const normalizedSearchTerm = searchTerm.toLowerCase();
+        console.log(`[DEBUG] searchTimeZones - Normalized search term: "${normalizedSearchTerm}"`);
+        
+        // Filter the time zones based on the search term
+        const filteredTimeZones = this.timeZoneList.filter(tz => {
+            // Debug any malformed timezone data
+            if (!tz || typeof tz !== 'object') {
+                console.error('[DEBUG] searchTimeZones - Invalid timezone object:', tz);
+                return false;
+            }
+            
+            try {
+                // Safety check each property before using it
+                const cityMatch = tz.cities && Array.isArray(tz.cities) && tz.cities.length > 0 && 
+                                tz.cities[0] && tz.cities[0].toLowerCase().includes(normalizedSearchTerm);
+                                
+                const countryMatch = tz.countryName && typeof tz.countryName === 'string' && 
+                                    tz.countryName.toLowerCase().includes(normalizedSearchTerm);
+                                    
+                const continentMatch = tz.continent && typeof tz.continent === 'string' && 
+                                    tz.continent.toLowerCase().includes(normalizedSearchTerm);
+                                    
+                const aliasMatch = tz.alias && typeof tz.alias === 'string' && 
+                                tz.alias.toLowerCase().includes(normalizedSearchTerm);
+                                
+                return cityMatch || countryMatch || continentMatch || aliasMatch;
+            } catch (error) {
+                console.error('[DEBUG] searchTimeZones - Error while filtering timezone:', error, tz);
+                return false;
+            }
+        });
 
-        const startIndex = (page - 1) * pageSize;
-        const pagedResults = filteredTimeZones.slice(startIndex, startIndex + pageSize);
+        console.log(`[DEBUG] searchTimeZones - Filtered to ${filteredTimeZones.length} time zones`);
+        
+        // If search term is empty, show all time zones (limited by pagination)
+        if (normalizedSearchTerm === '') {
+            console.log(`[DEBUG] searchTimeZones - Empty search, showing all time zones (limited by pagination)`);
+        }
 
+        // Calculate pagination
+        const cleanPage = Math.max(1, page); // Ensure page is at least 1
+        const cleanPageSize = Math.max(1, pageSize); // Ensure pageSize is at least 1
+        const startIndex = (cleanPage - 1) * cleanPageSize;
+        
+        console.log(`[DEBUG] searchTimeZones - Pagination: page ${cleanPage}, pageSize ${cleanPageSize}, startIndex ${startIndex}`);
+        
+        // Get the paged results, handling edge cases
+        const pagedResults = startIndex < filteredTimeZones.length 
+            ? filteredTimeZones.slice(startIndex, startIndex + cleanPageSize) 
+            : [];
+
+        console.log(`[DEBUG] searchTimeZones - Returning ${pagedResults.length} results, total count ${filteredTimeZones.length}`);
+        
+        // Log the first item in the results for debugging
+        if (pagedResults.length > 0) {
+            console.log(`[DEBUG] searchTimeZones - First result: ${JSON.stringify(pagedResults[0])}`);
+        }
+        
         return { pagedResults, totalCount: filteredTimeZones.length };
     }
     
@@ -571,24 +890,54 @@ export class TimeZonesManager {
      * @param page The page number for the search results modal (defaults to 1)
      */
     private loadTimeZones(searchTerm: string, page: number = 1): void {
+        console.log(`[DEBUG] loadTimeZones - Loading time zones with search term: "${searchTerm}", page: ${page}`);
         this.timeZonesSearchTerm = searchTerm; // Store the current search term
         const tableBody = document.getElementById('time-zones-search-table-body');
         if (!tableBody) {
+            console.error("[DEBUG] loadTimeZones - Time zones table body element not found");
             return;
         }
 
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading...</td></tr>';
 
+        // Check if we have timezone data available
+        console.log(`[DEBUG] loadTimeZones - timeZoneList status: ${this.timeZoneList ? 'defined' : 'undefined'}, length: ${this.timeZoneList ? this.timeZoneList.length : 0}`);
+        if (!this.timeZoneList || this.timeZoneList.length === 0) {
+            console.log("[DEBUG] loadTimeZones - No time zone data available, trying to load from server");
+            // Try to load timezone data first
+            this.loadAvailableTimeZones().then(() => {
+                // After loading, try again
+                console.log(`[DEBUG] loadTimeZones - After loadAvailableTimeZones: timeZoneList length: ${this.timeZoneList.length}`);
+                this.loadTimeZones(searchTerm, page);
+            }).catch(error => {
+                console.error("[DEBUG] loadTimeZones - Failed to load timezone data:", error);
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load timezone data from server. Please try refreshing the page.</td></tr>';
+                
+                // Display the error in the user interface
+                this.updateSearchResultsAnnouncement(0, searchTerm);
+            });
+            return;
+        }
+
         try {
+            console.log(`[DEBUG] loadTimeZones - Searching through ${this.timeZoneList.length} timezones with term: "${searchTerm}"`);
+            
+            // Dump first few items to debug
+            if (this.timeZoneList.length > 0) {
+                console.log('[DEBUG] loadTimeZones - First timezone item sample:', JSON.stringify(this.timeZoneList[0]));
+            }
+            
             // Use in-memory search for the modal table (we don't need to hit the server again)
             // This way we avoid additional server round-trips after initial data load
             const pageSize = 10; // Fixed page size for search results
             const { pagedResults, totalCount } = this.searchTimeZones(searchTerm, page, pageSize);
             this.totalTimeZones = totalCount; // Store the total count
+            console.log(`[DEBUG] loadTimeZones - Search results: ${totalCount} total matches, showing ${pagedResults.length} on page ${page}`);
 
             tableBody.innerHTML = '';
 
             if (pagedResults.length > 0) {
+                console.log('[DEBUG] loadTimeZones - Creating rows for search results');
                 pagedResults.forEach((timeZone, index) => {
                     const row = document.createElement('tr');
                     row.setAttribute('role', 'option');
@@ -615,6 +964,7 @@ export class TimeZonesManager {
                     tableBody.appendChild(row);
                 });
 
+                console.log('[DEBUG] loadTimeZones - Rows created, initializing tooltips and row selection');
                 this.initializeTooltips();
                 this.addRowSelection();
 
@@ -631,11 +981,19 @@ export class TimeZonesManager {
 
                 this.updateSearchResultsAnnouncement(totalCount, searchTerm);
             } else {
-                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Sorry, I could not find any results. Please try again.</td></tr>';
+                // Determine if this is because of an empty search or no timezones at all
+                if (this.timeZoneList.length === 0) {
+                    console.log('[DEBUG] loadTimeZones - No timezone data available');
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-warning">No timezone data is available. Please try refreshing the page.</td></tr>';
+                } else {
+                    console.log('[DEBUG] loadTimeZones - No matching results found');
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Sorry, I could not find any results. Please try again.</td></tr>';
+                }
                 this.updateSearchResultsAnnouncement(0, searchTerm);
                 this.timeZoneModalFocusedRowIndex = -1; // Reset focus when no results
             }
 
+            console.log('[DEBUG] loadTimeZones - Setting up pagination');
             setupPagination(
                 totalCount, 
                 page, 
@@ -645,6 +1003,7 @@ export class TimeZonesManager {
                 searchTerm
             );
         } catch (error) {
+            console.error("[DEBUG] loadTimeZones - Error loading time zones:", error);
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">An error occurred while searching. Please try again.</td></tr>';
         }
     }

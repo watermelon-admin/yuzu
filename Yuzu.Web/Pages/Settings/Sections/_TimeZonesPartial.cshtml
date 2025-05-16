@@ -1,38 +1,21 @@
-<div class="d-flex align-items-center justify-content-between pt-xl-1 mb-3 pb-3">
-    <h1 class="h2 mb-0 mt-4">Time Zones</h1>
-    <button type="button" class="btn btn-primary px-3 px-sm-4" onclick="window.showTimeZonesModal();" id="add-time-zones-button">
-        <i id="add-new-timezone-button" class="bx bx-globe fs-xl me-sm-2"></i>
-        <span class="d-none d-sm-inline">Add Time Zones</span>
-    </button>
-</div>
+@{
+    // Configure the standardized template with container IDs matching JavaScript expectations
+    ViewData["SectionId"] = "time-zone";
+    ViewData["SectionTitle"] = "Time Zones";
+    ViewData["ContainerColumns"] = "row-cols-1 row-cols-sm-2 gx-3 gy-3";
+    ViewData["ShowViewport"] = true;
+    ViewData["ActionButton"] = new Dictionary<string, string>
+    {
+        { "id", "add-time-zones-button" },
+        { "icon", "bx bx-globe" },
+        { "text", "Add Time Zones" }
+    };
+}
 
-<!-- Time zones display with viewport container - EXACT SAME STRUCTURE as backgrounds -->
-<div class="viewport-container-wrapper">
-    <!-- Top fade overlay -->
-    <div class="fade-overlay fade-top"></div>
-    
-    <!-- Scrollable container -->
-    <div class="viewport-container" id="timezones-viewport-container">
-        <div id="time-zone-container" class="row row-cols-1 row-cols-sm-2 gx-3 gy-3" data-loaded="false">
-            <!-- Timezones will be dynamically inserted here -->
-            <!-- Include a loading placeholder -->
-            <div class="col loading-placeholder">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body d-flex align-items-center justify-content-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Bottom fade overlay -->
-    <div class="fade-overlay fade-bottom"></div>
-</div>
+<script src="~/js/timezonefixes.js" defer></script>
 
-<!-- Pagination controls removed - all cards will be shown with scrolling -->
+@* Include the standardized template *@
+<partial name="~/Pages/Settings/Shared/_StandardSectionTemplate.cshtml" />
 
 <!-- Time zone card templates -->
 <template id="time-zone-card-template">
@@ -87,7 +70,6 @@
                     </button>
                 </div>
             </div>
-
         </article>
     </div>
 </template>
@@ -221,4 +203,4 @@
         </div>
     </div>
 </div>
-<!-- No closing div here as the container is already inside the parent container #time-zones -->
+
