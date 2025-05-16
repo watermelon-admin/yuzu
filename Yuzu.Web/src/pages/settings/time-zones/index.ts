@@ -46,13 +46,15 @@ export class TimeZonesManager {
         (window as any).changePage = this.changePage.bind(this);
         (window as any).selectAndConfirmTimeZone = this.selectAndConfirmTimeZone.bind(this);
         (window as any).confirmSelection = this.confirmSelection.bind(this);
-
-        // Set up a mutation observer to ensure weather info is displayed correctly when cards are added
-        setupWeatherDisplayObserver();
         
-        // Load time zones data first - don't set up fade effects yet
-        // The fade effects will be properly set up from the initTimeZones function
-        this.loadUserTimeZonesDisplay();
+        // Make the instance globally available
+        (window as any).Yuzu = (window as any).Yuzu || {};
+        (window as any).Yuzu.Settings = (window as any).Yuzu.Settings || {};
+        (window as any).Yuzu.Settings.TimeZones = (window as any).Yuzu.Settings.TimeZones || {};
+        (window as any).Yuzu.Settings.TimeZones.getInstance = () => this;
+        
+        // Load time zones data immediately
+        this.loadTimeZonesData(true);
     }
     
     /**
@@ -209,91 +211,65 @@ export class TimeZonesManager {
      * @param forceRefresh - If true, force a fresh load from server even if already loaded
      */
     public async loadTimeZonesData(forceRefresh: boolean = false): Promise<void> {
-        console.log("[DEBUG] loadTimeZonesData - START");
-        
         // Get the container
         const container = document.getElementById('time-zone-container');
         if (!container) {
-            console.error("[DEBUG] loadTimeZonesData - Container element not found");
-            return;
-        }
-        
-        // Check if the container is already loaded using the data-loaded attribute
-        // Skip this check if forceRefresh is true
-        const isLoaded = container.getAttribute('data-loaded') === 'true';
-        console.log(`[DEBUG] loadTimeZonesData - Container loaded status: ${isLoaded}, forceRefresh: ${forceRefresh}`);
-        
-        if (isLoaded && !forceRefresh) {
-            console.log("[DEBUG] loadTimeZonesData - Container already loaded and no force refresh, returning early");
-            
-            // Even if we're not loading user timezones again, we should try to ensure available timezones are loaded
-            if (this.timeZoneList.length === 0) {
-                console.log("[DEBUG] loadTimeZonesData - Container is loaded but timeZoneList is empty, loading available timezones anyway");
-                try {
-                    await this.loadAvailableTimeZones();
-                    console.log(`[DEBUG] loadTimeZonesData - timeZoneList now has ${this.timeZoneList.length} items after loading available timezones`);
-                } catch (error) {
-                    console.error("[DEBUG] loadTimeZonesData - Failed to load available timezones:", error);
-                }
-            }
-            
             return;
         }
         
         // If data is already being loaded, don't start another load operation
-        if (this.isTimeZoneDataLoading) {
-            console.log("[DEBUG] loadTimeZonesData - Already loading data, returning early");
+        if (this.isTimeZoneDataLoading && !forceRefresh) {
             return;
         }
         
-        // Mark as loading
+        // Show loading state
+        container.setAttribute('data-loaded', 'false');
+        
+        // Create loading placeholder
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'col loading-placeholder';
+        
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card h-100 border-0 shadow-sm';
+        
+        const cardBodyDiv = document.createElement('div');
+        cardBodyDiv.className = 'card-body d-flex align-items-center justify-content-center';
+        
+        const spinnerDiv = document.createElement('div');
+        spinnerDiv.className = 'spinner-border text-primary';
+        spinnerDiv.setAttribute('role', 'status');
+        
+        const spinnerSpan = document.createElement('span');
+        spinnerSpan.className = 'visually-hidden';
+        spinnerSpan.textContent = 'Loading...';
+        
+        spinnerDiv.appendChild(spinnerSpan);
+        cardBodyDiv.appendChild(spinnerDiv);
+        cardDiv.appendChild(cardBodyDiv);
+        loadingDiv.appendChild(cardDiv);
+        
+        // Clear the container and add the loading placeholder
+        container.innerHTML = '';
+        container.appendChild(loadingDiv);
+        
+        // Track that we're loading
         this.isTimeZoneDataLoading = true;
-        console.log("[DEBUG] loadTimeZonesData - Setting isTimeZoneDataLoading = true");
         
         try {
-            // Clear the container completely
-            container.innerHTML = '';
+            // Load available time zones first (needed for search functionality)
+            await this.loadAvailableTimeZones();
             
-            // Show loading state
-            container.innerHTML = `
-            <div class="col-12 text-center p-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading timezones...</span>
-                </div>
-                <p class="mt-2">Loading your timezones...</p>
-            </div>`;
+            // Then load and display user time zones
+            await this.loadUserTimeZonesDisplay();
             
-            console.log("[DEBUG] loadTimeZonesData - Loading user timezones and available timezones in parallel");
+            // Mark data as loaded
+            this.isTimeZoneDataLoaded = true;
+            container.setAttribute('data-loaded', 'true');
             
-            // Load both user's timezones and all available timezones
-            try {
-                // For better error handling, let's try to load available timezones even if user timezones fail
-                await this.loadAvailableTimeZones()
-                    .catch(error => {
-                        console.error("[DEBUG] loadTimeZonesData - Failed to load available timezones:", error);
-                    });
-                
-                console.log(`[DEBUG] loadTimeZonesData - Available timezones loaded, timeZoneList now has ${this.timeZoneList.length} items`);
-                
-                await this.loadUserTimeZonesDisplay()
-                    .catch(error => {
-                        console.error("[DEBUG] loadTimeZonesData - Failed to load user timezones:", error);
-                    });
-                
-                // If we get here, at least one of the loading operations succeeded
-                
-                // Mark as loaded in both our class and the container's data attribute
-                this.isTimeZoneDataLoaded = true;
-                container.setAttribute('data-loaded', 'true');
-                console.log("[DEBUG] loadTimeZonesData - Loading complete, marked as loaded");
-            } catch (error) {
-                console.error("[DEBUG] loadTimeZonesData - Error loading timezone data:", error);
-                throw error; // Re-throw to be caught by the outer try/catch
-            }
+            // Update fade effects
+            setupVpScrollFadeEffects();
         } catch (error) {
-            console.error("[DEBUG] loadTimeZonesData - Error in overall loading process:", error);
-            
-            // Show error state in the container
+            // Show error state
             container.innerHTML = `
             <div class="col-12 text-center">
                 <p class="text-danger">Failed to load timezone data.
@@ -301,65 +277,11 @@ export class TimeZonesManager {
                 </p>
             </div>`;
             
-            // Reset the data-loaded attribute since we failed
-            container.setAttribute('data-loaded', 'false');
-            console.log("[DEBUG] loadTimeZonesData - Error state displayed, container marked as not loaded");
+            // Mark as loaded even though it failed, to prevent loading indicators
+            container.setAttribute('data-loaded', 'true');
         } finally {
             this.isTimeZoneDataLoading = false;
-            console.log("[DEBUG] loadTimeZonesData - Setting isTimeZoneDataLoading = false");
         }
-        
-        // Final check for available timezones
-        if (this.timeZoneList.length === 0) {
-            console.log("[DEBUG] loadTimeZonesData - After loading, timeZoneList is still empty. Setting up mock data.");
-            
-            // Definitely use mock data if we're on localhost
-            const isDevelopment = window.location.hostname === 'localhost' || 
-                              window.location.hostname === '127.0.0.1';
-            
-            if (isDevelopment) {
-                console.log("[DEBUG] loadTimeZonesData - Using mock data for development environment");
-                // Set up the mock data as a fallback
-                this.timeZoneList = [
-                    {
-                        zoneId: "America/New_York",
-                        continent: "America",
-                        countryName: "United States",
-                        cities: ["New York"],
-                        utcOffset: -5,
-                        utcOffsetHours: -5,
-                        utcOffsetMinutes: 0,
-                        alias: "Eastern Time",
-                        isHome: false
-                    },
-                    {
-                        zoneId: "Europe/London",
-                        continent: "Europe",
-                        countryName: "United Kingdom",
-                        cities: ["London"],
-                        utcOffset: 0,
-                        utcOffsetHours: 0,
-                        utcOffsetMinutes: 0,
-                        alias: "GMT",
-                        isHome: false
-                    },
-                    {
-                        zoneId: "Asia/Tokyo",
-                        continent: "Asia",
-                        countryName: "Japan",
-                        cities: ["Tokyo"],
-                        utcOffset: 9,
-                        utcOffsetHours: 9,
-                        utcOffsetMinutes: 0,
-                        alias: "JST",
-                        isHome: false
-                    }
-                ];
-                console.log("[DEBUG] loadTimeZonesData - Mock data set up with", this.timeZoneList.length, "items");
-            }
-        }
-        
-        console.log("[DEBUG] loadTimeZonesData - END");
     }
     
     /**
@@ -484,12 +406,9 @@ export class TimeZonesManager {
      * Loads the list of available timezones from the backend
      */
     private async loadAvailableTimeZones(): Promise<void> {
-        console.log("[DEBUG] loadAvailableTimeZones - START");
         try {
-            // Use current path for correct routing - exact pattern from working code
+            // Use current path for correct routing
             const url = `${document.location.pathname}?handler=AvailableTimeZones`;
-            console.log("[DEBUG] loadAvailableTimeZones - Time zones API URL:", url);
-            console.log("[DEBUG] loadAvailableTimeZones - Current hostname:", window.location.hostname);
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -500,140 +419,31 @@ export class TimeZonesManager {
                 cache: 'no-store' // Prevent browser caching
             });
             
-            console.log("[DEBUG] loadAvailableTimeZones - API response status:", response.status);
-            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            // First get the raw text response for debugging
             const responseText = await response.text();
-            console.log("[DEBUG] loadAvailableTimeZones - API raw response (first 100 chars):", responseText.substring(0, 100));
-            
-            // Then try to parse it as JSON
-            let responseData;
-            try {
-                responseData = JSON.parse(responseText);
-                console.log("[DEBUG] loadAvailableTimeZones - Successfully parsed response as JSON");
-            } catch (e) {
-                console.error("[DEBUG] loadAvailableTimeZones - Failed to parse response as JSON:", e);
-                // Check if we got HTML instead of JSON
-                if (responseText.includes("<!DOCTYPE html>") || responseText.includes("<html>")) {
-                    console.error("[DEBUG] loadAvailableTimeZones - Received HTML instead of JSON");
-                    console.log("[DEBUG] loadAvailableTimeZones - HTML response preview:", responseText.substring(0, 500));
-                    throw new Error("Received HTML instead of JSON from server");
-                }
-                throw new Error("Failed to parse server response");
-            }
+            const responseData = JSON.parse(responseText);
             
             // Process the standardized response
             if (responseData.success) {
-                console.log("[DEBUG] loadAvailableTimeZones - Server reported success");
-                
-                // Check if data property exists
-                if (!responseData.data) {
-                    console.warn("[DEBUG] loadAvailableTimeZones - Response success but data property is missing");
-                    responseData.data = [];
-                }
-                
                 this.timeZoneList = responseData.data || [];
-                console.log(`[DEBUG] loadAvailableTimeZones - Successfully loaded ${this.timeZoneList.length} time zones`);
-                
-                // If the list is empty despite successful response, log a warning
-                if (this.timeZoneList.length === 0) {
-                    console.warn("[DEBUG] loadAvailableTimeZones - Server returned success but with empty timezone list");
-                } else {
-                    // Check first timezone object for debugging
-                    console.log("[DEBUG] loadAvailableTimeZones - First timezone in list:", JSON.stringify(this.timeZoneList[0]));
-                    
-                    // Verify that all required properties exist in each timezone
-                    const missingProps = [];
-                    const requiredProps = ['zoneId', 'continent', 'countryName', 'cities', 'utcOffset', 'utcOffsetHours', 'utcOffsetMinutes'];
-                    
-                    this.timeZoneList.some((tz, index) => {
-                        if (!tz || typeof tz !== 'object') {
-                            missingProps.push(`Item at index ${index} is not an object`);
-                            return true; // Stop after finding one bad item
-                        }
-                        
-                        requiredProps.forEach(prop => {
-                            if (tz[prop] === undefined) {
-                                missingProps.push(`Property '${prop}' missing in timezone at index ${index}`);
-                            }
-                        });
-                        
-                        return missingProps.length > 0; // Stop after finding one item with missing props
-                    });
-                    
-                    if (missingProps.length > 0) {
-                        console.error("[DEBUG] loadAvailableTimeZones - Issues found with timezone data:", missingProps);
-                    } else {
-                        console.log("[DEBUG] loadAvailableTimeZones - All timezones contain required properties");
-                    }
-                }
             } else {
-                console.error("[DEBUG] loadAvailableTimeZones - Server indicated failure:", responseData.message);
                 throw new Error(responseData.message || 'Failed to load available timezones');
             }
         } catch (error) {
-            console.error("[DEBUG] loadAvailableTimeZones - Error loading time zones:", error);
             // Initialize an empty array to prevent null reference errors elsewhere
             this.timeZoneList = [];
             
-            // Use mock data in development if needed
-            const isDevelopment = window.location.hostname === 'localhost' || 
-                               window.location.hostname === '127.0.0.1';
-            
-            console.log(`[DEBUG] loadAvailableTimeZones - Running in ${isDevelopment ? 'development' : 'production'} environment`);
-            
-            if (isDevelopment) {
-                console.log("[DEBUG] loadAvailableTimeZones - Using mock time zone data for development");
-                this.timeZoneList = [
-                    {
-                        zoneId: "America/New_York",
-                        continent: "America",
-                        countryName: "United States",
-                        cities: ["New York"],
-                        utcOffset: -5,
-                        utcOffsetHours: -5,
-                        utcOffsetMinutes: 0,
-                        alias: "Eastern Time",
-                        isHome: false
-                    },
-                    {
-                        zoneId: "Europe/London",
-                        continent: "Europe",
-                        countryName: "United Kingdom",
-                        cities: ["London"],
-                        utcOffset: 0,
-                        utcOffsetHours: 0,
-                        utcOffsetMinutes: 0,
-                        alias: "GMT",
-                        isHome: false
-                    },
-                    {
-                        zoneId: "Asia/Tokyo",
-                        continent: "Asia",
-                        countryName: "Japan",
-                        cities: ["Tokyo"],
-                        utcOffset: 9,
-                        utcOffsetHours: 9,
-                        utcOffsetMinutes: 0,
-                        alias: "JST",
-                        isHome: false
-                    }
-                ];
-                console.log("[DEBUG] loadAvailableTimeZones - Mock data loaded with", this.timeZoneList.length, "items");
-            } else {
-                throw error; // Re-throw to handle in calling function in production
-            }
+            // Re-throw the error to be handled by the calling function
+            throw error;
         }
-        
-        console.log("[DEBUG] loadAvailableTimeZones - END");
     }
     
     /**
      * Loads and displays user's selected time zones in the main page container.
+     * Called when the page loads to prepare all data.
      */
     private async loadUserTimeZonesDisplay(): Promise<void> {
         const container = document.getElementById('time-zone-container');
@@ -642,22 +452,8 @@ export class TimeZonesManager {
             return;
         }
         
-        // Clear any existing content completely using a more efficient approach
-        container.innerHTML = '';
-        
-        // Show loading state immediately
-        container.innerHTML = `
-        <div class="col-12 text-center p-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading all your timezones...</span>
-            </div>
-            <p class="mt-2">Loading your timezones...</p>
-        </div>`;
-        
-
         try {
-            // Request all timezones at once with a large page size to get everything
-            // Use current path for correct routing and include weather information
+            // Request all timezones with weather information
             const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000&includeWeather=true`;
             
             const response = await fetch(url, {
@@ -666,95 +462,66 @@ export class TimeZonesManager {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json'
                 },
-                // Add cache busting to prevent browser caching
-                cache: 'no-store'
+                cache: 'no-store' // Prevent caching
             });
-            
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            // Log actual response text for debugging
+            // Parse the response
             const responseText = await response.text();
+            let responseData = JSON.parse(responseText);
             
-            // Parse the JSON
-            let responseData;
-            try {
-                responseData = JSON.parse(responseText);
-            } catch (parseError) {
-                throw new Error('Failed to parse server response as JSON');
-            }
-            
-            // Process the standardized response
+            // Verify success
             if (!responseData.success) {
                 throw new Error(responseData.message || 'Failed to load user timezones');
             }
             
+            // Extract data
             const timeZones = responseData.data?.data || [];
-            const totalCount = responseData.data?.totalItems || 0;
             this.homeTimeZoneId = responseData.data?.homeTimeZoneId || null;
             
-            // Clear the container again to remove loading indicator
+            // Clear the container and prepare to render cards
             container.innerHTML = '';
             
             if (timeZones.length > 0) {
-                
-                // Create a document fragment to batch DOM operations
+                // Use document fragment for better performance
                 const fragment = document.createDocumentFragment();
                 
-                // Use template elements when possible for better performance
-                const homeTemplate = document.getElementById('home-time-zone-card-template') as HTMLTemplateElement;
-                const regularTemplate = document.getElementById('time-zone-card-template') as HTMLTemplateElement;
-                
-                
-                timeZones.forEach((timeZone: TimeZoneInfo, index: number) => {
+                // Create cards for each timezone
+                timeZones.forEach((timeZone: TimeZoneInfo) => {
                     try {
-                        // Use our reusable helper to create the card
                         const cardElement = createTimeZoneCard(
                             timeZone, 
                             this.setHomeTimeZone.bind(this),
                             this.showTimeZoneInfoModal.bind(this),
                             this.deleteTimeZone.bind(this)
                         );
-
-                        // Add the card to our fragment
                         fragment.appendChild(cardElement);
                     } catch (err) {
+                        // Silent error handling
                     }
                 });
                 
-                // Now add all cards to the container at once
+                // Add all cards to the container at once
                 container.appendChild(fragment);
                 
-                // Mark the container as loaded
-                container.setAttribute('data-loaded', 'true');
-                
-                // Properly update fade effects based on content (don't force scrollbars)
+                // Update fade effects based on content
                 const viewportContainer = document.getElementById('timezones-viewport-container') as HTMLElement;
                 if (viewportContainer) {
-                    // Instead of forcing styles, let the fade effect system handle this naturally
-                    // Just trigger a scroll event to update fade effects based on content
                     viewportContainer.dispatchEvent(new Event('scroll'));
                 }
-                
             } else {
                 // Show empty state message
                 container.innerHTML = `
                 <div class="col-12 text-center">
                     <p class="text-muted">You have not selected any timezones yet. Click "Add Time Zones" to get started.</p>
                 </div>`;
-                
-                // Still mark as loaded even though it's empty
-                container.setAttribute('data-loaded', 'true');
-                
-                // Clear pagination
-                const paginationContainer = document.getElementById('time-zones-pagination-controls');
-                if (paginationContainer) {
-                    paginationContainer.innerHTML = '';
-                }
             }
+            
         } catch (error) {
+            // Show error state
             container.innerHTML = `
             <div class="col-12 text-center">
                 <p class="text-danger">An error occurred while loading your timezones. Please try again.</p>
@@ -762,9 +529,6 @@ export class TimeZonesManager {
                     <i class="bx bx-refresh me-1"></i> Reload Page
                 </button>
             </div>`;
-            
-            // Mark as not loaded so we'll try again next time
-            container.setAttribute('data-loaded', 'false');
         }
     }
     
@@ -2036,282 +1800,45 @@ let globalManager: TimeZonesManager | null = null;
 
 // Initialize the time zones section
 export function initTimeZones(): void {
-    console.log('[DEBUG] TimeZones.initTimeZones - START');
-    console.log('[DEBUG] TimeZones.initTimeZones - Initialization state:', { initialized, hasGlobalManager: !!globalManager });
-    
-    // If already initialized, refresh the data
+    // If already initialized, don't initialize again
     if (initialized && globalManager) {
-        console.log('[DEBUG] TimeZones.initTimeZones - Already initialized, refreshing data');
-        globalManager.loadTimeZonesData(true);
         return;
     }
     
+    // Mark as initialized 
     initialized = true;
-    console.log('[DEBUG] TimeZones.initTimeZones - Setting initialized=true');
     
-    // Create a new manager first
-    console.log('[DEBUG] TimeZones.initTimeZones - Creating new TimeZonesManager');
-    globalManager = new TimeZonesManager();
-    
-    // Set up scroll fade effects after manager creation
-    console.log('[DEBUG] TimeZones.initTimeZones - Setting up scroll fade effects');
+    // Set up scroll fade effects immediately to ensure scrollbars are visible right away
     setupVpScrollFadeEffects();
     
-    // Force-add hidden class to fade overlays to ensure they start hidden
-    console.log('[DEBUG] TimeZones.initTimeZones - Forcing hidden class on fade overlays');
-    const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top');
-    const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom');
-    if (fadeTop) {
-        console.log('[DEBUG] TimeZones.initTimeZones - Adding hidden class to top fade');
-        fadeTop.classList.add('hidden');
-    }
-    if (fadeBottom) {
-        console.log('[DEBUG] TimeZones.initTimeZones - Adding hidden class to bottom fade');
-        fadeBottom.classList.add('hidden');
-    }
+    // Create the TimeZonesManager which will load data immediately
+    globalManager = new TimeZonesManager();
     
-    // Check fade overlay elements right after setup
-    setTimeout(() => {
-        console.log('[DEBUG] TimeZones.initTimeZones - Checking fade overlay elements after setup');
-        const container = document.getElementById('timezones-viewport-container');
-        const topFade = document.querySelector('#time-zones .fade-overlay.fade-top');
-        const bottomFade = document.querySelector('#time-zones .fade-overlay.fade-bottom');
-        
-        console.log('[DEBUG] TimeZones.initTimeZones - Container:', {
-            id: container?.id,
-            scrollHeight: container?.scrollHeight,
-            clientHeight: container?.clientHeight,
-            isOverflowing: container ? (container.scrollHeight > container.clientHeight) : false,
-            overflowY: container ? window.getComputedStyle(container).overflowY : 'unknown',
-            display: container ? window.getComputedStyle(container).display : 'unknown'
-        });
-        
-        console.log('[DEBUG] TimeZones.initTimeZones - Fade overlays:', {
-            topFade: topFade ? {
-                classList: Array.from(topFade.classList),
-                isHidden: topFade.classList.contains('hidden'),
-                opacity: window.getComputedStyle(topFade).opacity,
-                display: window.getComputedStyle(topFade).display
-            } : 'not found',
-            bottomFade: bottomFade ? {
-                classList: Array.from(bottomFade.classList),
-                isHidden: bottomFade.classList.contains('hidden'),
-                opacity: window.getComputedStyle(bottomFade).opacity,
-                display: window.getComputedStyle(bottomFade).display
-            } : 'not found'
-        });
-    }, 500);
-    
-    console.log('[DEBUG] TimeZones.initTimeZones - END');
-    
-    // Debug the state of fade overlays and compare with backgrounds
-    const topFade = document.querySelector('#time-zones .fade-overlay.fade-top');
-    const bottomFade = document.querySelector('#time-zones .fade-overlay.fade-bottom');
-    
-    // Compare with backgrounds section to detect differences
-    const bgTopFade = document.querySelector('.viewport-container-wrapper .fade-overlay.fade-top');
-    const bgBottomFade = document.querySelector('.viewport-container-wrapper .fade-overlay.fade-bottom:not(#time-zones .fade-overlay)');
-    const tzContainer = document.getElementById('timezones-viewport-container');
-    const bgContainer = document.getElementById('backgrounds-viewport-container');
-    
-    console.log('[DEBUG] TimeZones.initTimeZones - HTML STRUCTURE COMPARISON:', {
-        timeZones: {
-            container: tzContainer ? {
-                tagName: tzContainer.tagName,
-                id: tzContainer.id,
-                classes: Array.from(tzContainer.classList),
-                parentNode: tzContainer.parentNode && tzContainer.parentNode instanceof Element ? {
-                    tagName: (tzContainer.parentNode as Element).tagName,
-                    id: (tzContainer.parentNode as Element).id,
-                    classes: Array.from((tzContainer.parentNode as Element).classList)
-                } : 'none',
-                html: tzContainer.outerHTML.substring(0, 150) + '...' // First 150 chars
-            } : 'not found',
-            topFade: topFade ? {
-                tagName: topFade.tagName,
-                classes: Array.from(topFade.classList),
-                parentNode: topFade.parentNode && topFade.parentNode instanceof Element ? {
-                    tagName: (topFade.parentNode as Element).tagName,
-                    id: (topFade.parentNode as Element).id,
-                    classes: Array.from((topFade.parentNode as Element).classList)
-                } : 'none',
-                html: topFade.outerHTML
-            } : 'not found',
-            bottomFade: bottomFade ? {
-                tagName: bottomFade.tagName,
-                classes: Array.from(bottomFade.classList),
-                html: bottomFade.outerHTML
-            } : 'not found'
-        },
-        backgrounds: {
-            container: bgContainer ? {
-                tagName: bgContainer.tagName,
-                id: bgContainer.id,
-                classes: Array.from(bgContainer.classList),
-                parentNode: bgContainer.parentNode && bgContainer.parentNode instanceof Element ? {
-                    tagName: (bgContainer.parentNode as Element).tagName,
-                    id: (bgContainer.parentNode as Element).id,
-                    classes: Array.from((bgContainer.parentNode as Element).classList)
-                } : 'none',
-                html: bgContainer.outerHTML.substring(0, 150) + '...' // First 150 chars
-            } : 'not found',
-            topFade: bgTopFade ? {
-                tagName: bgTopFade.tagName,
-                classes: Array.from(bgTopFade.classList),
-                parentNode: bgTopFade.parentNode && bgTopFade.parentNode instanceof Element ? {
-                    tagName: (bgTopFade.parentNode as Element).tagName,
-                    id: (bgTopFade.parentNode as Element).id,
-                    classes: Array.from((bgTopFade.parentNode as Element).classList)
-                } : 'none',
-                html: bgTopFade.outerHTML
-            } : 'not found',
-            bottomFade: bgBottomFade ? {
-                tagName: bgBottomFade.tagName,
-                classes: Array.from(bgBottomFade.classList),
-                html: bgBottomFade.outerHTML
-            } : 'not found'
-        }
-    });
-    
-    // Additional checking specifically for the nested structure
-    const tzWrapper = document.querySelector('#time-zones .viewport-container-wrapper');
-    const bgWrapper = document.querySelector('.viewport-container-wrapper:not(#time-zones .viewport-container-wrapper)');
-    
-    console.log('[DEBUG] TimeZones.initTimeZones - WRAPPER COMPARISON:', {
-        timeZonesWrapper: tzWrapper ? {
-            tagName: tzWrapper.tagName,
-            id: tzWrapper.id,
-            classes: Array.from(tzWrapper.classList),
-            childNodes: Array.from(tzWrapper.childNodes).map(node => ({
-                nodeType: node.nodeType,
-                nodeName: node.nodeName,
-                classes: node instanceof Element ? Array.from(node.classList) : []
-            }))
-        } : 'not found',
-        backgroundsWrapper: bgWrapper ? {
-            tagName: bgWrapper.tagName,
-            id: bgWrapper.id,
-            classes: Array.from(bgWrapper.classList),
-            childNodes: Array.from(bgWrapper.childNodes).map(node => ({
-                nodeType: node.nodeType,
-                nodeName: node.nodeName,
-                classes: node instanceof Element ? Array.from(node.classList) : []
-            }))
-        } : 'not found'
-    });
-    
-    console.log('Time zones scrollbar setup initialized immediately');
-    
-    // Load time zone data once and add special handler for container modifications
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            if (globalManager) globalManager.loadTimeZonesData();
-            // Set up special observer for content loading
-            setupContentLoadingObserver();
-        });
-    } else {
-        // DOM is already loaded
-        globalManager.loadTimeZonesData();
-        // Set up special observer for content loading
-        setupContentLoadingObserver();
-    }
-    
-    // Function to observe content loading and update fade effects accordingly
-    function setupContentLoadingObserver(): void {
-        console.log('[DEBUG] TimeZones.setupContentLoadingObserver - Setting up content observer');
-        const container = document.getElementById('time-zone-container');
-        if (!container) {
-            console.error('[DEBUG] TimeZones.setupContentLoadingObserver - Container not found');
-            return;
-        }
-        
-        // Also set up direct event listener to the scroll container
-        const scrollContainer = document.getElementById('timezones-viewport-container');
-        if (scrollContainer) {
-            console.log('[DEBUG] TimeZones.setupContentLoadingObserver - Adding direct scroll listener');
-            scrollContainer.addEventListener('scroll', () => {
-                // Force update fade overlays on scroll
-                const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top') as HTMLElement;
-                const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom') as HTMLElement;
+    // Set up scroll listener for fade effects
+    const scrollContainer = document.getElementById('timezones-viewport-container');
+    if (scrollContainer) {
+        scrollContainer.addEventListener('scroll', () => {
+            const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top') as HTMLElement;
+            const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom') as HTMLElement;
+            
+            if (fadeTop && fadeBottom) {
+                if (scrollContainer.scrollTop <= 10) {
+                    fadeTop.classList.add('hidden');
+                } else {
+                    fadeTop.classList.remove('hidden');
+                }
                 
-                if (fadeTop && fadeBottom) {
-                    // Content is overflowing, update fade visibility based on scroll position
-                    if (scrollContainer.scrollTop <= 10) {
-                        fadeTop.classList.add('hidden');
-                    } else {
-                        fadeTop.classList.remove('hidden');
-                    }
-                    
-                    const isAtBottom = Math.abs(
-                        scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight
-                    ) < 10;
-                    
-                    if (isAtBottom) {
-                        fadeBottom.classList.add('hidden');
-                    } else {
-                        fadeBottom.classList.remove('hidden');
-                    }
-                    
-                    console.log(`[DEBUG] Manual scroll handler - top: ${fadeTop.classList.contains('hidden') ? 'hidden' : 'visible'}, bottom: ${fadeBottom.classList.contains('hidden') ? 'hidden' : 'visible'}`);
+                const isAtBottom = Math.abs(
+                    scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight
+                ) < 10;
+                
+                if (isAtBottom) {
+                    fadeBottom.classList.add('hidden');
+                } else {
+                    fadeBottom.classList.remove('hidden');
                 }
-            }, { passive: true });
-        }
-        
-        // Create observer to watch for data loaded attribute changes
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'data-loaded') {
-                    const isLoaded = container.getAttribute('data-loaded') === 'true';
-                    console.log(`[DEBUG] TimeZones.contentObserver - Content loaded state changed to: ${isLoaded}`);
-                    
-                    if (isLoaded) {
-                        // Content is loaded, force update fade effects
-                        setTimeout(() => {
-                            console.log('[DEBUG] TimeZones.contentObserver - Content loaded, forcing update of fade effects');
-                            const fadeTop = document.querySelector('#time-zones .fade-overlay.fade-top');
-                            const fadeBottom = document.querySelector('#time-zones .fade-overlay.fade-bottom');
-                            const viewportContainer = document.getElementById('timezones-viewport-container');
-                            
-                            if (fadeTop && fadeBottom && viewportContainer) {
-                                // Check if content is overflowing
-                                const isOverflowing = viewportContainer.scrollHeight > viewportContainer.clientHeight;
-                                console.log(`[DEBUG] TimeZones.contentObserver - Content overflow check: ${isOverflowing}`);
-                                
-                                // If not overflowing, both fades should be hidden
-                                if (!isOverflowing) {
-                                    fadeTop.classList.add('hidden');
-                                    fadeBottom.classList.add('hidden');
-                                    console.log('[DEBUG] TimeZones.contentObserver - Forcing both fades to be hidden (no overflow)');
-                                } else {
-                                    // Otherwise check scroll position
-                                    if (viewportContainer.scrollTop <= 10) {
-                                        fadeTop.classList.add('hidden');
-                                    } else {
-                                        fadeTop.classList.remove('hidden');
-                                    }
-                                    
-                                    const isAtBottom = Math.abs(
-                                        viewportContainer.scrollHeight - viewportContainer.scrollTop - viewportContainer.clientHeight
-                                    ) < 10;
-                                    
-                                    if (isAtBottom) {
-                                        fadeBottom.classList.add('hidden');
-                                    } else {
-                                        fadeBottom.classList.remove('hidden');
-                                    }
-                                    
-                                    console.log('[DEBUG] TimeZones.contentObserver - Updated fade states based on scroll position');
-                                }
-                            }
-                        }, 100);
-                    }
-                }
-            });
-        });
-        
-        // Start observing the container for attribute changes
-        observer.observe(container, { attributes: true });
-        console.log('[DEBUG] TimeZones.setupContentLoadingObserver - Observer set up successfully');
+            }
+        }, { passive: true });
     }
 }
 

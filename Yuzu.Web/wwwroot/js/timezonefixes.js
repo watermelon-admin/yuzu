@@ -1,5 +1,5 @@
 /**
- * Time zone section modal integration
+ * Time zone section modal integration 
  */
 (function() {
     // Function to open the time zone modal using the TimeZonesManager
@@ -13,8 +13,9 @@
         }
     };
     
-    // Set up click handler for the "Add Time Zones" button
+    // Set up handlers when DOM is loaded
     document.addEventListener("DOMContentLoaded", function() {
+        // Set up the Add Time Zones button
         const addButton = document.getElementById('add-time-zones-button');
         if (addButton) {
             addButton.addEventListener('click', function(event) {
