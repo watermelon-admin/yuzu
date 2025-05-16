@@ -11,7 +11,10 @@ const ITEM_SELECTOR = '[data-timezone-id]';
  * Sets up scroll fade effects for the time zones viewport
  */
 export function setupScrollFadeEffects() {
-    // Use the common function with the time-zones section ID
+    // The DOM structure has a mismatch between the HTML section ID ("time-zones") 
+    // and the template-generated viewport container ID ("time-zone-viewport-container")
+    // For setupScrollFadeEffects to find fade elements, it needs to match the HTML section ID
+    // We need to use "time-zones" for the section ID to match the HTML
     commonSetupScrollFadeEffects(SECTION_ID);
 }
 /**

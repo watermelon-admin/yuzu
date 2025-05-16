@@ -20,13 +20,15 @@ declare global {
  * @param onSetHomeTimeZone - Callback for when the 'Set as Home' button is clicked
  * @param onShowTimeZoneInfoModal - Callback for when the 'Info' button is clicked
  * @param onDeleteTimeZone - Callback for when the 'Delete' button is clicked
+ * @param isNewCard - Whether this is a newly added card (to display NEW tag)
  * @returns HTMLElement - The created card element
  */
 export function createTimeZoneCard(
     timeZone: TimeZoneInfo, 
     onSetHomeTimeZone: (id: string) => void,
     onShowTimeZoneInfoModal: (id: string) => void,
-    onDeleteTimeZone: (id: string) => void
+    onDeleteTimeZone: (id: string) => void,
+    isNewCard: boolean = false
 ): HTMLElement {
     // Format the UTC offset string
     const utcOffsetStr = formatUtcOffset(timeZone);
@@ -73,6 +75,7 @@ export function createTimeZoneCard(
                         <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
                             <span class="card-city-country">${timeZone.cities[0]}, ${timeZone.countryName}</span>
                             <span class="badge bg-primary ms-2">Home</span>
+                            ${isNewCard ? '<span class="badge bg-success ms-2 new-badge">NEW</span>' : ''}
                         </h5>
                         <p class="card-text card-continent mb-0">${timeZone.continent}</p>
                         <p class="card-text text-muted small card-utc-offset">${utcOffsetStr}</p>
@@ -120,6 +123,17 @@ export function createTimeZoneCard(
             const cityCountry = cardElement.querySelector('.card-city-country');
             if (cityCountry) {
                 cityCountry.textContent = `${timeZone.cities[0]}, ${timeZone.countryName}`;
+            }
+            
+            // Add NEW badge if this is a new card
+            if (isNewCard) {
+                const cardTitle = cardElement.querySelector('.card-title');
+                if (cardTitle) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-success ms-2 new-badge';
+                    badge.textContent = 'NEW';
+                    cardTitle.appendChild(badge);
+                }
             }
 
             const continent = cardElement.querySelector('.card-continent');
@@ -180,6 +194,7 @@ export function createTimeZoneCard(
                     <div class="card-body">
                         <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
                             <span class="card-city-country">${timeZone.cities[0]}, ${timeZone.countryName}</span>
+                            ${isNewCard ? '<span class="badge bg-success ms-2 new-badge">NEW</span>' : ''}
                         </h5>
                         <p class="card-text card-continent mb-0">${timeZone.continent}</p>
                         <p class="card-text text-muted small card-utc-offset">${utcOffsetStr}</p>
@@ -235,6 +250,17 @@ export function createTimeZoneCard(
             const cityCountry = cardElement.querySelector('.card-city-country');
             if (cityCountry) {
                 cityCountry.textContent = `${timeZone.cities[0]}, ${timeZone.countryName}`;
+            }
+            
+            // Add NEW badge if this is a new card
+            if (isNewCard) {
+                const cardTitle = cardElement.querySelector('.card-title');
+                if (cardTitle) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-success ms-2 new-badge';
+                    badge.textContent = 'NEW';
+                    cardTitle.appendChild(badge);
+                }
             }
 
             const continent = cardElement.querySelector('.card-continent');
