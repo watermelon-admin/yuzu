@@ -1,5 +1,6 @@
 // src/pages/settings/time-zones/index.ts
 import { createToast } from '../../../common/toast-util.js';
+import { createViewCardToast } from './toast-extension.js';
 import { createTimeZoneCard } from './card-creator.js';
 import { updateTimeZoneInfoTime, formatUtcOffset } from './time-utils.js';
 import { setupPagination } from './pagination.js';
@@ -217,12 +218,11 @@ export class TimeZonesManager {
             if (modal) {
                 modal.hide();
             }
-            // Show success message
-            createToast('Success: Timezone added successfully', true);
             // Let's manually append this timezone to the DOM
             // First get the selected timezone info
             const newTimeZone = this.timeZoneList.find(tz => tz.zoneId === this.selectedTimeZoneId);
             if (newTimeZone) {
+                // We'll show the success message with View link after the card is created
                 // Fetch weather info for this timezone before displaying it
                 try {
                     // Fetch all timezone data with weather
@@ -272,6 +272,12 @@ export class TimeZonesManager {
                             weatherEl.style.visibility = 'visible';
                             weatherEl.setAttribute('style', 'display: block !important');
                         }
+                        // Show a success toast with a View link to the newly added card
+                        createViewCardToast('Success: Timezone added successfully', newCard, true);
+                    }
+                    else {
+                        // Fallback to regular toast if card not found
+                        createToast('Success: Timezone added successfully', true);
                     }
                 }, 100);
             }
