@@ -102,43 +102,12 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                 utcOffsetEl.textContent = utcOffsetStr;
             }
         }
-        // Add event handler for info button - use global function to ensure correct 'this' binding
+        // Add event handler for info button
         const infoButton = cardElement.querySelector('.card-info-button');
         if (infoButton) {
-            // Use multiple approaches for maximum reliability
-            // First, create a properly bound event handler
-            const infoClickHandler = (e) => {
-                var _a, _b, _c, _d;
-                e.preventDefault();
-                console.log('[TIMEZONE-CARD] Info button clicked for (home card):', timeZone.zoneId);
-                // Try multiple approaches to call the function
-                if (typeof window.showTimeZoneInfoModal === 'function') {
-                    console.log('[TIMEZONE-CARD] Calling global window.showTimeZoneInfoModal');
-                    window.showTimeZoneInfoModal(timeZone.zoneId);
-                }
-                else if ((_d = (_c = (_b = (_a = window.Yuzu) === null || _a === void 0 ? void 0 : _a.Settings) === null || _b === void 0 ? void 0 : _b.TimeZones) === null || _c === void 0 ? void 0 : _c.functions) === null || _d === void 0 ? void 0 : _d.showTimeZoneInfoModal) {
-                    console.log('[TIMEZONE-CARD] Calling via Yuzu.Settings.TimeZones.functions');
-                    window.Yuzu.Settings.TimeZones.functions.showTimeZoneInfoModal(timeZone.zoneId);
-                }
-                else {
-                    console.log('[TIMEZONE-CARD] Using fallback callback for home card');
-                    onShowTimeZoneInfoModal(timeZone.zoneId);
-                }
-            };
-            // 1. Add the event listener
-            infoButton.addEventListener('click', infoClickHandler);
-            // 2. Also set the onclick property directly
-            infoButton.onclick = infoClickHandler;
-            // 3. Also set the HTML attribute for absolute reliability
-            infoButton.setAttribute('onclick', `event.preventDefault(); 
-                console.log('[TIMEZONE-CARD] Info button HTML onclick for (home card): ${timeZone.zoneId}'); 
-                if(typeof window.showTimeZoneInfoModal==='function') { 
-                    window.showTimeZoneInfoModal('${timeZone.zoneId}'); 
-                } else if(window.Yuzu && window.Yuzu.Settings && window.Yuzu.Settings.TimeZones) {
-                    const manager = window.Yuzu.Settings.TimeZones.getInstance();
-                    if(manager) manager.showTimeZoneInfoModal('${timeZone.zoneId}');
-                }`);
-            console.log('[TIMEZONE-CARD] Home card info button handler set up with triple redundancy');
+            // Simply set the onclick attribute directly in HTML - this is what actually works
+            infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${timeZone.zoneId}');`);
+            console.log('[TIMEZONE-CARD] Home card info button handler attached');
         }
     }
     else {
@@ -237,107 +206,24 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                 utcOffsetEl.textContent = utcOffsetStr;
             }
         }
-        // Add event handlers for buttons - use global functions to ensure correct 'this' binding
+        // Add event handlers for buttons
         const homeButton = cardElement.querySelector('.card-home-button');
         if (homeButton) {
-            // We are DIRECTLY binding the click handler for maximum compatibility
-            // This is CRITICAL for button functionality
-            homeButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log('[TIMEZONE-CARD] Set Home button clicked for:', timeZone.zoneId);
-                // Call the GLOBAL window function that was bound in the TimeZonesManager constructor
-                // This ensures the correct 'this' context is maintained
-                if (typeof window.setHomeTimeZone === 'function') {
-                    console.log('[TIMEZONE-CARD] Calling global setHomeTimeZone function');
-                    window.setHomeTimeZone(timeZone.zoneId);
-                }
-                else {
-                    console.warn('[TIMEZONE-CARD] Global setHomeTimeZone function not available, using fallback');
-                    // Fallback to passed callback if global function is not available
-                    onSetHomeTimeZone(timeZone.zoneId);
-                }
-            });
-            // For maximum compatibility, also set the onclick HTML attribute
-            // This ensures it works even if addEventListener has issues
-            homeButton.setAttribute('onclick', `event.preventDefault(); 
-                console.log('[TIMEZONE-CARD] Set Home button HTML onclick for: ${timeZone.zoneId}'); 
-                if(typeof window.setHomeTimeZone==='function') { 
-                    window.setHomeTimeZone('${timeZone.zoneId}'); 
-                }`);
+            // Simply set the onclick attribute directly in HTML - this is what works
+            homeButton.setAttribute('onclick', `window.setHomeTimeZone('${timeZone.zoneId}');`);
+            console.log('[TIMEZONE-CARD] Home button handler attached');
         }
         const infoButton = cardElement.querySelector('.card-info-button');
         if (infoButton) {
-            // Use multiple approaches for maximum reliability
-            // First, create a properly bound event handler
-            const infoClickHandler = (e) => {
-                var _a, _b, _c, _d;
-                e.preventDefault();
-                console.log('[TIMEZONE-CARD] Info button clicked for:', timeZone.zoneId);
-                // Try multiple approaches to call the function
-                if (typeof window.showTimeZoneInfoModal === 'function') {
-                    console.log('[TIMEZONE-CARD] Calling global window.showTimeZoneInfoModal');
-                    window.showTimeZoneInfoModal(timeZone.zoneId);
-                }
-                else if ((_d = (_c = (_b = (_a = window.Yuzu) === null || _a === void 0 ? void 0 : _a.Settings) === null || _b === void 0 ? void 0 : _b.TimeZones) === null || _c === void 0 ? void 0 : _c.functions) === null || _d === void 0 ? void 0 : _d.showTimeZoneInfoModal) {
-                    console.log('[TIMEZONE-CARD] Calling via Yuzu.Settings.TimeZones.functions');
-                    window.Yuzu.Settings.TimeZones.functions.showTimeZoneInfoModal(timeZone.zoneId);
-                }
-                else {
-                    console.log('[TIMEZONE-CARD] Using fallback callback');
-                    onShowTimeZoneInfoModal(timeZone.zoneId);
-                }
-            };
-            // 1. Add the event listener
-            infoButton.addEventListener('click', infoClickHandler);
-            // 2. Also set the onclick property directly
-            infoButton.onclick = infoClickHandler;
-            // 3. Also set the HTML attribute for absolute reliability
-            infoButton.setAttribute('onclick', `event.preventDefault(); 
-                console.log('[TIMEZONE-CARD] Info button HTML onclick for: ${timeZone.zoneId}'); 
-                if(typeof window.showTimeZoneInfoModal==='function') { 
-                    window.showTimeZoneInfoModal('${timeZone.zoneId}'); 
-                } else if(window.Yuzu && window.Yuzu.Settings && window.Yuzu.Settings.TimeZones) {
-                    const manager = window.Yuzu.Settings.TimeZones.getInstance();
-                    if(manager) manager.showTimeZoneInfoModal('${timeZone.zoneId}');
-                }`);
-            console.log('[TIMEZONE-CARD] Info button handler set up with triple redundancy');
+            // Simply set the onclick attribute directly in HTML - this is what works
+            infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${timeZone.zoneId}');`);
+            console.log('[TIMEZONE-CARD] Info button handler attached');
         }
         const deleteButton = cardElement.querySelector('.card-delete-button');
         if (deleteButton) {
-            // Use multiple approaches for maximum reliability
-            // First, create a properly bound event handler
-            const deleteClickHandler = (e) => {
-                var _a, _b, _c, _d;
-                e.preventDefault();
-                console.log('[TIMEZONE-CARD] Delete button clicked for:', timeZone.zoneId);
-                // Try multiple approaches to call the function
-                if (typeof window.deleteTimeZone === 'function') {
-                    console.log('[TIMEZONE-CARD] Calling global window.deleteTimeZone');
-                    window.deleteTimeZone(timeZone.zoneId);
-                }
-                else if ((_d = (_c = (_b = (_a = window.Yuzu) === null || _a === void 0 ? void 0 : _a.Settings) === null || _b === void 0 ? void 0 : _b.TimeZones) === null || _c === void 0 ? void 0 : _c.functions) === null || _d === void 0 ? void 0 : _d.deleteTimeZone) {
-                    console.log('[TIMEZONE-CARD] Calling via Yuzu.Settings.TimeZones.functions');
-                    window.Yuzu.Settings.TimeZones.functions.deleteTimeZone(timeZone.zoneId);
-                }
-                else {
-                    console.log('[TIMEZONE-CARD] Using fallback callback');
-                    onDeleteTimeZone(timeZone.zoneId);
-                }
-            };
-            // 1. Add the event listener
-            deleteButton.addEventListener('click', deleteClickHandler);
-            // 2. Also set the onclick property directly
-            deleteButton.onclick = deleteClickHandler;
-            // 3. Also set the HTML attribute for absolute reliability
-            deleteButton.setAttribute('onclick', `event.preventDefault(); 
-                console.log('[TIMEZONE-CARD] Delete button HTML onclick for: ${timeZone.zoneId}'); 
-                if(typeof window.deleteTimeZone==='function') { 
-                    window.deleteTimeZone('${timeZone.zoneId}'); 
-                } else if(window.Yuzu && window.Yuzu.Settings && window.Yuzu.Settings.TimeZones) {
-                    const manager = window.Yuzu.Settings.TimeZones.getInstance();
-                    if(manager) manager.deleteTimeZone('${timeZone.zoneId}');
-                }`);
-            console.log('[TIMEZONE-CARD] Delete button handler set up with triple redundancy');
+            // Simply set the onclick attribute directly in HTML - this is what works
+            deleteButton.setAttribute('onclick', `window.deleteTimeZone('${timeZone.zoneId}');`);
+            console.log('[TIMEZONE-CARD] Delete button handler attached');
         }
     }
     // Apply weather information with icons for all card types

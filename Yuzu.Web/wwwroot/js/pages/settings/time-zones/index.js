@@ -39,8 +39,7 @@ export class TimeZonesManager {
         // The explicit bind() ensures they maintain the correct 'this' context
         try {
             console.log('[TIME ZONES] Binding global methods...');
-            // CRITICAL: These function bindings must work for the buttons to function
-            // First, create bound versions of all methods to maintain proper 'this' context
+            // Create bound versions of all methods to maintain proper 'this' context
             const boundShowTimeZonesModal = this.showTimeZonesModal.bind(this);
             const boundShowTimeZoneInfoModal = this.showTimeZoneInfoModal.bind(this);
             const boundSetHomeTimeZone = this.setHomeTimeZone.bind(this);
@@ -48,61 +47,18 @@ export class TimeZonesManager {
             const boundChangePage = this.changePage.bind(this);
             const boundSelectAndConfirmTimeZone = this.selectAndConfirmTimeZone.bind(this);
             const boundConfirmSelection = this.confirmSelection.bind(this);
-            // Now assign them to the window object with properties that can't be overwritten
-            // This makes the global functions more resilient to interference
-            Object.defineProperties(window, {
-                showTimeZonesModal: {
-                    value: boundShowTimeZonesModal,
-                    writable: false,
-                    configurable: true
-                },
-                showTimeZoneInfoModal: {
-                    value: boundShowTimeZoneInfoModal,
-                    writable: false,
-                    configurable: true
-                },
-                setHomeTimeZone: {
-                    value: boundSetHomeTimeZone,
-                    writable: false,
-                    configurable: true
-                },
-                deleteTimeZone: {
-                    value: boundDeleteTimeZone,
-                    writable: false,
-                    configurable: true
-                },
-                changePage: {
-                    value: boundChangePage,
-                    writable: false,
-                    configurable: true
-                },
-                selectAndConfirmTimeZone: {
-                    value: boundSelectAndConfirmTimeZone,
-                    writable: false,
-                    configurable: true
-                },
-                confirmSelection: {
-                    value: boundConfirmSelection,
-                    writable: false,
-                    configurable: true
-                }
-            });
-            // Initialize the Yuzu namespace with a simple approach
+            // Direct assignment to window object - simple and effective
+            window.showTimeZonesModal = boundShowTimeZonesModal;
+            window.showTimeZoneInfoModal = boundShowTimeZoneInfoModal;
+            window.setHomeTimeZone = boundSetHomeTimeZone;
+            window.deleteTimeZone = boundDeleteTimeZone;
+            window.changePage = boundChangePage;
+            window.selectAndConfirmTimeZone = boundSelectAndConfirmTimeZone;
+            window.confirmSelection = boundConfirmSelection;
+            // Ensure the Yuzu namespace exists for backward compatibility
             window.Yuzu = window.Yuzu || {};
             window.Yuzu.Settings = window.Yuzu.Settings || {};
             window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
-            // Create the functions object with bound methods
-            const functionObject = {
-                showTimeZonesModal: boundShowTimeZonesModal,
-                showTimeZoneInfoModal: boundShowTimeZoneInfoModal,
-                setHomeTimeZone: boundSetHomeTimeZone,
-                deleteTimeZone: boundDeleteTimeZone,
-                changePage: boundChangePage,
-                selectAndConfirmTimeZone: boundSelectAndConfirmTimeZone,
-                confirmSelection: boundConfirmSelection
-            };
-            // Set it on the window.Yuzu namespace
-            window.Yuzu.Settings.TimeZones.functions = functionObject;
             // Verify the bindings worked
             console.log('[TIME ZONES] Global functions bound successfully:', {
                 showTimeZonesModal: typeof window.showTimeZonesModal === 'function',
@@ -123,12 +79,10 @@ export class TimeZonesManager {
             window.Yuzu = window.Yuzu || {};
             window.Yuzu.Settings = window.Yuzu.Settings || {};
             window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
-            // Define a non-writable getter to prevent overwriting
-            Object.defineProperty(window.Yuzu.Settings.TimeZones, 'getInstance', {
-                value: () => this,
-                writable: false,
-                configurable: true
-            });
+            // Only set getInstance if it doesn't exist yet
+            if (typeof window.Yuzu.Settings.TimeZones.getInstance !== 'function') {
+                window.Yuzu.Settings.TimeZones.getInstance = () => this;
+            }
             console.log('[TIME ZONES] Instance made globally available via getInstance()');
         }
         catch (error) {
@@ -600,11 +554,16 @@ export class TimeZonesManager {
                 // Create cards for each timezone
                 timeZones.forEach((timeZone) => {
                     try {
+                        // Ensure global functions are available - this is the key to making it work
+                        window.setHomeTimeZone = this.setHomeTimeZone.bind(this);
+                        window.showTimeZoneInfoModal = this.showTimeZoneInfoModal.bind(this);
+                        window.deleteTimeZone = this.deleteTimeZone.bind(this);
+                        // Create the card - we still pass the callbacks for backward compatibility
                         const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.showTimeZoneInfoModal.bind(this), this.deleteTimeZone.bind(this));
                         fragment.appendChild(cardElement);
                     }
                     catch (err) {
-                        // Silent error handling
+                        console.error('[TIME ZONES] Error creating card:', err);
                     }
                 });
                 // Add all cards to the temporary container
@@ -1406,6 +1365,10 @@ export class TimeZonesManager {
             if (emptyState) {
                 container.innerHTML = '';
             }
+            // Ensure global functions are available - this is what makes the buttons work
+            window.setHomeTimeZone = this.setHomeTimeZone.bind(this);
+            window.showTimeZoneInfoModal = this.showTimeZoneInfoModal.bind(this);
+            window.deleteTimeZone = this.deleteTimeZone.bind(this);
             // Create the card using our helper function
             const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.showTimeZoneInfoModal.bind(this), this.deleteTimeZone.bind(this));
             // Add animation class to the column element
@@ -1781,47 +1744,13 @@ export function initTimeZones() {
         // Step 1: Create the TimeZonesManager first - this registers global handlers
         globalManager = new TimeZonesManager();
         console.log('[TIME ZONES] TimeZonesManager created');
-        // Step 2: Setup the Add Time Zones button (CRITICAL!)
+        // Step 2: Setup the Add Time Zones button
         // This is the button that opens the modal to select time zones
         const addButton = document.getElementById('add-time-zones-button');
         if (addButton) {
-            // Create a clean click handler that directly uses the global function
-            const clickHandler = function (event) {
-                event.preventDefault();
-                console.log('[TIME ZONES] Add Time Zones button clicked');
-                // Call the global window function that was bound in the constructor
-                if (typeof window.showTimeZonesModal === 'function') {
-                    console.log('[TIME ZONES] Calling window.showTimeZonesModal()');
-                    window.showTimeZonesModal();
-                }
-                else if (globalManager) {
-                    console.log('[TIME ZONES] Calling globalManager.showTimeZonesModal()');
-                    globalManager.showTimeZonesModal();
-                }
-                else {
-                    console.error('[TIME ZONES] No handler available for showTimeZonesModal');
-                }
-            };
-            // First, remove all existing event listeners to prevent duplicates
-            // Clone the button to remove all attached event listeners
-            const newButton = addButton.cloneNode(true);
-            if (addButton.parentNode) {
-                addButton.parentNode.replaceChild(newButton, addButton);
-                console.log('[TIME ZONES] Add Time Zones button replaced with clean clone');
-            }
-            // Now add our event handlers to the new button
-            newButton.addEventListener('click', clickHandler);
-            // For maximum compatibility, also set the onclick property
-            newButton.onclick = clickHandler;
-            // For absolute reliability, also set the HTML onclick attribute
-            newButton.setAttribute('onclick', `event.preventDefault(); 
-                console.log('[TIME ZONES] Add Time Zones button HTML onclick fired'); 
-                if(typeof window.showTimeZonesModal==='function') { 
-                    window.showTimeZonesModal(); 
-                } else if (window.Yuzu && window.Yuzu.Settings && window.Yuzu.Settings.TimeZones) {
-                    window.Yuzu.Settings.TimeZones.showTimeZonesModal();
-                }`);
-            console.log('[TIME ZONES] Add Time Zones button handler attached with triple redundancy');
+            // Simply set the onclick attribute directly in the HTML
+            addButton.setAttribute('onclick', 'window.showTimeZonesModal();');
+            console.log('[TIME ZONES] Add Time Zones button handler attached');
         }
         else {
             console.warn('[TIME ZONES] Add Time Zones button not found');
@@ -1837,47 +1766,43 @@ export function initTimeZones() {
     }
 }
 // Removed redundant functions as they're handled in initTimeZones
-// Make function and manager available globally
-// This is CRITICAL for initialization and interaction between modules
+// Export module functions to the global namespace
+// This is the standard pattern - all other boilerplate is removed
 console.log('[TIME ZONES] Setting up global namespace with time zones functions');
-// Initialize the Yuzu namespace with a simple approach
+// Initialize the Yuzu namespace for module exports
 window.Yuzu = window.Yuzu || {};
 window.Yuzu.Settings = window.Yuzu.Settings || {};
 window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
-// Add showTimeZonesModal to TimeZones directly if it doesn't exist yet
-if (!window.Yuzu.Settings.TimeZones.showTimeZonesModal) {
-    window.Yuzu.Settings.TimeZones.showTimeZonesModal = () => {
+// Only set init if it doesn't exist yet
+if (typeof window.Yuzu.Settings.TimeZones.init !== 'function') {
+    window.Yuzu.Settings.TimeZones.init = initTimeZones;
+}
+// Only set Manager if it doesn't exist yet
+if (typeof window.Yuzu.Settings.TimeZones.Manager !== 'function') {
+    window.Yuzu.Settings.TimeZones.Manager = TimeZonesManager;
+}
+// Only set loadTimeZonesData if it doesn't exist yet
+if (typeof window.Yuzu.Settings.TimeZones.loadTimeZonesData !== 'function') {
+    window.Yuzu.Settings.TimeZones.loadTimeZonesData = () => {
         if (globalManager) {
-            return globalManager.showTimeZonesModal();
+            console.log('[TIME ZONES] Calling loadTimeZonesData via global function');
+            return globalManager.loadTimeZonesData(true);
         }
         else {
-            console.error('[TIME ZONES] Global manager not available for showTimeZonesModal');
+            console.error('[TIME ZONES] Global manager not available for loadTimeZonesData');
             return Promise.resolve();
         }
     };
 }
-// Set up our module's exports using a standard approach
-window.Yuzu.Settings.TimeZones.init = initTimeZones;
-window.Yuzu.Settings.TimeZones.Manager = TimeZonesManager;
-// Set up the loadTimeZonesData function
-window.Yuzu.Settings.TimeZones.loadTimeZonesData = () => {
-    if (globalManager) {
-        console.log('[TIME ZONES] Calling loadTimeZonesData via global function');
-        return globalManager.loadTimeZonesData(true);
-    }
-    else {
-        console.error('[TIME ZONES] Global manager not available for loadTimeZonesData');
-        return Promise.resolve();
-    }
-};
-// Set up getInstance if not already set
-if (!window.Yuzu.Settings.TimeZones.getInstance) {
-    window.Yuzu.Settings.TimeZones.getInstance = () => {
-        if (!globalManager) {
-            console.error('[TIME ZONES] Global manager not available in getInstance call');
-        }
-        return globalManager;
-    };
+// Only set getInstance if it doesn't exist yet
+if (typeof window.Yuzu.Settings.TimeZones.getInstance !== 'function') {
+    window.Yuzu.Settings.TimeZones.getInstance = () => globalManager;
 }
-console.log('[TIME ZONES] Global namespace setup complete');
+// Log what we've set up for debugging
+console.log('[TIME ZONES] Global functions availability after setup:', {
+    'window.showTimeZonesModal': typeof window.showTimeZonesModal,
+    'window.showTimeZoneInfoModal': typeof window.showTimeZoneInfoModal,
+    'window.setHomeTimeZone': typeof window.setHomeTimeZone,
+    'window.deleteTimeZone': typeof window.deleteTimeZone
+});
 //# sourceMappingURL=index.js.map
