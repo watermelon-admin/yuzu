@@ -1383,11 +1383,78 @@ export class TimeZonesManager {
         // Store the new home timezone ID
         this.homeTimeZoneId = newHomeTimeZoneId;
         
-        // Find all timezone cards
+        // Mark all existing cards as not home first
+        // This is important to make sure we clean up properly
+        const allCards = container.querySelectorAll('[data-timezone-id]');
+        allCards.forEach(card => {
+            const article = card.querySelector('article') as HTMLElement;
+            if (article && article.classList.contains('border-primary')) {
+                // Clean up any existing home indicators
+                article.classList.remove('border-primary');
+                article.style.backgroundColor = '#f5f7fa';
+                
+                // Remove home badge
+                const title = card.querySelector('.card-title');
+                const badge = title?.querySelector('.badge');
+                if (badge) {
+                    badge.remove();
+                }
+                
+                // Get card ID to add standard buttons back
+                const cardId = card.getAttribute('data-timezone-id');
+                if (cardId && cardId !== newHomeTimeZoneId) {
+                    // Only restore buttons for cards that aren't the new home
+                    const footer = card.querySelector('.card-footer');
+                    if (footer) {
+                        // Replace with standard footer
+                        footer.remove();
+                        
+                        // Add standard footer with all buttons
+                        const newFooter = document.createElement('div');
+                        newFooter.className = 'card-footer d-flex align-items-center py-3';
+                        newFooter.innerHTML = `
+                            <div class="d-flex">
+                                <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-2">
+                                    <i class="bx bx-home fs-xl me-1"></i>
+                                    <span class="d-none d-md-inline">Set as Home</span>
+                                </button>
+                                <button type="button" class="card-info-button btn btn-sm btn-outline-primary me-2">
+                                    <i class="bx bx-info-circle fs-xl me-1"></i>
+                                    <span class="d-none d-md-inline">Info</span>
+                                </button>
+                                <button type="button" class="card-delete-button btn btn-sm btn-outline-danger">
+                                    <i class="bx bx-trash-alt fs-xl me-1"></i>
+                                    <span class="d-none d-md-inline">Delete</span>
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Add event handlers
+                        const homeButton = newFooter.querySelector('.card-home-button');
+                        if (homeButton) {
+                            homeButton.setAttribute('onclick', `window.setHomeTimeZone('${cardId}');`);
+                        }
+                        
+                        const infoButton = newFooter.querySelector('.card-info-button');
+                        if (infoButton) {
+                            infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${cardId}');`);
+                        }
+                        
+                        const deleteButton = newFooter.querySelector('.card-delete-button');
+                        if (deleteButton) {
+                            deleteButton.setAttribute('onclick', `window.deleteTimeZone('${cardId}');`);
+                        }
+                        
+                        article.appendChild(newFooter);
+                    }
+                }
+            }
+        });
+        
+        // Find all timezone cards again (order might have changed)
         const cards = container.querySelectorAll('[data-timezone-id]');
         
-        // Track the previous home timezone element to animate it
-        let previousHomeElement: Element | null = null;
+        // Track the new home timezone element
         let newHomeElement: Element | null = null;
         
         cards.forEach(card => {
@@ -1445,8 +1512,6 @@ export class TimeZonesManager {
                         if (article) {
                             const infoFooter = document.createElement('div');
                             infoFooter.className = 'card-footer d-flex align-items-center py-3';
-                            infoFooter.style.backgroundColor = '#e6f0ff';
-                            infoFooter.style.borderTopColor = '#c9d9f9';
                             infoFooter.style.opacity = '0';
                             infoFooter.style.transition = 'opacity 0.3s ease';
                             infoFooter.innerHTML = `
@@ -1461,7 +1526,7 @@ export class TimeZonesManager {
                             // Add event handler for info button
                             const infoButton = infoFooter.querySelector('.card-info-button');
                             if (infoButton && cardId) {
-                                infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(cardId));
+                                infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${cardId}');`);
                             }
                             
                             article.appendChild(infoFooter);
@@ -1472,89 +1537,6 @@ export class TimeZonesManager {
                             }, 10);
                         }
                     }, 300);
-                }
-                
-                // Scroll this card into view if needed
-                setTimeout(() => {
-                    scrollToNewCard(card as HTMLElement, {
-                        sectionId: 'time-zones',
-                        behavior: 'smooth',
-                        offset: 10
-                    });
-                }, 350);
-                
-            } else if (article && article.classList.contains('border-primary')) {
-                // This was the previous home timezone
-                previousHomeElement = card;
-                
-                // Apply transition for smooth border color change
-                article.style.transition = 'border-color 0.3s ease, background-color 0.3s ease';
-                article.classList.remove('border-primary');
-                // Reset background color with animation
-                setTimeout(() => {
-                    if (article) {
-                        article.style.backgroundColor = '#f5f7fa';
-                    }
-                }, 10);
-                
-                // Remove home badge with animation
-                const badge = title?.querySelector('.badge') as HTMLElement;
-                if (badge) {
-                    badge.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                    badge.style.opacity = '0';
-                    badge.style.transform = 'scale(0.8)';
-                    
-                    // Remove after animation completes
-                    setTimeout(() => {
-                        badge.remove();
-                    }, 300);
-                }
-                
-                // Add standard footer with buttons
-                if (!footer && article) {
-                    const newFooter = document.createElement('div');
-                    newFooter.className = 'card-footer d-flex align-items-center py-3';
-                    newFooter.style.opacity = '0';
-                    newFooter.style.transform = 'translateY(10px)';
-                    newFooter.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                    newFooter.innerHTML = `
-                        <div class="d-flex">
-                            <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-2">
-                                <i class="bx bx-home fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Set as Home</span>
-                            </button>
-                            <button type="button" class="card-info-button btn btn-sm btn-outline-primary me-2">
-                                <i class="bx bx-info-circle fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Info</span>
-                            </button>
-                            <button type="button" class="card-delete-button btn btn-sm btn-outline-danger">
-                                <i class="bx bx-trash-alt fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Delete</span>
-                            </button>
-                        </div>
-                    `;
-                    
-                    // Add event handlers to the new buttons
-                    const homeButton = newFooter.querySelector('.card-home-button');
-                    if (homeButton && cardId) {
-                        homeButton.addEventListener('click', () => this.setHomeTimeZone(cardId));
-                    }
-                    
-                    const infoButton = newFooter.querySelector('.card-info-button');
-                    if (infoButton && cardId) {
-                        infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(cardId));
-                    }
-                    
-                    const deleteButton = newFooter.querySelector('.card-delete-button');
-                    if (deleteButton && cardId) {
-                        deleteButton.addEventListener('click', () => this.deleteTimeZone(cardId));
-                    }
-                    
-                    article.appendChild(newFooter);
-                    
-                    // Set the footer style directly
-                    newFooter.style.opacity = '1';
-                    newFooter.style.transform = 'translateY(0)';
                 }
             }
         });

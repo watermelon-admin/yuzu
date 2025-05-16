@@ -73,32 +73,25 @@ export function createViewCardToast(message, cardElement, isSuccess = true) {
             if (timeZonesSection) {
                 // Scroll the main section into view
                 timeZonesSection.scrollIntoView({ behavior: 'smooth' });
-                // Then scroll to the card within the viewport
                 setTimeout(() => {
-                    // First try to use the scrollToNewCard function with a larger offset
                     scrollToNewCard(cardElement, {
                         sectionId: 'time-zones',
                         behavior: 'smooth',
-                        offset: 100 // Increased offset to show more of the card
+                        offset: 100
                     });
-                    // Then, as a backup approach, use scrollIntoView with 'center' alignment
-                    // to ensure the card is more centered in the viewport
                     setTimeout(() => {
                         try {
-                            // Use native scrollIntoView with 'center' alignment if supported
                             cardElement.scrollIntoView({
                                 behavior: 'smooth',
-                                block: 'center', // Try to center the element in the viewport
+                                block: 'center',
                                 inline: 'nearest'
                             });
                         }
                         catch (e) {
-                            // Some browsers might not support all options
                             console.log('Alternative scroll method failed, using fallback');
-                            // We already tried scrollToNewCard above, so nothing more to do
                         }
                     }, 100);
-                }, 300); // Small delay to allow the outer scroll to complete
+                }, 300);
             }
         }
     });

@@ -222,7 +222,6 @@ export class TimeZonesManager {
             // First get the selected timezone info
             const newTimeZone = this.timeZoneList.find(tz => tz.zoneId === this.selectedTimeZoneId);
             if (newTimeZone) {
-                // We'll show the success message with View link after the card is created
                 // Fetch weather info for this timezone before displaying it
                 try {
                     // Fetch all timezone data with weather
@@ -272,11 +271,9 @@ export class TimeZonesManager {
                             weatherEl.style.visibility = 'visible';
                             weatherEl.setAttribute('style', 'display: block !important');
                         }
-                        // Show a success toast with a View link to the newly added card
                         createViewCardToast('Success: Timezone added successfully', newCard, true);
                     }
                     else {
-                        // Fallback to regular toast if card not found
                         createToast('Success: Timezone added successfully', true);
                     }
                 }, 100);
@@ -1170,10 +1167,69 @@ export class TimeZonesManager {
         }
         // Store the new home timezone ID
         this.homeTimeZoneId = newHomeTimeZoneId;
-        // Find all timezone cards
+        // Mark all existing cards as not home first
+        // This is important to make sure we clean up properly
+        const allCards = container.querySelectorAll('[data-timezone-id]');
+        allCards.forEach(card => {
+            const article = card.querySelector('article');
+            if (article && article.classList.contains('border-primary')) {
+                // Clean up any existing home indicators
+                article.classList.remove('border-primary');
+                article.style.backgroundColor = '#f5f7fa';
+                // Remove home badge
+                const title = card.querySelector('.card-title');
+                const badge = title === null || title === void 0 ? void 0 : title.querySelector('.badge');
+                if (badge) {
+                    badge.remove();
+                }
+                // Get card ID to add standard buttons back
+                const cardId = card.getAttribute('data-timezone-id');
+                if (cardId && cardId !== newHomeTimeZoneId) {
+                    // Only restore buttons for cards that aren't the new home
+                    const footer = card.querySelector('.card-footer');
+                    if (footer) {
+                        // Replace with standard footer
+                        footer.remove();
+                        // Add standard footer with all buttons
+                        const newFooter = document.createElement('div');
+                        newFooter.className = 'card-footer d-flex align-items-center py-3';
+                        newFooter.innerHTML = `
+                            <div class="d-flex">
+                                <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-2">
+                                    <i class="bx bx-home fs-xl me-1"></i>
+                                    <span class="d-none d-md-inline">Set as Home</span>
+                                </button>
+                                <button type="button" class="card-info-button btn btn-sm btn-outline-primary me-2">
+                                    <i class="bx bx-info-circle fs-xl me-1"></i>
+                                    <span class="d-none d-md-inline">Info</span>
+                                </button>
+                                <button type="button" class="card-delete-button btn btn-sm btn-outline-danger">
+                                    <i class="bx bx-trash-alt fs-xl me-1"></i>
+                                    <span class="d-none d-md-inline">Delete</span>
+                                </button>
+                            </div>
+                        `;
+                        // Add event handlers
+                        const homeButton = newFooter.querySelector('.card-home-button');
+                        if (homeButton) {
+                            homeButton.setAttribute('onclick', `window.setHomeTimeZone('${cardId}');`);
+                        }
+                        const infoButton = newFooter.querySelector('.card-info-button');
+                        if (infoButton) {
+                            infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${cardId}');`);
+                        }
+                        const deleteButton = newFooter.querySelector('.card-delete-button');
+                        if (deleteButton) {
+                            deleteButton.setAttribute('onclick', `window.deleteTimeZone('${cardId}');`);
+                        }
+                        article.appendChild(newFooter);
+                    }
+                }
+            }
+        });
+        // Find all timezone cards again (order might have changed)
         const cards = container.querySelectorAll('[data-timezone-id]');
-        // Track the previous home timezone element to animate it
-        let previousHomeElement = null;
+        // Track the new home timezone element
         let newHomeElement = null;
         cards.forEach(card => {
             const cardId = card.getAttribute('data-timezone-id');
@@ -1223,8 +1279,6 @@ export class TimeZonesManager {
                         if (article) {
                             const infoFooter = document.createElement('div');
                             infoFooter.className = 'card-footer d-flex align-items-center py-3';
-                            infoFooter.style.backgroundColor = '#e6f0ff';
-                            infoFooter.style.borderTopColor = '#c9d9f9';
                             infoFooter.style.opacity = '0';
                             infoFooter.style.transition = 'opacity 0.3s ease';
                             infoFooter.innerHTML = `
@@ -1238,7 +1292,7 @@ export class TimeZonesManager {
                             // Add event handler for info button
                             const infoButton = infoFooter.querySelector('.card-info-button');
                             if (infoButton && cardId) {
-                                infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(cardId));
+                                infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${cardId}');`);
                             }
                             article.appendChild(infoFooter);
                             // Animate the new footer appearing
@@ -1247,79 +1301,6 @@ export class TimeZonesManager {
                             }, 10);
                         }
                     }, 300);
-                }
-                // Scroll this card into view if needed
-                setTimeout(() => {
-                    scrollToNewCard(card, {
-                        sectionId: 'time-zones',
-                        behavior: 'smooth',
-                        offset: 10
-                    });
-                }, 350);
-            }
-            else if (article && article.classList.contains('border-primary')) {
-                // This was the previous home timezone
-                previousHomeElement = card;
-                // Apply transition for smooth border color change
-                article.style.transition = 'border-color 0.3s ease, background-color 0.3s ease';
-                article.classList.remove('border-primary');
-                // Reset background color with animation
-                setTimeout(() => {
-                    if (article) {
-                        article.style.backgroundColor = '#f5f7fa';
-                    }
-                }, 10);
-                // Remove home badge with animation
-                const badge = title === null || title === void 0 ? void 0 : title.querySelector('.badge');
-                if (badge) {
-                    badge.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                    badge.style.opacity = '0';
-                    badge.style.transform = 'scale(0.8)';
-                    // Remove after animation completes
-                    setTimeout(() => {
-                        badge.remove();
-                    }, 300);
-                }
-                // Add standard footer with buttons
-                if (!footer && article) {
-                    const newFooter = document.createElement('div');
-                    newFooter.className = 'card-footer d-flex align-items-center py-3';
-                    newFooter.style.opacity = '0';
-                    newFooter.style.transform = 'translateY(10px)';
-                    newFooter.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                    newFooter.innerHTML = `
-                        <div class="d-flex">
-                            <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-2">
-                                <i class="bx bx-home fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Set as Home</span>
-                            </button>
-                            <button type="button" class="card-info-button btn btn-sm btn-outline-primary me-2">
-                                <i class="bx bx-info-circle fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Info</span>
-                            </button>
-                            <button type="button" class="card-delete-button btn btn-sm btn-outline-danger">
-                                <i class="bx bx-trash-alt fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Delete</span>
-                            </button>
-                        </div>
-                    `;
-                    // Add event handlers to the new buttons
-                    const homeButton = newFooter.querySelector('.card-home-button');
-                    if (homeButton && cardId) {
-                        homeButton.addEventListener('click', () => this.setHomeTimeZone(cardId));
-                    }
-                    const infoButton = newFooter.querySelector('.card-info-button');
-                    if (infoButton && cardId) {
-                        infoButton.addEventListener('click', () => this.showTimeZoneInfoModal(cardId));
-                    }
-                    const deleteButton = newFooter.querySelector('.card-delete-button');
-                    if (deleteButton && cardId) {
-                        deleteButton.addEventListener('click', () => this.deleteTimeZone(cardId));
-                    }
-                    article.appendChild(newFooter);
-                    // Set the footer style directly
-                    newFooter.style.opacity = '1';
-                    newFooter.style.transform = 'translateY(0)';
                 }
             }
         });
@@ -1351,27 +1332,19 @@ export class TimeZonesManager {
             );
             // Add animation class to the column element
             cardElement.classList.add('card-new');
-            // Find the correct position to insert the card based on UTC offset
             let inserted = false;
-            // Get all existing timezone cards
             const existingCards = container.querySelectorAll('[data-timezone-id]');
             if (existingCards.length > 0) {
-                // Get the new timezone's UTC offset for comparison
                 const newOffset = timeZone.utcOffset || 0;
-                // Iterate through existing cards to find the right position
                 for (let i = 0; i < existingCards.length; i++) {
                     const cardId = existingCards[i].getAttribute('data-timezone-id');
                     if (cardId) {
-                        // Find the timezone info for this card
                         const existingTimezone = this.timeZoneList.find(tz => tz.zoneId === cardId);
                         if (existingTimezone) {
                             const existingOffset = existingTimezone.utcOffset || 0;
-                            // If the new card's offset is less than the current card's offset
-                            // or if they're equal but the new timezone name comes first alphabetically
                             if (newOffset < existingOffset ||
                                 (newOffset === existingOffset &&
                                     timeZone.zoneId.localeCompare(existingTimezone.zoneId) < 0)) {
-                                // Insert before this card
                                 container.insertBefore(cardElement, existingCards[i]);
                                 inserted = true;
                                 break;
@@ -1380,7 +1353,6 @@ export class TimeZonesManager {
                     }
                 }
             }
-            // If we didn't find a position to insert or there are no cards, append to the end
             if (!inserted) {
                 container.appendChild(cardElement);
             }
@@ -1404,9 +1376,6 @@ export class TimeZonesManager {
      * @param cardElement The card element to scroll into view
      */
     scrollCardIntoView(cardElement) {
-        // Use the common scrollToNewCard function from viewport-utils
-        // The sectionId needs to match the div ID in Settings.cshtml, which is "time-zones"
-        // This is different from the SectionId in _TimeZonesPartial.cshtml which is "time-zone" (without s)
         scrollToNewCard(cardElement, {
             sectionId: 'time-zones',
             behavior: 'smooth',
@@ -1420,10 +1389,7 @@ export class TimeZonesManager {
     setupScrollFadeEffects() {
         console.log('[DEBUG] TimeZonesManager.setupScrollFadeEffects - START');
         // Check DOM elements before calling the shared function
-        // This ID comes from _StandardSectionTemplate.cshtml and is generated as @(sectionId)-viewport-container
-        // where sectionId is "time-zone" (no 's') from _TimeZonesPartial.cshtml
         const container = document.getElementById('time-zone-viewport-container');
-        // The section ID in Settings.cshtml is "time-zones" (with 's')
         const topFade = document.querySelector('#time-zones .fade-overlay.fade-top');
         const bottomFade = document.querySelector('#time-zones .fade-overlay.fade-bottom');
         console.log('[DEBUG] TimeZonesManager.setupScrollFadeEffects - DOM elements before setup:', {
@@ -1448,8 +1414,6 @@ export class TimeZonesManager {
                 visibility: window.getComputedStyle(bottomFade).visibility
             } : 'not found'
         });
-        // Use the utility from viewport-utils.js
-        // This will call commonSetupScrollFadeEffects with the correct section ID ('time-zones')
         setupVpScrollFadeEffects();
         // Check again after setting up
         setTimeout(() => {
