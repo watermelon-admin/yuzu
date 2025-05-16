@@ -12,10 +12,6 @@ export class TimeZonesManager {
      * Initialize the time zones manager
      */
     constructor() {
-        // CRITICAL: The order here matters
-        // 1. Make our methods available in the global namespace
-        // 2. Set up instance access via getInstance()
-        // 3. Setup event handlers for the modal
         // Time zones properties
         this.timeZoneList = [];
         this.homeTimeZoneId = null;
@@ -28,26 +24,121 @@ export class TimeZonesManager {
         this.timeZoneModalSelectedRowIndex = -1;
         this.selectedTimeZoneId = null;
         this.bootstrap = window.bootstrap;
+        // Event handler reference for modal events
+        this.modalShownHandler = null;
         // State tracking
         this.isTimeZoneDataLoading = false;
         this.isTimeZoneDataLoaded = false;
-        // Make methods available in the global namespace (used by HTML attributes & card buttons)
-        window.showTimeZonesModal = this.showTimeZonesModal.bind(this);
-        window.showTimeZoneInfoModal = this.showTimeZoneInfoModal.bind(this);
-        window.setHomeTimeZone = this.setHomeTimeZone.bind(this);
-        window.deleteTimeZone = this.deleteTimeZone.bind(this);
-        window.changePage = this.changePage.bind(this);
-        window.selectAndConfirmTimeZone = this.selectAndConfirmTimeZone.bind(this);
-        window.confirmSelection = this.confirmSelection.bind(this);
-        // Make the instance globally available via getInstance()
-        window.Yuzu = window.Yuzu || {};
-        window.Yuzu.Settings = window.Yuzu.Settings || {};
-        window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
-        window.Yuzu.Settings.TimeZones.getInstance = () => this;
-        // Set up event handlers for the search and select in the modal
+        console.log('[TIME ZONES] Initializing TimeZonesManager...');
+        // CRITICAL: The order here matters
+        // 1. Make our methods available in the global namespace with explicit binding
+        // 2. Set up instance access via getInstance()
+        // 3. Setup event handlers for the modal
+        // Step 1: Make all methods available in the global namespace
+        // These methods are used directly from HTML attributes in button clicks
+        // The explicit bind() ensures they maintain the correct 'this' context
+        try {
+            console.log('[TIME ZONES] Binding global methods...');
+            // CRITICAL: These function bindings must work for the buttons to function
+            // First, create bound versions of all methods to maintain proper 'this' context
+            const boundShowTimeZonesModal = this.showTimeZonesModal.bind(this);
+            const boundShowTimeZoneInfoModal = this.showTimeZoneInfoModal.bind(this);
+            const boundSetHomeTimeZone = this.setHomeTimeZone.bind(this);
+            const boundDeleteTimeZone = this.deleteTimeZone.bind(this);
+            const boundChangePage = this.changePage.bind(this);
+            const boundSelectAndConfirmTimeZone = this.selectAndConfirmTimeZone.bind(this);
+            const boundConfirmSelection = this.confirmSelection.bind(this);
+            // Now assign them to the window object with properties that can't be overwritten
+            // This makes the global functions more resilient to interference
+            Object.defineProperties(window, {
+                showTimeZonesModal: {
+                    value: boundShowTimeZonesModal,
+                    writable: false,
+                    configurable: true
+                },
+                showTimeZoneInfoModal: {
+                    value: boundShowTimeZoneInfoModal,
+                    writable: false,
+                    configurable: true
+                },
+                setHomeTimeZone: {
+                    value: boundSetHomeTimeZone,
+                    writable: false,
+                    configurable: true
+                },
+                deleteTimeZone: {
+                    value: boundDeleteTimeZone,
+                    writable: false,
+                    configurable: true
+                },
+                changePage: {
+                    value: boundChangePage,
+                    writable: false,
+                    configurable: true
+                },
+                selectAndConfirmTimeZone: {
+                    value: boundSelectAndConfirmTimeZone,
+                    writable: false,
+                    configurable: true
+                },
+                confirmSelection: {
+                    value: boundConfirmSelection,
+                    writable: false,
+                    configurable: true
+                }
+            });
+            // Initialize the Yuzu namespace with a simple approach
+            window.Yuzu = window.Yuzu || {};
+            window.Yuzu.Settings = window.Yuzu.Settings || {};
+            window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
+            // Create the functions object with bound methods
+            const functionObject = {
+                showTimeZonesModal: boundShowTimeZonesModal,
+                showTimeZoneInfoModal: boundShowTimeZoneInfoModal,
+                setHomeTimeZone: boundSetHomeTimeZone,
+                deleteTimeZone: boundDeleteTimeZone,
+                changePage: boundChangePage,
+                selectAndConfirmTimeZone: boundSelectAndConfirmTimeZone,
+                confirmSelection: boundConfirmSelection
+            };
+            // Set it on the window.Yuzu namespace
+            window.Yuzu.Settings.TimeZones.functions = functionObject;
+            // Verify the bindings worked
+            console.log('[TIME ZONES] Global functions bound successfully:', {
+                showTimeZonesModal: typeof window.showTimeZonesModal === 'function',
+                showTimeZoneInfoModal: typeof window.showTimeZoneInfoModal === 'function',
+                setHomeTimeZone: typeof window.setHomeTimeZone === 'function',
+                deleteTimeZone: typeof window.deleteTimeZone === 'function',
+                changePage: typeof window.changePage === 'function',
+                selectAndConfirmTimeZone: typeof window.selectAndConfirmTimeZone === 'function',
+                confirmSelection: typeof window.confirmSelection === 'function'
+            });
+        }
+        catch (error) {
+            console.error('[TIME ZONES] Error binding global methods:', error);
+        }
+        // Step 2: Make the instance globally available via getInstance()
+        try {
+            // Initialize the Yuzu namespace with a simple approach
+            window.Yuzu = window.Yuzu || {};
+            window.Yuzu.Settings = window.Yuzu.Settings || {};
+            window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
+            // Define a non-writable getter to prevent overwriting
+            Object.defineProperty(window.Yuzu.Settings.TimeZones, 'getInstance', {
+                value: () => this,
+                writable: false,
+                configurable: true
+            });
+            console.log('[TIME ZONES] Instance made globally available via getInstance()');
+        }
+        catch (error) {
+            console.error('[TIME ZONES] Error making instance globally available:', error);
+        }
+        // Step 3: Set up event handlers for the search and select in the modal
         this.setupTimeZoneEventHandlers();
         // The new approach is to let settings.ts load the data for all sections
         // We don't load data here directly anymore
+        console.log('[TIME ZONES] TimeZonesManager initialization complete');
     }
     /**
      * Sets up event handlers for search and pagination.
@@ -92,24 +183,13 @@ export class TimeZonesManager {
         const selectButton = document.getElementById('time-zones-search-select-button');
         if (selectButton) {
             console.log('[TIME ZONES] Select button found, setting up handler');
-            // First remove any existing listeners by cloning
-            let newSelectButton = selectButton;
-            try {
-                if (selectButton.parentNode) {
-                    newSelectButton = selectButton.cloneNode(true);
-                    selectButton.parentNode.replaceChild(newSelectButton, selectButton);
-                    console.log('[TIME ZONES] Select button cloned to remove old handlers');
-                }
-            }
-            catch (error) {
-                console.warn('[TIME ZONES] Error cloning select button:', error);
-                // Continue with original button
-            }
-            // Use direct function instead of async lambda for clearer binding
-            newSelectButton.addEventListener('click', this.handleSelectButtonClick.bind(this));
+            // Create a bound handler that we can reuse
+            const boundHandler = this.handleSelectButtonClick.bind(this);
+            // Directly add the handler - no need to clone
+            selectButton.addEventListener('click', boundHandler);
+            // Also set the onclick property for maximum browser compatibility
+            selectButton.onclick = boundHandler;
             console.log('[TIME ZONES] Select button handler attached');
-            // Also assign directly to onclick as a fallback
-            newSelectButton.onclick = this.handleSelectButtonClick.bind(this);
         }
         else {
             console.warn('[TIME ZONES] Select button element not found');
@@ -311,126 +391,134 @@ export class TimeZonesManager {
      */
     async showTimeZonesModal() {
         var _a;
-        console.log("[DEBUG] showTimeZonesModal - START");
-        const timeZonesModalElement = document.getElementById('time-zones-search-modal');
-        if (!timeZonesModalElement) {
-            console.error("[DEBUG] showTimeZonesModal - Modal element not found");
+        console.log("[TIME ZONES] showTimeZonesModal called");
+        const modalElement = document.getElementById('time-zones-search-modal');
+        if (!modalElement) {
+            console.error("[TIME ZONES] Modal element not found");
             return;
         }
-        console.log("[DEBUG] showTimeZonesModal - Found modal element");
         // Reset state when opening modal
-        this.timeZonesCurrentPage = 1; // Reset page for search modal
+        this.timeZonesCurrentPage = 1;
         this.timeZoneModalFocusedRowIndex = -1;
         this.selectedTimeZoneId = null;
         this.timeZonesSearchTerm = '';
-        console.log("[DEBUG] showTimeZonesModal - Reset state variables");
-        // Initialize select button state - KEEP THE EXISTING HANDLER
+        // Reset and properly configure the select button
         const selectButton = document.getElementById('time-zones-search-select-button');
         if (selectButton) {
-            // Just reset the button state - don't replace it
+            // Reset visual state
             selectButton.setAttribute('disabled', '');
             selectButton.classList.remove('btn-primary');
             selectButton.classList.add('btn-secondary');
             selectButton.innerHTML = 'Select Timezone';
-            console.log("[DEBUG] showTimeZonesModal - Select button reset to default state");
+            // Important: Ensure event handlers are properly attached
+            // First remove all existing handlers to prevent duplicates
+            const newSelectButton = selectButton.cloneNode(true);
+            if (selectButton.parentNode) {
+                selectButton.parentNode.replaceChild(newSelectButton, selectButton);
+                console.log('[TIME ZONES] Select button replaced with clean clone');
+            }
+            // Now add our event handlers using multiple approaches for redundancy
+            const boundHandler = this.handleSelectButtonClick.bind(this);
+            // 1. Standard addEventListener approach
+            newSelectButton.addEventListener('click', boundHandler);
+            // 2. Direct onclick property assignment
+            newSelectButton.onclick = boundHandler;
+            // 3. HTML attribute for absolute compatibility
+            newSelectButton.setAttribute('onclick', `event.preventDefault(); 
+                console.log('[TIME ZONES] Select button HTML onclick fired'); 
+                if(typeof window.Yuzu?.Settings?.TimeZones?.getInstance === 'function') {
+                    const manager = window.Yuzu.Settings.TimeZones.getInstance();
+                    if (manager && typeof manager.handleSelectButtonClick === 'function') {
+                        manager.handleSelectButtonClick(event);
+                    }
+                }`);
+            console.log('[TIME ZONES] Select button handlers attached with triple redundancy');
         }
-        // Load all timezone data first
-        try {
-            console.log("[DEBUG] showTimeZonesModal - Loading timezone data");
-            // Load both to ensure we have the latest data
-            await this.loadTimeZonesData();
-            console.log("[DEBUG] showTimeZonesModal - Timezone data loaded successfully");
-            console.log(`[DEBUG] showTimeZonesModal - timeZoneList length: ${this.timeZoneList.length}`);
-        }
-        catch (error) {
-            console.error("[DEBUG] showTimeZonesModal - Failed to load timezone data:", error);
-            return;
-        }
-        // Create or get the Bootstrap modal instance
-        let timeZonesModal;
+        // Create the bootstrap modal
+        let modal;
         if (typeof ((_a = this.bootstrap) === null || _a === void 0 ? void 0 : _a.Modal) === 'function') {
             // Get existing modal instance or create a new one
-            console.log("[DEBUG] showTimeZonesModal - Creating Bootstrap modal instance");
-            timeZonesModal = this.bootstrap.Modal.getInstance(timeZonesModalElement) ||
-                new this.bootstrap.Modal(timeZonesModalElement, {
-                    keyboard: true
-                });
-        }
-        else {
-            console.error("[DEBUG] showTimeZonesModal - Bootstrap Modal not available");
-            return;
-        }
-        // Define our shown event handler
-        const handleModalShown = () => {
-            console.log("[DEBUG] showTimeZonesModal - Modal shown event fired");
-            // Ensure the Select button has the correct handler
-            const selectButton = document.getElementById('time-zones-search-select-button');
-            if (selectButton) {
-                console.log("[DEBUG] showTimeZonesModal - Re-binding select button handler");
-                // Remove any existing listeners to avoid duplicates
-                const newSelectButton = selectButton.cloneNode(true);
-                if (selectButton.parentNode) {
-                    selectButton.parentNode.replaceChild(newSelectButton, selectButton);
-                    // Add our event handler
-                    newSelectButton.addEventListener('click', this.handleSelectButtonClick.bind(this));
-                    // Also assign to onclick as a fallback
-                    newSelectButton.onclick = this.handleSelectButtonClick.bind(this);
-                    console.log("[DEBUG] showTimeZonesModal - Select button handler rebound");
+            modal = this.bootstrap.Modal.getInstance(modalElement);
+            if (!modal) {
+                try {
+                    modal = new this.bootstrap.Modal(modalElement, {
+                        keyboard: true,
+                        backdrop: true,
+                        focus: true
+                    });
+                    console.log('[TIME ZONES] Created new Bootstrap modal instance');
+                }
+                catch (error) {
+                    console.error('[TIME ZONES] Error creating modal:', error);
                 }
             }
+            else {
+                console.log('[TIME ZONES] Using existing Bootstrap modal instance');
+            }
+        }
+        else {
+            console.error("[TIME ZONES] Bootstrap Modal not available");
+            return;
+        }
+        // Load available time zones if needed (before showing modal)
+        if (this.timeZoneList.length === 0) {
+            try {
+                console.log('[TIME ZONES] Loading available time zones before showing modal');
+                await this.loadAvailableTimeZones();
+                console.log(`[TIME ZONES] Loaded ${this.timeZoneList.length} available time zones`);
+            }
+            catch (error) {
+                console.error("[TIME ZONES] Failed to load available time zones:", error);
+            }
+        }
+        // Remove any existing shown event handlers to prevent duplicates
+        if (this.modalShownHandler) {
+            modalElement.removeEventListener('shown.bs.modal', this.modalShownHandler);
+            this.modalShownHandler = null;
+        }
+        // Create a bound handler and store it as a property on the manager
+        this.modalShownHandler = () => {
+            console.log("[TIME ZONES] Modal shown event fired");
+            // Re-verify select button handler
+            const selectButton = document.getElementById('time-zones-search-select-button');
+            if (selectButton) {
+                // Re-add handler directly
+                const boundHandler = this.handleSelectButtonClick.bind(this);
+                selectButton.onclick = boundHandler;
+                console.log('[TIME ZONES] Select button handler verified in shown event');
+            }
+            // Load time zones and set focus on search input
             const searchInput = document.getElementById('time-zones-search-term');
             if (searchInput) {
                 searchInput.value = '';
-                // Load all timezones initially with empty search
-                console.log("[DEBUG] showTimeZonesModal - Loading timezones with empty search term");
                 this.loadTimeZones('');
-                // Set focus after a short delay to ensure the modal is fully rendered
                 setTimeout(() => {
                     searchInput.focus();
-                    console.log("[DEBUG] showTimeZonesModal - Set focus to search input");
+                    console.log('[TIME ZONES] Set focus to search input');
                 }, 50);
             }
-            else {
-                console.error("[DEBUG] showTimeZonesModal - Search input element not found");
-            }
         };
-        // Remove any existing event listeners for shown.bs.modal
-        // This uses the clone technique to ensure all listeners are removed
-        console.log("[DEBUG] showTimeZonesModal - Cloning modal element to remove event listeners");
-        const newModalElement = timeZonesModalElement.cloneNode(true);
-        if (timeZonesModalElement.parentNode) {
-            timeZonesModalElement.parentNode.replaceChild(newModalElement, timeZonesModalElement);
-            console.log("[DEBUG] showTimeZonesModal - Modal element replaced with clone");
-        }
-        else {
-            console.warn("[DEBUG] showTimeZonesModal - Modal element doesn't have a parent node");
-        }
-        // Now add our event listener to the clean element
-        console.log("[DEBUG] showTimeZonesModal - Adding shown.bs.modal event listener");
-        newModalElement.addEventListener('shown.bs.modal', handleModalShown);
-        // Re-create the modal instance with the new element
-        timeZonesModal = new this.bootstrap.Modal(newModalElement, {
-            keyboard: true
-        });
-        console.log("[DEBUG] showTimeZonesModal - Created new Bootstrap modal instance with cloned element");
+        // Add the event handler using our stored bound function
+        modalElement.addEventListener('shown.bs.modal', this.modalShownHandler);
         // Show the modal
-        console.log("[DEBUG] showTimeZonesModal - Showing modal");
-        timeZonesModal.show();
-        // Force load the timezone data if the modal doesn't trigger the event
+        try {
+            console.log('[TIME ZONES] Showing modal...');
+            modal.show();
+        }
+        catch (error) {
+            console.error('[TIME ZONES] Error showing modal:', error);
+        }
+        // Fallback: Load time zones after a delay if the shown event doesn't fire
         setTimeout(() => {
-            console.log("[DEBUG] showTimeZonesModal - Fallback: Forcing timezone data load after 500ms");
-            this.loadTimeZones('');
-            // Check if the table body has content
-            const tableBody = document.getElementById('time-zones-search-table-body');
-            if (tableBody) {
-                console.log(`[DEBUG] showTimeZonesModal - Table body exists with ${tableBody.children.length} rows`);
-                console.log('[DEBUG] showTimeZonesModal - Table body innerHTML: ' + (tableBody.innerHTML.length > 100 ? tableBody.innerHTML.substring(0, 100) + '...' : tableBody.innerHTML));
+            const searchInput = document.getElementById('time-zones-search-term');
+            if (searchInput) {
+                if (searchInput.value === '') {
+                    console.log('[TIME ZONES] Fallback: Loading time zones after delay');
+                    this.loadTimeZones('');
+                    searchInput.focus();
+                }
             }
-            else {
-                console.error("[DEBUG] showTimeZonesModal - Table body element not found after 500ms");
-            }
-        }, 500);
-        console.log("[DEBUG] showTimeZonesModal - END");
+        }, 300);
     }
     /**
      * Loads the list of available timezones from the backend
@@ -943,49 +1031,26 @@ export class TimeZonesManager {
     }
     /**
      * Selects and confirms a timezone from the search results
-     * This method is exposed globally and must handle any context issues
      */
     selectAndConfirmTimeZone(row) {
-        console.log('[TIME ZONES] selectAndConfirmTimeZone called for row:', row);
-        try {
-            // First select the timezone
-            this.selectTimeZone(row);
-            // Then trigger confirmation after a short delay to ensure UI updates
-            setTimeout(() => {
-                try {
-                    console.log('[TIME ZONES] Calling confirmSelection after timeout');
-                    this.confirmSelection();
-                }
-                catch (error) {
-                    console.error('[TIME ZONES] Error in delayed confirmSelection:', error);
-                    // Last resort: try to click the button directly
-                    const selectButton = document.getElementById('time-zones-search-select-button');
-                    if (selectButton && !selectButton.hasAttribute('disabled')) {
-                        console.log('[TIME ZONES] Directly clicking select button');
-                        selectButton.click();
-                    }
-                }
-            }, 50);
-        }
-        catch (error) {
-            console.error('[TIME ZONES] Error in selectAndConfirmTimeZone:', error);
-        }
+        console.log('[TIME ZONES] selectAndConfirmTimeZone called');
+        this.selectTimeZone(row);
+        this.confirmSelection();
     }
     /**
      * Confirms the current selection by clicking the select button
-     * This method is critical for the double-click functionality in the modal
+     * This method is used for the double-click functionality in the modal
      */
     confirmSelection() {
-        console.log('[DEBUG] confirmSelection called');
+        console.log('[TIME ZONES] confirmSelection called');
         try {
-            // First try to get the button by ID
             const selectButton = document.getElementById('time-zones-search-select-button');
             if (selectButton && !selectButton.hasAttribute('disabled')) {
-                console.log('[DEBUG] Triggering click on select button');
-                // Try multiple approaches to trigger the click
-                // 1. Use the click() method
+                console.log('[TIME ZONES] Triggering click on select button');
+                // Try multiple approaches to trigger the action for maximum reliability
+                // 1. Use the click() method (most standard approach)
                 selectButton.click();
-                // 2. Try to trigger a synthetic click event as a backup
+                // 2. Create and dispatch a click event (for browsers where click() might not work)
                 try {
                     const clickEvent = new MouseEvent('click', {
                         bubbles: true,
@@ -993,32 +1058,51 @@ export class TimeZonesManager {
                         view: window
                     });
                     selectButton.dispatchEvent(clickEvent);
+                    console.log('[TIME ZONES] Dispatched synthetic click event');
                 }
                 catch (e) {
-                    console.warn('[DEBUG] Error dispatching synthetic click:', e);
+                    console.warn('[TIME ZONES] Error dispatching synthetic click:', e);
                 }
-                // 3. Final fallback: call our handler directly
-                setTimeout(() => {
-                    if (this.selectedTimeZoneId) {
-                        console.log('[DEBUG] Calling handleSelectButtonClick directly');
+                // 3. If we have a selectedTimeZoneId, call the handler directly (most reliable)
+                if (this.selectedTimeZoneId) {
+                    console.log('[TIME ZONES] Calling handler directly with selected timezone:', this.selectedTimeZoneId);
+                    // Small delay to avoid potential race conditions
+                    setTimeout(() => {
                         this.handleSelectButtonClick();
-                    }
-                }, 100);
+                    }, 10);
+                }
             }
             else {
-                console.log('[DEBUG] Select button not found or disabled');
-                // Try a different approach to find the button
+                console.log('[TIME ZONES] Select button not found or disabled');
+                // Try to find any select button in the modal footer by text content
                 const modalFooterButtons = document.querySelectorAll('#time-zones-search-modal .modal-footer button');
+                let selectButtonFound = false;
                 modalFooterButtons.forEach(btn => {
                     if (btn.innerText.includes('Select')) {
-                        console.log('[DEBUG] Found select button by text content');
+                        console.log('[TIME ZONES] Found select button by text content');
+                        selectButtonFound = true;
                         btn.click();
                     }
                 });
+                // If no button was found but we have a timezone ID, call the handler directly
+                if (!selectButtonFound && this.selectedTimeZoneId) {
+                    console.log('[TIME ZONES] No button found, but have timezone ID. Calling handler directly.');
+                    this.handleSelectButtonClick();
+                }
             }
         }
         catch (error) {
-            console.error('[DEBUG] Error in confirmSelection:', error);
+            console.error('[TIME ZONES] Error in confirmSelection:', error);
+            // Final fallback: If we have a selectedTimeZoneId, always try the handler directly
+            if (this.selectedTimeZoneId) {
+                console.log('[TIME ZONES] Using final fallback with timezone ID:', this.selectedTimeZoneId);
+                try {
+                    this.handleSelectButtonClick();
+                }
+                catch (secondError) {
+                    console.error('[TIME ZONES] Final fallback also failed:', secondError);
+                }
+            }
         }
     }
     /**
@@ -1690,237 +1774,110 @@ export function initTimeZones() {
     // If already initialized, don't initialize again
     if (initialized && globalManager) {
         console.log('[TIME ZONES] Already initialized, skipping');
-        ensureEventListenersAreAttached();
         return;
     }
     console.log('[TIME ZONES] Initializing time zones section');
     try {
-        // Create the TimeZonesManager first - this registers global handlers
+        // Step 1: Create the TimeZonesManager first - this registers global handlers
         globalManager = new TimeZonesManager();
         console.log('[TIME ZONES] TimeZonesManager created');
-        // Verify our global functions are available
-        const globalFunctionsStatus = {
-            showTimeZonesModal: typeof window.showTimeZonesModal === 'function',
-            showTimeZoneInfoModal: typeof window.showTimeZoneInfoModal === 'function',
-            setHomeTimeZone: typeof window.setHomeTimeZone === 'function',
-            deleteTimeZone: typeof window.deleteTimeZone === 'function',
-            changePage: typeof window.changePage === 'function',
-            selectAndConfirmTimeZone: typeof window.selectAndConfirmTimeZone === 'function',
-            confirmSelection: typeof window.confirmSelection === 'function'
-        };
-        console.log('[TIME ZONES] Global functions available:', globalFunctionsStatus);
-        // Set up the Add Time Zones button click handler
-        ensureAddButtonHasHandler();
-        // Set up scroll fade effects for viewport
+        // Step 2: Setup the Add Time Zones button (CRITICAL!)
+        // This is the button that opens the modal to select time zones
+        const addButton = document.getElementById('add-time-zones-button');
+        if (addButton) {
+            // Create a clean click handler that directly uses the global function
+            const clickHandler = function (event) {
+                event.preventDefault();
+                console.log('[TIME ZONES] Add Time Zones button clicked');
+                // Call the global window function that was bound in the constructor
+                if (typeof window.showTimeZonesModal === 'function') {
+                    console.log('[TIME ZONES] Calling window.showTimeZonesModal()');
+                    window.showTimeZonesModal();
+                }
+                else if (globalManager) {
+                    console.log('[TIME ZONES] Calling globalManager.showTimeZonesModal()');
+                    globalManager.showTimeZonesModal();
+                }
+                else {
+                    console.error('[TIME ZONES] No handler available for showTimeZonesModal');
+                }
+            };
+            // First, remove all existing event listeners to prevent duplicates
+            // Clone the button to remove all attached event listeners
+            const newButton = addButton.cloneNode(true);
+            if (addButton.parentNode) {
+                addButton.parentNode.replaceChild(newButton, addButton);
+                console.log('[TIME ZONES] Add Time Zones button replaced with clean clone');
+            }
+            // Now add our event handlers to the new button
+            newButton.addEventListener('click', clickHandler);
+            // For maximum compatibility, also set the onclick property
+            newButton.onclick = clickHandler;
+            // For absolute reliability, also set the HTML onclick attribute
+            newButton.setAttribute('onclick', `event.preventDefault(); 
+                console.log('[TIME ZONES] Add Time Zones button HTML onclick fired'); 
+                if(typeof window.showTimeZonesModal==='function') { 
+                    window.showTimeZonesModal(); 
+                } else if (window.Yuzu && window.Yuzu.Settings && window.Yuzu.Settings.TimeZones) {
+                    window.Yuzu.Settings.TimeZones.showTimeZonesModal();
+                }`);
+            console.log('[TIME ZONES] Add Time Zones button handler attached with triple redundancy');
+        }
+        else {
+            console.warn('[TIME ZONES] Add Time Zones button not found');
+        }
+        // Step 3: Setup scroll fade effects for visual polish
         setupVpScrollFadeEffects();
-        // Add scroll listener for fade effects
-        setupScrollListener();
-        // Now mark as initialized after everything is successfully set up
+        // Mark as initialized
         initialized = true;
-        // Setup DOM listeners for any dynamically added/replaced elements
-        setupMutationObserver();
         console.log('[TIME ZONES] Initialization complete');
     }
     catch (error) {
         console.error('[TIME ZONES] Error during initialization:', error);
-        // Try to recover from initialization error
-        if (!globalManager) {
-            globalManager = new TimeZonesManager();
-        }
-        // Still try to set up button handlers
-        ensureEventListenersAreAttached();
     }
 }
-/**
- * Ensures all required event listeners are attached
- * This is a defensive measure to make sure event handlers persist
- */
-function ensureEventListenersAreAttached() {
-    console.log('[TIME ZONES] Ensuring event listeners are attached');
-    ensureAddButtonHasHandler();
-    // Also recheck global functions and ensure they're properly bound
-    if (globalManager) {
-        // Re-bind global functions if they're not available
-        if (typeof window.showTimeZonesModal !== 'function') {
-            console.log('[TIME ZONES] Re-binding showTimeZonesModal');
-            window.showTimeZonesModal = globalManager.showTimeZonesModal.bind(globalManager);
-        }
-        if (typeof window.showTimeZoneInfoModal !== 'function') {
-            console.log('[TIME ZONES] Re-binding showTimeZoneInfoModal');
-            window.showTimeZoneInfoModal = globalManager.showTimeZoneInfoModal.bind(globalManager);
-        }
-        if (typeof window.setHomeTimeZone !== 'function') {
-            console.log('[TIME ZONES] Re-binding setHomeTimeZone');
-            window.setHomeTimeZone = globalManager.setHomeTimeZone.bind(globalManager);
-        }
-        if (typeof window.deleteTimeZone !== 'function') {
-            console.log('[TIME ZONES] Re-binding deleteTimeZone');
-            window.deleteTimeZone = globalManager.deleteTimeZone.bind(globalManager);
-        }
-        // Double-check the Select button handler in the modal
-        const selectButton = document.getElementById('time-zones-search-select-button');
-        if (selectButton) {
-            // Make sure it has a click handler - check the first registered onclick handler
-            const hasClickHandler = !!selectButton._click ||
-                !!selectButton.onclick ||
-                selectButton.getAttribute('onclick');
-            if (!hasClickHandler) {
-                console.log('[TIME ZONES] Re-attaching select button handler');
-                selectButton.addEventListener('click', globalManager.handleSelectButtonClick.bind(globalManager));
-            }
-        }
-    }
-}
-/**
- * Ensures the Add Time Zones button has the correct handler
- */
-function ensureAddButtonHasHandler() {
-    const addButton = document.getElementById('add-time-zones-button');
-    if (!addButton) {
-        console.warn('[TIME ZONES] Add Time Zones button not found');
-        return;
-    }
-    // First, check if the button already has a click handler attached
-    // This is a bit of a hack but can sometimes indicate if an event handler exists
-    const hasClickHandler = !!addButton._click ||
-        !!addButton.onclick ||
-        addButton.getAttribute('onclick');
-    // If it seems to have a handler already, don't replace it
-    if (hasClickHandler && initialized) {
-        console.log('[TIME ZONES] Add Time Zones button already has a handler');
-        return;
-    }
-    console.log('[TIME ZONES] Setting up Add Time Zones button handler');
-    // Remove existing listeners by cloning (safer approach)
-    let newButton = addButton.cloneNode(true);
-    if (addButton.parentNode) {
-        addButton.parentNode.replaceChild(newButton, addButton);
-        console.log('[TIME ZONES] Add Time Zones button cloned to remove old handlers');
-    }
-    else {
-        console.warn('[TIME ZONES] Add Time Zones button has no parent node, cannot clone');
-        // Fall back to working with the original button
-        newButton = addButton;
-    }
-    // Now add our click handler to the button
-    newButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        console.log('[TIME ZONES] Add Time Zones button clicked');
-        // First try the global function 
-        if (typeof window.showTimeZonesModal === 'function') {
-            console.log('[TIME ZONES] Calling global showTimeZonesModal function');
-            window.showTimeZonesModal();
-        }
-        // Then try the globalManager instance 
-        else if (globalManager) {
-            console.log('[TIME ZONES] Calling globalManager.showTimeZonesModal method');
-            globalManager.showTimeZonesModal();
-        }
-        // Finally, try to create a new manager and call the method
-        else {
-            console.error('[TIME ZONES] No handler available for showTimeZonesModal, creating new manager');
-            globalManager = new TimeZonesManager();
-            globalManager.showTimeZonesModal();
-        }
-    });
-    console.log('[TIME ZONES] Add Time Zones button handler attached');
-}
-/**
- * Sets up a scroll listener for fade effects
- */
-function setupScrollListener() {
-    const scrollContainer = document.getElementById('time-zone-viewport-container');
-    if (!scrollContainer) {
-        console.warn('[TIME ZONES] Scroll container not found');
-        return;
-    }
-    scrollContainer.addEventListener('scroll', () => {
-        const fadeTop = document.querySelector('#time-zone .fade-overlay.fade-top');
-        const fadeBottom = document.querySelector('#time-zone .fade-overlay.fade-bottom');
-        if (fadeTop && fadeBottom) {
-            if (scrollContainer.scrollTop <= 10) {
-                fadeTop.classList.add('hidden');
-            }
-            else {
-                fadeTop.classList.remove('hidden');
-            }
-            const isAtBottom = Math.abs(scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight) < 10;
-            if (isAtBottom) {
-                fadeBottom.classList.add('hidden');
-            }
-            else {
-                fadeBottom.classList.remove('hidden');
-            }
-        }
-    }, { passive: true });
-    console.log('[TIME ZONES] Scroll listener set up');
-}
-/**
- * Sets up a mutation observer to watch for DOM changes
- * This helps ensure button handlers are maintained if elements are replaced
- */
-function setupMutationObserver() {
-    if (!window.MutationObserver) {
-        console.warn('[TIME ZONES] MutationObserver not available');
-        return;
-    }
-    // Watch for changes in the time-zone-container
-    const container = document.getElementById('time-zone-container');
-    if (!container) {
-        console.warn('[TIME ZONES] Container not found for mutation observer');
-        return;
-    }
-    const observer = new MutationObserver((mutations) => {
-        let buttonChanged = false;
-        let modalChanged = false;
-        for (const mutation of mutations) {
-            // Check if nodes were added or removed
-            if (mutation.type === 'childList') {
-                // Check if any card or button was affected
-                const addedNodes = Array.from(mutation.addedNodes);
-                const hasRelevantAddedNode = addedNodes.some(node => {
-                    if (node.nodeType !== Node.ELEMENT_NODE)
-                        return false;
-                    const element = node;
-                    return element.matches('[data-timezone-id]') ||
-                        element.querySelectorAll('[data-timezone-id], #add-time-zones-button, #time-zones-search-select-button').length > 0;
-                });
-                if (hasRelevantAddedNode) {
-                    buttonChanged = true;
-                    modalChanged = true;
-                }
-            }
-        }
-        // If buttons might have been changed, ensure handlers are reattached
-        if (buttonChanged) {
-            console.log('[TIME ZONES] DOM changed, ensuring event handlers are attached');
-            ensureEventListenersAreAttached();
-        }
-        // If modal content changed, verify the select button has a handler
-        if (modalChanged) {
-            const selectButton = document.getElementById('time-zones-search-select-button');
-            if (selectButton && globalManager) {
-                console.log('[TIME ZONES] Modal changed, reattaching select button handler');
-                selectButton.addEventListener('click', globalManager.handleSelectButtonClick.bind(globalManager));
-            }
-        }
-    });
-    // Observe changes to the DOM structure
-    observer.observe(container, {
-        childList: true, // Watch for changes to child nodes
-        subtree: true, // Watch all descendants
-        attributes: false, // Don't watch for attribute changes
-        characterData: false // Don't watch for text changes
-    });
-    console.log('[TIME ZONES] Mutation observer set up');
-}
+// Removed redundant functions as they're handled in initTimeZones
 // Make function and manager available globally
+// This is CRITICAL for initialization and interaction between modules
+console.log('[TIME ZONES] Setting up global namespace with time zones functions');
+// Initialize the Yuzu namespace with a simple approach
 window.Yuzu = window.Yuzu || {};
 window.Yuzu.Settings = window.Yuzu.Settings || {};
-window.Yuzu.Settings.TimeZones = {
-    init: initTimeZones,
-    loadTimeZonesData: () => globalManager === null || globalManager === void 0 ? void 0 : globalManager.loadTimeZonesData(true), // Add direct access to the load function
-    Manager: TimeZonesManager, // Make the class available
-    getInstance: () => globalManager // Provide access to the singleton instance
+window.Yuzu.Settings.TimeZones = window.Yuzu.Settings.TimeZones || {};
+// Add showTimeZonesModal to TimeZones directly if it doesn't exist yet
+if (!window.Yuzu.Settings.TimeZones.showTimeZonesModal) {
+    window.Yuzu.Settings.TimeZones.showTimeZonesModal = () => {
+        if (globalManager) {
+            return globalManager.showTimeZonesModal();
+        }
+        else {
+            console.error('[TIME ZONES] Global manager not available for showTimeZonesModal');
+            return Promise.resolve();
+        }
+    };
+}
+// Set up our module's exports using a standard approach
+window.Yuzu.Settings.TimeZones.init = initTimeZones;
+window.Yuzu.Settings.TimeZones.Manager = TimeZonesManager;
+// Set up the loadTimeZonesData function
+window.Yuzu.Settings.TimeZones.loadTimeZonesData = () => {
+    if (globalManager) {
+        console.log('[TIME ZONES] Calling loadTimeZonesData via global function');
+        return globalManager.loadTimeZonesData(true);
+    }
+    else {
+        console.error('[TIME ZONES] Global manager not available for loadTimeZonesData');
+        return Promise.resolve();
+    }
 };
+// Set up getInstance if not already set
+if (!window.Yuzu.Settings.TimeZones.getInstance) {
+    window.Yuzu.Settings.TimeZones.getInstance = () => {
+        if (!globalManager) {
+            console.error('[TIME ZONES] Global manager not available in getInstance call');
+        }
+        return globalManager;
+    };
+}
+console.log('[TIME ZONES] Global namespace setup complete');
 //# sourceMappingURL=index.js.map
