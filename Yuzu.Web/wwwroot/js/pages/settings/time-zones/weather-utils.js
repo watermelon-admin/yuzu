@@ -55,12 +55,7 @@ export function updateWeatherContent(timeZone, weatherInfoElement, cardPath) {
     if (timeZone.weatherInfo && timeZone.weatherInfo.length > 0) {
         // Make sure the element is visible
         htmlElement.classList.remove('d-none');
-        // Log the computed style to check if it's actually visible
-        try {
-            const computedStyle = window.getComputedStyle(htmlElement);
-        }
-        catch (error) {
-        }
+        // Make sure element is visible in various ways
         // Add weather icon based on the weather description
         const weatherText = timeZone.weatherInfo.toLowerCase();
         let weatherIcon = '';
@@ -129,20 +124,32 @@ export function setupWeatherDisplayObserver() {
                     weatherElement.style.opacity = '1';
                     // Add animation class
                     weatherElement.classList.add('animate-in');
-                    // Add weather icon if not present
-                    if (!weatherElement.querySelector('i.bx')) {
-                        const weatherText = content.toLowerCase();
-                        let iconClass = 'bx-cloud';
-                        if (weatherText.includes('clear') || weatherText.includes('sunny')) {
-                            iconClass = 'bx-sun';
-                        }
-                        else if (weatherText.includes('rain') || weatherText.includes('drizzle')) {
-                            iconClass = 'bx-cloud-rain';
-                        }
-                        const icon = document.createElement('i');
-                        icon.className = `bx ${iconClass} me-1`;
-                        weatherElement.insertBefore(icon, weatherElement.firstChild);
+                    // Even if there's no icon, apply one based on weather text
+                    const weatherText = content.toLowerCase();
+                    let iconClass = 'bx-cloud';
+                    if (weatherText.includes('clear') || weatherText.includes('sunny')) {
+                        iconClass = 'bx-sun';
                     }
+                    else if (weatherText.includes('rain') || weatherText.includes('drizzle')) {
+                        iconClass = 'bx-cloud-rain';
+                    }
+                    else if (weatherText.includes('snow')) {
+                        iconClass = 'bx-cloud-snow';
+                    }
+                    else if (weatherText.includes('thunder')) {
+                        iconClass = 'bx-cloud-lightning';
+                    }
+                    else if (weatherText.includes('fog')) {
+                        iconClass = 'bx-cloud-light-rain';
+                    }
+                    // Always create a clean icon element
+                    // Remove any existing icon first
+                    const existingIcons = weatherElement.querySelectorAll('i.bx');
+                    existingIcons.forEach(icon => icon.remove());
+                    // Add the new icon
+                    const icon = document.createElement('i');
+                    icon.className = `bx ${iconClass} me-1`;
+                    weatherElement.insertBefore(icon, weatherElement.firstChild);
                 }
                 else {
                     weatherElement.classList.add('d-none');

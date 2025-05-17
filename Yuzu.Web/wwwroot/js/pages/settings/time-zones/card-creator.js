@@ -45,22 +45,67 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             }
             cardElement.innerHTML = `
                 <article class="card settings-card h-100 border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
-                            <span class="card-city-country">${timeZone.cities[0]}, ${timeZone.countryName}</span>
-                            <span class="badge bg-primary ms-2">Home</span>
-                            ${isNewCard ? '<span class="badge bg-success ms-2 new-badge">NEW</span>' : ''}
-                        </h5>
-                        <p class="card-text card-continent mb-0">${timeZone.continent}</p>
-                        <p class="card-text text-muted small card-utc-offset">${utcOffsetStr}</p>
-                        <p class="card-text text-primary small card-weather-info mt-1 ${weatherVisibilityClass}" style="${!weatherVisibilityClass ? 'display:block;visibility:visible;opacity:1;' : ''}">${weatherHTML}</p>
+                    <!-- Image Container -->
+                    <div class="position-relative">
+                        <!-- Time zone visual as main image -->
+                        <div class="time-zone-image-container position-relative" 
+                             style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
+                            <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100" style="background-color: #f0f7ff;">
+                                <i class="bx bx-world display-1 text-primary opacity-25"></i>
+                            </div>
+                            
+                            <!-- Home marker (centered text) -->
+                            <div class="position-absolute top-0 start-0 end-0 mt-3 text-center">
+                                <h3 class="h5 fw-semibold m-0 text-primary">
+                                    <i class="bx bx-home me-1"></i>
+                                    Home Time Zone
+                                </h3>
+                            </div>
+                            
+                            <!-- Single badge with three lines in bottom center with left-aligned text -->
+                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-40 rounded text-white fs-sm text-start" style="min-width: 200px;">
+                                <!-- Continent line -->
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="bx bx-map fs-sm me-1"></i>
+                                    <span class="card-continent-sm">${timeZone.continent}</span>
+                                </div>
+                                
+                                <!-- UTC offset line -->
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="bx bx-time fs-sm me-1"></i>
+                                    <span class="card-utc-offset">${utcOffsetStr}</span>
+                                </div>
+                                
+                                <!-- Weather info line - without static icon -->
+                                <div class="d-flex align-items-center card-weather-container ${weatherVisibilityClass}">
+                                    <span class="card-weather-info">${weatherHTML}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-footer d-flex align-items-center py-3">
-                        <div class="d-flex">
-                            <button type="button" class="card-info-button btn btn-sm btn-outline-primary">
-                                <i class="bx bx-info-circle fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Info</span>
+                    
+                    <div class="card-body">
+                        <h3 class="h5 fw-semibold text-truncate mb-0">
+                            <span class="card-city-country">${timeZone.cities[0]}, ${timeZone.countryName}</span>
+                            ${isNewCard ? '<span class="badge bg-success ms-2 new-badge">NEW</span>' : ''}
+                        </h3>
+                    </div>
+                    
+                    <div class="card-footer d-flex align-items-center justify-content-start py-3">
+                        <!-- Dropdown menu for actions (reduced options for home time zone) -->
+                        <div class="dropup">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
+                                <i class="bx bx-cog fs-sm me-1"></i>
+                                Actions
                             </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item card-info-button" href="javascript:;">
+                                        <i class="bx bx-info-circle fs-sm me-2"></i>
+                                        Info
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </article>
@@ -109,6 +154,11 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             if (continent) {
                 continent.textContent = timeZone.continent;
             }
+            // Also set the small continent label for the new design
+            const continentSm = cardElement.querySelector('.card-continent-sm');
+            if (continentSm) {
+                continentSm.textContent = timeZone.continent;
+            }
             const utcOffsetEl = cardElement.querySelector('.card-utc-offset');
             if (utcOffsetEl) {
                 utcOffsetEl.textContent = utcOffsetStr;
@@ -117,9 +167,8 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
         // Add event handler for info button
         const infoButton = cardElement.querySelector('.card-info-button');
         if (infoButton) {
-            // Simply set the onclick attribute directly in HTML - this is what actually works
+            // Set the onclick attribute directly in HTML
             infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${timeZone.zoneId}');`);
-            console.log('[TIMEZONE-CARD] Home card info button handler attached');
         }
     }
     else {
@@ -153,29 +202,71 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             }
             cardElement.innerHTML = `
                 <article class="card settings-card h-100">
+                    <!-- Image Container -->
+                    <div class="position-relative">
+                        <!-- Time zone visual as main image -->
+                        <div class="time-zone-image-container position-relative" 
+                             style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
+                            <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100 bg-light">
+                                <i class="bx bx-world display-1 text-primary opacity-25"></i>
+                            </div>
+                            
+                            <!-- Single badge with three lines in bottom center with left-aligned text -->
+                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-40 rounded text-white fs-sm text-start" style="min-width: 200px;">
+                                <!-- Continent line -->
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="bx bx-map fs-sm me-1"></i>
+                                    <span class="card-continent-sm">${timeZone.continent}</span>
+                                </div>
+                                
+                                <!-- UTC offset line -->
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="bx bx-time fs-sm me-1"></i>
+                                    <span class="card-utc-offset">${utcOffsetStr}</span>
+                                </div>
+                                
+                                <!-- Weather info line - without static icon -->
+                                <div class="d-flex align-items-center card-weather-container ${weatherVisibilityClass}">
+                                    <span class="card-weather-info">${weatherHTML}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="card-body">
-                        <h5 class="card-title fw-semibold text-truncate pe-2 mb-2">
+                        <h3 class="h5 fw-semibold text-truncate mb-0">
                             <span class="card-city-country">${timeZone.cities[0]}, ${timeZone.countryName}</span>
                             ${isNewCard ? '<span class="badge bg-success ms-2 new-badge">NEW</span>' : ''}
-                        </h5>
-                        <p class="card-text card-continent mb-0">${timeZone.continent}</p>
-                        <p class="card-text text-muted small card-utc-offset">${utcOffsetStr}</p>
-                        <p class="card-text text-primary small card-weather-info mt-1 ${weatherVisibilityClass}" style="${!weatherVisibilityClass ? 'display:block;visibility:visible;opacity:1;' : ''}">${weatherHTML}</p>
+                        </h3>
                     </div>
-                    <div class="card-footer d-flex align-items-center py-3">
-                        <div class="d-flex">
-                            <button type="button" class="card-home-button btn btn-sm btn-outline-primary me-2">
-                                <i class="bx bx-home fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Set as Home</span>
+                    
+                    <div class="card-footer d-flex align-items-center justify-content-start py-3">
+                        <!-- Dropdown menu for actions -->
+                        <div class="dropup">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
+                                <i class="bx bx-cog fs-sm me-1"></i>
+                                Actions
                             </button>
-                            <button type="button" class="card-info-button btn btn-sm btn-outline-primary me-2">
-                                <i class="bx bx-info-circle fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Info</span>
-                            </button>
-                            <button type="button" class="card-delete-button btn btn-sm btn-outline-danger">
-                                <i class="bx bx-trash-alt fs-xl me-1"></i>
-                                <span class="d-none d-md-inline">Delete</span>
-                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item card-info-button" href="javascript:;">
+                                        <i class="bx bx-info-circle fs-sm me-2"></i>
+                                        Info
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item card-home-button" href="javascript:;">
+                                        <i class="bx bx-home fs-sm me-2"></i>
+                                        Set as Home
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item card-delete-button text-danger" href="javascript:;">
+                                        <i class="bx bx-trash-alt fs-sm me-2"></i>
+                                        Delete
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </article>
@@ -224,6 +315,11 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             if (continent) {
                 continent.textContent = timeZone.continent;
             }
+            // Also set the small continent label for the new design
+            const continentSm = cardElement.querySelector('.card-continent-sm');
+            if (continentSm) {
+                continentSm.textContent = timeZone.continent;
+            }
             const utcOffsetEl = cardElement.querySelector('.card-utc-offset');
             if (utcOffsetEl) {
                 utcOffsetEl.textContent = utcOffsetStr;
@@ -232,21 +328,18 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
         // Add event handlers for buttons
         const homeButton = cardElement.querySelector('.card-home-button');
         if (homeButton) {
-            // Simply set the onclick attribute directly in HTML - this is what works
+            // Set the onclick attribute directly in HTML
             homeButton.setAttribute('onclick', `window.setHomeTimeZone('${timeZone.zoneId}');`);
-            console.log('[TIMEZONE-CARD] Home button handler attached');
         }
         const infoButton = cardElement.querySelector('.card-info-button');
         if (infoButton) {
-            // Simply set the onclick attribute directly in HTML - this is what works
+            // Set the onclick attribute directly in HTML
             infoButton.setAttribute('onclick', `window.showTimeZoneInfoModal('${timeZone.zoneId}');`);
-            console.log('[TIMEZONE-CARD] Info button handler attached');
         }
         const deleteButton = cardElement.querySelector('.card-delete-button');
         if (deleteButton) {
-            // Simply set the onclick attribute directly in HTML - this is what works
+            // Set the onclick attribute directly in HTML
             deleteButton.setAttribute('onclick', `window.deleteTimeZone('${timeZone.zoneId}');`);
-            console.log('[TIMEZONE-CARD] Delete button handler attached');
         }
     }
     // Apply weather information with icons for all card types
@@ -260,6 +353,11 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             weatherInfo.style.display = 'block';
             weatherInfo.style.visibility = 'visible';
             weatherInfo.style.opacity = '1';
+        }
+        // Make the weather container visible
+        const weatherContainer = cardElement.querySelector('.card-weather-container');
+        if (weatherContainer) {
+            weatherContainer.classList.remove('d-none');
         }
         // Now update with icon and text
         updateWeatherInfoOnCard(timeZone, cardElement);
