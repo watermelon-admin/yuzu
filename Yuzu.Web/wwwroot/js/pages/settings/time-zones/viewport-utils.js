@@ -9,9 +9,10 @@ const SECTION_ID = 'time-zones';
 const ITEM_SELECTOR = '[data-timezone-id]';
 /**
  * Sets up scroll fade effects for the time zones viewport
+ * @param preserveScroll - If true, preserve scroll position when setting up fade effects
  */
-export function setupScrollFadeEffects() {
-    commonSetupScrollFadeEffects(SECTION_ID);
+export function setupScrollFadeEffects(preserveScroll = false) {
+    commonSetupScrollFadeEffects(SECTION_ID, preserveScroll);
 }
 /**
  * Updates the fade effects based on scroll position

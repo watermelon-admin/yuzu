@@ -149,8 +149,9 @@ export function updateFadeEffects(container, topFade, bottomFade) {
 /**
  * Sets up scroll fade effects for a viewport container
  * @param sectionId - The ID of the section containing the viewport
+ * @param preserveScroll - If true, preserve scroll position when setting up fade effects
  */
-export function setupScrollFadeEffects(sectionId) {
+export function setupScrollFadeEffects(sectionId, preserveScroll = false) {
     var _a;
     // Target the specified section
     const section = document.getElementById(sectionId);
@@ -179,15 +180,28 @@ export function setupScrollFadeEffects(sectionId) {
         return;
     }
     console.log(`Found all required elements for section "${sectionId}"`);
+    // CRITICAL: Remember current scroll position when preservation is requested
+    const originalScrollTop = preserveScroll ? viewportContainer.scrollTop : 0;
+    if (preserveScroll) {
+        console.log(`[SCROLL] Preserving scroll position: ${originalScrollTop}`);
+    }
     // Remove previous listeners if any by replacing with cloned element
     try {
+        // Create a new container to replace the old one
         const newViewportContainer = viewportContainer.cloneNode(false);
+        // Transfer all children to the new container
         while (viewportContainer.firstChild) {
             newViewportContainer.appendChild(viewportContainer.firstChild);
         }
+        // Replace the old container with the new one
         (_a = viewportContainer.parentNode) === null || _a === void 0 ? void 0 : _a.replaceChild(newViewportContainer, viewportContainer);
         // Now work with the new clean container
         const updatedContainer = section.querySelector('.viewport-container');
+        // CRITICAL: Restore the scroll position IMMEDIATELY after node replacement
+        if (preserveScroll && updatedContainer && originalScrollTop > 0) {
+            updatedContainer.scrollTop = originalScrollTop;
+            console.log(`[SCROLL] Restored scroll position to: ${updatedContainer.scrollTop}`);
+        }
         // Apply initial fade states based on content
         updateFadeEffects(updatedContainer, topFade, bottomFade);
         // Create debounced handlers for better performance
@@ -240,6 +254,16 @@ export function setupScrollFadeEffects(sectionId) {
             attributes: false,
             characterData: false
         });
+        // One final check - ensure scroll position is still correct after a brief delay
+        // Sometimes browser rendering can reset scroll position after DOM operations
+        if (preserveScroll && updatedContainer && originalScrollTop > 0) {
+            setTimeout(() => {
+                if (updatedContainer.scrollTop !== originalScrollTop) {
+                    updatedContainer.scrollTop = originalScrollTop;
+                    console.log(`[SCROLL] Re-restored scroll position to: ${updatedContainer.scrollTop}`);
+                }
+            }, 50);
+        }
         console.log(`Fade effects successfully set up for section "${sectionId}"`);
     }
     catch (error) {
@@ -324,6 +348,11 @@ export function animateCardRemoval(cardElement, sectionId, options = {}) {
     const columnElement = cardElement.closest('.col');
     if (!columnElement)
         return;
+    // CRITICAL: Capture the viewport container and scroll position BEFORE animation
+    const section = document.getElementById(sectionId);
+    const viewportContainer = section === null || section === void 0 ? void 0 : section.querySelector('.viewport-container');
+    const scrollPosition = viewportContainer ? viewportContainer.scrollTop : 0;
+    console.log(`[SCROLL] Before card removal - scroll position: ${scrollPosition}`);
     // Use CSS transitions for smooth animation
     // First, set up transition properties
     columnElement.style.transition = 'all 0.3s ease-out';
@@ -347,7 +376,15 @@ export function animateCardRemoval(cardElement, sectionId, options = {}) {
                 options.onRemoveComplete();
             }
             // Update fade effects to adapt to new content height
-            setupScrollFadeEffects(sectionId);
+            // CRITICAL: Pass true to preserve scroll position
+            setupScrollFadeEffects(sectionId, true);
+            // Double-check scroll position after a small delay to ensure it's maintained
+            setTimeout(() => {
+                if (viewportContainer && viewportContainer.scrollTop !== scrollPosition) {
+                    viewportContainer.scrollTop = scrollPosition;
+                    console.log(`[SCROLL] After card removal - restored scroll position: ${scrollPosition}`);
+                }
+            }, 50);
         }, 300); // Same duration as the transition
     }, 10);
 }

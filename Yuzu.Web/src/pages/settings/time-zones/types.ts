@@ -24,6 +24,8 @@ export interface TimeZoneInfo {
     isHome?: boolean;
     /** Weather information for this timezone location */
     weatherInfo?: string;
+    /** Flag to indicate this is a newly added timezone that should be shown at the top */
+    isNewlyAdded?: boolean;
 }
 
 /**
