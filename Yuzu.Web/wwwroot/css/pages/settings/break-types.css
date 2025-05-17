@@ -5,11 +5,33 @@
 /* Card hover effect */
 .settings-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative; /* Create stacking context */
+    z-index: 1; /* Base z-index for all cards */
 }
 
 .settings-card:hover {
     transform: scale(1.02);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 2; /* Slightly higher z-index for hovered cards, but still below dropdown */
+}
+
+/* Create stacking context for card footer */
+.card-footer {
+    position: relative;
+    z-index: 1000; /* High z-index to ensure it's above other cards */
+}
+
+/* Style for the dropup menu */
+.dropup .dropdown-menu {
+    margin-bottom: 30px !important; /* Increased space between button and menu to 30px */
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15) !important; /* Shadow for dropup */
+    z-index: 1050 !important; /* Higher than normal cards */
+}
+
+/* Ensure the dropdown menu is visible and on top */
+.dropdown-menu.show {
+    display: block !important;
+    z-index: 9999 !important;
 }
 
 /* Badge styles */
@@ -30,4 +52,69 @@
 .system-image-badge {
     background-color: rgba(13, 110, 253, 0.8);
     color: white;
+}
+
+/* Break type image container */
+.break-type-image-container {
+    background-color: #f8f9fa;
+    overflow: hidden;
+    position: relative;
+}
+
+.break-type-icon-overlay {
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Duration and usage overlays */
+.duration-overlay, .usage-overlay {
+    z-index: 3;
+    font-size: 0.8rem;
+}
+
+/* Preview button hover effect */
+.break-type-preview-button:hover {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+}
+
+/* Dropdown enhancements */
+.dropdown-menu {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0,0,0,0.1);
+    z-index: 1100; /* Higher z-index to ensure it appears above other cards */
+    position: absolute !important; /* Ensure it uses absolute positioning */
+    transform: none !important; /* Prevent any transforms */
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: background-color 0.15s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+/* Preview modal styles */
+#break-type-preview-modal .modal-body {
+    border-radius: 0.5rem;
+}
+
+#break-type-preview-background {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.break-type-preview-icon {
+    font-size: 3rem;
+    display: inline-block;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
 }

@@ -65,12 +65,22 @@ export async function loadBreakTypes() {
             console.log('Break types array:', breakTypes);
             breakTypes.forEach((item) => {
                 console.log('Processing break type:', item);
+                // Get the template
+                const template = document.getElementById('break-type-template');
+                if (!template) {
+                    console.error('Break type card template not found');
+                    return;
+                }
                 // Clone the template content
-                const cardDiv = $($(template).html());
+                const fragment = document.importNode(template.content, true);
+                const cardDiv = $(fragment);
                 // Set data attribute for the card
                 const articleElement = cardDiv.find('article');
                 articleElement.attr('data-id', item.id);
-                // Preview Image
+                // Set the icon as overlay
+                const iconElement = cardDiv.find('.break-type-icon');
+                iconElement.removeClass().addClass(`break-type-icon bx ${item.iconName || 'bx-coffee-togo'} fs-4`);
+                // Background Image as main visual
                 cardDiv.find('.card-preview-image').attr('src', `${backgroundImagesURL}/${item.imageTitle}-thumb.jpg`);
                 // Card Title
                 cardDiv.find('.card-title-link').text(item.name);
@@ -87,37 +97,40 @@ export async function loadBreakTypes() {
                 cardDiv.find('.card-duration').text(item.defaultDurationMinutes.toString());
                 // Usage Count
                 cardDiv.find('.card-usage').text(item.usageCount.toString());
-                // Edit button
-                const editButton = cardDiv.find('.btn-edit');
-                editButton.attr('data-id', item.id);
-                editButton.attr('data-name', item.name);
-                editButton.attr('data-image-title', item.imageTitle);
-                editButton.attr('data-icon-name', item.iconName || 'bx-coffee-togo');
-                editButton.attr('data-default-duration', item.defaultDurationMinutes);
-                editButton.attr('data-time-step', item.breakTimeStepMinutes);
-                editButton.attr('data-countdown-message', item.countdownMessage || '');
-                editButton.attr('data-countdown-end-message', item.countdownEndMessage || '');
-                editButton.attr('data-end-time-title', item.endTimeTitle || '');
-                editButton.attr('data-is-locked', item.isLocked.toString());
-                // Add backgroundImageChoices data
+                // Store all data attributes on the article element for easy access
+                articleElement.attr('data-id', item.id);
+                articleElement.attr('data-name', item.name);
+                articleElement.attr('data-image-title', item.imageTitle);
+                articleElement.attr('data-icon-name', item.iconName || 'bx-coffee-togo');
+                articleElement.attr('data-default-duration', item.defaultDurationMinutes.toString());
+                articleElement.attr('data-time-step', item.breakTimeStepMinutes.toString());
+                articleElement.attr('data-countdown-message', item.countdownMessage || 'Minutes until break ends');
+                articleElement.attr('data-countdown-end-message', item.countdownEndMessage || 'Break is over');
+                articleElement.attr('data-end-time-title', item.endTimeTitle || 'Break Ends At');
+                articleElement.attr('data-usage-count', item.usageCount.toString());
+                articleElement.attr('data-is-locked', item.isLocked.toString());
+                // Store background image choices on the article for preview
                 if (item.backgroundImageChoices) {
                     const backgroundImages = item.backgroundImageChoices.split(';');
                     if (backgroundImages.length >= 2) {
-                        editButton.attr('data-image-title-1', backgroundImages[0] || '');
-                        editButton.attr('data-image-title-2', backgroundImages[1] || '');
+                        articleElement.attr('data-image-title-1', backgroundImages[0] || '');
+                        articleElement.attr('data-image-title-2', backgroundImages[1] || '');
                     }
                     else {
                         // Fallback if no choices are available
-                        editButton.attr('data-image-title-1', item.imageTitle || '');
-                        editButton.attr('data-image-title-2', item.imageTitle || '');
+                        articleElement.attr('data-image-title-1', item.imageTitle || '');
+                        articleElement.attr('data-image-title-2', item.imageTitle || '');
                     }
                 }
                 else {
                     // Fallback if no choices are available
-                    editButton.attr('data-image-title-1', item.imageTitle || '');
-                    editButton.attr('data-image-title-2', item.imageTitle || '');
+                    articleElement.attr('data-image-title-1', item.imageTitle || '');
+                    articleElement.attr('data-image-title-2', item.imageTitle || '');
                 }
-                // Design Button
+                // Edit button (dropdown item)
+                const editButton = cardDiv.find('.btn-edit');
+                editButton.attr('data-id', item.id);
+                // Design Button (dropdown item)
                 // For subscribers, link directly to the designer, for non-subscribers show premium modal
                 if (isSubscribed) {
                     cardDiv.find('.btn-design').attr('href', `/designer?id=${item.id}`);
@@ -136,6 +149,9 @@ export async function loadBreakTypes() {
                     deleteButton.attr('data-id', item.id.toString());
                     deleteButton.attr('data-name', item.name);
                 }
+                // Preview button
+                const previewButton = cardDiv.find('.break-type-preview-button');
+                previewButton.attr('data-id', item.id.toString());
                 // Append the cloned template to the container
                 $('#break-type-container').append(cardDiv);
             });
@@ -241,6 +257,102 @@ function initSimpleEdit(button) {
     modal.show();
 }
 /**
+ * Opens the preview modal for a break type
+ * @param article - The card article element containing the break type data
+ */
+function openBreakTypePreviewModal(article) {
+    if (!article) {
+        console.error('Article element is missing');
+        return;
+    }
+    // Get break type data from article element
+    const id = article.getAttribute('data-id');
+    const name = article.getAttribute('data-name');
+    const imageTitle = article.getAttribute('data-image-title');
+    const iconName = article.getAttribute('data-icon-name');
+    const defaultDuration = article.getAttribute('data-default-duration');
+    const timeStep = article.getAttribute('data-time-step');
+    const countdownMessage = article.getAttribute('data-countdown-message');
+    const countdownEndMessage = article.getAttribute('data-countdown-end-message');
+    const usageCount = article.getAttribute('data-usage-count');
+    // Get the modal element
+    const modal = document.getElementById('break-type-preview-modal');
+    if (!modal) {
+        console.error('Preview modal not found');
+        return;
+    }
+    // Set modal content
+    const titleElement = document.getElementById('break-type-preview-title');
+    const iconElement = document.querySelector('.break-type-preview-icon');
+    const backgroundElement = document.getElementById('break-type-preview-background');
+    const durationElement = document.getElementById('break-type-preview-duration');
+    const timeStepElement = document.getElementById('break-type-preview-time-step');
+    const usageElement = document.getElementById('break-type-preview-usage');
+    const countdownMessageElement = document.getElementById('break-type-preview-countdown-message');
+    const endMessageElement = document.getElementById('break-type-preview-end-message');
+    const editButton = modal.querySelector('.btn-edit-from-preview');
+    // Set content values
+    if (titleElement)
+        titleElement.textContent = name;
+    if (iconElement) {
+        iconElement.className = `break-type-preview-icon bx ${iconName || 'bx-coffee-togo'} fs-1 text-primary`;
+    }
+    const backgroundImagesURL = getImagePath();
+    if (backgroundElement) {
+        backgroundElement.src = `${backgroundImagesURL}/${imageTitle}-fhd.jpg`;
+        backgroundElement.alt = `${name} background`;
+    }
+    if (durationElement)
+        durationElement.textContent = `${defaultDuration} minutes`;
+    if (timeStepElement)
+        timeStepElement.textContent = `${timeStep} minutes`;
+    if (usageElement)
+        usageElement.textContent = `${usageCount} times used`;
+    if (countdownMessageElement)
+        countdownMessageElement.textContent = countdownMessage || 'Minutes until break ends';
+    if (endMessageElement)
+        endMessageElement.textContent = countdownEndMessage || 'Break is over';
+    // Set up the edit button to open the edit modal when clicked
+    if (editButton) {
+        // Clean up any existing click event listeners
+        const newEditButton = editButton.cloneNode(true);
+        if (editButton.parentNode) {
+            editButton.parentNode.replaceChild(newEditButton, editButton);
+        }
+        // Add click handler to the new button
+        newEditButton.addEventListener('click', () => {
+            // Hide the preview modal first
+            const previewModalInstance = window.bootstrap.Modal.getInstance(modal);
+            if (previewModalInstance) {
+                previewModalInstance.hide();
+            }
+            // Find the edit button for this break type and trigger a click on it
+            document.querySelectorAll(`.btn-edit[data-id="${id}"]`).forEach(editBtn => {
+                setTimeout(() => {
+                    editBtn.click();
+                }, 300); // Small delay to ensure modal transitions don't conflict
+            });
+        });
+    }
+    // Show the modal
+    const modalInstance = new window.bootstrap.Modal(modal);
+    modalInstance.show();
+}
+/**
+ * Handle click event for preview buttons
+ */
+function handlePreviewClick(e) {
+    e.preventDefault();
+    const button = e.currentTarget;
+    const article = button.closest('article');
+    if (article) {
+        openBreakTypePreviewModal(article);
+    }
+    else {
+        console.error('Parent article element not found');
+    }
+}
+/**
  * Set up event listeners for the break type card buttons
  */
 function setupEventListeners() {
@@ -253,6 +365,51 @@ function setupEventListeners() {
     // Listen for clicks on delete buttons
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', handleDeleteClick);
+    });
+    // Listen for clicks on preview buttons
+    document.querySelectorAll('.break-type-preview-button').forEach(button => {
+        button.addEventListener('click', handlePreviewClick);
+    });
+    // Configure dropdowns to have high z-index and proper positioning
+    document.querySelectorAll('.dropdown-toggle').forEach(button => {
+        // For each dropdown button, find its dropdown menu
+        const menuId = button.getAttribute('data-bs-target') || '';
+        let dropdownMenu = null;
+        if (menuId) {
+            // If there's a target specified, use it
+            dropdownMenu = document.querySelector(menuId);
+        }
+        else {
+            // Otherwise find the sibling dropdown-menu
+            const parentDropdown = button.closest('.dropdown');
+            if (parentDropdown) {
+                dropdownMenu = parentDropdown.querySelector('.dropdown-menu');
+            }
+        }
+        // Set custom Bootstrap dropdown options if available
+        if (typeof window.bootstrap !== 'undefined' &&
+            typeof window.bootstrap.Dropdown !== 'undefined' &&
+            dropdownMenu) {
+            // Create or get a dropdown instance with custom config
+            const dropdown = new window.bootstrap.Dropdown(button, {
+                popperConfig: {
+                    modifiers: [
+                        {
+                            name: 'preventOverflow',
+                            options: {
+                                boundary: document.body
+                            }
+                        },
+                        {
+                            name: 'offset',
+                            options: {
+                                offset: [0, 2]
+                            }
+                        }
+                    ]
+                }
+            });
+        }
     });
     // Add new break type button event listener (only needs to be set up once)
     const addButton = document.getElementById('add-new-break-type-button');
@@ -288,6 +445,10 @@ function removeExistingEventListeners() {
     // Remove delete button listeners
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.removeEventListener('click', handleDeleteClick);
+    });
+    // Remove preview button listeners
+    document.querySelectorAll('.break-type-preview-button').forEach(button => {
+        button.removeEventListener('click', handlePreviewClick);
     });
 }
 /**

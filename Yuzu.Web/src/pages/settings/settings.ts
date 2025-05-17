@@ -167,6 +167,8 @@ export function switchToTab(tabId: string): void {
         console.log('========== STARTING DATA PRELOAD FOR ALL SECTIONS ==========');
         console.time('Total preload time');
         
+        // Account Details (no data load needed)
+        
         // Time Zones
         console.log('🕒 Starting Time Zones data load...');
         console.time('Time Zones preload');
@@ -185,25 +187,6 @@ export function switchToTab(tabId: string): void {
             console.error('❌ Error loading Time Zones data:', error);
         }
         console.timeEnd('Time Zones preload');
-        
-        // Backgrounds
-        console.log('🖼️ Starting Backgrounds data load...');
-        console.time('Backgrounds preload');
-        try {
-            if ((window as any).Yuzu?.Settings?.Backgrounds?.loadBackgroundImages) {
-                await (window as any).Yuzu.Settings.Backgrounds.loadBackgroundImages();
-                
-                // Verify backgrounds data is loaded by checking for rendered cards
-                const bgContainer = document.getElementById('backgrounds-gallery-container');
-                const bgCards = bgContainer?.querySelectorAll('.background-card') || [];
-                console.log(`✅ Backgrounds preload complete. Rendered ${bgCards.length} background cards.`);
-            } else {
-                console.warn('⚠️ Backgrounds loader function not found');
-            }
-        } catch (error) {
-            console.error('❌ Error loading Backgrounds data:', error);
-        }
-        console.timeEnd('Backgrounds preload');
         
         // Break Types
         console.log('⏸️ Starting Break Types data load...');
@@ -224,6 +207,27 @@ export function switchToTab(tabId: string): void {
         }
         console.timeEnd('Break Types preload');
         
+        // Backgrounds
+        console.log('🖼️ Starting Backgrounds data load...');
+        console.time('Backgrounds preload');
+        try {
+            if ((window as any).Yuzu?.Settings?.Backgrounds?.loadBackgroundImages) {
+                await (window as any).Yuzu.Settings.Backgrounds.loadBackgroundImages();
+                
+                // Verify backgrounds data is loaded by checking for rendered cards
+                const bgContainer = document.getElementById('backgrounds-gallery-container');
+                const bgCards = bgContainer?.querySelectorAll('.background-card') || [];
+                console.log(`✅ Backgrounds preload complete. Rendered ${bgCards.length} background cards.`);
+            } else {
+                console.warn('⚠️ Backgrounds loader function not found');
+            }
+        } catch (error) {
+            console.error('❌ Error loading Backgrounds data:', error);
+        }
+        console.timeEnd('Backgrounds preload');
+        
+        // Membership (no data load needed)
+        
         // Ensure all data containers are properly marked as loaded
         document.querySelectorAll('[data-loaded]').forEach(element => {
             element.setAttribute('data-loaded', 'true');
@@ -237,10 +241,10 @@ export function switchToTab(tabId: string): void {
      * Initializes all section modules
      */
     export function initSections(): void {
-        // Initialize all section modules first
+        // Initialize all section modules in the same order as they appear in the UI
         initAccountDetails();
-        initBreakTypes();
         initTimeZones();
+        initBreakTypes();
         initBackgrounds();
         initMembership();
     }

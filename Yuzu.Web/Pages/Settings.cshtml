@@ -71,13 +71,13 @@
                                 <i class="bx bx-cog fs-xl opacity-60 me-2"></i>
                                 Account Details
                             </a>
-                            <a id="settings-break-types" href="#break-types" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="bx bx-coffee-togo fs-xl opacity-60 me-2"></i>
-                                Break Types
-                            </a>
                             <a id="settings-time-zones" href="#time-zones" class="list-group-item list-group-item-action d-flex align-items-center">
                                 <i class="bx bx-world fs-xl opacity-60 me-2"></i>
                                 Time Zones
+                            </a>
+                            <a id="settings-break-types" href="#break-types" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bx bx-coffee-togo fs-xl opacity-60 me-2"></i>
+                                Break Types
                             </a>
                             <a id="settings-backgrounds" href="#backgrounds" class="list-group-item list-group-item-action d-flex align-items-center">
                                 <i class="bx bx-image fs-xl opacity-60 me-2"></i>
@@ -109,15 +109,15 @@
                         <partial name="~/Pages/Settings/Sections/_AccountDetailsPartial.cshtml" />
                     </div>
 
+                    <!-- Time Zones Section -->
+                    <div id="time-zones" class="settings-content-container">
+                        <partial name="~/Pages/Settings/Sections/_TimeZonesPartial.cshtml" />
+                    </div>
+
                     <!-- Break Types Section -->
                     <div id="break-types" class="settings-content-container">
                         <partial name="~/Pages/Settings/Sections/_BreakTypesPartial.cshtml" />
                         <partial name="~/Pages/Settings/Sections/_BreakTypesWizardPartial.cshtml" />
-                    </div>
-
-                    <!-- Time Zones Section -->
-                    <div id="time-zones" class="settings-content-container">
-                        <partial name="~/Pages/Settings/Sections/_TimeZonesPartial.cshtml" />
                     </div>
 
                     <!-- Backgrounds Section -->

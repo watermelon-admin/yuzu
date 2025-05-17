@@ -2,7 +2,7 @@
     // Configure the standardized template - use "break-type" (singular) for container ID to match JS expectations
     ViewData["SectionId"] = "break-type";
     ViewData["SectionTitle"] = "Break Types";
-    ViewData["ContainerColumns"] = "row-cols-1 row-cols-sm-2 gx-3 gx-lg-4";
+    ViewData["ContainerColumns"] = "row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4";
     ViewData["ShowViewport"] = true;
     ViewData["ActionButton"] = new Dictionary<string, string>
     {
@@ -20,56 +20,79 @@
 <template id="break-type-template">
     <div class="col pb-lg-2 mb-4">
         <article class="card settings-card h-100">
-            <div class="position-relative" style="height: auto;">
-                <a href="#" class="d-block position-absolute w-100 h-100 top-0 start-0" aria-label="Cover image"></a>
-                <img src="" class="card-img-top card-preview-image" style="width: 100%;" alt="Image">
+            <div class="position-relative">
+                <!-- Background image as the main visual -->
+                <div class="break-type-image-container position-relative" 
+                     style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
+                    <img src="" class="card-img-top card-preview-image w-100 h-100" 
+                         style="object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;" alt="Image">
+                         
+                    <!-- Break type icon as an overlay -->
+                    <div class="break-type-icon-overlay position-absolute bottom-0 start-0 m-2 p-2 rounded bg-white bg-opacity-75">
+                        <i class="break-type-icon bx bx-coffee-togo fs-4" style="color: var(--bs-primary);"></i>
+                    </div>
+                </div>
+                
+                <!-- Badges -->
                 <span class="system-badge image-badge system-image-badge d-none">System</span>
                 <span class="user-badge image-badge user-image-badge d-none">Custom</span>
+                
+                <!-- Duration overlay (bottom left) -->
+                <div class="duration-overlay position-absolute bottom-0 start-0 m-2 px-2 py-1 bg-dark bg-opacity-75 rounded text-white fs-sm">
+                    <i class="bx bx-time fs-sm me-1"></i>
+                    <span class="card-duration"></span> min
+                </div>
+                
+                <!-- Usage counter overlay (bottom right) -->
+                <div class="usage-overlay position-absolute bottom-0 end-0 m-2 px-2 py-1 bg-dark bg-opacity-75 rounded text-white fs-sm">
+                    <i class="bx bx-coffee-togo fs-sm me-1"></i>
+                    <span class="card-usage"></span>
+                </div>
             </div>
+            
             <div class="card-body">
-                <h3 class="h5 mb-2">
-                    <a href="#" class="card-title-link"></a>
+                <h3 class="h5 fw-semibold text-truncate mb-0">
+                    <span class="card-title-link"></span>
                 </h3>
-                <div class="d-flex align-items-center fs-sm text-muted mt-2">
-                    <div class="d-flex align-items-center me-4"
-                         data-bs-toggle="tooltip"
-                         style="cursor: pointer;"
-                         data-bs-placement="top"
-                         title="Default Break Duration">
-                        <i class="bx bx-time fs-xl me-1"></i>
-                        <span class="card-duration"></span>&nbsp;min
-                    </div>
-                    <div class="d-flex align-items-center"
-                         data-bs-toggle="tooltip"
-                         style="cursor: pointer;"
-                         data-bs-placement="top"
-                         title="Usage Counter">
-                        <i class="bx bx-coffee-togo fs-xl me-1"></i>
-                        <span class="card-usage"></span>&nbsp;times
-                    </div>
-                </div>
             </div>
-            <div class="card-footer d-flex align-items-center justify-content-between fs-sm py-4">
-                <div class="d-flex">
-                    <a href="javascript:;"
-                       class="btn-edit btn btn-sm btn-outline-primary me-3">
-                        <i class="bx bx-edit fs-xl me-1"></i>
-                        <span class="d-none d-md-inline">Edit</span>
-                    </a>
-                    <a href="#" class="btn-design btn btn-sm btn-outline-primary me-3">
-                        <i class="bx bx-palette fs-xl me-1"></i>
-                        <span class="d-none d-md-inline">Design</span>
-                        @if (!Model.IsSubscribed)
-                        {
-                            <i class="fa-solid fa-rectangle-pro fs-lg text-warning ms-2"></i>
-                        }
-                    </a>
-                </div>
-                <div class="btn-delete-container d-none">
-                    <a href="javascript:;" class="btn-delete btn btn-sm btn-outline-danger">
-                        <i class="bx bx-trash fs-xl me-1"></i>
-                        <span class="d-none d-md-inline">Delete</span>
-                    </a>
+            
+            <div class="card-footer d-flex align-items-center justify-content-start py-3">
+                <!-- Dropdown menu for actions -->
+                <div class="dropup">
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
+                        <i class="bx bx-cog fs-sm me-1"></i>
+                        Actions
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item break-type-preview-button" href="javascript:;">
+                                <i class="bx bx-search-alt fs-sm me-2"></i>
+                                Preview
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item btn-edit" href="javascript:;">
+                                <i class="bx bx-edit fs-sm me-2"></i>
+                                Edit
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item btn-design" href="#">
+                                <i class="bx bx-palette fs-sm me-2"></i>
+                                Design
+                                @if (!Model.IsSubscribed)
+                                {
+                                    <i class="fa-solid fa-rectangle-pro fs-lg text-warning ms-2"></i>
+                                }
+                            </a>
+                        </li>
+                        <li class="btn-delete-container d-none">
+                            <a class="dropdown-item btn-delete text-danger" href="javascript:;">
+                                <i class="bx bx-trash fs-sm me-2"></i>
+                                Delete
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </article>
@@ -227,6 +250,72 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Break Type Preview Modal -->
+<div class="modal fade" id="break-type-preview-modal" tabindex="-1" aria-labelledby="break-type-preview-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="break-type-preview-modal-label">Break Type Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <!-- Background Image Preview -->
+                        <div class="position-relative mb-4 mb-md-0">
+                            <img id="break-type-preview-background" src="" class="img-fluid rounded shadow-sm" alt="Background Image">
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <!-- Break Type Details -->
+                        <h4 id="break-type-preview-title" class="mb-3 fw-bold"></h4>
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-4 p-2 bg-light rounded">
+                                <i class="break-type-preview-icon bx bx-coffee-togo fs-1 text-primary"></i>
+                            </div>
+                            <div>
+                                <div class="mb-2">
+                                    <span class="badge bg-primary me-2">Duration</span>
+                                    <span id="break-type-preview-duration" class="text-body"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary me-2">Time Step</span>
+                                    <span id="break-type-preview-time-step" class="text-body"></span>
+                                </div>
+                                <div>
+                                    <span class="badge bg-info me-2">Usage</span>
+                                    <span id="break-type-preview-usage" class="text-body"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="small fw-semibold mb-1">Countdown Message</div>
+                                <div id="break-type-preview-countdown-message" class="small">Minutes until break ends</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="small fw-semibold mb-1">End Message</div>
+                                <div id="break-type-preview-end-message" class="small">Break is over</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn-edit-from-preview btn btn-primary">
+                    <i class="bx bx-edit fs-sm me-1"></i>
+                    Edit Break Type
+                </button>
             </div>
         </div>
     </div>
