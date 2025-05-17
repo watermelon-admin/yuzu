@@ -261,6 +261,25 @@ export class TimeZonesManager {
                 newTimeZone.isNewlyAdded = true;
                 // Append the card - weather info should be carried over if available
                 await this.appendTimeZoneCard(newTimeZone, true);
+                // Scroll the entire page to the top
+                console.log('[DEBUG] Scrolling entire page to top for new card');
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                // Make sure all scrollable containers are scrolled to the top
+                const scrollableContainers = document.querySelectorAll('.overflow-auto, .overflow-y-auto, [style*="overflow: auto"], [style*="overflow-y: auto"]');
+                scrollableContainers.forEach(container => {
+                    container.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+                // Make sure the specific time zones section is scrolled
+                const sectionContainer = document.getElementById('time-zones');
+                if (sectionContainer) {
+                    console.log('[DEBUG] Scrolling time zones section to top for new card');
+                }
                 // Final verification: Find the newly added card and check its weather info
                 setTimeout(() => {
                     const newCard = document.querySelector(`[data-timezone-id="${newTimeZone.zoneId}"]`);
@@ -1365,6 +1384,21 @@ export class TimeZonesManager {
             console.log('[DEBUG] Creating card with isNewCard =', isNewCard);
             const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.showTimeZoneInfoModal.bind(this), this.deleteTimeZone.bind(this), isNewCard // Pass the isNewCard flag to show the NEW badge
             );
+            // Add animation class to the new card
+            if (isNewCard) {
+                const article = cardElement.querySelector('article');
+                if (article) {
+                    // First make it invisible
+                    article.style.opacity = '0';
+                    article.style.transform = 'translateY(-20px) scale(0.95)';
+                    article.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                    // Then animate it in after a tiny delay
+                    setTimeout(() => {
+                        article.style.opacity = '1';
+                        article.style.transform = 'translateY(0) scale(1)';
+                    }, 50);
+                }
+            }
             // If it's a newly added card or home timezone, insert at the beginning of the container
             // This ensures both home timezones and new timezones are at the top
             if (isNewCard || timeZone.isHome || timeZone.isNewlyAdded) {
@@ -1437,12 +1471,32 @@ export class TimeZonesManager {
                     container.appendChild(cardElement);
                 }
             }
-            // When adding a new card, scroll it into view
+            // When adding a new card, scroll it into view with animation
             if (isNewCard) {
                 console.log('[DEBUG] Scrolling to show the new card');
+                // First, let the card be positioned in the DOM
                 setTimeout(() => {
                     if (cardElement) {
+                        // Smooth scroll to the card
                         cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Wait for scrolling to complete, then show animation
+                        setTimeout(() => {
+                            // Add a subtle pulse animation after scrolling
+                            const article = cardElement.querySelector('article');
+                            if (article) {
+                                // Add pulse animation
+                                article.style.transition = 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
+                                article.style.boxShadow = '0 0 15px rgba(40, 167, 69, 0.5)'; // Green glow for NEW
+                                article.style.transform = 'scale(1.03)';
+                                // Reset after animation completes
+                                setTimeout(() => {
+                                    article.style.transform = 'scale(1)';
+                                    setTimeout(() => {
+                                        article.style.boxShadow = '';
+                                    }, 300);
+                                }, 700);
+                            }
+                        }, 600); // Wait for scroll to complete before animating
                     }
                 }, 100);
             }
@@ -1764,12 +1818,55 @@ export class TimeZonesManager {
             // This ensures clean styling and correct ordering without having to 
             // handle complex DOM manipulations
             await this.loadUserTimeZonesDisplay();
-            // Scroll to the top to show the home time zone
+            // First, scroll the entire page to the top
+            console.log('[DEBUG] Scrolling entire page to top');
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            // Also scroll the section container if needed
+            const sectionContainer = document.getElementById('time-zones');
+            if (sectionContainer) {
+                console.log('[DEBUG] Scrolling time zones section to top');
+                // Try to find all scrollable containers and reset them
+                const scrollableContainers = document.querySelectorAll('.overflow-auto, .overflow-y-auto, [style*="overflow: auto"], [style*="overflow-y: auto"]');
+                scrollableContainers.forEach(container => {
+                    container.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+            // Then, scroll the inner viewport container to the top
             const viewportContainer = document.getElementById('time-zone-viewport-container');
             if (viewportContainer) {
-                console.log('[DEBUG] Scrolling to top to show home time zone');
-                viewportContainer.scrollTop = 0;
+                console.log('[DEBUG] Scrolling viewport container to top');
+                // Use smooth scrolling
+                viewportContainer.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
+            // AFTER scrolling is complete, show the animation with a delay
+            setTimeout(() => {
+                // Add animation to the new home time zone card
+                const homeCard = document.querySelector(`[data-timezone-id="${timeZoneId}"]`);
+                if (homeCard) {
+                    console.log('[DEBUG] Adding animation to home time zone card');
+                    const article = homeCard.querySelector('article');
+                    if (article) {
+                        // Add highlight animation
+                        article.style.transition = 'background-color 0.5s ease-out, transform 0.5s ease-out, box-shadow 0.5s ease-out';
+                        article.style.boxShadow = '0 0 20px rgba(0, 123, 255, 0.5)';
+                        article.style.transform = 'scale(1.03)';
+                        // Reset to normal after animation completes
+                        setTimeout(() => {
+                            article.style.boxShadow = '';
+                            article.style.transform = 'scale(1)';
+                        }, 1500);
+                    }
+                }
+            }, 600); // Wait for scrolling to complete before starting animation
         }
         catch (error) {
             console.error('[DEBUG] Error in setHomeTimeZone:', error);
