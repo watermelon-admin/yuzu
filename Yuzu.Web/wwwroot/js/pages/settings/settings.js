@@ -51,8 +51,20 @@ export function switchToTab(tabId) {
                 const topFade = targetContainer.querySelector('.fade-overlay.fade-top');
                 const bottomFade = targetContainer.querySelector('.fade-overlay.fade-bottom');
                 if (viewportContainer && topFade && bottomFade) {
-                    // Just trigger a scroll event to update fade effects
-                    viewportContainer.dispatchEvent(new Event('scroll'));
+                    // For time zones, we need to be more careful about performance
+                    if (tabId === 'time-zones') {
+                        // Check if we've already shown the time zones tab before
+                        if (!viewportContainer.hasAttribute('data-tab-shown')) {
+                            // First time showing the tab - trigger scroll for fade effects
+                            viewportContainer.dispatchEvent(new Event('scroll'));
+                            // Mark as shown to avoid unnecessary operations on subsequent tab switches
+                            viewportContainer.setAttribute('data-tab-shown', 'true');
+                        }
+                    }
+                    else {
+                        // For other tabs, just trigger scroll event to update fade effects
+                        viewportContainer.dispatchEvent(new Event('scroll'));
+                    }
                     // We don't need to call setupScrollFadeEffects again
                     // since it's been set up during initialization
                 }

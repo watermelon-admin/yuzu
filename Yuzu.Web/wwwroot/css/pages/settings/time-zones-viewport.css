@@ -9,13 +9,12 @@
 
 /* Special styling for home timezone card */
 #timezones-viewport-container .settings-card.border-primary {
-    background-color: #f0f7ff; /* Slightly blueish light grey */
     border-color: #2563EB; /* Keep the primary blue border */
 }
 
 #timezones-viewport-container .settings-card.border-primary .card-footer {
-    background-color: #e6f0ff; /* Slightly darker blue-grey for footer */
-    border-top-color: #c9d9f9;
+    background-color: rgba(230, 240, 255, 0.7); /* Semi-transparent footer */
+    border-top-color: rgba(201, 217, 249, 0.7);
 }
 
 /* Standardized card styles to match other sections */
@@ -54,12 +53,101 @@
 .timezone-background {
     background-size: cover;
     background-position: center;
+    position: relative;
 }
 
-/* Weather info display animations */
-.card-weather-info {
-    transition: opacity 0.3s ease, max-height 0.3s ease;
+/* Default background if no weather-specific class is applied */
+.timezone-background:not([class*="weather-code-"]) {
+    background-image: url('/img/weather/clouds.jpg');
 }
+
+/* Weather-specific backgrounds - currently all use the same image */
+/* When more images are added, each weather code can have its own background */
+.timezone-background.weather-code-0,  /* Clear sky */
+.timezone-background.weather-code-1,  /* Mainly clear */
+.timezone-background.weather-code-2,  /* Partly cloudy */
+.timezone-background.weather-code-3,  /* Cloudy */
+.timezone-background.weather-code-45, /* Fog */
+.timezone-background.weather-code-48, /* Depositing rime fog */
+.timezone-background.weather-code-51, /* Light drizzle */
+.timezone-background.weather-code-53, /* Moderate drizzle */
+.timezone-background.weather-code-55, /* Heavy drizzle */
+.timezone-background.weather-code-56, /* Light freezing drizzle */
+.timezone-background.weather-code-57, /* Dense freezing drizzle */
+.timezone-background.weather-code-61, /* Slight rain */
+.timezone-background.weather-code-63, /* Moderate rain */
+.timezone-background.weather-code-65, /* Heavy rain */
+.timezone-background.weather-code-66, /* Light freezing rain */
+.timezone-background.weather-code-67, /* Heavy freezing rain */
+.timezone-background.weather-code-71, /* Slight snow fall */
+.timezone-background.weather-code-73, /* Moderate snow fall */
+.timezone-background.weather-code-75, /* Heavy snow fall */
+.timezone-background.weather-code-77, /* Snow grains */
+.timezone-background.weather-code-80, /* Slight rain showers */
+.timezone-background.weather-code-81, /* Moderate rain showers */
+.timezone-background.weather-code-82, /* Violent rain showers */
+.timezone-background.weather-code-85, /* Slight snow showers */
+.timezone-background.weather-code-86, /* Heavy snow showers */
+.timezone-background.weather-code-95, /* Thunderstorm */
+.timezone-background.weather-code-96, /* Thunderstorm with slight hail */
+.timezone-background.weather-code-99  /* Thunderstorm with heavy hail */ {
+    background-image: url('/img/weather/clouds.jpg');
+}
+
+/* Consistent overlay for all cards */
+.timezone-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.15); /* Light overlay for better readability */
+    z-index: 1;
+}
+
+/* Ensure icons and content are above the overlay */
+.timezone-background i,
+.timezone-background .content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Weather info display animations and styling */
+.card-weather-info {
+    transition: max-height 0.3s ease;
+    color: #FFFFFF; /* White text for weather info */
+}
+
+/* Also make sure the icons are pure white */
+.card-weather-info i {
+    color: #FFFFFF;
+}
+
+/* Ensure consistent background opacity for all timezone cards */
+.timezone-background .position-absolute.bottom-0 {
+    background-color: rgba(0, 0, 0, 0.7) !important; /* Consistent with dynamically generated cards */
+}
+
+/* Override the template specific class */
+#time-zone-container .bg-opacity-40 {
+    --bs-bg-opacity: 0.7 !important; /* Force bg-opacity-40 to be the same as bg-opacity-70 */
+}
+
+/* Make all content in the badge pure white with consistent styling */
+.timezone-background .position-absolute.bottom-0 * {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+}
+
+/* Add text shadow to all text and icons in the badge for better visibility */
+.timezone-background .position-absolute.bottom-0 i,
+.timezone-background .position-absolute.bottom-0 span {
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
+    font-weight: 500 !important;
+}
+
+
 
 .card-weather-info.animate-in {
     animation: weather-appear 0.4s forwards;
@@ -67,11 +155,10 @@
 
 @keyframes weather-appear {
     0% {
-        opacity: 0;
+        /* No opacity change, only transform */
         transform: translateY(-5px);
     }
     100% {
-        opacity: 1;
         transform: translateY(0);
     }
 }

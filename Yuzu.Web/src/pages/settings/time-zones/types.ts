@@ -1,6 +1,22 @@
 // src/pages/settings/time-zones/types.ts
 
 /**
+ * Represents detailed weather information including temperature and weather code
+ */
+export interface DetailedWeatherInfo {
+    /** Temperature in Celsius */
+    temperatureC: number;
+    /** Temperature in Fahrenheit */
+    temperatureF: number;
+    /** WMO weather code (see https://open-meteo.com/en/docs) */
+    weatherCode: number;
+    /** Indicates whether it's day (1) or night (0) */
+    isDay: number;
+    /** Text description of the weather */
+    description: string;
+}
+
+/**
  * Represents information about a time zone.
  */
 export interface TimeZoneInfo {
@@ -22,8 +38,10 @@ export interface TimeZoneInfo {
     alias?: string;
     /** Indicates whether this timezone is the user's home timezone */
     isHome?: boolean;
-    /** Weather information for this timezone location */
+    /** Legacy weather information string */
     weatherInfo?: string;
+    /** Detailed weather information object */
+    detailedWeather?: DetailedWeatherInfo;
     /** Flag to indicate this is a newly added timezone that should be shown at the top */
     isNewlyAdded?: boolean;
 }

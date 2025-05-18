@@ -1,6 +1,5 @@
 // src/pages/settings/time-zones/card-creator.ts
 import { formatUtcOffset } from './time-utils.js';
-import { updateWeatherInfoOnCard } from './weather-utils.js';
 /**
  * Creates a time zone card element based on the given time zone information
  * @param timeZone - The time zone information to create a card for
@@ -24,24 +23,16 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             cardElement.setAttribute('data-timezone-id', timeZone.zoneId);
             // Set inner HTML manually as fallback
             // This is a fallback for when the home template isn't available
-            // Determine weather visibility class and create weather HTML with icon if needed
-            const weatherVisibilityClass = !timeZone.weatherInfo ? 'd-none' : '';
-            const weatherText = timeZone.weatherInfo || '';
-            let weatherHTML = weatherText;
-            // Add icon if we have weather info
-            if (timeZone.weatherInfo) {
-                const weatherLower = timeZone.weatherInfo.toLowerCase();
-                let weatherIcon = '<i class="bx bx-cloud me-1"></i>'; // Default icon
-                if (weatherLower.includes('clear') || weatherLower.includes('sunny')) {
-                    weatherIcon = '<i class="bx bx-sun me-1"></i>';
-                }
-                else if (weatherLower.includes('cloud')) {
-                    weatherIcon = '<i class="bx bx-cloud me-1"></i>';
-                }
-                else if (weatherLower.includes('rain') || weatherLower.includes('drizzle')) {
-                    weatherIcon = '<i class="bx bx-cloud-rain me-1"></i>';
-                }
-                weatherHTML = `${weatherIcon} ${weatherText}`;
+            // Determine weather visibility class and create temperature info with both C and F
+            const weatherVisibilityClass = !timeZone.detailedWeather ? 'd-none' : '';
+            let weatherHTML = '<i class="bx bxs-thermometer me-1"></i> --°C / --°F';
+            // Only use detailed weather info
+            if (timeZone.detailedWeather) {
+                // Show both Celsius and Fahrenheit
+                const tempC = Math.round(timeZone.detailedWeather.temperatureC);
+                const tempF = Math.round(timeZone.detailedWeather.temperatureF);
+                const temp = `${tempC}°C / ${tempF}°F`;
+                weatherHTML = `<i class="bx bxs-thermometer me-1"></i> ${temp}`;
             }
             cardElement.innerHTML = `
                 <article class="card settings-card h-100 border-primary">
@@ -50,8 +41,8 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                         <!-- Time zone visual as main image -->
                         <div class="time-zone-image-container position-relative" 
                              style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
-                            <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100" style="background-color: #f0f7ff;">
-                                <i class="bx bx-world display-1 text-primary opacity-25"></i>
+                            <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100">
+                                <i class="bx bx-world display-1 text-white opacity-50"></i>
                             </div>
                             
                             <!-- Home marker (centered text) -->
@@ -63,7 +54,7 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                             </div>
                             
                             <!-- Single badge with three lines in bottom center with left-aligned text -->
-                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-40 rounded text-white fs-sm text-start" style="min-width: 200px;">
+                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-70 rounded text-white fs-sm text-start" style="min-width: 200px;">
                                 <!-- Continent line -->
                                 <div class="d-flex align-items-center mb-1">
                                     <i class="bx bx-map fs-sm me-1"></i>
@@ -181,24 +172,16 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             cardElement.setAttribute('data-timezone-id', timeZone.zoneId);
             // Set inner HTML manually as fallback
             // This is a fallback for when the template isn't available
-            // Determine weather visibility class and create weather HTML with icon if needed
-            const weatherVisibilityClass = !timeZone.weatherInfo ? 'd-none' : '';
-            const weatherText = timeZone.weatherInfo || '';
-            let weatherHTML = weatherText;
-            // Add icon if we have weather info
-            if (timeZone.weatherInfo) {
-                const weatherLower = timeZone.weatherInfo.toLowerCase();
-                let weatherIcon = '<i class="bx bx-cloud me-1"></i>'; // Default icon
-                if (weatherLower.includes('clear') || weatherLower.includes('sunny')) {
-                    weatherIcon = '<i class="bx bx-sun me-1"></i>';
-                }
-                else if (weatherLower.includes('cloud')) {
-                    weatherIcon = '<i class="bx bx-cloud me-1"></i>';
-                }
-                else if (weatherLower.includes('rain') || weatherLower.includes('drizzle')) {
-                    weatherIcon = '<i class="bx bx-cloud-rain me-1"></i>';
-                }
-                weatherHTML = `${weatherIcon} ${weatherText}`;
+            // Determine weather visibility class and create temperature info with both C and F
+            const weatherVisibilityClass = !timeZone.detailedWeather ? 'd-none' : '';
+            let weatherHTML = '<i class="bx bxs-thermometer me-1"></i> --°C / --°F';
+            // Only use detailed weather info
+            if (timeZone.detailedWeather) {
+                // Show both Celsius and Fahrenheit
+                const tempC = Math.round(timeZone.detailedWeather.temperatureC);
+                const tempF = Math.round(timeZone.detailedWeather.temperatureF);
+                const temp = `${tempC}°C / ${tempF}°F`;
+                weatherHTML = `<i class="bx bxs-thermometer me-1"></i> ${temp}`;
             }
             cardElement.innerHTML = `
                 <article class="card settings-card h-100">
@@ -207,12 +190,12 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                         <!-- Time zone visual as main image -->
                         <div class="time-zone-image-container position-relative" 
                              style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
-                            <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100 bg-light">
-                                <i class="bx bx-world display-1 text-primary opacity-25"></i>
+                            <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100">
+                                <i class="bx bx-world display-1 text-white opacity-50"></i>
                             </div>
                             
                             <!-- Single badge with three lines in bottom center with left-aligned text -->
-                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-40 rounded text-white fs-sm text-start" style="min-width: 200px;">
+                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-70 rounded text-white fs-sm text-start" style="min-width: 200px;">
                                 <!-- Continent line -->
                                 <div class="d-flex align-items-center mb-1">
                                     <i class="bx bx-map fs-sm me-1"></i>
@@ -342,8 +325,8 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             deleteButton.setAttribute('onclick', `window.deleteTimeZone('${timeZone.zoneId}');`);
         }
     }
-    // Apply weather information with icons for all card types
-    if (timeZone.weatherInfo) {
+    // Apply weather information with icons and background for all card types
+    if (timeZone.detailedWeather) {
         // Force explicit display of weather info on the card
         const weatherInfo = cardElement.querySelector('.card-weather-info');
         if (weatherInfo) {
@@ -353,14 +336,21 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
             weatherInfo.style.display = 'block';
             weatherInfo.style.visibility = 'visible';
             weatherInfo.style.opacity = '1';
+            // Set the temperature content directly during card creation
+            // instead of calling updateWeatherInfoOnCard to avoid additional DOM operations
+            const tempC = Math.round(timeZone.detailedWeather.temperatureC);
+            const tempF = Math.round(timeZone.detailedWeather.temperatureF);
+            const temp = `${tempC}°C / ${tempF}°F`;
+            const weatherIcon = '<i class="bx bxs-thermometer me-1"></i>';
+            weatherInfo.innerHTML = `${weatherIcon} ${temp}`;
         }
         // Make the weather container visible
         const weatherContainer = cardElement.querySelector('.card-weather-container');
         if (weatherContainer) {
             weatherContainer.classList.remove('d-none');
         }
-        // Now update with icon and text
-        updateWeatherInfoOnCard(timeZone, cardElement);
+        // No longer applying weather-specific classes to reduce network requests
+        // No longer calling updateWeatherInfoOnCard to reduce DOM operations when switching tabs
     }
     return cardElement;
 }

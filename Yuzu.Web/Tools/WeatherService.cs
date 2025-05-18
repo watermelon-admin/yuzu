@@ -25,6 +25,37 @@ namespace Yuzu.Web.Tools
         }
         
         /// <summary>
+        /// Represents detailed weather information including temperature and weather code
+        /// </summary>
+        public class DetailedWeatherInfo
+        {
+            /// <summary>
+            /// Temperature in Celsius
+            /// </summary>
+            public double TemperatureC { get; set; }
+            
+            /// <summary>
+            /// Temperature in Fahrenheit
+            /// </summary>
+            public double TemperatureF { get; set; }
+            
+            /// <summary>
+            /// WMO weather code (see https://open-meteo.com/en/docs)
+            /// </summary>
+            public int WeatherCode { get; set; }
+            
+            /// <summary>
+            /// Indicates whether it's day (1) or night (0)
+            /// </summary>
+            public int IsDay { get; set; }
+            
+            /// <summary>
+            /// Text description of the weather
+            /// </summary>
+            public string Description { get; set; } = string.Empty;
+        }
+        
+        /// <summary>
         /// Gets a basic weather description for a given time zone
         /// </summary>
         /// <param name="ianaTimeZone">IANA time zone code</param>
@@ -106,6 +137,63 @@ namespace Yuzu.Web.Tools
             {
                 _logger.LogError(ex, "Error getting weather info for {City}, {Country}", city, country);
                 return "Weather data unavailable";
+            }
+        }
+        
+        /// <summary>
+        /// Gets detailed weather information for a given time zone
+        /// </summary>
+        /// <param name="ianaTimeZone">IANA time zone code</param>
+        /// <returns>Detailed weather information including temperature and weather code</returns>
+        public async Task<DetailedWeatherInfo?> GetDetailedWeatherInfoAsync(string ianaTimeZone)
+        {
+            try
+            {
+                // Get the geolocation data for this time zone
+                var geoData = _geolocator.GetTimeZoneGeoData(ianaTimeZone);
+                
+                if (geoData == null)
+                {
+                    _logger.LogWarning("No geolocation data found for time zone: {TimeZone}", ianaTimeZone);
+                    return null;
+                }
+                
+                var (latitude, longitude, city, country) = geoData.Value;
+                
+                // Log the coordinates we're using for debugging
+                _logger.LogInformation("Getting detailed weather for time zone {TimeZone} using coordinates: ({Lat}, {Lon}) - {City}, {Country}",
+                    ianaTimeZone, latitude, longitude, city, country);
+                    
+                // Get weather data from Open Meteo
+                var weatherData = await GetWeatherDataAsync(latitude, longitude, ianaTimeZone);
+                
+                // Convert temperature
+                double tempC = weatherData.CurrentWeather.Temperature;
+                double tempF = CelsiusToFahrenheit(tempC);
+                
+                // Get weather description
+                string description = GetWeatherDescription(weatherData.CurrentWeather.WeatherCode, weatherData.CurrentWeather.IsDay);
+                
+                // Create detailed weather info
+                var detailedInfo = new DetailedWeatherInfo
+                {
+                    TemperatureC = tempC,
+                    TemperatureF = tempF,
+                    WeatherCode = weatherData.CurrentWeather.WeatherCode,
+                    IsDay = weatherData.CurrentWeather.IsDay,
+                    Description = description
+                };
+                
+                // Log the result for debugging
+                _logger.LogInformation("Detailed weather for {TimeZone} ({City}, {Country}): {TempC}°C / {TempF}°F, Code: {Code}, Is Day: {IsDay}", 
+                    ianaTimeZone, city, country, tempC, tempF, weatherData.CurrentWeather.WeatherCode, weatherData.CurrentWeather.IsDay);
+                
+                return detailedInfo;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting detailed weather info for time zone: {TimeZone}", ianaTimeZone);
+                return null;
             }
         }
         

@@ -1,5 +1,59 @@
 // src/pages/settings/time-zones/weather-utils.ts
 /**
+ * Maps weather codes to background image filenames
+ * @param weatherCode The WMO weather code
+ * @param isDay Whether it's day (1) or night (0)
+ * @returns The image filename to use for the background
+ */
+export function getWeatherBackgroundImage(weatherCode, isDay) {
+    // Currently we only have clouds.jpg, so we'll return that for all weather codes
+    // In the future, this can be expanded with more images for different weather conditions
+    return '/img/weather/clouds.jpg';
+    /*
+    // Example of how this could be expanded in the future:
+    if (isDay === 0) {
+        // Night backgrounds
+        switch (weatherCode) {
+            case 0: // Clear sky
+                return '/img/weather/clear-night.jpg';
+            case 3: // Cloudy
+                return '/img/weather/cloudy-night.jpg';
+            // Add more cases for other weather codes at night
+            default:
+                return '/img/weather/clouds.jpg';
+        }
+    } else {
+        // Day backgrounds
+        switch (weatherCode) {
+            case 0: // Clear sky
+                return '/img/weather/clear-day.jpg';
+            case 1: // Mainly clear
+            case 2: // Partly cloudy
+                return '/img/weather/partly-cloudy.jpg';
+            case 3: // Cloudy
+                return '/img/weather/clouds.jpg';
+            case 51: // Light drizzle
+            case 53: // Moderate drizzle
+            case 55: // Heavy drizzle
+            case 61: // Light rain
+            case 63: // Moderate rain
+            case 65: // Heavy rain
+                return '/img/weather/rain.jpg';
+            case 71: // Light snow
+            case 73: // Moderate snow
+            case 75: // Heavy snow
+                return '/img/weather/snow.jpg';
+            case 95: // Thunderstorm
+            case 96: // Thunderstorm with light hail
+            case 99: // Thunderstorm with heavy hail
+                return '/img/weather/storm.jpg';
+            default:
+                return '/img/weather/clouds.jpg';
+        }
+    }
+    */
+}
+/**
  * Updates weather information on a time zone card with the appropriate weather icon
  * Key fix: This method ensures weather information is shown correctly on time zone cards
  * @param timeZone The time zone data with weather information
@@ -45,139 +99,103 @@ export function updateWeatherInfoOnCard(timeZone, cardElement) {
     updateWeatherContent(timeZone, weatherInfoElement, cardPath);
 }
 /**
- * Helper method to update weather content with appropriate icon
+ * Helper method to update weather content with temperature in both Celsius and Fahrenheit
  * This is extracted from updateWeatherInfoOnCard to avoid code duplication
  */
 export function updateWeatherContent(timeZone, weatherInfoElement, cardPath) {
     // Cast to HTMLElement to access style properties
     const htmlElement = weatherInfoElement;
-    // Check if we have valid weather information
-    if (timeZone.weatherInfo && timeZone.weatherInfo.length > 0) {
+    // Only use the new detailed weather information
+    if (timeZone.detailedWeather) {
         // Make sure the element is visible
         htmlElement.classList.remove('d-none');
-        // Make sure element is visible in various ways
-        // Add weather icon based on the weather description
-        const weatherText = timeZone.weatherInfo.toLowerCase();
-        let weatherIcon = '';
-        if (weatherText.includes('clear') || weatherText.includes('sunny')) {
-            weatherIcon = '<i class="bx bx-sun me-1"></i>';
-        }
-        else if (weatherText.includes('cloud')) {
-            weatherIcon = '<i class="bx bx-cloud me-1"></i>';
-        }
-        else if (weatherText.includes('rain') || weatherText.includes('drizzle') || weatherText.includes('showers')) {
-            weatherIcon = '<i class="bx bx-cloud-rain me-1"></i>';
-        }
-        else if (weatherText.includes('snow')) {
-            weatherIcon = '<i class="bx bx-cloud-snow me-1"></i>';
-        }
-        else if (weatherText.includes('thunder')) {
-            weatherIcon = '<i class="bx bx-cloud-lightning me-1"></i>';
-        }
-        else if (weatherText.includes('fog')) {
-            weatherIcon = '<i class="bx bx-cloud-light-rain me-1"></i>';
-        }
-        else {
-            weatherIcon = '<i class="bx bx-cloud me-1"></i>';
-        }
-        // Set the HTML directly with the weather icon
-        const newContent = `${weatherIcon} ${timeZone.weatherInfo}`;
+        // Format temperatures in both Celsius and Fahrenheit
+        const tempC = Math.round(timeZone.detailedWeather.temperatureC);
+        const tempF = Math.round(timeZone.detailedWeather.temperatureF);
+        const temp = `${tempC}°C / ${tempF}°F`;
+        // Use solid thermometer icon for temperature (bxs- prefix for solid icons)
+        const weatherIcon = '<i class="bx bxs-thermometer me-1"></i>';
+        // Set the HTML with only the temperature and icon
+        const newContent = `${weatherIcon} ${temp}`;
         htmlElement.innerHTML = newContent;
-        // Remove any display:none that might be from CSS
-        htmlElement.style.removeProperty('display');
+    }
+    else {
+        // If no detailed weather data, hide the element
+        htmlElement.classList.add('d-none');
+    }
+    // Always add these styles and classes if we have detailed weather info
+    if (timeZone.detailedWeather) {
         // Add animation class if not already present
         htmlElement.classList.add('animate-in');
-        // Ensure visibility with multiple approaches
+        // Ensure visibility
         htmlElement.style.display = 'block';
         htmlElement.style.visibility = 'visible';
-        htmlElement.style.opacity = '1';
-        // Override any conflicting styles - but keep animation properties
-        htmlElement.setAttribute('style', 'display: block !important; visibility: visible !important; opacity: 1 !important');
     }
     else {
         htmlElement.classList.add('d-none');
     }
 }
 /**
- * Sets up a mutation observer to ensure weather information is displayed correctly
- * when new time zone cards are added to the DOM
+ * Gets the appropriate weather icon class based on the weather code
+ * @param weatherCode The WMO weather code
+ * @param isDay Whether it's day (1) or night (0)
+ * @returns The Boxicons class name for the weather icon
+ */
+export function getWeatherIconClass(weatherCode, isDay) {
+    // Weather icon classes based on WMO codes: https://open-meteo.com/en/docs
+    if (isDay === 0) {
+        // Night icons
+        return weatherCode === 0 ? 'bx-moon' : 'bx-thermometer';
+    }
+    // Day icons
+    switch (weatherCode) {
+        case 0: // Clear sky
+            return 'bx-sun';
+        case 1: // Mainly clear
+        case 2: // Partly cloudy
+            return 'bx-cloud-light-rain';
+        case 3: // Cloudy
+            return 'bx-cloud';
+        case 45: // Fog
+        case 48: // Depositing rime fog
+            return 'bx-cloud-fog';
+        case 51: // Light drizzle
+        case 53: // Moderate drizzle
+        case 55: // Heavy drizzle
+        case 56: // Light freezing drizzle
+        case 57: // Heavy freezing drizzle
+        case 61: // Light rain
+        case 63: // Moderate rain
+        case 80: // Light rain showers
+        case 81: // Moderate rain showers
+            return 'bx-cloud-light-rain';
+        case 65: // Heavy rain
+        case 66: // Light freezing rain
+        case 67: // Heavy freezing rain
+        case 82: // Heavy rain showers
+            return 'bx-cloud-rain';
+        case 71: // Light snow
+        case 73: // Moderate snow
+        case 75: // Heavy snow
+        case 77: // Snow grains
+        case 85: // Light snow showers
+        case 86: // Heavy snow showers
+            return 'bx-cloud-snow';
+        case 95: // Thunderstorm
+        case 96: // Thunderstorm with light hail
+        case 99: // Thunderstorm with heavy hail
+            return 'bx-cloud-lightning';
+        default:
+            // Default icon for unknown weather codes
+            return 'bx-thermometer';
+    }
+}
+/**
+ * This function has been removed as it's no longer needed.
+ * We're now handling weather display directly in the updateWeatherContent function.
  */
 export function setupWeatherDisplayObserver() {
-    // Function to process newly added cards and ensure weather info is displayed
-    const processWeatherElements = (addedNodes) => {
-        // Check each added node for weather elements
-        Array.from(addedNodes).forEach((node) => {
-            if (!(node instanceof HTMLElement))
-                return;
-            // If this is a card or contains cards
-            const weatherElements = node.querySelectorAll('.card-weather-info');
-            weatherElements.forEach(element => {
-                const weatherElement = element;
-                const content = weatherElement.textContent || '';
-                // If it has weather content but is hidden, make it visible
-                if (content && content.trim() !== '') {
-                    // Remove d-none class
-                    weatherElement.classList.remove('d-none');
-                    // Apply direct styles to ensure visibility
-                    weatherElement.style.display = 'block';
-                    weatherElement.style.visibility = 'visible';
-                    weatherElement.style.opacity = '1';
-                    // Add animation class
-                    weatherElement.classList.add('animate-in');
-                    // Even if there's no icon, apply one based on weather text
-                    const weatherText = content.toLowerCase();
-                    let iconClass = 'bx-cloud';
-                    if (weatherText.includes('clear') || weatherText.includes('sunny')) {
-                        iconClass = 'bx-sun';
-                    }
-                    else if (weatherText.includes('rain') || weatherText.includes('drizzle')) {
-                        iconClass = 'bx-cloud-rain';
-                    }
-                    else if (weatherText.includes('snow')) {
-                        iconClass = 'bx-cloud-snow';
-                    }
-                    else if (weatherText.includes('thunder')) {
-                        iconClass = 'bx-cloud-lightning';
-                    }
-                    else if (weatherText.includes('fog')) {
-                        iconClass = 'bx-cloud-light-rain';
-                    }
-                    // Always create a clean icon element
-                    // Remove any existing icon first
-                    const existingIcons = weatherElement.querySelectorAll('i.bx');
-                    existingIcons.forEach(icon => icon.remove());
-                    // Add the new icon
-                    const icon = document.createElement('i');
-                    icon.className = `bx ${iconClass} me-1`;
-                    weatherElement.insertBefore(icon, weatherElement.firstChild);
-                }
-                else {
-                    weatherElement.classList.add('d-none');
-                }
-            });
-        });
-    };
-    // Create a mutation observer to watch for new cards
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach(mutation => {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                processWeatherElements(mutation.addedNodes);
-            }
-        });
-    });
-    // Start observing the container for added cards
-    const container = document.getElementById('time-zone-container');
-    if (container) {
-        observer.observe(container, { childList: true, subtree: true });
-    }
-    else {
-        // If container doesn't exist yet, wait and try again
-        setTimeout(() => {
-            const delayedContainer = document.getElementById('time-zone-container');
-            if (delayedContainer) {
-                observer.observe(delayedContainer, { childList: true, subtree: true });
-            }
-        }, 1000);
-    }
+    // Empty function - no longer using mutation observer
+    // This keeps backward compatibility with any code that might call this function
 }
 //# sourceMappingURL=weather-utils.js.map

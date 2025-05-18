@@ -551,8 +551,8 @@ export class TimeZonesManager {
         // Keep track of the original content in case we need to restore it
         const originalContent = container.innerHTML;
         try {
-            // Request all timezones with weather information
-            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000&includeWeather=true`;
+            // Request all timezones WITHOUT weather information for faster initial loading
+            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000&includeWeather=false`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -661,6 +661,8 @@ export class TimeZonesManager {
                     viewportContainer.dispatchEvent(new Event('scroll'));
                     // No need to call setupScrollFadeEffects here as it would cause layout recalculation
                 }
+                // Since we're optimizing for performance, we'll no longer load weather data separately
+                // Weather data is displayed directly during card creation if available
             }
             else {
                 // Show empty state message
