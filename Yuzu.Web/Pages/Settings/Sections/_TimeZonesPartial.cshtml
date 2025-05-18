@@ -4,7 +4,7 @@
     ViewData["SectionTitle"] = "Time Zones";
     ViewData["ContainerColumns"] = "row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4";
     ViewData["ShowViewport"] = true;
-    // Set this to true to prevent the loading indicator from being shown
+    // Set this to always true to prevent the loading indicator from being shown
     ViewData["PreLoaded"] = true;
     ViewData["ActionButton"] = new Dictionary<string, string>
     {
@@ -13,6 +13,18 @@
         { "text", "Add Time Zones" }
     };
 }
+
+<script>
+    // Set data-loaded directly to ensure no loading indicators appear
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ensure the container is marked as loaded immediately
+        const container = document.getElementById('time-zone-container');
+        if (container) {
+            container.setAttribute('data-loaded', 'true');
+            console.log('[DEBUG] Setting time-zone-container data-loaded=true directly');
+        }
+    });
+</script>
 
 @* Include the standardized template *@
 <partial name="~/Pages/Settings/Shared/_StandardSectionTemplate.cshtml" />

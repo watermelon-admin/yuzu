@@ -379,10 +379,17 @@ export function createTimeZoneCard(
     }
 
     // Apply weather information with icons and background for all card types
+    console.log(`[WEATHER-DEBUG] Creating card for ${timeZone.cities[0]}, has detailed weather: ${!!timeZone.detailedWeather}`);
+    
     if (timeZone.detailedWeather) {
+        console.log(`[WEATHER-DEBUG] Weather data for ${timeZone.cities[0]}:`, 
+            JSON.stringify(timeZone.detailedWeather));
+            
         // Force explicit display of weather info on the card
         const weatherInfo = cardElement.querySelector('.card-weather-info');
         if (weatherInfo) {
+            console.log(`[WEATHER-DEBUG] Found weather info element for ${timeZone.cities[0]}`);
+            
             // Remove d-none class to ensure visibility
             weatherInfo.classList.remove('d-none');
             weatherInfo.classList.add('animate-in'); // Add animation class
@@ -397,17 +404,30 @@ export function createTimeZoneCard(
             const tempF = Math.round(timeZone.detailedWeather.temperatureF);
             const temp = `${tempC}°C / ${tempF}°F`;
             const weatherIcon = '<i class="bx bxs-thermometer me-1"></i>';
-            (weatherInfo as HTMLElement).innerHTML = `${weatherIcon} ${temp}`;
+            const weatherContent = `${weatherIcon} ${temp}`;
+            console.log(`[WEATHER-DEBUG] Setting weather content: "${weatherContent}"`);
+            
+            (weatherInfo as HTMLElement).innerHTML = weatherContent;
+            console.log(`[WEATHER-DEBUG] Weather HTML set for ${timeZone.cities[0]}`);
+        } else {
+            console.warn(`[WEATHER-DEBUG] Weather info element NOT found for ${timeZone.cities[0]}`);
         }
         
         // Make the weather container visible
         const weatherContainer = cardElement.querySelector('.card-weather-container');
         if (weatherContainer) {
+            console.log(`[WEATHER-DEBUG] Found weather container for ${timeZone.cities[0]}`);
             weatherContainer.classList.remove('d-none');
+            (weatherContainer as HTMLElement).style.display = 'flex';
+            (weatherContainer as HTMLElement).style.visibility = 'visible';
+        } else {
+            console.warn(`[WEATHER-DEBUG] Weather container NOT found for ${timeZone.cities[0]}`);
         }
         
-        // No longer applying weather-specific classes to reduce network requests
-        // No longer calling updateWeatherInfoOnCard to reduce DOM operations when switching tabs
+        // Log HTML structure for debugging
+        console.log(`[WEATHER-DEBUG] Card HTML structure for ${timeZone.cities[0]}: ${cardElement.outerHTML.substring(0, 200)}...`);
+    } else {
+        console.log(`[WEATHER-DEBUG] No detailed weather data available for ${timeZone.cities[0]}`);
     }
 
     return cardElement;

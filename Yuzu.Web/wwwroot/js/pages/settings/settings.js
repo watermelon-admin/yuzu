@@ -12,7 +12,8 @@ import './break-types/wizard.js'; // Import the break type wizard
  * @param tabId - The ID of the tab to switch to
  */
 export function switchToTab(tabId) {
-    console.log(`🔄 Switching to tab: ${tabId}`);
+    console.log(`🔄 [DEBUG] Switching to tab: ${tabId} - DEBUGGING INFO`);
+    console.log(`🔄 [DEBUG] Stack trace:`, new Error().stack);
     console.time(`Tab switch to ${tabId}`);
     // Get the currently active container
     const activeContainer = document.querySelector('.settings-content-container.active');
@@ -53,16 +54,32 @@ export function switchToTab(tabId) {
                 if (viewportContainer && topFade && bottomFade) {
                     // For time zones, we need to be more careful about performance
                     if (tabId === 'time-zones') {
-                        // Check if we've already shown the time zones tab before
-                        if (!viewportContainer.hasAttribute('data-tab-shown')) {
-                            // First time showing the tab - trigger scroll for fade effects
-                            viewportContainer.dispatchEvent(new Event('scroll'));
-                            // Mark as shown to avoid unnecessary operations on subsequent tab switches
-                            viewportContainer.setAttribute('data-tab-shown', 'true');
-                        }
+                        console.log('[DEBUG] Time zones tab activated - CRITICAL DEBUGGING INFO');
+                        // Check container attributes
+                        console.log('[DEBUG] viewportContainer attributes:', {
+                            'data-loaded': viewportContainer.getAttribute('data-loaded'),
+                            'data-tab-shown': viewportContainer.getAttribute('data-tab-shown'),
+                            childElementCount: viewportContainer.childElementCount
+                        });
+                        // Find the actual time zone container (our card container)
+                        const timeZoneContainer = document.getElementById('time-zone-container');
+                        console.log('[DEBUG] time-zone-container element:', timeZoneContainer);
+                        console.log('[DEBUG] time-zone-container attributes:', {
+                            'data-loaded': timeZoneContainer === null || timeZoneContainer === void 0 ? void 0 : timeZoneContainer.getAttribute('data-loaded'),
+                            childElementCount: timeZoneContainer === null || timeZoneContainer === void 0 ? void 0 : timeZoneContainer.childElementCount,
+                            innerHTML: (timeZoneContainer === null || timeZoneContainer === void 0 ? void 0 : timeZoneContainer.innerHTML.substring(0, 200)) + '...',
+                            hasLoadingSpinner: (timeZoneContainer === null || timeZoneContainer === void 0 ? void 0 : timeZoneContainer.querySelector('.spinner-border')) !== null,
+                            visibleCards: timeZoneContainer === null || timeZoneContainer === void 0 ? void 0 : timeZoneContainer.querySelectorAll('.settings-card').length,
+                            hasLoadingPlaceholder: (timeZoneContainer === null || timeZoneContainer === void 0 ? void 0 : timeZoneContainer.querySelector('.loading-placeholder')) !== null
+                        });
+                        // Completely remove the scroll event dispatch - it might be causing repaint
+                        console.log('[DEBUG] NOT dispatching scroll event for Time Zones tab');
+                        // Mark as shown for future reference
+                        viewportContainer.setAttribute('data-tab-shown', 'true');
                     }
                     else {
                         // For other tabs, just trigger scroll event to update fade effects
+                        console.log(`[DEBUG] Dispatching scroll event for tab: ${tabId}`);
                         viewportContainer.dispatchEvent(new Event('scroll'));
                     }
                     // We don't need to call setupScrollFadeEffects again
