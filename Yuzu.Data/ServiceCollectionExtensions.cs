@@ -1,6 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Yuzu.Data.AzureTables;
+using Yuzu.Data.AzureTables.Repositories;
 using Yuzu.Data.Services;
 using Yuzu.Data.Services.Interfaces;
 
@@ -19,35 +20,32 @@ namespace Yuzu.Data
         /// <returns>The service collection for chaining</returns>
         public static IServiceCollection AddDataServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Get connection string from configuration
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("Could not find a connection string. Ensure that ConnectionStrings:DefaultConnection is set in appsettings.json or user secrets.");
-            }
-            
-            // Register the YuzuDbContext
-            services.AddDbContext<YuzuDbContext>(options =>
-                options.UseNpgsql(connectionString));
-            
+            // Register Azure Tables repositories
+            services.AddSingleton<IUserDataRepository, UserDataRepository>();
+            services.AddSingleton<IBreakTypeRepository, BreakTypeRepository>();
+            services.AddSingleton<IBreakRepository, BreakRepository>();
+            services.AddSingleton<IBackgroundImageRepository, BackgroundImageRepository>();
+
             // Register services
+            services.AddScoped<IUserDataService, UserDataService>();
             services.AddScoped<IBreakTypeService, BreakTypeService>();
             services.AddScoped<IBreakService, BreakService>();
-            services.AddScoped<IUserDataService, UserDataService>();
-            services.AddScoped<IUserDataCleanupService, UserDataCleanupService>();
             services.AddScoped<IBackgroundImageService, BackgroundImageService>();
-            
+            services.AddScoped<IUserDataCleanupService, UserDataCleanupService>();
+
             // Register system background image initializer service
             services.AddScoped<SystemBackgroundImageInitializer>();
-            
+
             // Add caching decorator for break type service
             services.Decorate<IBreakTypeService, CachedBreakTypeService>();
-            
+
+            // Initialize tables on startup
+            services.AddHostedService<AzureTablesInitializer>();
+
             return services;
         }
     }
-    
+
     /// <summary>
     /// Extension method for decorating services
     /// </summary>
@@ -69,10 +67,10 @@ namespace Yuzu.Data
             {
                 throw new InvalidOperationException($"Service of type {typeof(TService).Name} is not registered");
             }
-            
+
             // Remove the existing registration
             services.Remove(serviceDescriptor);
-            
+
             // Register the decorator with the original service as a dependency
             services.Add(new ServiceDescriptor(
                 typeof(TService),
@@ -82,7 +80,7 @@ namespace Yuzu.Data
                     return ActivatorUtilities.CreateInstance<TDecorator>(sp, innerService);
                 },
                 serviceDescriptor.Lifetime));
-            
+
             return services;
         }
     }
