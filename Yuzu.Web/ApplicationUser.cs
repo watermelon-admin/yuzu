@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+using ElCamino.AspNetCore.Identity.AzureTable.Model;
 
 namespace Yuzu.Web
 {
     /// <summary>
     /// Custom application user with additional profile and subscription properties
+    /// Note: ElCamino's IdentityUser for Azure Tables already includes many properties
+    /// Custom properties are stored in the same table entity
     /// </summary>
     public class ApplicationUser : IdentityUser
     {
