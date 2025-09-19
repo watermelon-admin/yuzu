@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using ElCamino.AspNetCore.Identity.AzureTable.Model;
 
 namespace Yuzu.Web
 {
