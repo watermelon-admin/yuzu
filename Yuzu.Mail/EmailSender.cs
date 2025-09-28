@@ -197,7 +197,7 @@ namespace Yuzu.Mail
 
             using var mailClient = new SmtpClient();
 
-            bool useSSL = (smtpPort != 25); // Allow for unencrypted port in development
+            bool useSSL = (smtpPort != 25 && smtpPort != 1025); // Allow for unencrypted port in development (25 = SMTP, 1025 = MailHog)
 
             try
             {
@@ -205,9 +205,17 @@ namespace Yuzu.Mail
                 await mailClient.ConnectAsync(smtpServer, smtpPort, useSSL);
                 _logger.LogInformation("Connected to SMTP server {SmtpServer}", smtpServer);
 
-                _logger.LogInformation("Authenticating with SMTP server {SmtpServer} using username {SmtpUsername}", smtpServer, smtpUsername);
-                await mailClient.AuthenticateAsync(smtpUsername, smtpPassword);
-                _logger.LogInformation("Authenticated with SMTP server {SmtpServer}", smtpServer);
+                // Only authenticate if credentials are provided (for development with MailHog)
+                if (!string.IsNullOrEmpty(smtpUsername) && !string.IsNullOrEmpty(smtpPassword))
+                {
+                    _logger.LogInformation("Authenticating with SMTP server {SmtpServer} using username {SmtpUsername}", smtpServer, smtpUsername);
+                    await mailClient.AuthenticateAsync(smtpUsername, smtpPassword);
+                    _logger.LogInformation("Authenticated with SMTP server {SmtpServer}", smtpServer);
+                }
+                else
+                {
+                    _logger.LogInformation("Skipping authentication (no credentials provided)");
+                }
 
                 _logger.LogInformation("Sending email to {ToEmail} with subject {Subject}", toEmail, subject);
                 await mailClient.SendAsync(mimeMessage);
