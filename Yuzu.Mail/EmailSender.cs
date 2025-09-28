@@ -202,7 +202,6 @@ namespace Yuzu.Mail
             try
             {
                 _logger.LogInformation("Connecting to SMTP server {SmtpServer} on port {SmtpPort}", smtpServer, smtpPort);
-                await mailClient.ConnectAsync(smtpServer, smtpPort, useSSL);
                 _logger.LogInformation("Connected to SMTP server {SmtpServer}", smtpServer);
 
                 // Only authenticate if credentials are provided (for development with MailHog)
