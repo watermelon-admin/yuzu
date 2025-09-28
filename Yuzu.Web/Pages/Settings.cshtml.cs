@@ -810,15 +810,23 @@ namespace Yuzu.Web.Pages
                 // Get the user's time zones
                 _logger.LogInformation("[DEBUG-TZLIST] Fetching time zones for UserId={UserId}", userId);
                 var userTimeZones = await GetUserTimeZonesAsync(userId);
-                var totalCount = userTimeZones.Count;
-                _logger.LogInformation("[DEBUG-TZLIST] Retrieved {TotalCount} time zones for UserId={UserId}. Raw data: {RawTimeZones}", 
-                    totalCount, userId, string.Join(", ", userTimeZones));
-                
+
                 // Get the user's home time zone
                 var homeTimeZone = await GetHomeTimeZoneAsync(userId);
-                _logger.LogInformation("[DEBUG-TZLIST] Home time zone for UserId={UserId} is {HomeTimeZone}", 
+                _logger.LogInformation("[DEBUG-TZLIST] Home time zone for UserId={UserId} is {HomeTimeZone}",
                     userId, homeTimeZone);
-                
+
+                // Ensure home time zone is included in the list
+                if (!string.IsNullOrEmpty(homeTimeZone) && !userTimeZones.Contains(homeTimeZone))
+                {
+                    _logger.LogInformation("[DEBUG-TZLIST] Adding home time zone {HomeTimeZone} to the list", homeTimeZone);
+                    userTimeZones.Insert(0, homeTimeZone); // Add at the beginning
+                }
+
+                var totalCount = userTimeZones.Count;
+                _logger.LogInformation("[DEBUG-TZLIST] Retrieved {TotalCount} time zones for UserId={UserId}. Raw data: {RawTimeZones}",
+                    totalCount, userId, string.Join(", ", userTimeZones));
+
                 // Apply pagination
                 var pagedTimeZones = userTimeZones.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
                 _logger.LogInformation("[DEBUG-TZLIST] After pagination: {PagedCount} time zones retrieved for page {PageNumber}. Raw data: {RawPagedTimeZones}", 
