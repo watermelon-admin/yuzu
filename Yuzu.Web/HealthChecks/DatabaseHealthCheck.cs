@@ -1,34 +1,43 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Yuzu.Data;
+using Azure.Data.Tables;
+using Microsoft.Extensions.Configuration;
 
 namespace Yuzu.Web.HealthChecks;
 
 public class DatabaseHealthCheck : IHealthCheck
 {
-    private readonly YuzuDbContext _dbContext;
+    private readonly IConfiguration _configuration;
 
-    public DatabaseHealthCheck(YuzuDbContext dbContext)
+    public DatabaseHealthCheck(IConfiguration configuration)
     {
-        _dbContext = dbContext;
+        _configuration = configuration;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         try
         {
-            // Check if database is accessible
-            bool canConnect = await _dbContext.Database.CanConnectAsync(cancellationToken);
-
-            if (canConnect)
+            var connectionString = _configuration.GetConnectionString("AzureTables");
+            if (string.IsNullOrEmpty(connectionString))
             {
-                return HealthCheckResult.Healthy("Database connection is healthy.");
+                return HealthCheckResult.Unhealthy("Azure Tables connection string is not configured.");
             }
-            
-            return HealthCheckResult.Degraded("Database connection is not available.");
+
+            var serviceClient = new TableServiceClient(connectionString);
+
+            // Try to get service properties to check connectivity
+            var properties = await serviceClient.GetPropertiesAsync(cancellationToken);
+
+            if (properties != null)
+            {
+                return HealthCheckResult.Healthy("Azure Tables connection is healthy.");
+            }
+
+            return HealthCheckResult.Degraded("Azure Tables connection is not available.");
         }
         catch (Exception ex)
         {
-            return HealthCheckResult.Unhealthy("Database health check failed.", ex);
+            return HealthCheckResult.Unhealthy("Azure Tables health check failed.", ex);
         }
     }
 }

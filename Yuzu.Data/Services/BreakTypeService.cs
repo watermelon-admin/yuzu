@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Yuzu.Data.Models;
 using Yuzu.Data.Services.Interfaces;
+using Yuzu.Data.AzureTables.Repositories;
+using Yuzu.Data.AzureTables.Entities;
 
 namespace Yuzu.Data.Services
 {
@@ -14,17 +15,20 @@ namespace Yuzu.Data.Services
     /// </summary>
     public class BreakTypeService : IBreakTypeService
     {
-        private readonly YuzuDbContext _dbContext;
+        private readonly IBreakTypeRepository _repository;
+        private readonly IBreakRepository _breakRepository;
         private readonly ILogger<BreakTypeService> _logger;
 
         /// <summary>
         /// Initializes a new instance of the BreakTypeService class
         /// </summary>
-        /// <param name="dbContext">The database context</param>
+        /// <param name="repository">The break type repository</param>
+        /// <param name="breakRepository">The break repository</param>
         /// <param name="logger">The logger</param>
-        public BreakTypeService(YuzuDbContext dbContext, ILogger<BreakTypeService> logger)
+        public BreakTypeService(IBreakTypeRepository repository, IBreakRepository breakRepository, ILogger<BreakTypeService> logger)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _breakRepository = breakRepository ?? throw new ArgumentNullException(nameof(breakRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -33,10 +37,11 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                return await _dbContext.BreakTypes
-                    .Where(bt => bt.UserId == userId)
+                var entities = await _repository.GetAllForUserAsync(userId);
+                return entities
+                    .Select(e => e.ToBreakType())
                     .OrderBy(bt => bt.SortOrder)
-                    .ToListAsync();
+                    .ToList();
             }
             catch (Exception ex)
             {
@@ -50,7 +55,9 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                return await _dbContext.BreakTypes.FindAsync(id);
+                // This method needs userId to work with Azure Tables
+                _logger.LogWarning("GetByIdAsync called without userId - not supported with Azure Tables");
+                return null;
             }
             catch (Exception ex)
             {
@@ -69,15 +76,14 @@ namespace Yuzu.Data.Services
 
             try
             {
-                var breakType = await _dbContext.BreakTypes
-                    .FirstOrDefaultAsync(bt => bt.UserId == userId && bt.Id == id);
-
-                if (breakType == null)
+                var entity = await _repository.GetAsync(userId, id.ToString());
+                if (entity == null)
                 {
                     _logger.LogInformation("Break type with ID {Id} not found for user {UserId}", id, userId);
+                    return null;
                 }
 
-                return breakType;
+                return entity.ToBreakType();
             }
             catch (Exception ex) when (ex is not ArgumentException)
             {
@@ -104,16 +110,11 @@ namespace Yuzu.Data.Services
                 // Ensure UpdatedAt is set
                 breakType.UpdatedAt = DateTime.UtcNow;
 
-                _dbContext.BreakTypes.Add(breakType);
-                await _dbContext.SaveChangesAsync();
+                var entity = await _repository.CreateAsync(breakType.UserId, breakType);
+                var created = entity.ToBreakType();
 
-                _logger.LogInformation("Created new break type with ID {Id} for user {UserId}", breakType.Id, breakType.UserId);
-                return breakType;
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Database error while creating break type for user {UserId}", breakType.UserId);
-                throw new InvalidOperationException($"Failed to create break type for user {breakType.UserId}. Database error occurred.", ex);
+                _logger.LogInformation("Created new break type for user {UserId}", breakType.UserId);
+                return created;
             }
             catch (Exception ex) when (ex is not ArgumentNullException && ex is not ArgumentException)
             {
@@ -125,45 +126,30 @@ namespace Yuzu.Data.Services
         /// <inheritdoc />
         public async Task<BreakType> UpdateAsync(BreakType breakType)
         {
+            if (breakType == null)
+            {
+                throw new ArgumentNullException(nameof(breakType));
+            }
+
+            if (string.IsNullOrEmpty(breakType.UserId))
+            {
+                throw new ArgumentException("Break type must have a valid User ID for update", nameof(breakType));
+            }
+
             try
             {
-                // First check if entity exists
-                bool exists = await _dbContext.BreakTypes.AnyAsync(bt => bt.Id == breakType.Id);
-                if (!exists)
-                {
-                    throw new KeyNotFoundException($"Break type with ID {breakType.Id} not found");
-                }
-
                 // Set timestamp for tracking
                 breakType.UpdatedAt = DateTime.UtcNow;
 
-                // Use entity tracking to efficiently update only changed fields
-                _dbContext.Entry(breakType).State = EntityState.Modified;
-
-                // Always preserve the original UserId
-                _dbContext.Entry(breakType).Property(bt => bt.UserId).IsModified = false;
-
-                // Always preserve the original CreatedAt
-                _dbContext.Entry(breakType).Property(bt => bt.CreatedAt).IsModified = false;
-
-                await _dbContext.SaveChangesAsync();
-
-                // Detach entity to prevent tracking issues
-                _dbContext.Entry(breakType).State = EntityState.Detached;
-
-                return breakType;
+                var entity = await _repository.UpdateAsync(breakType.UserId, breakType.Id.ToString(), breakType);
+                return entity.ToBreakType();
             }
-            catch (KeyNotFoundException)
+            catch (Exception ex) when (ex is not ArgumentNullException && ex is not ArgumentException)
             {
-                throw;
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                _logger.LogError(ex, "Concurrency conflict while updating break type with ID {Id}", breakType.Id);
-                throw new InvalidOperationException($"The break type with ID {breakType.Id} was modified by another user", ex);
-            }
-            catch (Exception ex)
-            {
+                if (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new KeyNotFoundException($"Break type with ID {breakType.Id} not found");
+                }
                 _logger.LogError(ex, "Error updating break type with ID {Id}", breakType.Id);
                 throw;
             }
@@ -174,35 +160,9 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                var breakType = await _dbContext.BreakTypes.FindAsync(id);
-                if (breakType == null)
-                {
-                    return false;
-                }
-
-                // Use a transaction to ensure atomicity
-                using var transaction = await _dbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    // Delete associated breaks directly with SQL for better performance
-                    await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM \"Data_Breaks\" WHERE break_type_id = {id}");
-
-                    // Delete the break type
-                    _dbContext.BreakTypes.Remove(breakType);
-                    await _dbContext.SaveChangesAsync();
-
-                    // Commit the transaction
-                    await transaction.CommitAsync();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    // Rollback the transaction on error
-                    await transaction.RollbackAsync();
-                    _logger.LogError(ex, "Transaction failed while deleting break type with ID {Id}", id);
-                    throw;
-                }
+                // This method needs userId to work with Azure Tables
+                _logger.LogWarning("DeleteAsync called without userId - not supported with Azure Tables");
+                return false;
             }
             catch (Exception ex)
             {
@@ -216,40 +176,19 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                var breakType = await _dbContext.BreakTypes
-                    .FirstOrDefaultAsync(bt => bt.UserId == userId && bt.Id == id);
+                // First delete all associated breaks
+                await _breakRepository.DeleteByBreakTypeAsync(userId, id.ToString());
 
-                if (breakType == null)
-                {
-                    return false;
-                }
-
-                // Use a transaction to ensure atomicity
-                using var transaction = await _dbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    // Delete associated breaks directly with SQL for better performance
-                    await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM \"Data_Breaks\" WHERE break_type_id = {id} AND user_id = {userId}");
-
-                    // Delete the break type
-                    _dbContext.BreakTypes.Remove(breakType);
-                    await _dbContext.SaveChangesAsync();
-
-                    // Commit the transaction
-                    await transaction.CommitAsync();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    // Rollback the transaction on error
-                    await transaction.RollbackAsync();
-                    _logger.LogError(ex, "Transaction failed while deleting break type with ID {Id} for user {UserId}", id, userId);
-                    throw;
-                }
+                // Then delete the break type
+                await _repository.DeleteAsync(userId, id.ToString());
+                return true;
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
                 _logger.LogError(ex, "Error deleting break type with ID {Id} for user {UserId}", id, userId);
                 throw;
             }
@@ -260,17 +199,10 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                var breakType = await _dbContext.BreakTypes.FindAsync(id);
-                if (breakType == null)
-                {
-                    return null;
-                }
-
-                breakType.UsageCount++;
-                breakType.UpdatedAt = DateTime.UtcNow;
-
-                await _dbContext.SaveChangesAsync();
-                return breakType;
+                // This method needs userId to work with Azure Tables
+                // Consider requiring userId parameter or deprecating this method
+                _logger.LogWarning("IncrementUsageCountAsync called without userId - not supported with Azure Tables");
+                return null;
             }
             catch (Exception ex)
             {
@@ -286,9 +218,7 @@ namespace Yuzu.Data.Services
             try
             {
                 // Check if user already has break types
-                var existingCount = await _dbContext.BreakTypes
-                    .Where(bt => bt.UserId == userId)
-                    .CountAsync();
+                var existingCount = await _repository.GetCountForUserAsync(userId);
 
                 if (existingCount > 0)
                 {
@@ -399,10 +329,15 @@ namespace Yuzu.Data.Services
             }
         };
 
-                _dbContext.BreakTypes.AddRange(defaultBreakTypes);
-                await _dbContext.SaveChangesAsync();
+                // Create default break types one by one
+                var createdBreakTypes = new List<BreakType>();
+                foreach (var breakType in defaultBreakTypes)
+                {
+                    var entity = await _repository.CreateAsync(userId, breakType);
+                    createdBreakTypes.Add(entity.ToBreakType());
+                }
 
-                return defaultBreakTypes;
+                return createdBreakTypes;
             }
             catch (Exception ex)
             {
@@ -418,31 +353,13 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                // Use a transaction to ensure atomicity
-                using var transaction = await _dbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    // Delete all breaks directly with SQL for better performance
-                    int deletedBreaksCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM \"Data_Breaks\" WHERE user_id = {userId}");
+                // Delete all breaks first
+                await _breakRepository.DeleteAllForUserAsync(userId);
 
-                    // Delete all break types directly with SQL for better performance
-                    int deletedBreakTypesCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM \"Data_BreakTypes\" WHERE user_id = {userId}");
+                // Then delete all break types
+                await _repository.DeleteAllForUserAsync(userId);
 
-                    // Commit the transaction
-                    await transaction.CommitAsync();
-
-                    _logger.LogInformation("Deleted {BreakCount} breaks and {BreakTypeCount} break types for user {UserId}",
-                        deletedBreaksCount, deletedBreakTypesCount, userId);
-                }
-                catch (Exception ex)
-                {
-                    // Rollback the transaction on error
-                    await transaction.RollbackAsync();
-                    _logger.LogError(ex, "Transaction failed while deleting all break types for user {UserId}", userId);
-                    throw;
-                }
+                _logger.LogInformation("Deleted all breaks and break types for user {UserId}", userId);
             }
             catch (Exception ex)
             {

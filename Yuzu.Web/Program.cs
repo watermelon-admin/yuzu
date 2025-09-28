@@ -295,46 +295,48 @@ using (var scope = app.Services.CreateScope())
 // Begin service connectivity checks
 app.Logger.LogInformation("Starting service connectivity checks...");
 
-// Database connectivity verification first
+// Azure Tables connectivity verification
 using (var scope = app.Services.CreateScope())
 {
     try
     {
-        // Get database context
-        var dbContext = scope.ServiceProvider.GetRequiredService<Yuzu.Data.YuzuDbContext>();
-        bool canConnect = false; // Default value
-        
         // Get connection string from configuration
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        
-        // Extract and log database information in consolidated format
+        var connectionString = builder.Configuration.GetConnectionString("AzureTables");
+        bool canConnect = false;
+
+        // Check Azure Tables connectivity
         try {
-            var connBuilder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
-            
-            // Just check database connectivity - schema created manually with migrations
-            canConnect = await dbContext.Database.CanConnectAsync();
-            
-            // Create a consolidated database info log
-            var dbInfo = new System.Text.StringBuilder("=== Database Connection ===\n");
-            dbInfo.AppendLine($"  Database: {connBuilder.Database}");
-            dbInfo.AppendLine($"  Host: {connBuilder.Host}");
-            dbInfo.AppendLine($"  Port: {connBuilder.Port}");
-            dbInfo.AppendLine($"  Username: {connBuilder.Username}");
-            dbInfo.AppendLine($"  Status: {(canConnect ? "Connected ✓" : "Failed ✗")}");
-            
-            app.Logger.LogInformation(dbInfo.ToString());
-            
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                var tableServiceClient = new Azure.Data.Tables.TableServiceClient(connectionString);
+
+                // Try to get service properties to check connectivity
+                var properties = await tableServiceClient.GetPropertiesAsync();
+                canConnect = properties != null;
+
+                // Create a consolidated storage info log
+                var storageInfo = new System.Text.StringBuilder("=== Azure Tables Connection ===\n");
+                storageInfo.AppendLine($"  Service: Azure Table Storage");
+                storageInfo.AppendLine($"  Status: {(canConnect ? "Connected ✓" : "Failed ✗")}");
+
+                app.Logger.LogInformation(storageInfo.ToString());
+            }
+            else
+            {
+                app.Logger.LogWarning("Azure Tables connection string not configured");
+            }
+
             if (!canConnect) {
-                app.Logger.LogWarning("Cannot connect to database - application may not function correctly");
+                app.Logger.LogWarning("Cannot connect to Azure Tables - application may not function correctly");
             }
         }
         catch (Exception ex) {
-            app.Logger.LogWarning("Could not connect to database: {Message}", ex.Message);
+            app.Logger.LogWarning("Could not connect to Azure Tables: {Message}", ex.Message);
         }
     }
     catch (Exception ex)
     {
-        app.Logger.LogError(ex, "An error occurred during database initialization");
+        app.Logger.LogError(ex, "An error occurred during Azure Tables initialization");
     }
 }
 

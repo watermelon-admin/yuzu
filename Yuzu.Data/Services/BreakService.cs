@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Yuzu.Data.Models;
 using Yuzu.Data.Services.Interfaces;
+using Yuzu.Data.AzureTables.Repositories;
+using Yuzu.Data.AzureTables.Entities;
 
 namespace Yuzu.Data.Services
 {
@@ -14,17 +15,20 @@ namespace Yuzu.Data.Services
     /// </summary>
     public class BreakService : IBreakService
     {
-        private readonly YuzuDbContext _dbContext;
+        private readonly IBreakRepository _breakRepository;
+        private readonly IBreakTypeRepository _breakTypeRepository;
         private readonly ILogger<BreakService> _logger;
-        
+
         /// <summary>
         /// Initializes a new instance of the BreakService class
         /// </summary>
-        /// <param name="dbContext">The database context</param>
+        /// <param name="breakRepository">The break repository</param>
+        /// <param name="breakTypeRepository">The break type repository</param>
         /// <param name="logger">The logger</param>
-        public BreakService(YuzuDbContext dbContext, ILogger<BreakService> logger)
+        public BreakService(IBreakRepository breakRepository, IBreakTypeRepository breakTypeRepository, ILogger<BreakService> logger)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _breakRepository = breakRepository ?? throw new ArgumentNullException(nameof(breakRepository));
+            _breakTypeRepository = breakTypeRepository ?? throw new ArgumentNullException(nameof(breakTypeRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         
@@ -33,16 +37,10 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                var breakEntity = await _dbContext.Breaks
-                    .Include(b => b.BreakType)
-                    .FirstOrDefaultAsync(b => b.Id == id);
-                    
-                if (breakEntity == null)
-                {
-                    _logger.LogInformation("Break with ID {Id} not found", id);
-                }
-                
-                return breakEntity;
+                // This method needs userId to work with Azure Tables
+                // Consider deprecating or requiring userId parameter
+                _logger.LogWarning("GetByIdAsync called without userId - not supported with Azure Tables");
+                return null;
             }
             catch (Exception ex)
             {
@@ -58,14 +56,29 @@ namespace Yuzu.Data.Services
             {
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
             }
-            
+
             try
             {
-                var breaks = await _dbContext.Breaks
-                    .Include(b => b.BreakType)
-                    .Where(b => b.UserId == userId)
-                    .ToListAsync();
-                    
+                var breakEntities = await _breakRepository.GetAllForUserAsync(userId);
+                var breaks = new List<Break>();
+
+                foreach (var entity in breakEntities)
+                {
+                    var breakModel = entity.ToBreak();
+
+                    // Load the BreakType if available
+                    if (!string.IsNullOrEmpty(entity.BreakTypeId))
+                    {
+                        var breakTypeEntity = await _breakTypeRepository.GetAsync(userId, entity.BreakTypeId);
+                        if (breakTypeEntity != null)
+                        {
+                            breakModel.BreakType = breakTypeEntity.ToBreakType();
+                        }
+                    }
+
+                    breaks.Add(breakModel);
+                }
+
                 _logger.LogInformation("Retrieved {Count} breaks for user {UserId}", breaks.Count, userId);
                 return breaks;
             }
@@ -83,35 +96,40 @@ namespace Yuzu.Data.Services
             {
                 throw new ArgumentNullException(nameof(breakEntity));
             }
-            
+
             if (string.IsNullOrEmpty(breakEntity.UserId))
             {
                 throw new ArgumentException("Break must have a valid User ID", nameof(breakEntity));
             }
-            
+
             try
             {
                 // Ensure UpdatedAt is set properly
                 breakEntity.UpdatedAt = DateTime.UtcNow;
-                
-                _dbContext.Breaks.Add(breakEntity);
-                await _dbContext.SaveChangesAsync();
-                
-                // Refresh the entity to include the break type
-                if (breakEntity.Id > 0)
+
+                // Get break type name if BreakType is set
+                string breakTypeName = "";
+                if (breakEntity.BreakType != null)
                 {
-                    await _dbContext.Entry(breakEntity)
-                        .Reference(b => b.BreakType)
-                        .LoadAsync();
+                    breakTypeName = breakEntity.BreakType.Name;
                 }
-                
-                _logger.LogInformation("Created new break with ID {Id} for user {UserId}", breakEntity.Id, breakEntity.UserId);
-                return breakEntity;
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Database error while creating break for user {UserId}", breakEntity.UserId);
-                throw new InvalidOperationException($"Failed to create break for user {breakEntity.UserId}. Database error occurred.", ex);
+                else if (breakEntity.BreakTypeId > 0)
+                {
+                    // Try to fetch break type name from repository
+                    var breakTypeEntity = await _breakTypeRepository.GetAsync(breakEntity.UserId, breakEntity.BreakTypeId.ToString());
+                    if (breakTypeEntity != null)
+                    {
+                        breakTypeName = breakTypeEntity.Name;
+                        breakEntity.BreakType = breakTypeEntity.ToBreakType();
+                    }
+                }
+
+                var createdEntity = await _breakRepository.CreateAsync(breakEntity.UserId, breakEntity, breakTypeName);
+                var createdBreak = createdEntity.ToBreak();
+                createdBreak.BreakType = breakEntity.BreakType;
+
+                _logger.LogInformation("Created new break for user {UserId}", breakEntity.UserId);
+                return createdBreak;
             }
             catch (Exception ex) when (ex is not ArgumentNullException && ex is not ArgumentException)
             {
@@ -128,49 +146,36 @@ namespace Yuzu.Data.Services
                 throw new ArgumentNullException(nameof(breakEntity));
             }
 
+            if (string.IsNullOrEmpty(breakEntity.UserId))
+            {
+                throw new ArgumentException("Break must have a valid User ID for update", nameof(breakEntity));
+            }
+
             try
             {
-                // First check if entity exists
-                bool exists = await _dbContext.Breaks.AnyAsync(b => b.Id == breakEntity.Id);
-                if (!exists)
-                {
-                    _logger.LogWarning("Attempted to update non-existent break with ID {Id}", breakEntity.Id);
-                    throw new KeyNotFoundException($"Break with ID {breakEntity.Id} not found");
-                }
-                
                 // Set timestamp for tracking
                 breakEntity.UpdatedAt = DateTime.UtcNow;
-                
-                // Use entity tracking to efficiently update only changed fields
-                _dbContext.Entry(breakEntity).State = EntityState.Modified;
-                
-                // Always preserve the original UserId and CreatedAt
-                _dbContext.Entry(breakEntity).Property(b => b.UserId).IsModified = false;
-                _dbContext.Entry(breakEntity).Property(b => b.CreatedAt).IsModified = false;
-                
-                await _dbContext.SaveChangesAsync();
-                
-                // Refresh the entity to include the break type if it's referenced
-                if (breakEntity.BreakType == null)
+
+                var updatedEntity = await _breakRepository.UpdateAsync(breakEntity.UserId, breakEntity.Id.ToString(), breakEntity);
+                var updatedBreak = updatedEntity.ToBreak();
+
+                // Load the BreakType if needed
+                if (breakEntity.BreakTypeId > 0 && breakEntity.BreakType == null)
                 {
-                    await _dbContext.Entry(breakEntity)
-                        .Reference(b => b.BreakType)
-                        .LoadAsync();
+                    var breakTypeEntity = await _breakTypeRepository.GetAsync(breakEntity.UserId, breakEntity.BreakTypeId.ToString());
+                    if (breakTypeEntity != null)
+                    {
+                        updatedBreak.BreakType = breakTypeEntity.ToBreakType();
+                    }
                 }
-                
-                return breakEntity;
+                else
+                {
+                    updatedBreak.BreakType = breakEntity.BreakType;
+                }
+
+                return updatedBreak;
             }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                _logger.LogError(ex, "Concurrency conflict while updating break with ID {Id}", breakEntity.Id);
-                throw new InvalidOperationException($"The break with ID {breakEntity.Id} was modified by another user", ex);
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Database error while updating break with ID {Id}", breakEntity.Id);
-                throw new InvalidOperationException($"Failed to update break with ID {breakEntity.Id}. Database error occurred.", ex);
-            }
-            catch (Exception ex) when (ex is not KeyNotFoundException && ex is not ArgumentNullException)
+            catch (Exception ex) when (ex is not ArgumentNullException && ex is not ArgumentException)
             {
                 _logger.LogError(ex, "Error updating break with ID {Id}", breakEntity.Id);
                 throw new InvalidOperationException($"Failed to update break with ID {breakEntity.Id}. See inner exception for details.", ex);
@@ -182,21 +187,9 @@ namespace Yuzu.Data.Services
         {
             try
             {
-                var breakEntity = await _dbContext.Breaks.FindAsync(id);
-                if (breakEntity == null)
-                {
-                    _logger.LogWarning("Attempted to delete non-existent break with ID {Id}", id);
-                    return false;
-                }
-                
-                _dbContext.Breaks.Remove(breakEntity);
-                await _dbContext.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Database error while deleting break with ID {Id}", id);
-                throw new InvalidOperationException($"Failed to delete break with ID {id}. Database error occurred.", ex);
+                // This method needs userId to work with Azure Tables
+                _logger.LogWarning("DeleteAsync called without userId - not supported with Azure Tables");
+                return false;
             }
             catch (Exception ex)
             {
@@ -212,30 +205,21 @@ namespace Yuzu.Data.Services
             {
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
             }
-            
+
             try
             {
-                var breakEntity = await _dbContext.Breaks
-                    .FirstOrDefaultAsync(b => b.UserId == userId && b.Id == id);
-                
-                if (breakEntity == null)
-                {
-                    _logger.LogWarning("Attempted to delete non-existent break with ID {Id} for user {UserId}", id, userId);
-                    return false;
-                }
-                
-                _dbContext.Breaks.Remove(breakEntity);
-                await _dbContext.SaveChangesAsync();
+                await _breakRepository.DeleteAsync(userId, id.ToString());
                 return true;
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Database error while deleting break with ID {Id} for user {UserId}", id, userId);
-                throw new InvalidOperationException($"Failed to delete break with ID {id}. Database error occurred.", ex);
             }
             catch (Exception ex) when (ex is not ArgumentException)
             {
                 _logger.LogError(ex, "Error deleting break with ID {Id} for user {UserId}", id, userId);
+                // Return false if the break doesn't exist
+                if (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogWarning("Attempted to delete non-existent break with ID {Id} for user {UserId}", id, userId);
+                    return false;
+                }
                 throw new InvalidOperationException($"Failed to delete break with ID {id} for user {userId}. See inner exception for details.", ex);
             }
         }
@@ -247,19 +231,11 @@ namespace Yuzu.Data.Services
             {
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
             }
-            
+
             try
             {
-                // Use direct SQL for better performance
-                int deletedCount = await _dbContext.Database.ExecuteSqlInterpolatedAsync(
-                    $"DELETE FROM \"Data_Breaks\" WHERE user_id = {userId}");
-                
-                _logger.LogInformation("Deleted {Count} breaks for user {UserId}", deletedCount, userId);
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Database error while deleting all breaks for user {UserId}", userId);
-                throw new InvalidOperationException($"Failed to delete breaks for user {userId}. Database error occurred.", ex);
+                await _breakRepository.DeleteAllForUserAsync(userId);
+                _logger.LogInformation("Deleted all breaks for user {UserId}", userId);
             }
             catch (Exception ex) when (ex is not ArgumentException)
             {

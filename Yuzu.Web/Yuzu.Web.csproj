@@ -36,18 +36,18 @@
 		<PackageReference Include="AWSSDK.S3" Version="3.7.305.24" />
 		<!-- Using ElCamino.AspNetCore.Identity.AzureTable for Azure Tables Identity storage -->
 		<PackageReference Include="ElCamino.AspNetCore.Identity.AzureTable" Version="9.0.5" />
-		<PackageReference Include="KubernetesClient" Version="16.0.7" />
+		<PackageReference Include="KubernetesClient" Version="17.0.14" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-			<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0" />
+			<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.9" />
 		<PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.8.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -63,7 +63,7 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.0" />
 		<PackageReference Include="SharpAbp.Abp.OpenTelemetry.Exporter.Otlp" Version="4.0.1" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 	</ItemGroup>
