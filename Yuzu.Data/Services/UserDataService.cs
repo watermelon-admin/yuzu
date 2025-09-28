@@ -186,7 +186,7 @@ namespace Yuzu.Data.Services
                     {
                         UserId = userId,
                         DataKey = UserDataKey.AdditionalTimeZones.ToString(),
-                        Value = "[]"
+                        Value = "Europe/Berlin,Europe/London,America/New_York,Asia/Tokyo"
                     }
                 };
 

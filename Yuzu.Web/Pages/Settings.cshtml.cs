@@ -1517,7 +1517,7 @@ namespace Yuzu.Web.Pages
                         timezonesData.DataKey, timezonesData.Value ?? "(null)");
                 }
                 
-                if (timezonesData == null || string.IsNullOrEmpty(timezonesData.Value))
+                if (timezonesData == null || string.IsNullOrEmpty(timezonesData.Value) || timezonesData.Value == "[]")
                 {
                     _logger.LogInformation("[DEBUG-TZLIST] No time zones found for userId={UserId}, initializing with defaults", userId);
                     // Initialize with default time zones if no data exists
