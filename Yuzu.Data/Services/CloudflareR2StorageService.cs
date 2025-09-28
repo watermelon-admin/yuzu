@@ -80,7 +80,8 @@ namespace Yuzu.Data.Services
             var config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                ForcePathStyle = true, // Required for R2
+                RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName("auto"), // Required for Cloudflare R2
+                ForcePathStyle = _s3Settings.ForcePathStyle, // Use setting value
                 UseHttp = _serviceUrl.StartsWith("http://"),
                 Timeout = TimeSpan.FromSeconds(30),
                 MaxErrorRetry = 3
@@ -237,13 +238,15 @@ namespace Yuzu.Data.Services
                     Key = objectName,  // In R2, we're using flat structure without container prefixes
                     InputStream = content,
                     ContentType = contentType,
-                    DisablePayloadSigning = true  // Critical for R2 compatibility
+                    DisablePayloadSigning = _s3Settings.DisablePayloadSigning // Required for R2 compatibility
                 };
                 
-                // Set public access if requested
+                // Note: Cloudflare R2 does not support ACLs
+                // Public access is managed through custom domains or R2 public URLs
+                // The isPublic parameter is noted but not enforced via ACL
                 if (isPublic)
                 {
-                    request.CannedACL = S3CannedACL.PublicRead;
+                    _logger.LogDebug("Object {ObjectName} requested as public, but R2 doesn't support ACLs. Ensure bucket is configured for public access via custom domain.", objectName);
                 }
                 
                 // Add metadata
