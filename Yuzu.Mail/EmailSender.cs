@@ -201,7 +201,11 @@ namespace Yuzu.Mail
 
             try
             {
-                _logger.LogInformation("Connecting to SMTP server {SmtpServer} on port {SmtpPort}", smtpServer, smtpPort);
+                _logger.LogInformation("Connecting to SMTP server {SmtpServer} on port {SmtpPort} with SSL={UseSSL}", smtpServer, smtpPort, useSSL);
+
+                // Connect to the SMTP server
+                await mailClient.ConnectAsync(smtpServer, smtpPort, useSSL ? MailKit.Security.SecureSocketOptions.StartTls : MailKit.Security.SecureSocketOptions.None);
+
                 _logger.LogInformation("Connected to SMTP server {SmtpServer}", smtpServer);
 
                 // Only authenticate if credentials are provided (for development with MailHog)
