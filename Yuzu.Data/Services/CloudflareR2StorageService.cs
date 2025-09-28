@@ -80,7 +80,8 @@ namespace Yuzu.Data.Services
             var config = new AmazonS3Config
             {
                 ServiceURL = _serviceUrl,
-                RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName("auto"), // Required for Cloudflare R2
+                // For Cloudflare R2, don't set RegionEndpoint as it overrides ServiceURL
+                // R2 handles region automatically through the service URL
                 ForcePathStyle = _s3Settings.ForcePathStyle, // Use setting value
                 UseHttp = _serviceUrl.StartsWith("http://"),
                 Timeout = TimeSpan.FromSeconds(30),
