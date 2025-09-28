@@ -1525,14 +1525,18 @@ namespace Yuzu.Web.Pages
                         timezonesData.DataKey, timezonesData.Value ?? "(null)");
                 }
                 
-                if (timezonesData == null || string.IsNullOrEmpty(timezonesData.Value) || timezonesData.Value == "[]")
+                if (timezonesData == null || string.IsNullOrEmpty(timezonesData.Value))
                 {
-                    _logger.LogInformation("[DEBUG-TZLIST] No time zones found for userId={UserId}, initializing with defaults", userId);
-                    // Initialize with default time zones if no data exists
-                    var defaultTimezones = new List<string> { "Europe/Berlin", "Europe/London", "America/New_York", "Asia/Tokyo" };
-                    await SaveUserTimeZonesAsync(userId, defaultTimezones);
-                    _logger.LogInformation("[DEBUG-TZLIST] Default time zones saved for userId={UserId}", userId);
-                    return defaultTimezones;
+                    _logger.LogInformation("[DEBUG-TZLIST] No time zones found for userId={UserId}, returning empty list", userId);
+                    // Return empty list - user has intentionally cleared all time zones
+                    return new List<string>();
+                }
+
+                // Handle the legacy "[]" case (empty JSON array as string)
+                if (timezonesData.Value == "[]")
+                {
+                    _logger.LogInformation("[DEBUG-TZLIST] Found legacy empty array '[]' for userId={UserId}, returning empty list", userId);
+                    return new List<string>();
                 }
                 
                 var timezones = new List<string>(timezonesData.Value.Split(','));
