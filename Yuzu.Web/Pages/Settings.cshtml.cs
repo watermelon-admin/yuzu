@@ -788,12 +788,12 @@ namespace Yuzu.Web.Pages
         /// <summary>
         /// Gets the user's selected time zones
         /// </summary>
-        public async Task<IActionResult> OnGetUserTimeZones(int pageNumber = 1, int pageSize = 10, bool includeWeather = false)
+        public async Task<IActionResult> OnGetUserTimeZones(int pageNumber = 1, int pageSize = 10)
         {
             return await this.SafeExecuteAsync(async () =>
             {
-                _logger.LogInformation("[DEBUG-TZLIST] Getting user time zones. PageNumber={PageNumber}, PageSize={PageSize}, IncludeWeather={IncludeWeather}", 
-                    pageNumber, pageSize, includeWeather);
+                _logger.LogInformation("[DEBUG-TZLIST] Getting user time zones. PageNumber={PageNumber}, PageSize={PageSize}",
+                    pageNumber, pageSize);
                 
                 // Check authentication
                 var authResult = this.EnsureAuthenticated(_userManager);
@@ -832,32 +832,7 @@ namespace Yuzu.Web.Pages
                 _logger.LogInformation("[DEBUG-TZLIST] After pagination: {PagedCount} time zones retrieved for page {PageNumber}. Raw data: {RawPagedTimeZones}", 
                     pagedTimeZones.Count, pageNumber, string.Join(", ", pagedTimeZones));
                 
-                // Get weather data if requested
-                Dictionary<string, string> weatherInfoData = new();
-                Dictionary<string, WeatherService.DetailedWeatherInfo> detailedWeatherData = new();
-                if (includeWeather)
-                {
-                    try
-                    {
-                        _logger.LogInformation("[DEBUG-TZLIST] Fetching weather data");
-                        var weatherService = HttpContext.RequestServices.GetRequiredService<WeatherService>();
-                        
-                        // Get detailed weather data
-                        detailedWeatherData = await weatherService.GetDetailedWeatherForTimeZonesAsync(pagedTimeZones);
-                        _logger.LogInformation("[DEBUG-TZLIST] Detailed weather data retrieved for {Count} time zones", 
-                            detailedWeatherData.Count);
-                            
-                        // For backward compatibility, also get the old weather string format
-                        weatherInfoData = await weatherService.GetWeatherForTimeZonesAsync(pagedTimeZones);
-                        _logger.LogInformation("[DEBUG-TZLIST] Legacy weather data retrieved for {Count} time zones: {WeatherData}", 
-                            weatherInfoData.Count, 
-                            string.Join("; ", weatherInfoData.Select(kvp => $"{kvp.Key}={kvp.Value}")));
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "[DEBUG-TZLIST] Error retrieving weather data");
-                    }
-                }
+                // Weather functionality removed for simplicity
                 
                 var now = DateTimeOffset.UtcNow;
                 _logger.LogInformation("[DEBUG-TZLIST] Starting to process time zone objects at {Now}", now);
@@ -916,17 +891,7 @@ namespace Yuzu.Web.Pages
                                 utcOffsetHours = 0,
                                 utcOffsetMinutes = 0,
                                 
-                                // Legacy weather information string (for backward compatibility)
-                                weatherInfo = includeWeather ? (weatherInfoData.TryGetValue(tz.IanaId, out var currentWeather) ? currentWeather : "Weather data unavailable") : null,
-                                
-                                // Detailed weather information
-                                detailedWeather = detailedWeather != null ? new {
-                                    temperatureC = detailedWeather.TemperatureC,
-                                    temperatureF = detailedWeather.TemperatureF,
-                                    weatherCode = detailedWeather.WeatherCode,
-                                    isDay = detailedWeather.IsDay,
-                                    description = detailedWeather.Description
-                                } : null
+                                // Weather information removed for simplicity
                             });
                         }
                         else
@@ -936,12 +901,6 @@ namespace Yuzu.Web.Pages
                                 tz.IanaId, offset.Hours, offset.Minutes);
 
                             // Create an object with all timezone information
-                            // Get detailed weather data if available
-                            WeatherService.DetailedWeatherInfo? detailedWeather = null;
-                            if (includeWeather && detailedWeatherData.TryGetValue(tz.IanaId, out var weather))
-                            {
-                                detailedWeather = weather;
-                            }
                             
                             var tzObject = new
                             {
@@ -956,17 +915,7 @@ namespace Yuzu.Web.Pages
                                 utcOffsetHours = offset.Hours,              // Full hours (e.g., 5) - for display
                                 utcOffsetMinutes = offset.Minutes,          // Minutes part (e.g., 30) - for display
                                 
-                                // Legacy weather information string (for backward compatibility)
-                                weatherInfo = includeWeather ? (weatherInfoData.TryGetValue(tz.IanaId, out var locationWeather) ? locationWeather : "Weather data unavailable") : null,
-                                
-                                // Detailed weather information
-                                detailedWeather = detailedWeather != null ? new {
-                                    temperatureC = detailedWeather.TemperatureC,
-                                    temperatureF = detailedWeather.TemperatureF,
-                                    weatherCode = detailedWeather.WeatherCode,
-                                    isDay = detailedWeather.IsDay,
-                                    description = detailedWeather.Description
-                                } : null
+                                // Weather information removed for simplicity
                             };
                             
                             timeZoneDetails.Add(tzObject);
