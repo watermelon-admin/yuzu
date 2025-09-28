@@ -42,7 +42,8 @@ namespace Yuzu.Web
                 options.User.RequireUniqueEmail = true;
 
                 // Sign-in settings
-                options.SignIn.RequireConfirmedAccount = false; // Set to true in production
+                options.SignIn.RequireConfirmedAccount = true; // Require email confirmation before login
+                options.SignIn.RequireConfirmedEmail = true; // Ensure email must be confirmed
 
                 // Lockout settings
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
