@@ -24,7 +24,7 @@ namespace Yuzu.Web.Configuration
         {
             // Register and validate all configuration sections
             services.AddOptions<MailSettings>()
-                .Bind(configuration.GetSection("MailConnectionConfig"))
+                .Bind(configuration.GetSection("MailSettings"))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
