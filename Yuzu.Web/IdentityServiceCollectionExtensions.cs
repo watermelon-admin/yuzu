@@ -58,7 +58,8 @@ namespace Yuzu.Web
                 },
                 () => new TableServiceClient(connectionString)
             )
-            .CreateAzureTablesIfNotExists<ApplicationDbContext>();
+            .CreateAzureTablesIfNotExists<ApplicationDbContext>()
+            .AddDefaultTokenProviders(); // Add default token providers for email confirmation, password reset, etc.
 
             // Add the services that AddDefaultIdentity would normally include
             // Create a wrapper for the existing email sender to work with Identity
