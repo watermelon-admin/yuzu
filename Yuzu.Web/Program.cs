@@ -123,12 +123,6 @@ builder.Services.AddDataServices(builder.Configuration);
 builder.Services.AddScoped<StripeService>();
 builder.Services.AddScoped<StripeTools>();
 
-// Add weather-related services
-builder.Services.AddSingleton<TimeZoneGeolocator>();
-builder.Services.AddHttpClient<WeatherService>();
-builder.Services.AddScoped<WeatherService>();
-
-// Note: TimeZone geolocation data is loaded on first use, not during startup
 
 // Configure Identity with PostgreSQL
 // Add Yuzu Identity services (uses the same PostgreSQL database but different DbContext)
