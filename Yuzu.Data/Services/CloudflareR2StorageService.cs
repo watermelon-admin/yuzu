@@ -19,6 +19,7 @@ namespace Yuzu.Data.Services
         private readonly string _serviceUrl;
         private readonly string _backgroundsContainer;
         private readonly string? _customDomain;
+        private readonly string? _publicUrl;
         
         /// <summary>
         /// Creates a new instance of CloudflareR2StorageService
@@ -59,6 +60,7 @@ namespace Yuzu.Data.Services
             _bucketName = _s3Settings.BucketName;
             _backgroundsContainer = _s3Settings.BackgroundsContainer;
             _customDomain = _s3Settings.CustomDomain;
+            _publicUrl = _s3Settings.PublicUrl;
             
             // Log configuration (without sensitive data)
             _logger.LogInformation("Initializing Cloudflare R2 Storage Service");
@@ -69,6 +71,11 @@ namespace Yuzu.Data.Services
             if (!string.IsNullOrEmpty(_customDomain))
             {
                 _logger.LogInformation("Custom Domain: {CustomDomain}", _customDomain);
+            }
+
+            if (!string.IsNullOrEmpty(_publicUrl))
+            {
+                _logger.LogInformation("Public URL: {PublicUrl}", _publicUrl);
             }
             
             _logger.LogInformation("Access Key: {KeyPrefix}...", _s3Settings.AccessKey.Substring(0, Math.Min(5, _s3Settings.AccessKey.Length)));
@@ -97,35 +104,46 @@ namespace Yuzu.Data.Services
         /// </summary>
         public string GetBaseUrl(string containerName)
         {
-            // If custom domain is configured, use it
-            if (!string.IsNullOrEmpty(_customDomain))
+            // Priority order:
+            // 1. PublicUrl (for public access - e.g., https://pub-xxx.r2.dev or custom domain)
+            // 2. CustomDomain (legacy support)
+            // 3. Fallback to private R2 URL (will require authentication)
+
+            string baseUrl;
+
+            if (!string.IsNullOrEmpty(_publicUrl))
             {
-                // If the custom domain already contains the bucket name (e.g., backgrounds.breakscreen.com)
-                // we don't need to add the bucket name
-                string baseUrl = _customDomain;
-                
-                // Ensure proper format with https:// prefix
-                if (!baseUrl.StartsWith("http"))
-                {
-                    baseUrl = $"https://{baseUrl}";
-                }
-                
-                // Remove trailing slash if present
-                if (baseUrl.EndsWith("/"))
-                {
-                    baseUrl = baseUrl.TrimEnd('/');
-                }
-                
-                _logger.LogDebug("Generated custom domain URL: {BaseUrl}", baseUrl);
-                return baseUrl;
+                // Use the configured public URL (could be R2.dev URL or custom domain)
+                baseUrl = _publicUrl;
+                _logger.LogDebug("Using configured public URL: {BaseUrl}", baseUrl);
+            }
+            else if (!string.IsNullOrEmpty(_customDomain))
+            {
+                // Legacy: If custom domain is configured, use it
+                baseUrl = _customDomain;
+                _logger.LogDebug("Using custom domain (legacy): {BaseUrl}", baseUrl);
+            }
+            else
+            {
+                // Fallback to private R2 URL (requires authentication - will not work for public access)
+                string accountId = _s3Settings.AccountId ?? string.Empty;
+                baseUrl = $"https://{accountId}.r2.cloudflarestorage.com/{_bucketName}";
+                _logger.LogWarning("No PublicUrl configured! Using private R2 URL which requires authentication: {BaseUrl}", baseUrl);
             }
 
-            // Use standard R2 URL format with account ID
-            string accountId = _s3Settings.AccountId ?? string.Empty;
-            string url = $"https://{accountId}.r2.cloudflarestorage.com/{_bucketName}";
-            
-            _logger.LogDebug("Generated standard R2 URL: {BaseUrl}", url);
-            return url;
+            // Ensure proper format with https:// prefix
+            if (!baseUrl.StartsWith("http"))
+            {
+                baseUrl = $"https://{baseUrl}";
+            }
+
+            // Remove trailing slash if present
+            if (baseUrl.EndsWith("/"))
+            {
+                baseUrl = baseUrl.TrimEnd('/');
+            }
+
+            return baseUrl;
         }
         
         /// <summary>

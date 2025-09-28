@@ -59,6 +59,12 @@ namespace Yuzu.Configuration.S3
         public string? CustomDomain { get; set; }
 
         /// <summary>
+        /// Public URL for accessing files (e.g., https://pub-xxx.r2.dev or custom domain)
+        /// Used for displaying images to end users
+        /// </summary>
+        public string? PublicUrl { get; set; }
+
+        /// <summary>
         /// S3 access key
         /// </summary>
         [Required]
