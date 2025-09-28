@@ -19,6 +19,8 @@
 
 ## Development Environment Setup
 
+> 📖 **Complete Setup Guide**: See [docs/DEVELOPMENT_CONTAINERS.md](docs/DEVELOPMENT_CONTAINERS.md) for detailed installation, troubleshooting, and management instructions.
+
 ### Required Services
 The application requires the following services for local development:
 
