@@ -17,6 +17,60 @@
 - Test single file: `npx jest path/to/test-file.test.ts`
 - Test coverage: `npm run test:coverage`
 
+## Development Environment Setup
+
+### Required Services
+The application requires the following services for local development:
+
+#### Azurite (Azure Storage Emulator)
+```bash
+# Start Azurite container
+docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 --name yuzu-azurite mcr.microsoft.com/azure-storage/azurite
+
+# Stop Azurite
+docker stop yuzu-azurite
+
+# Start existing container
+docker start yuzu-azurite
+
+# Remove container (to reset data)
+docker rm yuzu-azurite
+```
+
+#### MailHog (Email Testing)
+```bash
+# Start MailHog container
+docker run -d -p 1025:1025 -p 8025:8025 --name yuzu-mailhog mailhog/mailhog
+
+# View captured emails at: http://localhost:8025
+# SMTP server available at: localhost:1025
+
+# Stop MailHog
+docker stop yuzu-mailhog
+
+# Start existing container
+docker start yuzu-mailhog
+
+# Remove container
+docker rm yuzu-mailhog
+```
+
+#### Start All Development Services
+```bash
+# Start both services for development
+docker start yuzu-azurite yuzu-mailhog
+
+# Or create and start if not exists
+docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 --name yuzu-azurite mcr.microsoft.com/azure-storage/azurite
+docker run -d -p 1025:1025 -p 8025:8025 --name yuzu-mailhog mailhog/mailhog
+```
+
+### Configuration
+Development configuration is automatically used when `ASPNETCORE_ENVIRONMENT=Development`:
+- **Azure Storage**: Uses `UseDevelopmentStorage=true` (connects to Azurite)
+- **Email**: Configured to use MailHog (localhost:1025, no authentication)
+- **Debug Settings**: All users treated as subscribed for testing
+
 ## Testing Guidelines
 
 ### C# Unit Testing

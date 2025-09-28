@@ -350,10 +350,14 @@ using (var scope = app.Services.CreateScope())
         var s3Settings = scope.ServiceProvider.GetRequiredService<IOptions<S3Settings>>().Value;
         var storageService = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
         var backgroundImageInitializer = scope.ServiceProvider.GetRequiredService<Yuzu.Data.Services.SystemBackgroundImageInitializer>();
-        
+        var backgroundImageRepository = scope.ServiceProvider.GetRequiredService<Yuzu.Data.AzureTables.Repositories.IBackgroundImageRepository>();
+
         // First verify connectivity
         var items = await storageService.ListObjectsAsync(s3Settings.BackgroundsContainer);
-        
+
+        // Ensure the background images table exists before initializing
+        await backgroundImageRepository.InitializeAsync();
+
         // Then initialize background images
         await backgroundImageInitializer.InitializeAsync();
         

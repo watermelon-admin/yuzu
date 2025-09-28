@@ -27,7 +27,8 @@ namespace Yuzu.Web
             }
 
             // Configure Identity with Azure Tables using ElCamino with custom User and Role types
-            services.AddDefaultIdentity<ApplicationUser>(options =>
+            // Use AddIdentity instead of AddDefaultIdentity to avoid default UI registration
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 // Password settings - relaxed for initial testing
                 options.Password.RequireDigit = false;
@@ -47,7 +48,6 @@ namespace Yuzu.Web
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                 options.Lockout.MaxFailedAccessAttempts = 5;
             })
-            .AddRoles<ApplicationRole>()
             .AddAzureTableStores<ApplicationDbContext>(
                 () => new IdentityConfiguration
                 {
@@ -59,6 +59,14 @@ namespace Yuzu.Web
                 () => new TableServiceClient(connectionString)
             )
             .CreateAzureTablesIfNotExists<ApplicationDbContext>();
+
+            // Add the services that AddDefaultIdentity would normally include
+            // Create a wrapper for the existing email sender to work with Identity
+            services.AddSingleton<IEmailSender<ApplicationUser>>(provider =>
+            {
+                var emailSender = provider.GetRequiredService<Yuzu.Mail.IEmailSender>();
+                return new IdentityEmailSenderWrapper(emailSender);
+            });
 
             return services;
         }
