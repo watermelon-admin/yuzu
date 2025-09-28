@@ -42,7 +42,6 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                         <div class="time-zone-image-container position-relative" 
                              style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
                             <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100">
-                                <i class="bx bx-world display-1 text-white opacity-50"></i>
                             </div>
                             
                             <!-- Home marker (centered text) -->
@@ -191,7 +190,6 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                         <div class="time-zone-image-container position-relative" 
                              style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
                             <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100">
-                                <i class="bx bx-world display-1 text-white opacity-50"></i>
                             </div>
                             
                             <!-- Single badge with three lines in bottom center with left-aligned text -->
