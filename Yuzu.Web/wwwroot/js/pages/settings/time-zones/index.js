@@ -221,9 +221,45 @@ export class TimeZonesManager {
             // First get the selected timezone info
             const newTimeZone = this.timeZoneList.find(tz => tz.zoneId === this.selectedTimeZoneId);
             if (newTimeZone) {
+                // Fetch weather info for this timezone before displaying it
+                try {
+                    // Fetch all timezone data with weather
+                    const weatherUrl = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=50&includeWeather=true`;
+                    const weatherResponse = await fetch(weatherUrl, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        cache: 'no-store' // Prevent caching
+                    });
+                    if (weatherResponse.ok) {
+                        const responseText = await weatherResponse.text();
+                        // Parse the response
+                        let weatherData;
+                        try {
+                            weatherData = JSON.parse(responseText);
+                        }
+                        catch (parseError) {
+                            throw new Error('Failed to parse weather data response');
+                        }
+                        if (weatherData.success && ((_d = weatherData.data) === null || _d === void 0 ? void 0 : _d.data)) {
+                            // Find our time zone in the data
+                            const tzWithWeather = weatherData.data.data.find((tz) => tz.zoneId === newTimeZone.zoneId);
+                            if (tzWithWeather && tzWithWeather.weatherInfo) {
+                                // Add weather info to our time zone object
+                                newTimeZone.weatherInfo = tzWithWeather.weatherInfo;
+                            }
+                        }
+                    }
+                }
+                catch (error) {
+                    // Continue without weather info if there's an error
+                    console.warn('[TIME ZONES] Error fetching weather data:', error);
+                }
                 // Set a flag to indicate this is a new time zone that should be shown at the top
                 newTimeZone.isNewlyAdded = true;
-                // Append the card
+                // Append the card - weather info should be carried over if available
                 await this.appendTimeZoneCard(newTimeZone, true);
                 // Scroll the entire page to the top
                 console.log('[DEBUG] Scrolling entire page to top for new card');
@@ -244,8 +280,19 @@ export class TimeZonesManager {
                 if (sectionContainer) {
                     console.log('[DEBUG] Scrolling time zones section to top for new card');
                 }
-                // Show a simple toast notification
+                // Final verification: Find the newly added card and check its weather info
                 setTimeout(() => {
+                    const newCard = document.querySelector(`[data-timezone-id="${newTimeZone.zoneId}"]`);
+                    if (newCard) {
+                        const weatherEl = newCard.querySelector('.card-weather-info');
+                        if (weatherEl && newTimeZone.weatherInfo && newTimeZone.weatherInfo.length > 0) {
+                            weatherEl.classList.remove('d-none');
+                            weatherEl.style.display = 'block';
+                            weatherEl.style.visibility = 'visible';
+                            weatherEl.setAttribute('style', 'display: block !important');
+                        }
+                    }
+                    // Show a simple toast notification without the view link
                     createToast('Success: Time zone added successfully. Displaying at the top of the list.', true);
                 }, 100);
             }
@@ -298,12 +345,20 @@ export class TimeZonesManager {
             // Load available time zones first (needed for search functionality)
             await this.loadAvailableTimeZones();
             console.log(`[TIME ZONES] Loaded ${this.timeZoneList.length} available time zones`);
-            console.log('[TIME ZONES] Loading user time zones display...');
-            // Load and display user time zones
-            await this.loadUserTimeZonesDisplay(false);
+            console.log('[TIME ZONES] Loading user time zones display WITH WEATHER DATA...');
+            // Load and display user time zones WITH WEATHER DATA
+            // This is critical to ensure temperature information is displayed
+            // Do this ONCE during initial page load, not when switching tabs
+            await this.loadUserTimeZonesDisplay(true);
+            // Skip any additional weather data loading - the data is already loaded
             // Verify that cards are actually rendered
             const cards = container.querySelectorAll('.settings-card');
             console.log(`[TIME ZONES] Rendered ${cards.length} time zone cards`);
+            // Check if weather info is visible
+            const weatherElements = container.querySelectorAll('.card-weather-info');
+            const visibleWeatherElements = Array.from(weatherElements).filter(el => !el.classList.contains('d-none') &&
+                el.style.display !== 'none');
+            console.log(`[TIME ZONES] Found ${visibleWeatherElements.length} visible weather elements out of ${weatherElements.length} total`);
             // If we have no cards but also no error, we should show the empty state
             if (cards.length === 0 && container.querySelector('.col-12.text-center .text-muted') === null) {
                 console.log('[TIME ZONES] No cards found, showing empty state');
@@ -501,9 +556,9 @@ export class TimeZonesManager {
      * Loads and displays user's selected time zones in the main page container.
      * Called when the page loads to prepare all data.
      */
-    async loadUserTimeZonesDisplay() {
+    async loadUserTimeZonesDisplay(includeWeather = false) {
         var _a, _b;
-        console.log(`[TIME ZONES] loadUserTimeZonesDisplay called`);
+        console.log(`[TIME ZONES] loadUserTimeZonesDisplay called with includeWeather=${includeWeather}`);
         const container = document.getElementById('time-zone-container');
         if (!container) {
             console.error('[TIME ZONES] Container not found in loadUserTimeZonesDisplay');
@@ -512,8 +567,8 @@ export class TimeZonesManager {
         // Keep track of the original content in case we need to restore it
         const originalContent = container.innerHTML;
         try {
-            // Request time zones
-            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000`;
+            // Request time zones with or without weather based on parameter
+            const url = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000&includeWeather=${includeWeather}`;
             console.log(`[TIME ZONES] Fetching time zones with URL: ${url}`);
             const response = await fetch(url, {
                 method: 'GET',
@@ -623,6 +678,10 @@ export class TimeZonesManager {
                     viewportContainer.dispatchEvent(new Event('scroll'));
                     // No need to call setupScrollFadeEffects here as it would cause layout recalculation
                 }
+                // Skip the second weather data load - weather data is already loaded during initial page load
+                // No longer making a second call to loadWeatherDataForTimeZones
+                // This avoids the delay when switching tabs
+                // this.loadWeatherDataForTimeZones(timeZones.map(tz => tz.zoneId));
             }
             else {
                 // Show empty state message
@@ -666,6 +725,159 @@ export class TimeZonesManager {
             this.loadTimeZones(term, page);
         }
         // Main page pagination has been removed - we show all cards in the viewport
+    }
+    /**
+     * Loads weather data for the specified time zones during initial page load
+     * This ensures weather data is loaded once and displayed immediately when
+     * switching to the time zones tab
+     * @param zoneIds Array of time zone IDs to load weather data for
+     */
+    async loadWeatherDataForTimeZones(zoneIds) {
+        if (!zoneIds || zoneIds.length === 0) {
+            console.log('[TIME ZONES] No time zone IDs provided for weather data loading');
+            return;
+        }
+        console.log(`[TIME ZONES] Loading weather data for ${zoneIds.length} time zones...`, zoneIds);
+        try {
+            // Fetch all timezone data with weather using the UserTimeZones handler
+            // The API returns all time zones with weather if includeWeather=true
+            const weatherUrl = `${document.location.pathname}?handler=UserTimeZones&pageNumber=1&pageSize=1000&includeWeather=true`;
+            // Use GET request since this is what the existing handler expects
+            const weatherResponse = await fetch(weatherUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                cache: 'no-store' // Prevent caching to get fresh weather
+            });
+            if (!weatherResponse.ok) {
+                console.error(`[TIME ZONES] Error fetching weather data: ${weatherResponse.status}`);
+                const errorText = await weatherResponse.text();
+                console.error('[TIME ZONES] Error response:', errorText);
+                return;
+            }
+            // First try to parse the response as text to examine it
+            const responseText = await weatherResponse.text();
+            console.log('[TIME ZONES] Weather response received:', responseText.substring(0, 200) + '...');
+            // Now parse as JSON
+            let timeZonesWithWeather;
+            try {
+                timeZonesWithWeather = JSON.parse(responseText);
+            }
+            catch (error) {
+                console.error('[TIME ZONES] Error parsing weather response:', error);
+                return;
+            }
+            // Check what format the response is in
+            console.log('[TIME ZONES] Weather data format:', Object.keys(timeZonesWithWeather));
+            // Handle different possible response formats
+            let timeZonesList = [];
+            // The actual response format is wrapped in a success/message/data structure
+            if (timeZonesWithWeather.success && timeZonesWithWeather.data) {
+                // Check for pagedResults in the data property
+                if (timeZonesWithWeather.data.data && Array.isArray(timeZonesWithWeather.data.data)) {
+                    // If data is nested one level deeper - the common format from ASP.NET backends
+                    timeZonesList = timeZonesWithWeather.data.data;
+                    console.log(`[TIME ZONES] Using data.data with ${timeZonesList.length} items`);
+                }
+                else if (timeZonesWithWeather.data.pagedResults && Array.isArray(timeZonesWithWeather.data.pagedResults)) {
+                    // If using PagedTimeZoneResults format
+                    timeZonesList = timeZonesWithWeather.data.pagedResults;
+                    console.log(`[TIME ZONES] Using data.pagedResults with ${timeZonesList.length} items`);
+                }
+                else if (timeZonesWithWeather.data.items && Array.isArray(timeZonesWithWeather.data.items)) {
+                    // If using a different format with 'items'
+                    timeZonesList = timeZonesWithWeather.data.items;
+                    console.log(`[TIME ZONES] Using data.items with ${timeZonesList.length} items`);
+                }
+                else if (Array.isArray(timeZonesWithWeather.data)) {
+                    // If data is directly an array
+                    timeZonesList = timeZonesWithWeather.data;
+                    console.log(`[TIME ZONES] Using data array with ${timeZonesList.length} items`);
+                }
+            }
+            // Fall back to legacy format handling if not found
+            else if (timeZonesWithWeather.pagedResults && Array.isArray(timeZonesWithWeather.pagedResults)) {
+                timeZonesList = timeZonesWithWeather.pagedResults;
+                console.log(`[TIME ZONES] Using pagedResults with ${timeZonesList.length} items`);
+            }
+            else if (timeZonesWithWeather.items && Array.isArray(timeZonesWithWeather.items)) {
+                timeZonesList = timeZonesWithWeather.items;
+                console.log(`[TIME ZONES] Using items with ${timeZonesList.length} items`);
+            }
+            else if (Array.isArray(timeZonesWithWeather)) {
+                timeZonesList = timeZonesWithWeather;
+                console.log(`[TIME ZONES] Using direct array with ${timeZonesList.length} items`);
+            }
+            else {
+                console.error('[TIME ZONES] Unexpected response format, no time zone list found. Inspect the response:', JSON.stringify(timeZonesWithWeather).substring(0, 500) + '...');
+                return;
+            }
+            // Check if we have any time zones to process
+            if (!timeZonesList || timeZonesList.length === 0) {
+                console.warn('[TIME ZONES] No time zones with weather data found in the response');
+                return;
+            }
+            console.log(`[TIME ZONES] Processing ${timeZonesList.length} time zones with weather data`);
+            // Process each time zone with weather data
+            let updatedCount = 0;
+            // Update each card with weather information
+            timeZonesList.forEach(timeZone => {
+                // Log the first few time zones to check structure
+                if (updatedCount < 3) {
+                    console.log(`[TIME ZONES] Processing time zone:`, {
+                        id: timeZone.zoneId,
+                        city: timeZone.cities && timeZone.cities.length > 0 ? timeZone.cities[0] : 'Unknown',
+                        hasWeather: !!timeZone.detailedWeather,
+                        weatherDetails: timeZone.detailedWeather
+                    });
+                }
+                if (timeZone.detailedWeather) {
+                    const card = document.querySelector(`[data-timezone-id="${timeZone.zoneId}"]`);
+                    if (card) {
+                        // Find the weather info elements
+                        const weatherInfo = card.querySelector('.card-weather-info');
+                        const weatherContainer = card.querySelector('.card-weather-container');
+                        if (weatherInfo && weatherContainer) {
+                            // Remove d-none class to ensure visibility
+                            weatherInfo.classList.remove('d-none');
+                            weatherContainer.classList.remove('d-none');
+                            // Format the temperature for display
+                            const tempC = Math.round(timeZone.detailedWeather.temperatureC);
+                            const tempF = Math.round(timeZone.detailedWeather.temperatureF);
+                            const temp = `${tempC}°C / ${tempF}°F`;
+                            // Update the weather info with icon and text
+                            const weatherIcon = '<i class="bx bxs-thermometer me-1"></i>';
+                            weatherInfo.innerHTML = `${weatherIcon} ${temp}`;
+                            // Make sure it's visible with explicit styling
+                            weatherInfo.style.display = 'block';
+                            weatherInfo.style.visibility = 'visible';
+                            weatherInfo.style.opacity = '1';
+                            // Force the container to be visible too
+                            weatherContainer.style.display = 'flex';
+                            weatherContainer.style.visibility = 'visible';
+                            weatherContainer.style.opacity = '1';
+                            updatedCount++;
+                        }
+                        else {
+                            console.warn(`[TIME ZONES] Weather elements not found for card ${timeZone.zoneId}`);
+                        }
+                    }
+                    else {
+                        console.warn(`[TIME ZONES] Card for time zone ${timeZone.zoneId} not found`);
+                    }
+                }
+            });
+            console.log(`[TIME ZONES] Weather data applied to ${updatedCount} cards out of ${timeZonesList.length} time zones`);
+            // Check the DOM to verify weather info is visible
+            const allWeatherInfos = document.querySelectorAll('.card-weather-info');
+            const visibleCount = Array.from(allWeatherInfos).filter(el => !el.classList.contains('d-none')).length;
+            console.log(`[TIME ZONES] Found ${allWeatherInfos.length} weather info elements, ${visibleCount} are visible`);
+        }
+        catch (error) {
+            console.error('[TIME ZONES] Error loading weather data:', error);
+        }
     }
     /**
      * Searches and paginates the time zone list based on the given search term.

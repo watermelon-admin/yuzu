@@ -873,12 +873,6 @@ namespace Yuzu.Web.Pages
                         {
                             _logger.LogWarning("[DEBUG-TZLIST] System time zone not found for {TimeZoneId}, using default values", tz.IanaId);
                             // Handle the null case - create a default object with 0 offset
-                            // Get detailed weather data if available
-                            WeatherService.DetailedWeatherInfo? detailedWeather = null;
-                            if (includeWeather && detailedWeatherData.TryGetValue(tz.IanaId, out var weather))
-                            {
-                                detailedWeather = weather;
-                            }
                             
                             timeZoneDetails.Add(new
                             {
