@@ -64,18 +64,31 @@ namespace Yuzu.Web.Pages
             // Fetch break details
             BreakId = id;
             _logger.LogInformation("Received request to fetch break details for BreakId: {BreakId}", BreakId);
-            _logger.LogInformation("Fetching break details for BreakId: {BreakId}", BreakId);
-            
-            // For mobile page, we need to get all breaks for all users to find this break
-            // This is a simplified approach - in production you might want to add a user parameter
-            // For now, we'll return NotFound since we can't lookup without userId
-            _logger.LogError("Mobile page requires userId parameter to lookup breaks with GUID: {BreakId}", BreakId);
-            return NotFound();
 
-            // TODO: Update mobile page to require userId parameter or implement a different lookup strategy
+            // Get break by breakId only (no userId required thanks to new table structure)
+            BreakDetails = await _breakService.GetByBreakIdAsync(BreakId);
 
-            // This code is commented out until the lookup strategy is updated
-            // return Page();
+            if (BreakDetails == null)
+            {
+                _logger.LogWarning("Break not found with BreakId: {BreakId}", BreakId);
+                return NotFound();
+            }
+
+            _logger.LogInformation("Successfully fetched break details for BreakId: {BreakId}", BreakId);
+
+            // Fetch break type details
+            if (!string.IsNullOrEmpty(BreakDetails.BreakTypeId))
+            {
+                _logger.LogInformation("Fetching break type details for BreakTypeId: {BreakTypeId}", BreakDetails.BreakTypeId);
+                BreakTypeDetails = await _breakTypeService.GetAsync(BreakDetails.UserId, BreakDetails.BreakTypeId);
+
+                if (BreakTypeDetails == null)
+                {
+                    _logger.LogWarning("Break type not found for BreakTypeId: {BreakTypeId}", BreakDetails.BreakTypeId);
+                }
+            }
+
+            return Page();
         }
     }
 }

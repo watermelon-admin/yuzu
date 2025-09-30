@@ -6,12 +6,15 @@ namespace Yuzu.Data.AzureTables.Entities
 {
     public class BreakEntity : ITableEntity
     {
-        public string PartitionKey { get; set; } = string.Empty; // userId
-        public string RowKey { get; set; } = string.Empty; // breakId (GUID)
+        private const string DefaultRowKey = "break";
+
+        public string PartitionKey { get; set; } = string.Empty; // breakId (GUID)
+        public string RowKey { get; set; } = DefaultRowKey; // Constant value - only one document per partition
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
 
         // Business Properties
+        public string UserId { get; set; } = string.Empty; // Stored as a property instead of RowKey
         public string BreakTypeId { get; set; } = string.Empty; // GUID reference
         public string BreakTypeName { get; set; } = string.Empty; // Denormalized for display
         public DateTime StartTime { get; set; }
@@ -21,10 +24,11 @@ namespace Yuzu.Data.AzureTables.Entities
 
         public BreakEntity() { }
 
-        public BreakEntity(string userId, string breakId)
+        public BreakEntity(string breakId, string userId)
         {
-            PartitionKey = userId;
-            RowKey = breakId;
+            PartitionKey = breakId;
+            RowKey = DefaultRowKey;
+            UserId = userId;
         }
     }
 }
