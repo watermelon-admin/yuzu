@@ -78,6 +78,7 @@
     border-radius: 0.2rem !important;
 }
 
+
 /* Add extra padding for non-icon-only buttons */
 .settings-card .btn-sm:not(.btn-icon-only) {
     padding-left: 0.75rem !important;

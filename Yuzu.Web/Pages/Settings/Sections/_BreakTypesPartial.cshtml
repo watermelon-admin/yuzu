@@ -56,44 +56,26 @@
                 </h3>
             </div>
             
-            <div class="card-footer d-flex align-items-center justify-content-start py-3">
-                <!-- Dropdown menu for actions -->
-                <div class="dropup">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
-                        <i class="bx bx-cog fs-sm me-1"></i>
-                        Actions
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item break-type-preview-button" href="javascript:;">
-                                <i class="bx bx-search-alt fs-sm me-2"></i>
-                                Preview
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item btn-edit" href="javascript:;">
-                                <i class="bx bx-edit fs-sm me-2"></i>
-                                Edit
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item btn-design" href="#">
-                                <i class="bx bx-palette fs-sm me-2"></i>
-                                Design
-                                @if (!Model.IsSubscribed)
-                                {
-                                    <i class="fa-solid fa-rectangle-pro fs-lg text-warning ms-2"></i>
-                                }
-                            </a>
-                        </li>
-                        <li class="btn-delete-container d-none">
-                            <a class="dropdown-item btn-delete text-danger" href="javascript:;">
-                                <i class="bx bx-trash fs-sm me-2"></i>
-                                Delete
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="card-footer d-flex align-items-center justify-content-start gap-2 py-3">
+                <!-- Edit button -->
+                <button class="btn btn-sm btn-outline-primary btn-edit">
+                    <i class="bx bx-edit fs-sm me-1"></i>
+                    Edit
+                </button>
+                <!-- Design button -->
+                <button class="btn btn-sm btn-outline-secondary btn-design">
+                    <i class="bx bx-palette fs-sm me-1"></i>
+                    Design
+                    @if (!Model.IsSubscribed)
+                    {
+                        <i class="fa-solid fa-rectangle-pro fs-sm text-warning ms-1"></i>
+                    }
+                </button>
+                <!-- Delete button (hidden by default for system break types) -->
+                <button class="btn btn-sm btn-outline-danger btn-delete d-none">
+                    <i class="bx bx-trash-alt fs-sm me-1"></i>
+                    Delete
+                </button>
             </div>
         </article>
     </div>
@@ -255,68 +237,3 @@
     </div>
 </div>
 
-<!-- Break Type Preview Modal -->
-<div class="modal fade" id="break-type-preview-modal" tabindex="-1" aria-labelledby="break-type-preview-modal-label" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="break-type-preview-modal-label">Break Type Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="row align-items-center">
-                    <div class="col-md-5">
-                        <!-- Background Image Preview -->
-                        <div class="position-relative mb-4 mb-md-0">
-                            <img id="break-type-preview-background" src="" class="img-fluid rounded shadow-sm" alt="Background Image">
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <!-- Break Type Details -->
-                        <h4 id="break-type-preview-title" class="mb-3 fw-bold"></h4>
-                        
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="me-4 p-2 bg-light rounded">
-                                <i class="break-type-preview-icon bx bx-coffee-togo fs-1 text-primary"></i>
-                            </div>
-                            <div>
-                                <div class="mb-2">
-                                    <span class="badge bg-primary me-2">Duration</span>
-                                    <span id="break-type-preview-duration" class="text-body"></span>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-secondary me-2">Time Step</span>
-                                    <span id="break-type-preview-time-step" class="text-body"></span>
-                                </div>
-                                <div>
-                                    <span class="badge bg-info me-2">Usage</span>
-                                    <span id="break-type-preview-usage" class="text-body"></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-3">
-                        
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="small fw-semibold mb-1">Countdown Message</div>
-                                <div id="break-type-preview-countdown-message" class="small">Minutes until break ends</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="small fw-semibold mb-1">End Message</div>
-                                <div id="break-type-preview-end-message" class="small">Break is over</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn-edit-from-preview btn btn-primary">
-                    <i class="bx bx-edit fs-sm me-1"></i>
-                    Edit Break Type
-                </button>
-            </div>
-        </div>
-    </div>
-</div>

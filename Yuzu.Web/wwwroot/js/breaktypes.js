@@ -52,9 +52,9 @@ var Yuzu;
                             // Server returns a standardized format with success, message, and data properties
                             const data = responseData;
                             console.log('Processed data:', data);
-                            // Get the container and template   
-                            const container = document.getElementById('breakTypeContainer');
-                            const template = document.getElementById('breakTypeTemplate');
+                            // Get the container and template
+                            const container = document.getElementById('break-type-container');
+                            const template = document.getElementById('break-type-template');
                             if (!container || !template) {
                                 console.error('Container or template not found');
                                 return;
@@ -81,7 +81,7 @@ var Yuzu;
                                 // Usage Count
                                 $cardDiv.find('.card-usage-count').text(item.usageCount.toString());
                                 // Edit button
-                                const $editButton = $cardDiv.find('.card-edit-button');
+                                const $editButton = $cardDiv.find('.btn-edit');
                                 $editButton.data('id', item.rowKey);
                                 $editButton.data('name', item.name);
                                 $editButton.data('image-title', item.imageTitle);
@@ -110,12 +110,16 @@ var Yuzu;
                                     $editButton.data('image-title-2', item.imageTitle || '');
                                 }
                                 // Design Button
-                                const $designButton = $cardDiv.find('.card-design-button');
+                                const $designButton = $cardDiv.find('.btn-design');
                                 $designButton.attr('href', `/designer?id=${item.rowKey}`);
-                                // Delete button
-                                $cardDiv.find('.card-delete-button').data('id', item.rowKey);
+                                // Delete button - show only for custom (non-system) break types
+                                const $deleteButton = $cardDiv.find('.btn-delete');
+                                $deleteButton.data('id', item.rowKey);
+                                if (!item.isSystem) {
+                                    $deleteButton.removeClass('d-none');
+                                }
                                 // Append the cloned template to the container
-                                $('#breakTypeContainer').append($cardDiv);
+                                $('#break-type-container').append($cardDiv);
                             });
                             // Update continuation tokens map
                             continuationTokens[page + 1] = (_b = data.data) === null || _b === void 0 ? void 0 : _b.continuationToken;
@@ -167,7 +171,7 @@ var Yuzu;
                  */
                 function setupEventListeners() {
                     // Listen for clicks on edit buttons
-                    document.querySelectorAll('.card-edit-button').forEach(button => {
+                    document.querySelectorAll('.btn-edit').forEach(button => {
                         button.addEventListener('click', (e) => {
                             e.preventDefault();
                             // Use different editor based on subscription status
@@ -197,7 +201,7 @@ var Yuzu;
                 // Add initialization for initial page load
                 document.addEventListener('DOMContentLoaded', function () {
                     // Add a MutationObserver to detect when cards are added to the DOM
-                    const container = document.getElementById('breakTypeContainer');
+                    const container = document.getElementById('break-type-container');
                     if (container) {
                         const observer = new MutationObserver(function (mutations) {
                             mutations.forEach(function (mutation) {
