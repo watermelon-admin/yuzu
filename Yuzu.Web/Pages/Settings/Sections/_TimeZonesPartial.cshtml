@@ -64,34 +64,17 @@
                 </h3>
             </div>
             
-            <div class="card-footer d-flex align-items-center justify-content-start py-3">
-                <!-- Dropdown menu for actions -->
-                <div class="dropup">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
-                        <i class="bx bx-cog fs-sm me-1"></i>
-                        Actions
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item card-info-button" href="javascript:;">
-                                <i class="bx bx-info-circle fs-sm me-2"></i>
-                                Info
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item card-home-button" href="javascript:;">
-                                <i class="bx bx-home fs-sm me-2"></i>
-                                Set as Home
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item card-delete-button text-danger" href="javascript:;">
-                                <i class="bx bx-trash-alt fs-sm me-2"></i>
-                                Delete
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="card-footer d-flex align-items-center justify-content-start gap-2 py-3">
+                <!-- Set as Home button -->
+                <button class="btn btn-sm btn-outline-primary card-home-button">
+                    <i class="bx bx-home fs-sm me-1"></i>
+                    Home
+                </button>
+                <!-- Delete button -->
+                <button class="btn btn-sm btn-outline-danger card-delete-button">
+                    <i class="bx bx-trash-alt fs-sm me-1"></i>
+                    Delete
+                </button>
             </div>
         </article>
     </div>
@@ -133,28 +116,9 @@
                 </div>
             </div>
             
-            <div class="card-body">
-                <h3 class="h5 fw-semibold text-truncate mb-0">
-                    <span class="card-city-country"></span>
-                </h3>
-            </div>
-            
-            <div class="card-footer d-flex align-items-center justify-content-start py-3">
-                <!-- Dropdown menu for actions (reduced options for home time zone) -->
-                <div class="dropup">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
-                        <i class="bx bx-cog fs-sm me-1"></i>
-                        Actions
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item card-info-button" href="javascript:;">
-                                <i class="bx bx-info-circle fs-sm me-2"></i>
-                                Info
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="card-body pb-3">
+                <h3 class="h5 fw-semibold text-truncate mb-0 card-city"></h3>
+                <p class="h5 fw-semibold mb-0 card-country"></p>
             </div>
         </article>
     </div>
