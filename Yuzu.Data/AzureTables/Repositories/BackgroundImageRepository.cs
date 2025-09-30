@@ -86,7 +86,7 @@ namespace Yuzu.Data.AzureTables.Repositories
         public async Task<BackgroundImageEntity> CreateAsync(BackgroundImage image)
         {
             var imageId = Guid.NewGuid().ToString();
-            var partitionKey = image.IsSystem ? SystemPartitionKey : image.UserId;
+            var partitionKey = image.IsSystem ? SystemPartitionKey : (image.UserId ?? throw new InvalidOperationException("UserId cannot be null for non-system images"));
 
             var entity = new BackgroundImageEntity(partitionKey, imageId)
             {

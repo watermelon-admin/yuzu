@@ -51,22 +51,6 @@ namespace Yuzu.Data.Services
         }
 
         /// <inheritdoc />
-        public async Task<BreakType?> GetByIdAsync(string breakTypeId)
-        {
-            try
-            {
-                // This method needs userId to work with Azure Tables
-                _logger.LogWarning("GetByIdAsync called without userId - not supported with Azure Tables");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting break type with ID {Id}", breakTypeId);
-                throw;
-            }
-        }
-
-        /// <inheritdoc />
         public async Task<BreakType?> GetAsync(string userId, string breakTypeId)
         {
             if (string.IsNullOrEmpty(userId))
@@ -161,22 +145,6 @@ namespace Yuzu.Data.Services
         }
 
         /// <inheritdoc />
-        public async Task<bool> DeleteAsync(string breakTypeId)
-        {
-            try
-            {
-                // This method needs userId to work with Azure Tables
-                _logger.LogWarning("DeleteAsync called without userId - not supported with Azure Tables");
-                return false;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting break type with ID {Id}", breakTypeId);
-                throw;
-            }
-        }
-
-        /// <inheritdoc />
         public async Task<bool> DeleteAsync(string userId, string breakTypeId)
         {
             try
@@ -200,24 +168,6 @@ namespace Yuzu.Data.Services
         }
 
         /// <inheritdoc />
-        public async Task<BreakType?> IncrementUsageCountAsync(string breakTypeId)
-        {
-            try
-            {
-                // This method needs userId to work with Azure Tables
-                // Consider requiring userId parameter or deprecating this method
-                _logger.LogWarning("IncrementUsageCountAsync called without userId - not supported with Azure Tables");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error incrementing usage count for break type with ID {Id}", breakTypeId);
-                throw;
-            }
-        }
-
-        /// <inheritdoc />
-
         public async Task<List<BreakType>> InitializeDefaultsAsync(string userId)
         {
             try
