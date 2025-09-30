@@ -1,0 +1,30 @@
+<Project>
+  <!-- Build Performance Targets -->
+
+  <!-- Skip expensive tasks during development builds -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+
+  <!-- Parallel MSBuild settings -->
+  <PropertyGroup>
+    <BuildInParallel>true</BuildInParallel>
+  </PropertyGroup>
+
+  <!-- Fast incremental compilation for TypeScript -->
+  <PropertyGroup Condition="'$(TypeScriptCompileBlocked)' != 'true'">
+    <TypeScriptBuildMode>true</TypeScriptBuildMode>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+  <!-- Clean up temporary build artifacts more aggressively -->
+  <Target Name="CleanupBuildArtifacts" AfterTargets="Build">
+    <ItemGroup>
+      <TempFiles Include="$(OutputPath)*.tmp" />
+      <TempFiles Include="$(IntermediateOutputPath)*.tmp" />
+    </ItemGroup>
+    <Delete Files="@(TempFiles)" ContinueOnError="true" />
+  </Target>
+</Project>

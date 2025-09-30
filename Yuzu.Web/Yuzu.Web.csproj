@@ -6,6 +6,15 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ApplicationInsightsResourceId>/subscriptions/c4f10b92-5d7f-4151-812d-1152adad7df2/resourceGroups/rg-yuzu-dewc/providers/microsoft.insights/components/app-yuzu-dewc</ApplicationInsightsResourceId>
 		<UserSecretsId>49c2ecd5-c7f1-4f1f-abce-824d2cc0e450</UserSecretsId>
+
+		<!-- Build Speed Optimizations for Web Project -->
+		<TypeScriptCompileBlocked Condition="'$(BuildingInsideVisualStudio)' == 'true'">true</TypeScriptCompileBlocked>
+		<TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+		<TypeScriptSkipCompile Condition="'$(Configuration)' == 'Debug'">true</TypeScriptSkipCompile>
+
+		<!-- Disable expensive operations during dev builds -->
+		<GenerateDocumentationFile Condition="'$(Configuration)' == 'Debug'">false</GenerateDocumentationFile>
+		<EnableNETAnalyzers Condition="'$(Configuration)' == 'Debug'">false</EnableNETAnalyzers>
 	</PropertyGroup>
 
 	<ItemGroup>
