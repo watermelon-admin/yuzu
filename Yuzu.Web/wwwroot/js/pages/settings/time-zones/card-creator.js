@@ -42,33 +42,28 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                         <div class="time-zone-image-container position-relative" 
                              style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
                             <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100">
+                                <i class="bx bx-world display-1 text-white opacity-50"></i>
                             </div>
-                            
-                            <!-- Home marker (centered text) -->
-                            <div class="position-absolute top-0 start-0 end-0 mt-3 text-center">
-                                <h3 class="h5 fw-semibold m-0 text-primary">
-                                    <i class="bx bx-home me-1"></i>
+
+                            <!-- Home marker in lower part with purple background box -->
+                            <div class="position-absolute bottom-0 start-0 end-0 bg-primary text-white" style="padding: 0.5rem 1.25rem 0.5rem 1.5rem;">
+                                <h3 class="h6 fw-semibold m-0">
                                     Home Time Zone
                                 </h3>
                             </div>
-                            
-                            <!-- Single badge with three lines in bottom center with left-aligned text -->
-                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-70 rounded text-white fs-sm text-start" style="min-width: 200px;">
+
+                            <!-- Timezone info in top-left corner without background box -->
+                            <div class="position-absolute top-0 start-0 mt-3 text-white fs-sm" style="margin-left: 1.5rem;">
                                 <!-- Continent line -->
                                 <div class="d-flex align-items-center mb-1">
                                     <i class="bx bx-map fs-sm me-1"></i>
                                     <span class="card-continent-sm">${timeZone.continent}</span>
                                 </div>
-                                
+
                                 <!-- UTC offset line -->
-                                <div class="d-flex align-items-center mb-1">
+                                <div class="d-flex align-items-center">
                                     <i class="bx bx-time fs-sm me-1"></i>
                                     <span class="card-utc-offset">${utcOffsetStr}</span>
-                                </div>
-                                
-                                <!-- Weather info line - without static icon -->
-                                <div class="d-flex align-items-center card-weather-container ${weatherVisibilityClass}">
-                                    <span class="card-weather-info">${weatherHTML}</span>
                                 </div>
                             </div>
                         </div>
@@ -190,25 +185,21 @@ export function createTimeZoneCard(timeZone, onSetHomeTimeZone, onShowTimeZoneIn
                         <div class="time-zone-image-container position-relative" 
                              style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
                             <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100">
+                                <i class="bx bx-world display-1 text-white opacity-50"></i>
                             </div>
-                            
-                            <!-- Single badge with three lines in bottom center with left-aligned text -->
-                            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-70 rounded text-white fs-sm text-start" style="min-width: 200px;">
+
+                            <!-- Timezone info in top-left corner without background box -->
+                            <div class="position-absolute top-0 start-0 mt-3 text-white fs-sm" style="margin-left: 1.5rem;">
                                 <!-- Continent line -->
                                 <div class="d-flex align-items-center mb-1">
                                     <i class="bx bx-map fs-sm me-1"></i>
                                     <span class="card-continent-sm">${timeZone.continent}</span>
                                 </div>
-                                
+
                                 <!-- UTC offset line -->
-                                <div class="d-flex align-items-center mb-1">
+                                <div class="d-flex align-items-center">
                                     <i class="bx bx-time fs-sm me-1"></i>
                                     <span class="card-utc-offset">${utcOffsetStr}</span>
-                                </div>
-                                
-                                <!-- Weather info line - without static icon -->
-                                <div class="d-flex align-items-center card-weather-container ${weatherVisibilityClass}">
-                                    <span class="card-weather-info">${weatherHTML}</span>
                                 </div>
                             </div>
                         </div>
