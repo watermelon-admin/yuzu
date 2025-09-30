@@ -52,19 +52,19 @@ namespace Yuzu.Data.Services
         }
         
         /// <inheritdoc />
-        public async Task<BreakType?> GetByIdAsync(int id)
+        public async Task<BreakType?> GetByIdAsync(string breakTypeId)
         {
-            var cacheKey = $"breakType_{id}";
-            
+            var cacheKey = $"breakType_{breakTypeId}";
+
             if (_cache.TryGetValue(cacheKey, out BreakType? cachedBreakType))
             {
-                _logger.LogInformation("Cache hit for break type with ID {Id}", id);
+                _logger.LogInformation("Cache hit for break type with ID {Id}", breakTypeId);
                 return cachedBreakType;
             }
-            
-            _logger.LogInformation("Cache miss for break type with ID {Id}", id);
-            var breakType = await _breakTypeService.GetByIdAsync(id);
-            
+
+            _logger.LogInformation("Cache miss for break type with ID {Id}", breakTypeId);
+            var breakType = await _breakTypeService.GetByIdAsync(breakTypeId);
+
             if (breakType != null)
             {
                 _cache.Set(cacheKey, breakType, _cacheDuration);
@@ -74,24 +74,24 @@ namespace Yuzu.Data.Services
         }
         
         /// <inheritdoc />
-        public async Task<BreakType?> GetAsync(string userId, int id)
+        public async Task<BreakType?> GetAsync(string userId, string breakTypeId)
         {
-            var cacheKey = $"breakType_{userId}_{id}";
-            
+            var cacheKey = $"breakType_{userId}_{breakTypeId}";
+
             if (_cache.TryGetValue(cacheKey, out BreakType? cachedBreakType))
             {
-                _logger.LogInformation("Cache hit for break type with ID {Id} for user {UserId}", id, userId);
+                _logger.LogInformation("Cache hit for break type with ID {Id} for user {UserId}", breakTypeId, userId);
                 return cachedBreakType;
             }
-            
-            _logger.LogInformation("Cache miss for break type with ID {Id} for user {UserId}", id, userId);
-            var breakType = await _breakTypeService.GetAsync(userId, id);
-            
+
+            _logger.LogInformation("Cache miss for break type with ID {Id} for user {UserId}", breakTypeId, userId);
+            var breakType = await _breakTypeService.GetAsync(userId, breakTypeId);
+
             if (breakType != null)
             {
                 _cache.Set(cacheKey, breakType, _cacheDuration);
             }
-            
+
             return breakType;
         }
         
@@ -120,51 +120,51 @@ namespace Yuzu.Data.Services
         }
         
         /// <inheritdoc />
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string breakTypeId)
         {
             // Get the break type first to know which caches to invalidate
-            var breakType = await _breakTypeService.GetByIdAsync(id);
+            var breakType = await _breakTypeService.GetByIdAsync(breakTypeId);
             if (breakType == null)
             {
                 return false;
             }
             
-            var result = await _breakTypeService.DeleteAsync(id);
-            
+            var result = await _breakTypeService.DeleteAsync(breakTypeId);
+
             // Invalidate caches
             InvalidateUserCache(breakType.UserId);
-            _cache.Remove($"breakType_{id}");
-            _cache.Remove($"breakType_{breakType.UserId}_{id}");
+            _cache.Remove($"breakType_{breakTypeId}");
+            _cache.Remove($"breakType_{breakType.UserId}_{breakTypeId}");
             
             return result;
         }
         
         /// <inheritdoc />
-        public async Task<bool> DeleteAsync(string userId, int id)
+        public async Task<bool> DeleteAsync(string userId, string breakTypeId)
         {
-            var result = await _breakTypeService.DeleteAsync(userId, id);
-            
+            var result = await _breakTypeService.DeleteAsync(userId, breakTypeId);
+
             // Invalidate caches
             InvalidateUserCache(userId);
-            _cache.Remove($"breakType_{id}");
-            _cache.Remove($"breakType_{userId}_{id}");
-            
+            _cache.Remove($"breakType_{breakTypeId}");
+            _cache.Remove($"breakType_{userId}_{breakTypeId}");
+
             return result;
         }
         
         /// <inheritdoc />
-        public async Task<BreakType?> IncrementUsageCountAsync(int id)
+        public async Task<BreakType?> IncrementUsageCountAsync(string breakTypeId)
         {
-            var result = await _breakTypeService.IncrementUsageCountAsync(id);
-            
+            var result = await _breakTypeService.IncrementUsageCountAsync(breakTypeId);
+
             if (result != null)
             {
                 // Invalidate caches
                 InvalidateUserCache(result.UserId);
-                _cache.Remove($"breakType_{id}");
-                _cache.Remove($"breakType_{result.UserId}_{id}");
+                _cache.Remove($"breakType_{breakTypeId}");
+                _cache.Remove($"breakType_{result.UserId}_{breakTypeId}");
             }
-            
+
             return result;
         }
         

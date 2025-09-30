@@ -18,7 +18,7 @@ namespace Yuzu.Data.AzureTables.Entities
 
             return new BackgroundImage
             {
-                Id = int.TryParse(entity.RowKey, out var id) ? id : 0,
+                Id = entity.RowKey,
                 UserId = entity.IsSystem ? null : entity.PartitionKey,
                 FileName = entity.FileName,
                 Title = entity.Title,
@@ -42,9 +42,9 @@ namespace Yuzu.Data.AzureTables.Entities
 
             return new Break
             {
-                Id = int.TryParse(entity.RowKey, out var id) ? id : 0,
+                Id = entity.RowKey,
                 UserId = entity.PartitionKey,
-                BreakTypeId = int.TryParse(entity.BreakTypeId, out var typeId) ? typeId : 0,
+                BreakTypeId = entity.BreakTypeId,
                 StartTime = entity.StartTime,
                 EndTime = entity.EndTime,
                 CreatedAt = entity.CreatedAt,
@@ -62,7 +62,7 @@ namespace Yuzu.Data.AzureTables.Entities
 
             return new BreakType
             {
-                Id = int.TryParse(entity.RowKey, out var id) ? id : 0,
+                Id = entity.RowKey,
                 UserId = entity.PartitionKey,
                 Name = entity.Name,
                 DefaultDurationMinutes = entity.DefaultDurationMinutes,
@@ -133,7 +133,7 @@ namespace Yuzu.Data.AzureTables.Entities
 
             return new BreakEntity(partitionKey, rowKey)
             {
-                BreakTypeId = model.BreakTypeId.ToString(),
+                BreakTypeId = model.BreakTypeId,
                 BreakTypeName = model.BreakType?.Name ?? string.Empty,
                 StartTime = model.StartTime,
                 EndTime = model.EndTime,

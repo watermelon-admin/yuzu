@@ -90,6 +90,10 @@ namespace Yuzu.Data.AzureTables.Repositories
             };
 
             await _tableClient.AddEntityAsync(entity);
+
+            // Set the GUID ID on the breakData object
+            breakData.Id = breakId;
+
             return entity;
         }
 

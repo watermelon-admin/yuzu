@@ -51,7 +51,7 @@ namespace Yuzu.Data.Services
         }
 
         /// <inheritdoc />
-        public async Task<BreakType?> GetByIdAsync(int id)
+        public async Task<BreakType?> GetByIdAsync(string breakTypeId)
         {
             try
             {
@@ -61,25 +61,30 @@ namespace Yuzu.Data.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting break type with ID {Id}", id);
+                _logger.LogError(ex, "Error getting break type with ID {Id}", breakTypeId);
                 throw;
             }
         }
 
         /// <inheritdoc />
-        public async Task<BreakType?> GetAsync(string userId, int id)
+        public async Task<BreakType?> GetAsync(string userId, string breakTypeId)
         {
             if (string.IsNullOrEmpty(userId))
             {
                 throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
             }
 
+            if (string.IsNullOrEmpty(breakTypeId))
+            {
+                throw new ArgumentException("Break type ID cannot be null or empty", nameof(breakTypeId));
+            }
+
             try
             {
-                var entity = await _repository.GetAsync(userId, id.ToString());
+                var entity = await _repository.GetAsync(userId, breakTypeId);
                 if (entity == null)
                 {
-                    _logger.LogInformation("Break type with ID {Id} not found for user {UserId}", id, userId);
+                    _logger.LogInformation("Break type with ID {Id} not found for user {UserId}", breakTypeId, userId);
                     return null;
                 }
 
@@ -87,8 +92,8 @@ namespace Yuzu.Data.Services
             }
             catch (Exception ex) when (ex is not ArgumentException)
             {
-                _logger.LogError(ex, "Error getting break type with ID {Id} for user {UserId}", id, userId);
-                throw new InvalidOperationException($"Failed to retrieve break type with ID {id} for user {userId}. See inner exception for details.", ex);
+                _logger.LogError(ex, "Error getting break type with ID {Id} for user {UserId}", breakTypeId, userId);
+                throw new InvalidOperationException($"Failed to retrieve break type with ID {breakTypeId} for user {userId}. See inner exception for details.", ex);
             }
         }
 
@@ -141,7 +146,7 @@ namespace Yuzu.Data.Services
                 // Set timestamp for tracking
                 breakType.UpdatedAt = DateTime.UtcNow;
 
-                var entity = await _repository.UpdateAsync(breakType.UserId, breakType.Id.ToString(), breakType);
+                var entity = await _repository.UpdateAsync(breakType.UserId, breakType.Id, breakType);
                 return entity.ToBreakType();
             }
             catch (Exception ex) when (ex is not ArgumentNullException && ex is not ArgumentException)
@@ -156,7 +161,7 @@ namespace Yuzu.Data.Services
         }
 
         /// <inheritdoc />
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string breakTypeId)
         {
             try
             {
@@ -166,21 +171,21 @@ namespace Yuzu.Data.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting break type with ID {Id}", id);
+                _logger.LogError(ex, "Error deleting break type with ID {Id}", breakTypeId);
                 throw;
             }
         }
 
         /// <inheritdoc />
-        public async Task<bool> DeleteAsync(string userId, int id)
+        public async Task<bool> DeleteAsync(string userId, string breakTypeId)
         {
             try
             {
                 // First delete all associated breaks
-                await _breakRepository.DeleteByBreakTypeAsync(userId, id.ToString());
+                await _breakRepository.DeleteByBreakTypeAsync(userId, breakTypeId);
 
                 // Then delete the break type
-                await _repository.DeleteAsync(userId, id.ToString());
+                await _repository.DeleteAsync(userId, breakTypeId);
                 return true;
             }
             catch (Exception ex)
@@ -189,13 +194,13 @@ namespace Yuzu.Data.Services
                 {
                     return false;
                 }
-                _logger.LogError(ex, "Error deleting break type with ID {Id} for user {UserId}", id, userId);
+                _logger.LogError(ex, "Error deleting break type with ID {Id} for user {UserId}", breakTypeId, userId);
                 throw;
             }
         }
 
         /// <inheritdoc />
-        public async Task<BreakType?> IncrementUsageCountAsync(int id)
+        public async Task<BreakType?> IncrementUsageCountAsync(string breakTypeId)
         {
             try
             {
@@ -206,7 +211,7 @@ namespace Yuzu.Data.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error incrementing usage count for break type with ID {Id}", id);
+                _logger.LogError(ex, "Error incrementing usage count for break type with ID {Id}", breakTypeId);
                 throw;
             }
         }

@@ -9,23 +9,23 @@ namespace Yuzu.Data.Models
     public class Break : BaseEntity
     {
         /// <summary>
-        /// Gets or sets the break ID
+        /// Gets or sets the break ID (GUID)
         /// </summary>
         [Key]
-        public int Id { get; set; }
-        
+        public string Id { get; set; } = string.Empty;
+
         /// <summary>
         /// Gets or sets the user ID
         /// </summary>
         [Required]
         public string UserId { get; set; } = string.Empty;
-        
+
         /// <summary>
-        /// Gets or sets the break type ID
+        /// Gets or sets the break type ID (GUID)
         /// </summary>
         [Required]
         [ForeignKey("BreakType")]
-        public int BreakTypeId { get; set; }
+        public string BreakTypeId { get; set; } = string.Empty;
         
         /// <summary>
         /// Gets or sets the break start time
