@@ -75,6 +75,45 @@ namespace Yuzu.Data.Services
                 throw new InvalidOperationException($"Failed to retrieve break with ID {breakId} for user {userId}. See inner exception for details.", ex);
             }
         }
+
+        /// <inheritdoc />
+        public async Task<Break?> GetByBreakIdAsync(string breakId)
+        {
+            if (string.IsNullOrEmpty(breakId))
+            {
+                throw new ArgumentException("Break ID cannot be null or empty", nameof(breakId));
+            }
+
+            try
+            {
+                var breakEntity = await _breakRepository.GetByBreakIdAsync(breakId);
+                if (breakEntity == null)
+                {
+                    _logger.LogInformation("Break not found with ID {BreakId}", breakId);
+                    return null;
+                }
+
+                var breakModel = breakEntity.ToBreak();
+
+                // Load the BreakType if available
+                if (!string.IsNullOrEmpty(breakEntity.BreakTypeId))
+                {
+                    var breakTypeEntity = await _breakTypeRepository.GetAsync(breakEntity.UserId, breakEntity.BreakTypeId);
+                    if (breakTypeEntity != null)
+                    {
+                        breakModel.BreakType = breakTypeEntity.ToBreakType();
+                    }
+                }
+
+                _logger.LogInformation("Retrieved break with ID {BreakId}", breakId);
+                return breakModel;
+            }
+            catch (Exception ex) when (ex is not ArgumentException)
+            {
+                _logger.LogError(ex, "Error getting break with ID {BreakId}", breakId);
+                throw new InvalidOperationException($"Failed to retrieve break with ID {breakId}. See inner exception for details.", ex);
+            }
+        }
         
         /// <inheritdoc />
         public async Task<List<Break>> GetByUserIdAsync(string userId)
