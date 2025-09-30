@@ -1,0 +1,46 @@
+<Project>
+  <!-- Build Speed Optimizations -->
+  <PropertyGroup>
+    <!-- Parallel Build Settings -->
+    <MSBuildEnableWorkloadResolver>true</MSBuildEnableWorkloadResolver>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+
+    <!-- Aggressive Incremental Build Settings -->
+    <UseSharedCompilation>true</UseSharedCompilation>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+
+    <!-- Fast Compilation -->
+    <UseRidGraph>true</UseRidGraph>
+    <SkipCopyToOutputDirectory>false</SkipCopyToOutputDirectory>
+
+    <!-- Disable unnecessary features for dev builds -->
+    <DebugType Condition="'$(Configuration)' == 'Debug'">portable</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Debug'">true</DebugSymbols>
+    <Optimize Condition="'$(Configuration)' == 'Debug'">false</Optimize>
+
+    <!-- Enable Build Caching -->
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+
+    <!-- TypeScript Optimizations -->
+    <TypeScriptCompileBlocked Condition="'$(BuildingInsideVisualStudio)' == 'true'">true</TypeScriptCompileBlocked>
+
+    <!-- Output path optimization disabled to avoid assembly info conflicts -->
+    <!-- <OutputPath Condition="'$(OutputPath)' == ''">X:\DevCache\build\$(MSBuildProjectName)\$(Configuration)\</OutputPath> -->
+  </PropertyGroup>
+
+  <!-- Performance Settings -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <!-- Skip expensive operations in debug -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <WarningsNotAsErrors />
+
+    <!-- Faster debug compilation -->
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+</Project>
