@@ -594,11 +594,9 @@ namespace Yuzu.Web.Pages
                 
                 try
                 {
-                    // Parse the break ID and determine if this is a create or update operation
-                    int breakTypeId = 0;
-                    bool isUpdate = !string.IsNullOrEmpty(request.BreakId) &&
-                                    int.TryParse(request.BreakId, out breakTypeId) &&
-                                    breakTypeId > 0;
+                    // Determine if this is a create or update operation
+                    string breakTypeId = request.BreakId ?? string.Empty;
+                    bool isUpdate = !string.IsNullOrEmpty(breakTypeId);
                     
                     if (isUpdate)
                     {
@@ -682,7 +680,7 @@ namespace Yuzu.Web.Pages
             }, _logger);
         }
         
-        public async Task<IActionResult> OnPostDeleteBreakType(int id)
+        public async Task<IActionResult> OnPostDeleteBreakType(string id)
         {
             return await this.SafeExecuteAsync(async () =>
             {

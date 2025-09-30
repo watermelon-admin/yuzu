@@ -10,11 +10,11 @@ namespace Yuzu.Data.Models
     public class BackgroundImage : BaseEntity
     {
         /// <summary>
-        /// Primary key for the background image
+        /// Primary key for the background image (GUID)
         /// </summary>
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         
         /// <summary>
         /// User ID who uploaded/owns this image, or empty string for system images

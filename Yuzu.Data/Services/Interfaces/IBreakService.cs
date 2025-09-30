@@ -12,9 +12,10 @@ namespace Yuzu.Data.Services.Interfaces
         /// <summary>
         /// Gets a specific break by ID
         /// </summary>
-        /// <param name="id">The break ID</param>
+        /// <param name="userId">The user ID</param>
+        /// <param name="breakId">The break ID (GUID)</param>
         /// <returns>The break, or null if not found</returns>
-        Task<Break?> GetByIdAsync(int id);
+        Task<Break?> GetByIdAsync(string userId, string breakId);
         
         /// <summary>
         /// Gets all breaks for a user
@@ -38,19 +39,12 @@ namespace Yuzu.Data.Services.Interfaces
         Task<Break> UpdateAsync(Break breakEntity);
         
         /// <summary>
-        /// Deletes a break
-        /// </summary>
-        /// <param name="id">The break ID</param>
-        /// <returns>True if deleted, false if not found</returns>
-        Task<bool> DeleteAsync(int id);
-        
-        /// <summary>
         /// Deletes a break for a specific user
         /// </summary>
         /// <param name="userId">The user ID</param>
-        /// <param name="id">The break ID</param>
+        /// <param name="breakId">The break ID (GUID)</param>
         /// <returns>True if deleted, false if not found</returns>
-        Task<bool> DeleteAsync(string userId, int id);
+        Task<bool> DeleteAsync(string userId, string breakId);
         
         /// <summary>
         /// Deletes all breaks for a user
