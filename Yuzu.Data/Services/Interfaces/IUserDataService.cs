@@ -10,12 +10,6 @@ namespace Yuzu.Data.Services.Interfaces
     public interface IUserDataService
     {
         /// <summary>
-        /// Gets all user data items
-        /// </summary>
-        /// <returns>A list of all user data items</returns>
-        Task<List<UserDataItem>> GetAllAsync();
-        
-        /// <summary>
         /// Gets all user data items for a specific user
         /// </summary>
         /// <param name="userId">The user ID</param>

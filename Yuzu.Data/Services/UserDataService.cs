@@ -29,23 +29,6 @@ namespace Yuzu.Data.Services
         }
 
         /// <inheritdoc />
-        public async Task<List<UserDataItem>> GetAllAsync()
-        {
-            try
-            {
-                // Note: Azure Tables doesn't support getting all items across partitions efficiently
-                // This method should be avoided in production
-                _logger.LogWarning("GetAllAsync called - this operation is not efficient with Azure Tables");
-                return new List<UserDataItem>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting all user data items");
-                throw;
-            }
-        }
-
-        /// <inheritdoc />
         public async Task<List<UserDataItem>> GetByUserIdAsync(string userId)
         {
             try

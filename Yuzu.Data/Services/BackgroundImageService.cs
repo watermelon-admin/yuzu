@@ -30,23 +30,6 @@ namespace Yuzu.Data.Services
         }
         
         /// <inheritdoc />
-        public async Task<List<BackgroundImage>> GetAllAsync()
-        {
-            try
-            {
-                // Note: This method might need revision as Azure Tables requires a partition key
-                // For now, returning empty list as getting ALL images across all users is not typical
-                _logger.LogWarning("GetAllAsync called - this operation is not optimal for Azure Tables");
-                return new List<BackgroundImage>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting all background images");
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
         public async Task<List<BackgroundImage>> GetSystemImagesAsync()
         {
             try
@@ -132,8 +115,8 @@ namespace Yuzu.Data.Services
             {
                 // For Azure Tables, we need partition key (userId or "system") and row key (image id)
                 // Since BackgroundImage has UserId, we can determine the partition key
-                string partitionKey = backgroundImage.IsSystem ? "system" : backgroundImage.UserId;
-                string imageId = backgroundImage.Id.ToString();
+                string partitionKey = backgroundImage.IsSystem ? "system" : (backgroundImage.UserId ?? throw new InvalidOperationException("UserId cannot be null for non-system images"));
+                string imageId = backgroundImage.Id;
 
                 backgroundImage.UpdatedAt = DateTime.UtcNow;
                 var entity = await _repository.UpdateAsync(partitionKey, imageId, backgroundImage);
@@ -142,40 +125,6 @@ namespace Yuzu.Data.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating background image with ID {Id}", backgroundImage.Id);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<bool> DeleteAsync(int id)
-        {
-            try
-            {
-                // Without knowing the partition key, we cannot delete directly
-                // This method might need refactoring to include userId/partitionKey
-                _logger.LogWarning("DeleteAsync(int) called - needs partition key for Azure Tables");
-                return false;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting background image with ID {Id}", id);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<bool> DeleteByFileNameAsync(string fileName)
-        {
-            try
-            {
-                // Without knowing the partition key, we cannot delete directly
-                // This method might need refactoring to include userId/partitionKey
-                _logger.LogWarning("DeleteByFileNameAsync called without userId - needs partition key for Azure Tables");
-                return false;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting background image {FileName}", fileName);
                 throw;
             }
         }
@@ -215,40 +164,6 @@ namespace Yuzu.Data.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting all background images for user {UserId}", userId);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<BackgroundImage?> GetByIdAsync(int id)
-        {
-            try
-            {
-                // Without knowing the partition key, we cannot get directly
-                // This method might need refactoring to include userId/partitionKey
-                _logger.LogWarning("GetByIdAsync called without userId - needs partition key for Azure Tables");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting background image with ID {Id}", id);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<BackgroundImage?> GetByFileNameAsync(string fileName)
-        {
-            try
-            {
-                // Without knowing the partition key, we cannot query directly
-                // This method might need refactoring to include userId/partitionKey
-                _logger.LogWarning("GetByFileNameAsync called without userId - needs partition key for Azure Tables");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting background image with filename {FileName}", fileName);
                 throw;
             }
         }

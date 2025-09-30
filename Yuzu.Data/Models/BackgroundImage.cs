@@ -17,10 +17,10 @@ namespace Yuzu.Data.Models
         public string Id { get; set; } = string.Empty;
         
         /// <summary>
-        /// User ID who uploaded/owns this image, or empty string for system images
+        /// User ID who uploaded/owns this image, or null for system images
         /// </summary>
         [Column("user_id")]
-        public string UserId { get; set; } = string.Empty;
+        public string? UserId { get; set; }
         
         /// <summary>
         /// File name used in storage
