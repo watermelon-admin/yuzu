@@ -10,12 +10,6 @@ namespace Yuzu.Data.Services.Interfaces
     public interface IBackgroundImageService
     {
         /// <summary>
-        /// Gets all background images
-        /// </summary>
-        /// <returns>A list of all background images</returns>
-        Task<List<BackgroundImage>> GetAllAsync();
-        
-        /// <summary>
         /// Gets all system background images
         /// </summary>
         /// <returns>A list of all system background images</returns>
@@ -43,20 +37,6 @@ namespace Yuzu.Data.Services.Interfaces
         Task<List<BackgroundImage>> GetForUserWithSystemAsync(string userId);
         
         /// <summary>
-        /// Gets a specific background image
-        /// </summary>
-        /// <param name="id">The background image ID</param>
-        /// <returns>The background image, or null if not found</returns>
-        Task<BackgroundImage?> GetByIdAsync(int id);
-        
-        /// <summary>
-        /// Gets a specific background image by file name
-        /// </summary>
-        /// <param name="fileName">The file name</param>
-        /// <returns>The background image, or null if not found</returns>
-        Task<BackgroundImage?> GetByFileNameAsync(string fileName);
-        
-        /// <summary>
         /// Creates a new background image
         /// </summary>
         /// <param name="backgroundImage">The background image to create</param>
@@ -69,20 +49,6 @@ namespace Yuzu.Data.Services.Interfaces
         /// <param name="backgroundImage">The background image to update</param>
         /// <returns>The updated background image</returns>
         Task<BackgroundImage> UpdateAsync(BackgroundImage backgroundImage);
-        
-        /// <summary>
-        /// Deletes a background image
-        /// </summary>
-        /// <param name="id">The background image ID</param>
-        /// <returns>True if deleted, false if not found</returns>
-        Task<bool> DeleteAsync(int id);
-        
-        /// <summary>
-        /// Deletes a background image by file name
-        /// </summary>
-        /// <param name="fileName">The file name</param>
-        /// <returns>True if deleted, false if not found</returns>
-        Task<bool> DeleteByFileNameAsync(string fileName);
         
         /// <summary>
         /// Deletes a background image by file name for a specific user

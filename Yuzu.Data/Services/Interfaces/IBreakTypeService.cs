@@ -17,13 +17,6 @@ namespace Yuzu.Data.Services.Interfaces
         Task<List<BreakType>> GetAllAsync(string userId);
         
         /// <summary>
-        /// Gets a specific break type by ID
-        /// </summary>
-        /// <param name="breakTypeId">The break type ID (GUID)</param>
-        /// <returns>The break type, or null if not found</returns>
-        Task<BreakType?> GetByIdAsync(string breakTypeId);
-        
-        /// <summary>
         /// Gets a specific break type for a user
         /// </summary>
         /// <param name="userId">The user ID</param>
@@ -46,26 +39,12 @@ namespace Yuzu.Data.Services.Interfaces
         Task<BreakType> UpdateAsync(BreakType breakType);
         
         /// <summary>
-        /// Deletes a break type
-        /// </summary>
-        /// <param name="breakTypeId">The break type ID (GUID)</param>
-        /// <returns>True if deleted, false if not found</returns>
-        Task<bool> DeleteAsync(string breakTypeId);
-        
-        /// <summary>
         /// Deletes a break type for a specific user
         /// </summary>
         /// <param name="userId">The user ID</param>
         /// <param name="breakTypeId">The break type ID (GUID)</param>
         /// <returns>True if deleted, false if not found</returns>
         Task<bool> DeleteAsync(string userId, string breakTypeId);
-        
-        /// <summary>
-        /// Increments the usage count for a break type
-        /// </summary>
-        /// <param name="breakTypeId">The break type ID (GUID)</param>
-        /// <returns>The updated break type</returns>
-        Task<BreakType?> IncrementUsageCountAsync(string breakTypeId);
         
         /// <summary>
         /// Initializes default break types for a user
