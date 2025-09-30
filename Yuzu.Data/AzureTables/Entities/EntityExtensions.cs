@@ -42,8 +42,8 @@ namespace Yuzu.Data.AzureTables.Entities
 
             return new Break
             {
-                Id = entity.RowKey,
-                UserId = entity.PartitionKey,
+                Id = entity.PartitionKey,  // PartitionKey is now the breakId (GUID)
+                UserId = entity.UserId,     // UserId is now a property
                 BreakTypeId = entity.BreakTypeId,
                 StartTime = entity.StartTime,
                 EndTime = entity.EndTime,
