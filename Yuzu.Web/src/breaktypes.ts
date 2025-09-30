@@ -90,10 +90,7 @@ namespace Yuzu.Web.Settings.BreakTypes {
                     
                     // Default Duration
                     $cardDiv.find('.card-duration-span').text(item.defaultDurationMinutes.toString());
-                    
-                    // Usage Count
-                    $cardDiv.find('.card-usage-count').text(item.usageCount.toString());
-                    
+
                     // Edit button
                     const $editButton = $cardDiv.find('.btn-edit');
                     $editButton.data('id', item.rowKey);
