@@ -113,16 +113,6 @@
     z-index: 2;
 }
 
-/* Weather info display animations and styling */
-.card-weather-info {
-    transition: max-height 0.3s ease;
-    color: #FFFFFF; /* White text for weather info */
-}
-
-/* Also make sure the icons are pure white */
-.card-weather-info i {
-    color: #FFFFFF;
-}
 
 /* Ensure consistent background opacity for all timezone cards */
 .timezone-background .position-absolute.bottom-0 {
@@ -149,19 +139,6 @@
 
 
 
-.card-weather-info.animate-in {
-    animation: weather-appear 0.4s forwards;
-}
-
-@keyframes weather-appear {
-    0% {
-        /* No opacity change, only transform */
-        transform: translateY(-5px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
 
 /* New time zone badge animation */
 .timezone-new-badge {

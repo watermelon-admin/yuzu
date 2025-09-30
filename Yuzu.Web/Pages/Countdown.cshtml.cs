@@ -171,15 +171,9 @@ namespace Yuzu.Web.Pages
             logger.LogInformation("User home timezone ID for UserId: {UserId} is {HomeTZID} ({HomeTimezoneName})", userId, UserHomeTZID, UserHomeTimezoneName);
 
             logger.LogInformation("Fetching break details for UserId: {UserId}, BreakId: {BreakId}", userId, BreakId);
-            // Convert string ID to int
-            int breakId;
-            if (!int.TryParse(BreakId, out breakId))
-            {
-                logger.LogError("Invalid break ID format: {BreakId}", BreakId);
-                return;
-            }
-            
-            BreakDetails = await breakService.GetByIdAsync(breakId);
+
+            // Get the break using the GUID-based service method
+            BreakDetails = await breakService.GetByIdAsync(userId, BreakId);
 
             if (BreakDetails == null)
             {
@@ -190,7 +184,7 @@ namespace Yuzu.Web.Pages
             logger.LogInformation("Successfully fetched break details for UserId: {UserId}, BreakId: {BreakId}", userId, BreakId);
 
             logger.LogInformation("Fetching break type details for BreakTypeId: {BreakTypeId}", BreakDetails.BreakTypeId);
-            BreakTypeDetails = await breakTypeService.GetByIdAsync(BreakDetails.BreakTypeId);
+            BreakTypeDetails = await breakTypeService.GetAsync(userId, BreakDetails.BreakTypeId);
 
             if (BreakTypeDetails == null)
             {
@@ -213,7 +207,7 @@ namespace Yuzu.Web.Pages
                 BackgroundImageUrl = $"{backgroundImagesPath}/default-fhd.jpg";
             }
 
-            // Construct the mobile counter URL from hostname
+            // Construct the mobile counter URL from hostname - Use the GUID (BreakId) which is already a string
             MobileCounterUrl = $"https://{Request.Host}/mobile?id={BreakId}";
 
             // Parse the Components JSON with case-insensitive property name matching

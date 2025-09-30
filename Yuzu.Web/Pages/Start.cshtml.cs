@@ -40,7 +40,7 @@ public class StartModel : PageModel
         [Required]
         public long BreakEndTimeUnixTimestamp { get; set; }
         [Required]
-        public int BreakTypeId { get; set; }
+        public string BreakTypeId { get; set; } = string.Empty;
     }
 
     public StartModel(
@@ -92,11 +92,12 @@ public class StartModel : PageModel
             };
 
             // Save the break instance to the repository
-            await _breakService.CreateAsync(breakInstance);
+            var createdBreak = await _breakService.CreateAsync(breakInstance);
 
-            _logger.LogInformation("Break created successfully with ID: {BreakId} for user: {UserId}", breakInstance.Id, userId);
+            _logger.LogInformation("Break created successfully with ID: {BreakId} for user: {UserId}", createdBreak.Id, userId);
 
-            return RedirectToPage("Countdown", new { id = breakInstance.Id });
+            // Use the GUID for the redirect
+            return RedirectToPage("Countdown", new { id = createdBreak.Id });
         }
         catch (Exception ex)
         {

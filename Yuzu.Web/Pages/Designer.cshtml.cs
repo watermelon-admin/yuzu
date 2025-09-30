@@ -80,15 +80,11 @@ namespace Yuzu.Web.Pages
                 return;
             }
             
-            // Convert string ID to int
-            if (!int.TryParse(designId, out int breakTypeId))
-            {
-                _logger.LogError("Invalid break type ID format: {BreakTypeId}", designId);
-                return;
-            }
+            // Use the designId directly as it's already a string GUID
+            _logger.LogInformation("Loading break type with ID: {BreakTypeId}", designId);
 
             // Fetch the break type from the service
-            var breakType = await breakTypeService.GetAsync(userId, breakTypeId);
+            var breakType = await breakTypeService.GetAsync(userId, designId);
             if (breakType != null)
             {
                 // Set the ID, canvas data, and background title to be used in the view
@@ -174,15 +170,11 @@ namespace Yuzu.Web.Pages
                     return new JsonResult(new { success = false, message = "User authentication error. Please try logging in again." }) { StatusCode = 401 };
                 }
                 
-                // Convert string ID to int
-                if (!int.TryParse(designData.Id, out int breakTypeId))
-                {
-                    _logger.LogError("Invalid break type ID format: {BreakTypeId}", designData.Id);
-                    return BadRequest(new { success = false, message = "Invalid break type ID format" });
-                }
-                
+                // Use the ID directly as it's already a string GUID
+                _logger.LogInformation("Updating break type with ID: {BreakTypeId}", designData.Id);
+
                 // Fetch the existing break type
-                var breakType = await breakTypeService.GetAsync(userId, breakTypeId);
+                var breakType = await breakTypeService.GetAsync(userId, designData.Id);
                 if (breakType == null)
                 {
                     _logger.LogWarning($"Break type with ID {designData.Id} not found");

@@ -19,17 +19,17 @@ namespace Yuzu.Data.Services.Interfaces
         /// <summary>
         /// Gets a specific break type by ID
         /// </summary>
-        /// <param name="id">The break type ID</param>
+        /// <param name="breakTypeId">The break type ID (GUID)</param>
         /// <returns>The break type, or null if not found</returns>
-        Task<BreakType?> GetByIdAsync(int id);
+        Task<BreakType?> GetByIdAsync(string breakTypeId);
         
         /// <summary>
         /// Gets a specific break type for a user
         /// </summary>
         /// <param name="userId">The user ID</param>
-        /// <param name="id">The break type ID</param>
+        /// <param name="breakTypeId">The break type ID (GUID)</param>
         /// <returns>The break type, or null if not found</returns>
-        Task<BreakType?> GetAsync(string userId, int id);
+        Task<BreakType?> GetAsync(string userId, string breakTypeId);
         
         /// <summary>
         /// Creates a new break type
@@ -48,24 +48,24 @@ namespace Yuzu.Data.Services.Interfaces
         /// <summary>
         /// Deletes a break type
         /// </summary>
-        /// <param name="id">The break type ID</param>
+        /// <param name="breakTypeId">The break type ID (GUID)</param>
         /// <returns>True if deleted, false if not found</returns>
-        Task<bool> DeleteAsync(int id);
+        Task<bool> DeleteAsync(string breakTypeId);
         
         /// <summary>
         /// Deletes a break type for a specific user
         /// </summary>
         /// <param name="userId">The user ID</param>
-        /// <param name="id">The break type ID</param>
+        /// <param name="breakTypeId">The break type ID (GUID)</param>
         /// <returns>True if deleted, false if not found</returns>
-        Task<bool> DeleteAsync(string userId, int id);
+        Task<bool> DeleteAsync(string userId, string breakTypeId);
         
         /// <summary>
         /// Increments the usage count for a break type
         /// </summary>
-        /// <param name="id">The break type ID</param>
+        /// <param name="breakTypeId">The break type ID (GUID)</param>
         /// <returns>The updated break type</returns>
-        Task<BreakType?> IncrementUsageCountAsync(int id);
+        Task<BreakType?> IncrementUsageCountAsync(string breakTypeId);
         
         /// <summary>
         /// Initializes default break types for a user

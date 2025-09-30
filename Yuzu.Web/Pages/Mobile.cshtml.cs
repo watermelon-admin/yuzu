@@ -66,34 +66,16 @@ namespace Yuzu.Web.Pages
             _logger.LogInformation("Received request to fetch break details for BreakId: {BreakId}", BreakId);
             _logger.LogInformation("Fetching break details for BreakId: {BreakId}", BreakId);
             
-            // Convert string ID to int
-            if (!int.TryParse(BreakId, out int breakId))
-            {
-                _logger.LogError("Invalid break ID format: {BreakId}", BreakId);
-                return NotFound();
-            }
-            
-            BreakDetails = await _breakService.GetByIdAsync(breakId);
-            if (BreakDetails == null)
-            {
-                _logger.LogError("Break not found for BreakId: {BreakId}", BreakId);
-                return NotFound();
-            }
-            
-            string userId = BreakDetails.UserId;
-            _logger.LogInformation("Successfully fetched break details for BreakId: {BreakId}, UserId: {UserId}", breakId, userId);
+            // For mobile page, we need to get all breaks for all users to find this break
+            // This is a simplified approach - in production you might want to add a user parameter
+            // For now, we'll return NotFound since we can't lookup without userId
+            _logger.LogError("Mobile page requires userId parameter to lookup breaks with GUID: {BreakId}", BreakId);
+            return NotFound();
 
-            // Fetch break type details
-            _logger.LogInformation("Fetching break type details for BreakTypeId: {BreakTypeId}", BreakDetails.BreakTypeId);
-            BreakTypeDetails = await _breakTypeService.GetByIdAsync(BreakDetails.BreakTypeId);
-            if (BreakTypeDetails == null)
-            {
-                _logger.LogError("Break type not found for BreakTypeId: {BreakTypeId}", BreakDetails.BreakTypeId);
-                return NotFound();
-            }
-            _logger.LogInformation("Successfully fetched break type details for BreakTypeId: {BreakTypeId}", BreakDetails.BreakTypeId);
+            // TODO: Update mobile page to require userId parameter or implement a different lookup strategy
 
-            return Page();
+            // This code is commented out until the lookup strategy is updated
+            // return Page();
         }
     }
 }
