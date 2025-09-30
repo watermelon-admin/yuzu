@@ -36,7 +36,30 @@ namespace Yuzu.Data.AzureTables.Repositories
         {
             try
             {
-                var response = await _tableClient.GetEntityAsync<BreakEntity>(userId, breakId);
+                var response = await _tableClient.GetEntityAsync<BreakEntity>(breakId, "break");
+                var entity = response.Value;
+
+                // Verify the entity belongs to the requested user
+                if (entity != null && entity.UserId != userId)
+                {
+                    _logger.LogWarning("Break {BreakId} does not belong to user {UserId}", breakId, userId);
+                    return null;
+                }
+
+                return entity;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                return null;
+            }
+        }
+
+        public async Task<BreakEntity?> GetByBreakIdAsync(string breakId)
+        {
+            try
+            {
+                // Direct lookup using partition key and constant row key - most efficient query
+                var response = await _tableClient.GetEntityAsync<BreakEntity>(breakId, "break");
                 return response.Value;
             }
             catch (RequestFailedException ex) when (ex.Status == 404)
@@ -47,7 +70,8 @@ namespace Yuzu.Data.AzureTables.Repositories
 
         public async Task<IEnumerable<BreakEntity>> GetAllForUserAsync(string userId)
         {
-            var query = _tableClient.QueryAsync<BreakEntity>(e => e.PartitionKey == userId);
+            // Query by UserId property (cross-partition query)
+            var query = _tableClient.QueryAsync<BreakEntity>(e => e.UserId == userId);
             var results = new List<BreakEntity>();
 
             await foreach (var entity in query)
@@ -60,8 +84,8 @@ namespace Yuzu.Data.AzureTables.Repositories
 
         public async Task<IEnumerable<BreakEntity>> GetByBreakTypeAsync(string userId, string breakTypeId)
         {
-            // This requires scanning the partition and filtering by BreakTypeId
-            var query = _tableClient.QueryAsync<BreakEntity>(e => e.PartitionKey == userId);
+            // Query by UserId property and filter by BreakTypeId (cross-partition query)
+            var query = _tableClient.QueryAsync<BreakEntity>(e => e.UserId == userId);
             var results = new List<BreakEntity>();
 
             await foreach (var entity in query)
@@ -79,8 +103,9 @@ namespace Yuzu.Data.AzureTables.Repositories
         {
             var breakId = Guid.NewGuid().ToString();
 
-            var entity = new BreakEntity(userId, breakId)
+            var entity = new BreakEntity(breakId, userId)
             {
+                UserId = userId,
                 BreakTypeId = breakData.BreakTypeId.ToString(),
                 BreakTypeName = breakTypeName, // Denormalized for display
                 StartTime = breakData.StartTime,
@@ -117,33 +142,31 @@ namespace Yuzu.Data.AzureTables.Repositories
         {
             try
             {
-                await _tableClient.DeleteEntityAsync(userId, breakId);
+                // Verify the break belongs to the user before deleting
+                var existing = await GetAsync(userId, breakId);
+                if (existing == null)
+                {
+                    _logger.LogDebug("Attempted to delete non-existent break or break not owned by user: {BreakId}/{UserId}", breakId, userId);
+                    return;
+                }
+
+                await _tableClient.DeleteEntityAsync(breakId, "break");
             }
             catch (RequestFailedException ex) when (ex.Status == 404)
             {
-                _logger.LogDebug("Attempted to delete non-existent break: {UserId}/{BreakId}", userId, breakId);
+                _logger.LogDebug("Attempted to delete non-existent break: {BreakId}/{UserId}", breakId, userId);
             }
         }
 
         public async Task DeleteAllForUserAsync(string userId)
         {
-            var query = _tableClient.QueryAsync<BreakEntity>(e => e.PartitionKey == userId);
-            var batchTransactions = new List<TableTransactionAction>();
+            // Query by UserId property to get all breaks for the user
+            var query = _tableClient.QueryAsync<BreakEntity>(e => e.UserId == userId);
 
+            // Note: Breaks are in different partitions, so we can't use batch transactions
             await foreach (var entity in query)
             {
-                batchTransactions.Add(new TableTransactionAction(TableTransactionActionType.Delete, entity));
-
-                if (batchTransactions.Count >= 100)
-                {
-                    await _tableClient.SubmitTransactionAsync(batchTransactions);
-                    batchTransactions.Clear();
-                }
-            }
-
-            if (batchTransactions.Any())
-            {
-                await _tableClient.SubmitTransactionAsync(batchTransactions);
+                await _tableClient.DeleteEntityAsync(entity.PartitionKey, entity.RowKey);
             }
         }
 
@@ -151,22 +174,12 @@ namespace Yuzu.Data.AzureTables.Repositories
         {
             // Get all breaks for the break type and delete them
             var breaksToDelete = await GetByBreakTypeAsync(userId, breakTypeId);
-            var batchTransactions = new List<TableTransactionAction>();
 
+            // Note: With the new structure, breaks are in different partitions
+            // We cannot use batch transactions as they require same partition key
             foreach (var breakEntity in breaksToDelete)
             {
-                batchTransactions.Add(new TableTransactionAction(TableTransactionActionType.Delete, breakEntity));
-
-                if (batchTransactions.Count >= 100)
-                {
-                    await _tableClient.SubmitTransactionAsync(batchTransactions);
-                    batchTransactions.Clear();
-                }
-            }
-
-            if (batchTransactions.Any())
-            {
-                await _tableClient.SubmitTransactionAsync(batchTransactions);
+                await _tableClient.DeleteEntityAsync(breakEntity.PartitionKey, breakEntity.RowKey);
             }
         }
     }

@@ -16,6 +16,13 @@ namespace Yuzu.Data.Services.Interfaces
         /// <param name="breakId">The break ID (GUID)</param>
         /// <returns>The break, or null if not found</returns>
         Task<Break?> GetByIdAsync(string userId, string breakId);
+
+        /// <summary>
+        /// Gets a specific break by break ID only (no user ID required)
+        /// </summary>
+        /// <param name="breakId">The break ID (GUID)</param>
+        /// <returns>The break, or null if not found</returns>
+        Task<Break?> GetByBreakIdAsync(string breakId);
         
         /// <summary>
         /// Gets all breaks for a user

@@ -8,6 +8,7 @@ namespace Yuzu.Data.AzureTables.Repositories
     public interface IBreakRepository
     {
         Task<BreakEntity?> GetAsync(string userId, string breakId);
+        Task<BreakEntity?> GetByBreakIdAsync(string breakId);
         Task<IEnumerable<BreakEntity>> GetAllForUserAsync(string userId);
         Task<IEnumerable<BreakEntity>> GetByBreakTypeAsync(string userId, string breakTypeId);
         Task<BreakEntity> CreateAsync(string userId, Break breakData, string breakTypeName);
