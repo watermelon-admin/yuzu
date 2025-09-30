@@ -632,7 +632,7 @@ export class TimeZonesManager {
                 if (homeTimeZone) {
                     try {
                         console.log('[DEBUG] Creating home card with isHome =', homeTimeZone.isHome);
-                        const homeCardElement = createTimeZoneCard(homeTimeZone, this.setHomeTimeZone.bind(this), this.showTimeZoneInfoModal.bind(this), this.deleteTimeZone.bind(this));
+                        const homeCardElement = createTimeZoneCard(homeTimeZone, this.setHomeTimeZone.bind(this), this.deleteTimeZone.bind(this));
                         // Make absolutely sure it is styled as a home card
                         const article = homeCardElement.querySelector('article');
                         if (article) {
@@ -660,7 +660,7 @@ export class TimeZonesManager {
                 regularTimeZones.forEach((timeZone) => {
                     try {
                         console.log('[DEBUG] Creating regular card for', timeZone.cities[0]);
-                        const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.showTimeZoneInfoModal.bind(this), this.deleteTimeZone.bind(this));
+                        const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.deleteTimeZone.bind(this));
                         fragment.appendChild(cardElement);
                     }
                     catch (err) {
@@ -1556,7 +1556,7 @@ export class TimeZonesManager {
             window.deleteTimeZone = this.deleteTimeZone.bind(this);
             // Create the card using our helper function with isNewCard flag
             console.log('[DEBUG] Creating card with isNewCard =', isNewCard);
-            const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.showTimeZoneInfoModal.bind(this), this.deleteTimeZone.bind(this), isNewCard // Pass the isNewCard flag to show the NEW badge
+            const cardElement = createTimeZoneCard(timeZone, this.setHomeTimeZone.bind(this), this.deleteTimeZone.bind(this), isNewCard // Pass the isNewCard flag to show the NEW badge
             );
             // Add animation class to the new card
             if (isNewCard) {

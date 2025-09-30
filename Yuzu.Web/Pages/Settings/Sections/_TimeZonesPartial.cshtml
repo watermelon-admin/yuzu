@@ -36,25 +36,24 @@
             <!-- Image Container -->
             <div class="position-relative">
                 <!-- Time zone visual as main image -->
-                <div class="time-zone-image-container position-relative" 
+                <div class="time-zone-image-container position-relative"
                      style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
                     <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100 bg-light">
                     </div>
-                    
-                    <!-- Single badge with three lines in bottom center with left-aligned text -->
-                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-40 rounded text-white fs-sm text-start" style="min-width: 200px;">
+
+                    <!-- Timezone info in top-left corner without background box -->
+                    <div class="position-absolute top-0 start-0 mt-3 text-white fs-sm" style="margin-left: 1.5rem;">
                         <!-- Continent line -->
                         <div class="d-flex align-items-center mb-1">
                             <i class="bx bx-map fs-sm me-1"></i>
                             <span class="card-continent-sm"></span>
                         </div>
-                        
+
                         <!-- UTC offset line -->
-                        <div class="d-flex align-items-center mb-1">
+                        <div class="d-flex align-items-center">
                             <i class="bx bx-time fs-sm me-1"></i>
                             <span class="card-utc-offset"></span>
                         </div>
-                        
                     </div>
                 </div>
             </div>
@@ -65,34 +64,17 @@
                 </h3>
             </div>
             
-            <div class="card-footer d-flex align-items-center justify-content-start py-3">
-                <!-- Dropdown menu for actions -->
-                <div class="dropup">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
-                        <i class="bx bx-cog fs-sm me-1"></i>
-                        Actions
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item card-info-button" href="javascript:;">
-                                <i class="bx bx-info-circle fs-sm me-2"></i>
-                                Info
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item card-home-button" href="javascript:;">
-                                <i class="bx bx-home fs-sm me-2"></i>
-                                Set as Home
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item card-delete-button text-danger" href="javascript:;">
-                                <i class="bx bx-trash-alt fs-sm me-2"></i>
-                                Delete
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="card-footer d-flex align-items-center justify-content-start gap-2 py-3">
+                <!-- Set as Home button -->
+                <button class="btn btn-sm btn-outline-primary card-home-button">
+                    <i class="bx bx-home fs-sm me-1"></i>
+                    Home
+                </button>
+                <!-- Delete button -->
+                <button class="btn btn-sm btn-outline-danger card-delete-button">
+                    <i class="bx bx-trash-alt fs-sm me-1"></i>
+                    Delete
+                </button>
             </div>
         </article>
     </div>
@@ -105,59 +87,38 @@
             <!-- Image Container -->
             <div class="position-relative">
                 <!-- Time zone visual as main image -->
-                <div class="time-zone-image-container position-relative" 
+                <div class="time-zone-image-container position-relative"
                      style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
                     <div class="timezone-background d-flex align-items-center justify-content-center w-100 h-100" style="background-color: #f0f7ff;">
                     </div>
-                    
-                    <!-- Home marker (centered text) -->
-                    <div class="position-absolute top-0 start-0 end-0 mt-3 text-center">
-                        <h3 class="h5 fw-semibold m-0 text-primary">
-                            <i class="bx bx-home me-1"></i>
+
+                    <!-- Home marker in lower part with purple background box -->
+                    <div class="position-absolute bottom-0 start-0 end-0 bg-primary text-white" style="padding: 0.5rem 1.25rem 0.5rem 1.5rem;">
+                        <h3 class="h6 fw-semibold m-0">
                             Home Time Zone
                         </h3>
                     </div>
-                    
-                    <!-- Single badge with three lines in bottom center with left-aligned text -->
-                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-2 bg-dark bg-opacity-40 rounded text-white fs-sm text-start" style="min-width: 200px;">
+
+                    <!-- Timezone info in top-left corner without background box -->
+                    <div class="position-absolute top-0 start-0 mt-3 text-white fs-sm" style="margin-left: 1.5rem;">
                         <!-- Continent line -->
                         <div class="d-flex align-items-center mb-1">
                             <i class="bx bx-map fs-sm me-1"></i>
                             <span class="card-continent-sm"></span>
                         </div>
-                        
+
                         <!-- UTC offset line -->
-                        <div class="d-flex align-items-center mb-1">
+                        <div class="d-flex align-items-center">
                             <i class="bx bx-time fs-sm me-1"></i>
                             <span class="card-utc-offset"></span>
                         </div>
-                        
                     </div>
                 </div>
             </div>
             
-            <div class="card-body">
-                <h3 class="h5 fw-semibold text-truncate mb-0">
-                    <span class="card-city-country"></span>
-                </h3>
-            </div>
-            
-            <div class="card-footer d-flex align-items-center justify-content-start py-3">
-                <!-- Dropdown menu for actions (reduced options for home time zone) -->
-                <div class="dropup">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,30" aria-expanded="false">
-                        <i class="bx bx-cog fs-sm me-1"></i>
-                        Actions
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item card-info-button" href="javascript:;">
-                                <i class="bx bx-info-circle fs-sm me-2"></i>
-                                Info
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="card-body pb-3">
+                <h3 class="h5 fw-semibold text-truncate mb-0 card-city"></h3>
+                <p class="h5 fw-semibold mb-0 card-country"></p>
             </div>
         </article>
     </div>

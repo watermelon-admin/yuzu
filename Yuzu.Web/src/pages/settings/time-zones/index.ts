@@ -753,9 +753,8 @@ export class TimeZonesManager {
                     try {
                         console.log('[DEBUG] Creating home card with isHome =', homeTimeZone.isHome);
                         const homeCardElement = createTimeZoneCard(
-                            homeTimeZone, 
+                            homeTimeZone,
                             this.setHomeTimeZone.bind(this),
-                            this.showTimeZoneInfoModal.bind(this),
                             this.deleteTimeZone.bind(this)
                         );
                         
@@ -788,9 +787,8 @@ export class TimeZonesManager {
                     try {
                         console.log('[DEBUG] Creating regular card for', timeZone.cities[0]);
                         const cardElement = createTimeZoneCard(
-                            timeZone, 
+                            timeZone,
                             this.setHomeTimeZone.bind(this),
-                            this.showTimeZoneInfoModal.bind(this),
                             this.deleteTimeZone.bind(this)
                         );
                         fragment.appendChild(cardElement);
@@ -1842,9 +1840,8 @@ export class TimeZonesManager {
             // Create the card using our helper function with isNewCard flag
             console.log('[DEBUG] Creating card with isNewCard =', isNewCard);
             const cardElement = createTimeZoneCard(
-                timeZone, 
+                timeZone,
                 this.setHomeTimeZone.bind(this),
-                this.showTimeZoneInfoModal.bind(this),
                 this.deleteTimeZone.bind(this),
                 isNewCard // Pass the isNewCard flag to show the NEW badge
             );

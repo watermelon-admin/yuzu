@@ -58,7 +58,7 @@
 
 /* Default background if no weather-specific class is applied */
 .timezone-background:not([class*="weather-code-"]) {
-    background-image: url('/img/weather/clouds.jpg');
+    background-image: url('/img/general/earth.jpg');
 }
 
 /* Weather-specific backgrounds - currently all use the same image */
@@ -91,7 +91,7 @@
 .timezone-background.weather-code-95, /* Thunderstorm */
 .timezone-background.weather-code-96, /* Thunderstorm with slight hail */
 .timezone-background.weather-code-99  /* Thunderstorm with heavy hail */ {
-    background-image: url('/img/weather/clouds.jpg');
+    background-image: url('/img/general/earth.jpg');
 }
 
 /* Consistent overlay for all cards */
@@ -114,27 +114,20 @@
 }
 
 
-/* Ensure consistent background opacity for all timezone cards */
-.timezone-background .position-absolute.bottom-0 {
-    background-color: rgba(0, 0, 0, 0.7) !important; /* Consistent with dynamically generated cards */
+/* Style timezone info in top-left corner */
+.time-zone-image-container .position-absolute.top-0.start-0 {
+    z-index: 10;
 }
 
-/* Override the template specific class */
-#time-zone-container .bg-opacity-40 {
-    --bs-bg-opacity: 0.7 !important; /* Force bg-opacity-40 to be the same as bg-opacity-70 */
-}
-
-/* Make all content in the badge pure white with consistent styling */
-.timezone-background .position-absolute.bottom-0 * {
+/* Make timezone info text white */
+.time-zone-image-container .position-absolute.top-0.start-0 * {
     color: #FFFFFF !important;
-    opacity: 1 !important;
+    font-weight: 500 !important;
 }
 
-/* Add text shadow to all text and icons in the badge for better visibility */
-.timezone-background .position-absolute.bottom-0 i,
-.timezone-background .position-absolute.bottom-0 span {
-    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
-    font-weight: 500 !important;
+/* Make home marker box text white */
+.time-zone-image-container .position-absolute.bottom-0.bg-primary * {
+    color: #FFFFFF !important;
 }
 
 
@@ -155,4 +148,9 @@
     100% {
         opacity: 0.7;
     }
+}
+
+/* Ensure delete button icon-only matches height of text button */
+.card-delete-button {
+    line-height: 1.5;
 }
