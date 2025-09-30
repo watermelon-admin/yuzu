@@ -1,5 +1,27 @@
 /* Break types viewport layout styles */
 
+/* Hide fade overlays for break types section */
+#break-type-viewport-container ~ .fade-overlay {
+    display: none;
+}
+
+/* Ensure container is at least two card rows high */
+#break-type-container {
+    min-height: 680px; /* Two rows: 2 * (300px card + 20px gap) + 20px bottom padding */
+}
+
+/* Ensure cards maintain minimum width and wrap to new rows when needed */
+#break-type-container .col {
+    min-width: 280px; /* Minimum width to accommodate buttons */
+    max-width: 400px; /* Maximum width to prevent stretching */
+    flex: 0 1 auto; /* Don't grow, but allow shrinking if needed */
+}
+
+/* Prevent cards from stretching vertically */
+#break-type-container .settings-card {
+    max-height: 340px; /* Limit card height to prevent stretching */
+}
+
 /* Section-specific overrides below */
 
 /* Any break-types-specific CSS would go here */
