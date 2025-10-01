@@ -169,27 +169,20 @@ namespace Yuzu.Web.Pages.Account.Manage
                     values: new { userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme) ?? string.Empty;
 
-                // Send confirmation email to NEW address
+                // Send confirmation email to NEW address using professional template
+                var confirmationEmailBody = Yuzu.Web.Services.EmailTemplates.EmailChangeConfirmation(callbackUrl);
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
-                    "Confirm your email change",
-                    $"Please confirm your email change by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Confirm your email change - breakscreen",
+                    confirmationEmailBody);
 
-                // Send security notification to OLD address
+                // Send security notification to OLD address using professional template
                 var maskedNewEmail = MaskEmail(Input.NewEmail);
+                var securityEmailBody = Yuzu.Web.Services.EmailTemplates.EmailChangeSecurityNotification(maskedNewEmail);
                 await _emailSender.SendEmailAsync(
                     email!,
-                    "Email change request",
-                    $@"<p>Hello,</p>
-                    <p>A request was made to change the email address for your account to <strong>{HtmlEncoder.Default.Encode(maskedNewEmail)}</strong>.</p>
-                    <p>If you made this request, no action is needed. The change will be completed once the new email address is confirmed.</p>
-                    <p><strong>If you did NOT request this change:</strong></p>
-                    <ul>
-                        <li>Your current email address is still active and has not been changed</li>
-                        <li>Change your password immediately</li>
-                        <li>Contact our support team</li>
-                    </ul>
-                    <p>This is an automated security notification.</p>");
+                    "Email change request - breakscreen",
+                    securityEmailBody);
 
                 // Store new email in TempData to avoid exposing in URL (security best practice)
                 TempData["NewEmail"] = Input.NewEmail;
@@ -225,10 +218,13 @@ namespace Yuzu.Web.Pages.Account.Manage
                 pageHandler: null,
                 values: new { userId, code },
                 protocol: Request.Scheme) ?? string.Empty;
+
+            // Use professional email template for verification
+            var verificationEmailBody = Yuzu.Web.Services.EmailTemplates.EmailVerification(callbackUrl);
             await _emailSender.SendEmailAsync(
                 email ?? string.Empty,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                "Verify your email - breakscreen",
+                verificationEmailBody);
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();
