@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                             // Add a listener for the save completion
                             document.addEventListener('design-saved', () => {
-                                window.location.href = '/Settings/BreakTypes';
+                                window.location.href = '/Settings#break-types';
                             }, { once: true });
                             saveButton.dispatchEvent(clickEvent);
                             return;
@@ -612,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 // If no unsaved changes or user doesn't want to save, exit directly
-                window.location.href = '/Settings/BreakTypes';
+                window.location.href = '/Settings#break-types';
             });
         }
         // Background selector button
