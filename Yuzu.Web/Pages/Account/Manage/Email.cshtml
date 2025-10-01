@@ -25,7 +25,37 @@
                 <h1 class="text-center text-xl-start">Manage Your Email</h1>
                 <p class="text-center text-xl-start pb-3 mb-3">Update your account email address.</p>
 
-                <partial name="~/Pages/Account/Manage/_StatusMessage.cshtml" for="StatusMessage" />
+                @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                {
+                    if (Model.StatusMessage.Contains("confirmation link sent"))
+                    {
+                        <div class="alert alert-success d-flex" role="alert">
+                            <i class="bx bx-check-circle lead me-3"></i>
+                            <div>
+                                <strong>Check Your Email!</strong><br />
+                                @Model.StatusMessage
+                                <ul class="mb-0 mt-2">
+                                    <li>Look for an email in your inbox</li>
+                                    <li>Click the confirmation link to complete the change</li>
+                                    <li>The link will expire after 24 hours</li>
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    else if (Model.StatusMessage.Contains("Verification email sent"))
+                    {
+                        <div class="alert alert-info d-flex" role="alert">
+                            <i class="bx bx-info-circle lead me-3"></i>
+                            <div>
+                                @Model.StatusMessage
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <partial name="~/Pages/Account/Manage/_StatusMessage.cshtml" for="StatusMessage" />
+                    }
+                }
 
                 <form id="email-form" method="post" class="mb-2" novalidate>
                     <div asp-validation-summary="All" class="text-danger" role="alert"></div>
@@ -60,6 +90,20 @@
                         <div class="position-absolute start-0 top-100 fs-sm text-danger">
                             <span asp-validation-for="Input.NewEmail"></span>
                         </div>
+                    </div>
+
+                    <div class="position-relative mb-4">
+                        <label asp-for="Input.CurrentPassword" class="form-label fs-base">Current password</label>
+                        <div class="password-toggle">
+                            <input asp-for="Input.CurrentPassword" class="form-control form-control-lg" autocomplete="current-password" aria-required="true" placeholder="Enter your current password" />
+                            <label class="password-toggle-btn" aria-label="Show/hide password">
+                                <input class="password-toggle-check" type="checkbox"><span class="password-toggle-indicator"></span>
+                            </label>
+                        </div>
+                        <div class="position-absolute start-0 top-100 fs-sm text-danger">
+                            <span asp-validation-for="Input.CurrentPassword"></span>
+                        </div>
+                        <small class="text-muted mt-1">For security, we need to verify your password before changing your email.</small>
                     </div>
 
                     <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn btn-primary shadow-primary btn-lg w-100">Change email</button>

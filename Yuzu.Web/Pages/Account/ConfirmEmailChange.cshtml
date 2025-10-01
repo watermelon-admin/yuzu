@@ -1,7 +1,103 @@
 ﻿@page
 @model ConfirmEmailChangeModel
 @{
-    ViewData["Title"] = "Confirm email change";
+    ViewData["Title"] = "Confirm Email Change";
 }
 
-<h1>@ViewData["Title"]</h1>
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialLight.cshtml" />
+
+    <!-- Page content -->
+    <section class="position-relative h-100 pt-5 pb-4">
+        <div class="container d-flex flex-wrap justify-content-center justify-content-xl-start h-100 pt-5">
+            <div class="w-100 align-self-start pt-1 pt-md-4 pb-4" style="max-width: 526px;">
+                @if (string.IsNullOrEmpty(Model.StatusMessage) || Model.StatusMessage.Contains("Thank you"))
+                {
+                    <!-- Success state -->
+                    <div class="text-center mb-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bx bx-check text-success" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-center text-xl-start">Email Changed Successfully!</h1>
+                    <p class="text-center text-xl-start pb-3 mb-3">
+                        Your email address has been updated successfully. You can now use your new email address to log in to your account.
+                    </p>
+
+                    <div class="alert alert-info d-flex" role="alert">
+                        <i class="bx bx-info-circle lead me-3"></i>
+                        <div>
+                            <strong>Important:</strong> Your username has also been updated to match your new email address.
+                            Use your new email to log in next time.
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3 mt-4">
+                        <a href="~/settings/account-details" class="btn btn-primary btn-lg">Go to Account Settings</a>
+                        <a href="~/start" class="btn btn-outline-secondary btn-lg">Go to Dashboard</a>
+                    </div>
+                }
+                else
+                {
+                    <!-- Error state -->
+                    <div class="text-center mb-4">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bx bx-x text-danger" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-center text-xl-start">Email Change Failed</h1>
+                    <p class="text-center text-xl-start pb-3 mb-3">
+                        We couldn't complete your email change. This could happen if the confirmation link has expired or has already been used.
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                    {
+                        <div class="alert alert-danger d-flex" role="alert">
+                            <i class="bx bx-error-circle lead me-3"></i>
+                            <div>
+                                <strong>Error:</strong> @Model.StatusMessage
+                            </div>
+                        </div>
+                    }
+
+                    <div class="alert alert-info d-flex" role="alert">
+                        <i class="bx bx-info-circle lead me-3"></i>
+                        <div>
+                            <strong>What to do next:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Try requesting a new email change from your account settings</li>
+                                <li>Make sure you're clicking the most recent confirmation link</li>
+                                <li>Contact support if the problem persists</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3 mt-4">
+                        <a href="~/account/manage/email" class="btn btn-primary btn-lg">Try Again</a>
+                        <a href="~/settings/account-details" class="btn btn-outline-secondary btn-lg">Back to Settings</a>
+                    </div>
+                }
+            </div>
+            <!-- Copyright -->
+            <partial name="~/Pages/Shared/_Copyright.cshtml" />
+        </div>
+
+        <!-- Background -->
+        <div class="position-absolute top-0 end-0 w-50 h-100 bg-position-center bg-repeat-0 bg-size-cover d-none d-xl-block" style="background-image: url(/img/account/signin-bg.jpg);"></div>
+    </section>
+</main>
+
+<!-- Back to top button -->
+<a href="#top" class="btn-scroll-top" data-scroll>
+    <span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Top</span>
+    <i class="btn-scroll-top-icon bx bx-chevron-up"></i>
+</a>

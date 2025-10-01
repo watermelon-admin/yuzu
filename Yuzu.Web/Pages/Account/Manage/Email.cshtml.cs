@@ -63,6 +63,14 @@ namespace Yuzu.Web.Pages.Account.Manage
             [RegularExpression(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,63}$",ErrorMessage = "Please enter a valid email address.")]
             [Display(Name = "New email")]
             public string NewEmail { get; set; } = string.Empty;
+
+            /// <summary>
+            /// Current password required for security verification before email change.
+            /// </summary>
+            [Required]
+            [DataType(DataType.Password)]
+            [Display(Name = "Current password")]
+            public string CurrentPassword { get; set; } = string.Empty;
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -100,6 +108,15 @@ namespace Yuzu.Web.Pages.Account.Manage
 
             if (!ModelState.IsValid)
             {
+                await LoadAsync(user);
+                return Page();
+            }
+
+            // Verify current password before allowing email change
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, Input.CurrentPassword);
+            if (!isPasswordValid)
+            {
+                ModelState.AddModelError(string.Empty, "Incorrect password. Please enter your current password to change your email.");
                 await LoadAsync(user);
                 return Page();
             }
