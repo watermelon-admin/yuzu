@@ -6,7 +6,6 @@ import { SelectionManager } from '../selection-manager.js';
 import { ToolboxManager } from '../toolbox-manager.js';
 import { PropertiesManager } from '../properties-manager.js';
 import { WidgetFactory } from '../widgets/widget-factory.js';
-import { getPerformanceMonitor } from './debug-utils.js';
 // Core Designer class with shared functionality
 export class Designer {
     /**
@@ -38,11 +37,10 @@ export class Designer {
         this.clipboard = getClipboard();
         this.dragState = null;
         this.previewMode = false;
+        this.dragTimeout = null; // Safety timeout for drag operations
+        this.maintenanceInterval = null; // Track maintenance interval for cleanup
         // Track if there are unsaved changes
         this.hasChanges = false;
-        // Initialize performance monitoring
-        this.perfMonitor = getPerformanceMonitor();
-        this.perfMonitor.enable(); // Enable by default for debugging
         const element = document.getElementById(canvasElementId);
         if (!element) {
             throw new Error(`Element with ID ${canvasElementId} not found`);
@@ -67,7 +65,7 @@ export class Designer {
         // Run maintenance every 30 seconds
         const MAINTENANCE_INTERVAL = 30000; // 30 seconds
         console.log(`[Debug] Setting up periodic maintenance every ${MAINTENANCE_INTERVAL / 1000} seconds`);
-        setInterval(() => {
+        this.maintenanceInterval = setInterval(() => {
             console.log(`[Debug] Running periodic maintenance`);
             // If no drag is in progress, perform maintenance
             if (!this.dragState) {
@@ -135,8 +133,6 @@ export class Designer {
         this.addGroupEventListeners(widget);
         this.widgets.set(id, widget);
         this.canvasElement.appendChild(widget.getElement());
-        // Track widget creation
-        this.perfMonitor.trackWidgetCreated(id, type);
         // Mark that there are unsaved changes
         this.hasChanges = true;
         return id;
@@ -197,8 +193,6 @@ export class Designer {
         if (widget) {
             widget.destructor();
             this.widgets.delete(widgetId);
-            // Track widget deletion
-            this.perfMonitor.trackWidgetDeleted(widgetId);
             if (this.selectionManager.isWidgetSelected(widgetId)) {
                 this.selectionManager.deselectWidget(widgetId);
             }
@@ -723,6 +717,40 @@ export class Designer {
         element.addEventListener('group-resize', (e) => {
             // Handle group resize if we implement this feature
         });
+    }
+    /**
+     * Cleans up drag event listeners (for issue #2 fix)
+     */
+    cleanupDragListeners() {
+        document.removeEventListener('mousemove', this.boundMouseMoveHandler);
+        document.removeEventListener('mouseup', this.boundMouseUpHandler);
+        if (this.dragTimeout) {
+            clearTimeout(this.dragTimeout);
+            this.dragTimeout = null;
+        }
+    }
+    /**
+     * Cleanup method to properly dispose of Designer instance and prevent memory leaks
+     * Call this when the Designer is no longer needed (e.g., page navigation, component unmount)
+     */
+    destroy() {
+        console.log('[Debug] Destroying Designer instance');
+        // Clear maintenance interval
+        if (this.maintenanceInterval) {
+            clearInterval(this.maintenanceInterval);
+            this.maintenanceInterval = null;
+        }
+        // Clean up drag listeners
+        this.cleanupDragListeners();
+        this.dragState = null;
+        // Destroy all widgets
+        this.widgets.forEach(widget => widget.destructor());
+        this.widgets.clear();
+        // Clear command history
+        this.commandManager.clear();
+        // Clear selection
+        this.selectionManager.clearSelection();
+        console.log('[Debug] Designer instance destroyed successfully');
     }
 }
 //# sourceMappingURL=designer-core.js.map

@@ -47,6 +47,8 @@ export class Designer implements IDesignerCommands {
     protected clipboard = getClipboard();
     protected dragState: DragState | null = null;
     protected previewMode: boolean = false;
+    protected dragTimeout: ReturnType<typeof setTimeout> | null = null; // Safety timeout for drag operations
+    protected maintenanceInterval: ReturnType<typeof setInterval> | null = null; // Track maintenance interval for cleanup
 
     // Bound event handlers to ensure they can be properly removed
     protected boundMouseMoveHandler: (e: MouseEvent) => void;
@@ -85,23 +87,23 @@ export class Designer implements IDesignerCommands {
     private setupPeriodicMaintenance(): void {
         // Run maintenance every 30 seconds
         const MAINTENANCE_INTERVAL = 30000; // 30 seconds
-        
+
         console.log(`[Debug] Setting up periodic maintenance every ${MAINTENANCE_INTERVAL/1000} seconds`);
-        
-        setInterval(() => {
+
+        this.maintenanceInterval = setInterval(() => {
             console.log(`[Debug] Running periodic maintenance`);
-            
+
             // If no drag is in progress, perform maintenance
             if (!this.dragState) {
                 // Force DOM state refresh for all widgets
                 this.widgets.forEach(widget => {
                     widget.updateDomFromData();
                 });
-                
+
                 // Update cached positions
                 const canvasRect = this.canvasElement.getBoundingClientRect();
                 console.log(`[Debug] Refreshed canvas position: x=${canvasRect.left}, y=${canvasRect.top}`);
-                
+
                 // Clean any stale event listeners
                 if (this.dragState === null) {
                     // Just in case, remove document event listeners as safety
@@ -865,19 +867,62 @@ export class Designer implements IDesignerCommands {
         if (widget.getData().type !== WidgetType.Group) {
             return;
         }
-        
+
         const element = widget.getElement();
-        
+
         // Listen for group move events
         element.addEventListener('group-move', (e: Event) => {
             const detail = (e as CustomEvent).detail;
             const offset = detail.offset;
             this.handleGroupMove(detail.groupId, offset);
         });
-        
+
         // Listen for group resize events (if we implement this feature)
         element.addEventListener('group-resize', (e: Event) => {
             // Handle group resize if we implement this feature
         });
+    }
+
+    /**
+     * Cleans up drag event listeners (for issue #2 fix)
+     */
+    protected cleanupDragListeners(): void {
+        document.removeEventListener('mousemove', this.boundMouseMoveHandler);
+        document.removeEventListener('mouseup', this.boundMouseUpHandler);
+
+        if (this.dragTimeout) {
+            clearTimeout(this.dragTimeout);
+            this.dragTimeout = null;
+        }
+    }
+
+    /**
+     * Cleanup method to properly dispose of Designer instance and prevent memory leaks
+     * Call this when the Designer is no longer needed (e.g., page navigation, component unmount)
+     */
+    public destroy(): void {
+        console.log('[Debug] Destroying Designer instance');
+
+        // Clear maintenance interval
+        if (this.maintenanceInterval) {
+            clearInterval(this.maintenanceInterval);
+            this.maintenanceInterval = null;
+        }
+
+        // Clean up drag listeners
+        this.cleanupDragListeners();
+        this.dragState = null;
+
+        // Destroy all widgets
+        this.widgets.forEach(widget => widget.destructor());
+        this.widgets.clear();
+
+        // Clear command history
+        this.commandManager.clear();
+
+        // Clear selection
+        this.selectionManager.clearSelection();
+
+        console.log('[Debug] Designer instance destroyed successfully');
     }
 }

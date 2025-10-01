@@ -17,8 +17,6 @@ export class DesignerDrag extends DesignerAlignment {
             eventType: event.type,
             eventTarget: event.target instanceof Element ? event.target.tagName : 'unknown'
         });
-        // Track resize operation start
-        this.currentResizeOp = this.perfMonitor.trackDragStart('resize', [widgetId]);
         const widget = this.widgets.get(widgetId);
         if (!widget) {
             WidgetLogger.error('Resize', `Widget not found for resize: ${widgetId}`);
@@ -158,8 +156,6 @@ export class DesignerDrag extends DesignerAlignment {
                 affectedWidgets: selectedIds,
                 originalPositions
             };
-            // Track move operation start
-            this.currentMoveOp = this.perfMonitor.trackDragStart('move', selectedIds);
             console.log(`[Debug] Move drag state initialized for ${selectedIds.length} widgets`);
             // Don't automatically bring widgets to front when moving them
             // this.bringSelectionToFront();
@@ -496,15 +492,6 @@ export class DesignerDrag extends DesignerAlignment {
                     WidgetLogger.warn('Select', `No selection rect available`);
                 }
                 break;
-        }
-        // Track operation end
-        if (this.currentMoveOp) {
-            this.perfMonitor.trackDragEnd(this.currentMoveOp);
-            this.currentMoveOp = null;
-        }
-        if (this.currentResizeOp) {
-            this.perfMonitor.trackDragEnd(this.currentResizeOp);
-            this.currentResizeOp = null;
         }
         // Clean up event listeners
         WidgetLogger.debug('MouseUp', `Removing document event listeners`);
