@@ -137,8 +137,8 @@ namespace Yuzu.Web.Pages.Account.Manage
                     "Confirm your email",
                     $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                StatusMessage = "Email change confirmation link sent. Please check your inbox to complete the process.";
-                return RedirectToPage();
+                // Redirect to dedicated "check your email" page instead of showing message on same page
+                return RedirectToPage("/Account/Manage/EmailChangeConfirmationSent", new { email = Input.NewEmail });
             }
 
             StatusMessage = "Your email is unchanged.";
