@@ -382,7 +382,7 @@ namespace Yuzu.Web.Services
             </p>
 
             <p style=""color: #6c757d; font-size: 14px; margin-top: 20px;"">
-                If you didn't create a Yuzu account, you can safely ignore this email.
+                If you didn't create a breakscreen account, you can safely ignore this email.
             </p>
         </div>
         <div class=""footer"">
