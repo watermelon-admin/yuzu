@@ -113,9 +113,6 @@ builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageService>(servic
     }
 });
 
-// Register the adapter for backward compatibility
-builder.Services.AddScoped<Yuzu.Data.Services.StorageServiceAdapter>();
-
 // Add data services (repositories)
 builder.Services.AddDataServices(builder.Configuration);
 

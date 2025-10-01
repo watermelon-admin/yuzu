@@ -4,7 +4,6 @@ import { createToast } from '../../../common/toast-util.js';
 import { createViewCardToast } from './toast-extension.js';
 import { TimeZoneInfo, ExtendedHTMLElement, PagedTimeZoneResults } from './types.js';
 import { createTimeZoneCard } from './card-creator.js';
-import { updateWeatherInfoOnCard, setupWeatherDisplayObserver, updateWeatherContent } from './weather-utils.js';
 import { updateTimeZoneInfoTime, updateElementTextIfDifferent, formatUtcOffset } from './time-utils.js';
 import { setupPagination } from './pagination.js';
 import { setupScrollFadeEffects as setupVpScrollFadeEffects } from './viewport-utils.js';
