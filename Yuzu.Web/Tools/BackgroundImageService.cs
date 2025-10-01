@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 using Yuzu.Web.Pages;
 using Yuzu.Data.Services.Interfaces;
 
@@ -11,8 +12,17 @@ namespace Yuzu.Web.Tools
     /// </summary>
     public static class BackgroundImageService
     {
+        private const string CacheKey = "BackgroundImages_Cache";
+        private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(15);
+
+        // In-memory cache for background images to avoid repeated S3 calls
+        private static readonly Lazy<MemoryCache> _cache = new Lazy<MemoryCache>(() =>
+            new MemoryCache(new MemoryCacheOptions())
+        );
+
+        private static MemoryCache Cache => _cache.Value;
         /// <summary>
-        /// Loads background images from S3 storage
+        /// Loads background images from S3 storage with caching
         /// </summary>
         /// <param name="storageService">Storage service</param>
         /// <param name="configuration">Application configuration</param>
@@ -23,6 +33,15 @@ namespace Yuzu.Web.Tools
             IConfiguration configuration,
             ILogger logger)
         {
+            // Try to get from cache first
+            if (Cache.TryGetValue(CacheKey, out List<BackgroundImage>? cachedBackgrounds) && cachedBackgrounds != null)
+            {
+                logger.LogInformation("Returning {Count} background images from cache", cachedBackgrounds.Count);
+                return cachedBackgrounds;
+            }
+
+            logger.LogInformation("Cache miss - loading background images from S3");
+
             // Get the container name
             string containerName = configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
 
@@ -94,14 +113,29 @@ namespace Yuzu.Web.Tools
                 }
 
                 logger.LogInformation("Found {Count} background images", backgrounds.Count);
+
+                // Store in cache with expiration
+                Cache.Set(CacheKey, backgrounds, CacheExpiration);
+                logger.LogInformation("Cached {Count} background images for {Minutes} minutes", backgrounds.Count, CacheExpiration.TotalMinutes);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error fetching background images from S3 storage");
-                throw;
+                // Don't throw - return empty list to allow page to render
+                logger.LogWarning("Returning empty background list due to S3 error");
+                return new List<BackgroundImage>();
             }
 
             return backgrounds;
+        }
+
+        /// <summary>
+        /// Clears the background images cache - useful when backgrounds are added/removed
+        /// </summary>
+        public static void ClearCache(ILogger logger)
+        {
+            Cache.Remove(CacheKey);
+            logger.LogInformation("Background images cache cleared");
         }
         
         /// <summary>

@@ -1,53 +1,39 @@
-﻿import { Designer } from './core/index.js';
-
-// Extend the Window interface to include our global designer instance
-declare global {
-    interface Window {
-        designer: Designer;
-    }
-}
-
+import { Designer } from './core/index.js';
 // Helper function to get the image path
-function getImagePath(): string {
-    const imagePathElement = document.getElementById('image-path') as HTMLInputElement;
+function getImagePath() {
+    const imagePathElement = document.getElementById('image-path');
     if (imagePathElement) {
         return imagePathElement.value;
     }
     console.error('[Debug] Could not find image path element');
     return '';
 }
-
 // Background selector functionality - defined before use
-function applyBackground(imageUrl: string, title: string) {
+function applyBackground(imageUrl, title) {
     console.log(`[Debug] applyBackground called with title: "${title}", url: ${imageUrl}`);
-    
     // Apply background to the canvas
     const canvas = document.getElementById('designer-canvas');
     console.log(`[Debug] Canvas element found: ${!!canvas}`);
-    
     if (canvas) {
         try {
             // Apply the background image style
             console.log('[Debug] Setting canvas background image style');
             const oldBackgroundImage = canvas.style.backgroundImage;
             console.log(`[Debug] Previous background image: ${oldBackgroundImage || 'none'}`);
-            
             // Check if the background is actually changing
             const newBackgroundImage = `url('${imageUrl}')`;
             if (oldBackgroundImage !== newBackgroundImage) {
                 canvas.style.backgroundImage = newBackgroundImage;
                 console.log(`[Debug] New background image set: ${newBackgroundImage}`);
-                
                 // Mark the designer as having unsaved changes
                 if (window.designer && typeof window.designer.markAsChanged === 'function') {
                     console.log('[Debug] Marking designer as having unsaved changes');
                     window.designer.markAsChanged();
                 }
-                
                 // Show success toast
                 console.log('[Debug] Showing success toast for background change');
                 try {
-                    (window as any).Toastify({
+                    window.Toastify({
                         text: `Background changed to "${title}"`,
                         duration: 3000,
                         close: true,
@@ -56,20 +42,22 @@ function applyBackground(imageUrl: string, title: string) {
                         backgroundColor: '#28a745',
                         stopOnFocus: true,
                         className: 'toast-spacious',
-                        onClick: function(){
+                        onClick: function () {
                             console.log('[Debug] Background changed toast clicked');
                         } // Callback after click
                     }).showToast();
                     console.log('[Debug] Success toast shown');
-                } catch (toastError) {
+                }
+                catch (toastError) {
                     console.error('[Debug] Error showing toast:', toastError);
                 }
-            } else {
+            }
+            else {
                 console.log('[Debug] Background image is the same, no changes needed');
             }
-            
             console.log('[Debug] Background applied successfully');
-        } catch (error) {
+        }
+        catch (error) {
             console.error('[Debug] Error applying background:', error);
             console.error('[Debug] Error details:', {
                 message: error instanceof Error ? error.message : String(error),
@@ -77,64 +65,54 @@ function applyBackground(imageUrl: string, title: string) {
                 type: error instanceof Error ? error.constructor.name : typeof error
             });
         }
-    } else {
+    }
+    else {
         console.error('[Debug] Error: Canvas element not found when applying background');
     }
 }
-
 // Initialize the designer when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[Debug] DOMContentLoaded event fired. Beginning designer initialization...');
     console.time('designer-initialization');
-    
     // Background selector variables
-    let selectedBackgroundUrl: string | null = null;
-    let selectedBackgroundTitle: string | null = null;
-    
+    let selectedBackgroundUrl = null;
+    let selectedBackgroundTitle = null;
     try {
         // Initialize Bootstrap tooltips - using the global bootstrap object from bootstrap.bundle.min.js
         console.log('[Debug] Setting up Bootstrap tooltips');
         const tooltipTriggerList = document.querySelectorAll('[title]');
         console.log(`[Debug] Found ${tooltipTriggerList.length} elements with title attributes for tooltips`);
-        const tooltipList = Array.from(tooltipTriggerList).map(tooltipTriggerEl => 
-            new (window as any).bootstrap.Tooltip(tooltipTriggerEl)
-        );
+        const tooltipList = Array.from(tooltipTriggerList).map(tooltipTriggerEl => new window.bootstrap.Tooltip(tooltipTriggerEl));
         console.log(`[Debug] Successfully initialized ${tooltipList.length} tooltips`);
-        
         // Create a new instance of the Designer class, targeting the element with ID 'designer-canvas'
         console.log('[Debug] Creating Designer instance');
         const designer = new Designer('designer-canvas');
         console.log('[Debug] Designer instance created successfully');
-        
         // Check if we're loading an existing design
         console.log('[Debug] Checking for existing design data to load');
-        const isLoadingExisting = document.getElementById('is-loading-existing') as HTMLInputElement;
-        const initialCanvasDataContainer = document.getElementById('initial-canvas-data-container') as HTMLDivElement;
-        console.log(`[Debug] is-loading-existing found: ${!!isLoadingExisting}, value: ${isLoadingExisting?.value}`);
+        const isLoadingExisting = document.getElementById('is-loading-existing');
+        const initialCanvasDataContainer = document.getElementById('initial-canvas-data-container');
+        console.log(`[Debug] is-loading-existing found: ${!!isLoadingExisting}, value: ${isLoadingExisting === null || isLoadingExisting === void 0 ? void 0 : isLoadingExisting.value}`);
         console.log(`[Debug] initial-canvas-data-container found: ${!!initialCanvasDataContainer}`);
-        
         if (isLoadingExisting && isLoadingExisting.value === "true" && initialCanvasDataContainer) {
             console.log('[Debug] Attempting to load existing design');
             try {
                 // Load the design from canvas data
                 console.log('[Debug] Loading existing design from canvas data');
-
                 // Get the JSON, background title, and background URL from the data attributes
                 const jsonData = initialCanvasDataContainer.getAttribute('data-canvas-json');
                 const backgroundTitle = initialCanvasDataContainer.getAttribute('data-background-title');
                 const backgroundUrl = initialCanvasDataContainer.getAttribute('data-background-url');
-
                 console.log('[Debug] Background title found:', backgroundTitle);
                 console.log('[Debug] Background URL found:', backgroundUrl);
-                console.log(`[Debug] JSON data attribute found: ${!!jsonData}, length: ${jsonData?.length || 0}`);
-
+                console.log(`[Debug] JSON data attribute found: ${!!jsonData}, length: ${(jsonData === null || jsonData === void 0 ? void 0 : jsonData.length) || 0}`);
                 if (jsonData) {
                     if (jsonData.length > 100) {
                         console.log('[Debug] Canvas data preview (first 100 chars):', jsonData.substring(0, 100) + '...');
-                    } else {
+                    }
+                    else {
                         console.log('[Debug] Canvas data:', jsonData);
                     }
-
                     // Clean the JSON string to ensure no BOM or invisible characters
                     console.log('[Debug] Cleaning JSON string');
                     const cleanJson = jsonData.trim();
@@ -142,17 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('[Debug] Calling designer.loadDesign()');
                     designer.loadDesign(cleanJson);
                     console.log('[Debug] Design loaded successfully');
-
                     // If we have a background URL (preferred) or title, set up the background
                     if (backgroundUrl && backgroundTitle) {
                         // Background URL is already provided and applied via inline style in HTML
                         // Just set the selected background title for saving
                         console.log('[Debug] Background already applied via inline style, setting selected title');
                         selectedBackgroundTitle = backgroundTitle;
-                    } else if (backgroundTitle) {
+                    }
+                    else if (backgroundTitle) {
                         // Fallback: If no URL provided, fetch from API (legacy path)
                         console.log('[Debug] No background URL provided, fetching from API (legacy path)');
-
                         // Use self-executing async function to handle the async operations
                         (async function loadBackgroundForDesign() {
                             try {
@@ -164,51 +141,50 @@ document.addEventListener('DOMContentLoaded', () => {
                                         'Content-Type': 'application/json',
                                     }
                                 });
-
                                 if (response.ok) {
                                     const result = await response.json();
-
                                     if (result.success && result.backgrounds && Array.isArray(result.backgrounds)) {
                                         // Normalize the background title for case-insensitive comparison
                                         const normalizedSearchTitle = backgroundTitle ? backgroundTitle.toLowerCase() : '';
                                         console.log(`[Debug] Searching for background with normalized title: "${normalizedSearchTitle}"`);
-
                                         // Find the background with matching title (case-insensitive)
-                                        const matchingBackground = result.backgrounds.find(
-                                            (bg: any) => {
-                                                const bgTitle = bg.title ? bg.title.toLowerCase() : '';
-                                                return bgTitle === normalizedSearchTitle;
-                                            }
-                                        );
-
+                                        const matchingBackground = result.backgrounds.find((bg) => {
+                                            const bgTitle = bg.title ? bg.title.toLowerCase() : '';
+                                            return bgTitle === normalizedSearchTitle;
+                                        });
                                         if (matchingBackground && matchingBackground.fullImageUrl) {
                                             console.log(`[Debug] Found matching background, applying`);
                                             applyBackground(matchingBackground.fullImageUrl, matchingBackground.title || matchingBackground.name);
                                             selectedBackgroundTitle = matchingBackground.title || matchingBackground.name;
-                                        } else {
+                                        }
+                                        else {
                                             console.error(`[Debug] Could not find background with title "${backgroundTitle}"`);
                                         }
-                                    } else {
+                                    }
+                                    else {
                                         console.error('[Debug] Invalid response format or no backgrounds returned');
                                     }
-                                } else {
+                                }
+                                else {
                                     console.error(`[Debug] Error fetching backgrounds: ${response.status} ${response.statusText}`);
                                 }
-                            } catch (error) {
+                            }
+                            catch (error) {
                                 console.error('[Debug] Error fetching background data:', error);
                             }
                         })(); // Immediately invoke the async function
-                    } else {
+                    }
+                    else {
                         console.log('[Debug] No background title or URL found for this design');
                     }
-                } else {
+                }
+                else {
                     console.error('[Debug] No JSON data available to load design');
                 }
-                
                 // Show success toast for loaded design
                 console.log('[Debug] Showing success toast notification');
                 try {
-                    (window as any).Toastify({
+                    window.Toastify({
                         text: 'Design loaded successfully!',
                         duration: 3000,
                         close: true,
@@ -217,26 +193,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         backgroundColor: '#28a745',
                         stopOnFocus: true,
                         className: 'toast-spacious',
-                        onClick: function(){
+                        onClick: function () {
                             console.log('[Debug] Success toast clicked');
                         } // Callback after click
                     }).showToast();
                     console.log('[Debug] Success toast shown');
-                } catch (toastError) {
+                }
+                catch (toastError) {
                     console.error('[Debug] Error showing toast:', toastError);
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.error('[Debug] Error loading design:', error);
                 console.error('[Debug] Error details:', {
                     message: error instanceof Error ? error.message : String(error),
                     stack: error instanceof Error ? error.stack : 'No stack trace available',
                     type: error instanceof Error ? error.constructor.name : typeof error
                 });
-                
                 // Show error toast for loading exception
                 console.log('[Debug] Showing error toast notification');
                 try {
-                    (window as any).Toastify({
+                    window.Toastify({
                         text: 'Error loading design: ' + (error instanceof Error ? error.message : String(error)),
                         duration: 4000,
                         close: true,
@@ -245,26 +222,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         backgroundColor: '#dc3545',
                         stopOnFocus: true,
                         className: 'toast-spacious',
-                        onClick: function(){
+                        onClick: function () {
                             console.log('[Debug] Error toast clicked');
                         } // Callback after click
                     }).showToast();
                     console.log('[Debug] Error toast shown');
-                } catch (toastError) {
+                }
+                catch (toastError) {
                     console.error('[Debug] Error showing error toast:', toastError);
                 }
             }
-        } 
-        
+        }
         // Register toolboxes with the designer to make them draggable
         console.log('[Debug] Setting up toolboxes');
         const toolboxes = [
-            { id: 'main-toolbar', element: document.querySelector('.toolbar') as HTMLElement },
-            { id: 'align-toolbar', element: document.querySelector('.align-toolbar') as HTMLElement }
+            { id: 'main-toolbar', element: document.querySelector('.toolbar') },
+            { id: 'align-toolbar', element: document.querySelector('.align-toolbar') }
         ];
-        
         console.log(`[Debug] Found toolboxes: ${toolboxes.map(t => t.id + (t.element ? ' (found)' : ' (not found)')).join(', ')}`);
-    
         // Register each toolbox
         toolboxes.forEach(toolbox => {
             console.log(`[Debug] Processing toolbox: ${toolbox.id}`);
@@ -274,26 +249,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (toolbox.element.parentElement) {
                     console.log(`[Debug] Removing toolbox ${toolbox.id} from parent: ${toolbox.element.parentElement.tagName}`);
                     toolbox.element.parentElement.removeChild(toolbox.element);
-                } else {
+                }
+                else {
                     console.log(`[Debug] Toolbox ${toolbox.id} has no parent element`);
                 }
-                
                 console.log(`[Debug] Registering toolbox: ${toolbox.id}`);
                 designer.registerToolbox(toolbox.id, toolbox.element);
-    
                 // Set initial position - this positions the toolboxes at sensible starting positions
                 const initialPosition = toolbox.id === 'main-toolbar'
                     ? { x: 20, y: 20 }
                     : { x: 20, y: 140 }; // Move alignment toolbar lower to avoid overlap
-    
                 console.log(`[Debug] Setting initial position for ${toolbox.id}: x=${initialPosition.x}, y=${initialPosition.y}`);
                 designer.setToolboxPosition(toolbox.id, initialPosition);
                 console.log(`[Debug] Toolbox ${toolbox.id} registered and positioned successfully`);
-            } else {
+            }
+            else {
                 console.warn(`[Debug] Toolbox element not found for ${toolbox.id}`);
             }
         });
-    
         // Demo widgets are commented out for now, we'll only show the test design from the backend
         /*
         // Only add default widgets if we're not loading an existing design
@@ -338,17 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         */
-    
         // Add widget buttons functionality
         console.log('[Debug] Setting up widget buttons');
         const addBoxButton = document.getElementById('btn-add-box');
         console.log(`[Debug] Add box button found: ${!!addBoxButton}`);
-        
         if (addBoxButton) {
             console.log('[Debug] Adding click event listener to box button');
             addBoxButton.addEventListener('click', () => {
                 console.log('[Debug] Add box button clicked');
-                
                 try {
                     console.log('[Debug] Creating new box widget with parameters:');
                     const widgetParams = {
@@ -361,11 +331,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     };
                     console.log('[Debug] Widget parameters:', widgetParams);
-                    
                     console.log('[Debug] Calling designer.addWidget()');
                     const widgetId = designer.addWidget(widgetParams);
                     console.log(`[Debug] Box widget created successfully with ID: ${widgetId}`);
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('[Debug] Error creating box widget:', error);
                     console.error('[Debug] Error details:', {
                         message: error instanceof Error ? error.message : String(error),
@@ -375,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-    
         const addQRButton = document.getElementById('btn-add-qr');
         if (addQRButton) {
             addQRButton.addEventListener('click', () => {
@@ -389,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
-    
         const addTextButton = document.getElementById('btn-add-text');
         if (addTextButton) {
             addTextButton.addEventListener('click', () => {
@@ -407,38 +375,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
-        
         // Completely override the behavior of the New button
         const newWidgetButton = document.getElementById('btn-new-widget');
-        const dropdownContent = document.querySelector('.dropdown-content') as HTMLElement;
-        
+        const dropdownContent = document.querySelector('.dropdown-content');
         if (newWidgetButton && dropdownContent) {
             // Remove any existing click handlers by cloning and replacing
             const newButton = newWidgetButton.cloneNode(true);
             if (newWidgetButton.parentNode) {
                 newWidgetButton.parentNode.replaceChild(newButton, newWidgetButton);
             }
-            
             // Add click handler that ONLY shows the dropdown
             newButton.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 dropdownContent.classList.toggle('show');
             });
-            
             // Close dropdown when clicking outside
             document.addEventListener('click', (event) => {
-                if (!newButton.contains(event.target as Node) && 
-                    !dropdownContent.contains(event.target as Node)) {
+                if (!newButton.contains(event.target) &&
+                    !dropdownContent.contains(event.target)) {
                     dropdownContent.classList.remove('show');
                 }
             });
-            
             // Make sure only the specific buttons create widgets
             const addBoxButton = document.getElementById('btn-add-box');
             const addQRButton = document.getElementById('btn-add-qr');
             const addTextButton = document.getElementById('btn-add-text');
-            
             // Remove all other click handlers from dropdown items
             dropdownContent.querySelectorAll('.dropdown-item').forEach(item => {
                 const newItem = item.cloneNode(true);
@@ -446,7 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.parentNode.replaceChild(newItem, item);
                 }
             });
-            
             // Re-add specific handlers to each widget button
             if (addBoxButton) {
                 const newBoxButton = document.getElementById('btn-add-box');
@@ -465,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             }
-            
             if (addQRButton) {
                 const newQRButton = document.getElementById('btn-add-qr');
                 if (newQRButton) {
@@ -482,7 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             }
-            
             if (addTextButton) {
                 const newTextButton = document.getElementById('btn-add-text');
                 if (newTextButton) {
@@ -504,34 +463,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-    
         // Add action button functionality
         const saveButton = document.getElementById('btn-save');
         if (saveButton) {
             saveButton.addEventListener('click', async () => {
                 console.log('Save button clicked');
-                
                 try {
                     // Get the canvas data
                     const canvasData = designer.saveDesign();
-                    
                     // Get the design ID from the page element
-                    const designIdElement = document.getElementById('design-id') as HTMLInputElement;
+                    const designIdElement = document.getElementById('design-id');
                     const designId = designIdElement ? designIdElement.value : '';
-                    
                     if (!designId) {
                         throw new Error("Design ID not found. Cannot save design.");
                     }
-                    
                     // Get the background title
                     const canvasElement = document.getElementById('designer-canvas');
                     let backgroundTitle = "Default Background";
-                    
                     // If we have a selected background title from the selector, use that
                     if (selectedBackgroundTitle) {
                         backgroundTitle = selectedBackgroundTitle;
                     }
-                    
                     // Create the payload with the real break type ID
                     // Ensure background title is lowercase to maintain consistency
                     const payload = {
@@ -539,28 +491,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         backgroundImageTitle: backgroundTitle.toLowerCase(),
                         canvasData: canvasData
                     };
-                    
                     // Send data to the server
                     // Get the anti-forgery token
-                    
                     // Debug all hidden inputs
                     console.log('Looking for anti-forgery token');
                     document.querySelectorAll('input[type="hidden"]').forEach(input => {
                         console.log(`Found hidden input: name="${input.getAttribute('name')}", value="${input.getAttribute('value')}"`);
                     });
-                    
-                    let tokenElement = document.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement;
+                    let tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
                     if (!tokenElement) {
                         // Try alternative token names
-                        const alternativeTokenElement = document.querySelector('input[name="RequestVerificationToken"]') as HTMLInputElement;
+                        const alternativeTokenElement = document.querySelector('input[name="RequestVerificationToken"]');
                         if (alternativeTokenElement) {
                             console.log('Found token with alternative name: RequestVerificationToken');
                             tokenElement = alternativeTokenElement;
-                        } else {
+                        }
+                        else {
                             throw new Error("Anti-forgery token not found");
                         }
                     }
-                    
                     // For ASP.NET Core Razor Pages, we need to include the antiforgery token and use the right URL format
                     const response = await fetch('/Designer?handler=SaveDesign', {
                         method: 'POST',
@@ -571,20 +520,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         credentials: 'include', // Important for cookies
                         body: JSON.stringify(payload)
                     });
-                    
                     // Check if response is ok before trying to parse JSON
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error(`Error ${response.status}: ${errorText}`);
                         throw new Error(`Server returned ${response.status}: ${response.statusText}`);
                     }
-                    
                     const result = await response.json();
-                    
                     if (result.success) {
                         console.log('Design saved successfully:', result.message);
                         // Show success toast
-                        (window as any).Toastify({
+                        window.Toastify({
                             text: 'Design saved successfully!',
                             duration: 3000,
                             close: true,
@@ -593,16 +539,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             backgroundColor: '#28a745',
                             stopOnFocus: true,
                             className: 'toast-spacious',
-                            onClick: function(){} // Callback after click
+                            onClick: function () { } // Callback after click
                         }).showToast();
-                        
                         // Dispatch a custom event to signal that the design was saved
                         const saveEvent = new CustomEvent('design-saved', { detail: { designId: designId } });
                         document.dispatchEvent(saveEvent);
-                    } else {
+                    }
+                    else {
                         console.error('Error saving design:', result.message);
                         // Show error toast
-                        (window as any).Toastify({
+                        window.Toastify({
                             text: 'Error saving design: ' + result.message,
                             duration: 4000,
                             close: true,
@@ -611,13 +557,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             backgroundColor: '#dc3545',
                             stopOnFocus: true,
                             className: 'toast-spacious',
-                            onClick: function(){} // Callback after click
+                            onClick: function () { } // Callback after click
                         }).showToast();
                     }
-                } catch (error) {
+                }
+                catch (error) {
                     console.error('Error saving design:', error);
                     // Show error toast for exception
-                    (window as any).Toastify({
+                    window.Toastify({
                         text: 'Error saving design: ' + (error instanceof Error ? error.message : String(error)),
                         duration: 4000,
                         close: true,
@@ -626,12 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         backgroundColor: '#dc3545',
                         stopOnFocus: true,
                         className: 'toast-spacious',
-                        onClick: function(){} // Callback after click
+                        onClick: function () { } // Callback after click
                     }).showToast();
                 }
             });
         }
-        
         const previewButton = document.getElementById('btn-preview');
         if (previewButton) {
             previewButton.addEventListener('click', () => {
@@ -639,12 +585,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 designer.enterPreviewMode();
             });
         }
-        
         const exitButton = document.getElementById('btn-exit');
         if (exitButton) {
             exitButton.addEventListener('click', () => {
                 console.log('Exit button clicked - returning to Break Types page');
-                
                 // Ask if the user wants to save before exiting
                 if (designer.hasUnsavedChanges()) {
                     const confirmExit = confirm('You have unsaved changes. Do you want to save before exiting?');
@@ -658,23 +602,19 @@ document.addEventListener('DOMContentLoaded', () => {
                                 cancelable: true,
                                 view: window
                             });
-                            
                             // Add a listener for the save completion
                             document.addEventListener('design-saved', () => {
                                 window.location.href = '/Settings/BreakTypes';
                             }, { once: true });
-                            
                             saveButton.dispatchEvent(clickEvent);
                             return;
                         }
                     }
                 }
-                
                 // If no unsaved changes or user doesn't want to save, exit directly
                 window.location.href = '/Settings/BreakTypes';
             });
         }
-        
         // Background selector button
         const backgroundButton = document.getElementById('btn-background');
         if (backgroundButton) {
@@ -683,66 +623,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 openBackgroundSelector();
             });
         }
-        
         // Grid toggle button
         console.log('[Debug] Setting up grid toggle button');
         const gridButton = document.getElementById('btn-grid');
         const canvasElement = document.getElementById('designer-canvas');
         console.log(`[Debug] Grid button found: ${!!gridButton}`);
         console.log(`[Debug] Canvas element found: ${!!canvasElement}`);
-        
         let isGridVisible = true; // Grid is visible by default
         console.log(`[Debug] Initial grid visibility: ${isGridVisible}`);
-        
         if (gridButton && canvasElement) {
             // Set up initial state
             console.log('[Debug] Setting initial grid button state');
             updateGridButtonIcon(gridButton, isGridVisible);
-            
             console.log('[Debug] Adding click event listener to grid button');
             gridButton.addEventListener('click', () => {
                 console.log('[Debug] Grid button clicked');
-                
                 // Toggle grid visibility
                 isGridVisible = !isGridVisible;
                 console.log(`[Debug] Grid visibility toggled to: ${isGridVisible}`);
-                
                 // Update the canvas class
                 if (isGridVisible) {
                     console.log('[Debug] Showing grid: removing grid-hidden class');
                     canvasElement.classList.remove('grid-hidden');
                     gridButton.setAttribute('aria-pressed', 'true');
-                } else {
+                }
+                else {
                     console.log('[Debug] Hiding grid: adding grid-hidden class');
                     canvasElement.classList.add('grid-hidden');
                     gridButton.setAttribute('aria-pressed', 'false');
                 }
-                
                 // Update button icon to reflect current state
                 console.log('[Debug] Updating grid button icon');
                 updateGridButtonIcon(gridButton, isGridVisible);
                 console.log('[Debug] Grid toggle complete');
             });
-        } else {
+        }
+        else {
             console.warn('[Debug] Could not set up grid toggle: missing button or canvas element');
         }
-        
         // Helper function to update grid button icon
-        function updateGridButtonIcon(button: HTMLElement, isVisible: boolean) {
+        function updateGridButtonIcon(button, isVisible) {
             console.log(`[Debug] updateGridButtonIcon called with isVisible=${isVisible}`);
-            
             // First, find the icon element
             const iconElement = button.querySelector('i');
             const srTextElement = button.querySelector('.visually-hidden');
-            
             console.log(`[Debug] Found icon element: ${!!iconElement}`);
             console.log(`[Debug] Found screen reader text element: ${!!srTextElement}`);
-            
             if (iconElement) {
                 // Remove existing grid-related classes
                 console.log('[Debug] Removing existing grid icon classes');
                 iconElement.classList.remove('fa-border-all', 'fa-border-none');
-                
                 // Add appropriate icon class based on current state
                 if (isVisible) {
                     console.log('[Debug] Setting grid visible icon (fa-border-all)');
@@ -753,7 +683,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log('[Debug] Updating screen reader text to "Hide grid"');
                         srTextElement.textContent = 'Hide grid';
                     }
-                } else {
+                }
+                else {
                     console.log('[Debug] Setting grid hidden icon (fa-border-none)');
                     iconElement.classList.add('fa-border-none');
                     button.setAttribute('title', 'Show Grid');
@@ -764,11 +695,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 console.log('[Debug] Grid button icon updated successfully');
-            } else {
+            }
+            else {
                 console.error('[Debug] Error: Could not find icon element inside grid button');
             }
         }
-    
         // Add group/ungroup button handlers
         const groupButton = document.getElementById('btn-group');
         if (groupButton) {
@@ -778,14 +709,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 designer.groupSelectedWidgets();
             });
         }
-        
         const ungroupButton = document.getElementById('btn-ungroup');
         if (ungroupButton) {
             ungroupButton.addEventListener('click', () => {
                 designer.ungroupSelectedWidgets();
             });
         }
-        
         // Set up button enabling/disabling based on selection
         document.addEventListener('selection-change', () => {
             if (groupButton instanceof HTMLButtonElement) {
@@ -795,14 +724,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ungroupButton.disabled = !designer.canUngroupSelectedWidgets();
             }
         });
-    
         // Expose the designer instance to the global scope for debugging purposes
         window.designer = designer;
-
         console.log('[Debug] Designer instance exposed to global scope for debugging');
         console.timeEnd('designer-initialization');
         console.log('[Debug] Designer initialized successfully with draggable toolboxes');
-
         // Hide the loading overlay now that initialization is complete
         const loadingOverlay = document.getElementById('designer-loading-overlay');
         if (loadingOverlay) {
@@ -814,41 +740,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('[Debug] Loading overlay hidden');
             }, 300); // Wait for fade out animation
         }
-        
         // Background selector functionality
         async function openBackgroundSelector() {
             console.log('[Debug] openBackgroundSelector called');
             console.time('background-selector-load');
-            
             // Get the modal
             console.log('[Debug] Getting background selector modal');
             const modalElement = document.getElementById('backgroundSelectorModal');
             console.log(`[Debug] Modal element found: ${!!modalElement}`);
-            
             if (!modalElement) {
                 console.error('[Debug] Error: Could not find backgroundSelectorModal element');
                 return;
             }
-            
             try {
-                const modal = new (window as any).bootstrap.Modal(modalElement);
+                const modal = new window.bootstrap.Modal(modalElement);
                 console.log('[Debug] Bootstrap Modal instance created');
-                
                 // Show the modal
                 console.log('[Debug] Showing modal');
                 modal.show();
                 console.log('[Debug] Modal shown');
-                
                 // Show loading
                 console.log('[Debug] Setting up loading indicators');
                 const loadingElement = document.getElementById('background-loading');
                 const errorElement = document.getElementById('background-error');
                 const gridElement = document.getElementById('background-grid');
-                
                 console.log(`[Debug] Loading element found: ${!!loadingElement}`);
                 console.log(`[Debug] Error element found: ${!!errorElement}`);
                 console.log(`[Debug] Grid element found: ${!!gridElement}`);
-                
                 if (loadingElement) {
                     console.log('[Debug] Showing loading indicator');
                     loadingElement.classList.remove('d-none');
@@ -861,7 +779,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('[Debug] Clearing grid container');
                     gridElement.innerHTML = '';
                 }
-                
                 try {
                     // Fetch backgrounds from the API
                     console.log('[Debug] Fetching backgrounds from API');
@@ -874,27 +791,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     console.timeEnd('api-fetch-backgrounds');
                     console.log(`[Debug] API response status: ${response.status} ${response.statusText}`);
-                    
                     if (!response.ok) {
                         throw new Error(`Error fetching backgrounds: ${response.status} ${response.statusText}`);
                     }
-                    
                     const result = await response.json();
-                    
                     if (!result.success) {
                         throw new Error(result.message || 'Unknown error fetching backgrounds');
                     }
-                    
                     // Hide loading
-                    if (loadingElement) loadingElement.classList.add('d-none');
-                    
+                    if (loadingElement)
+                        loadingElement.classList.add('d-none');
                     // Populate the grid with thumbnails
                     if (gridElement && result.backgrounds && Array.isArray(result.backgrounds)) {
-                        result.backgrounds.forEach((background: any) => {
+                        result.backgrounds.forEach((background) => {
                             const col = document.createElement('div');
                             col.className = 'col';
                             col.setAttribute('role', 'listitem');
-                            
                             const thumbnailContainer = document.createElement('div');
                             thumbnailContainer.className = 'background-thumbnail-container';
                             thumbnailContainer.dataset.fullImageUrl = background.fullImageUrl;
@@ -903,46 +815,37 @@ document.addEventListener('DOMContentLoaded', () => {
                             thumbnailContainer.setAttribute('aria-label', `Select background: ${background.title}`);
                             thumbnailContainer.setAttribute('tabindex', '0');
                             thumbnailContainer.setAttribute('aria-description', 'Click to select, double-click to apply immediately');
-                            
                             // Add click handler to select the thumbnail
                             thumbnailContainer.addEventListener('click', (e) => {
                                 // Deselect all previously selected thumbnails
                                 document.querySelectorAll('.background-thumbnail-container.selected').forEach(el => {
                                     el.classList.remove('selected');
                                 });
-                                
                                 // Select this thumbnail
                                 thumbnailContainer.classList.add('selected');
-                                
                                 // Store the selected background URL and title
                                 selectedBackgroundUrl = background.fullImageUrl;
                                 selectedBackgroundTitle = background.title;
-                                
                                 // Enable the apply button
                                 const applyButton = document.getElementById('btn-apply-background');
                                 if (applyButton) {
                                     applyButton.removeAttribute('disabled');
                                 }
                             });
-                            
                             // Add double-click handler to immediately apply the background
                             thumbnailContainer.addEventListener('dblclick', (e) => {
                                 // Apply the background immediately
                                 applyBackground(background.fullImageUrl, background.title);
-                                
                                 // Close the modal
                                 modal.hide();
                             });
-                            
                             // Add keyboard support for accessibility
                             thumbnailContainer.addEventListener('keydown', (e) => {
                                 // Select with Enter or Space
                                 if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault();
-                                    
                                     // Simulate click to select
                                     thumbnailContainer.click();
-                                    
                                     // If Enter is pressed with Alt key, apply immediately (like double-click)
                                     if (e.key === 'Enter' && e.altKey) {
                                         applyBackground(background.fullImageUrl, background.title);
@@ -950,23 +853,19 @@ document.addEventListener('DOMContentLoaded', () => {
                                     }
                                 }
                             });
-                            
                             const thumbnail = document.createElement('img');
                             thumbnail.className = 'background-thumbnail';
                             thumbnail.src = background.thumbnailUrl;
                             thumbnail.alt = background.title;
-                            
                             const title = document.createElement('div');
                             title.className = 'background-thumbnail-title';
                             title.textContent = background.title;
-                            
                             thumbnailContainer.appendChild(thumbnail);
                             thumbnailContainer.appendChild(title);
                             col.appendChild(thumbnailContainer);
                             gridElement.appendChild(col);
                         });
                     }
-                    
                     // Set up apply button handler
                     const applyButton = document.getElementById('btn-apply-background');
                     if (applyButton) {
@@ -975,7 +874,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (applyButton.parentNode) {
                             applyButton.parentNode.replaceChild(newApplyButton, applyButton);
                         }
-                        
                         newApplyButton.addEventListener('click', () => {
                             if (selectedBackgroundUrl) {
                                 applyBackground(selectedBackgroundUrl, selectedBackgroundTitle || '');
@@ -983,32 +881,33 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
                     }
-                } catch (apiError) {
+                }
+                catch (apiError) {
                     console.error('[Debug] Error fetching backgrounds:', apiError);
-                    
                     // Hide loading and show error
-                    if (loadingElement) loadingElement.classList.add('d-none');
+                    if (loadingElement)
+                        loadingElement.classList.add('d-none');
                     if (errorElement) {
                         errorElement.classList.remove('d-none');
                         errorElement.textContent = `Error loading backgrounds: ${apiError instanceof Error ? apiError.message : String(apiError)}`;
                     }
                 }
-            } catch (modalError) {
+            }
+            catch (modalError) {
                 console.error('[Debug] Error with modal:', modalError);
             }
         }
-        
-    } catch (initError) {
+    }
+    catch (initError) {
         console.error('[Debug] Fatal error during designer initialization:', initError);
         console.error('[Debug] Error details:', {
             message: initError instanceof Error ? initError.message : String(initError),
             stack: initError instanceof Error ? initError.stack : 'No stack trace available',
             type: initError instanceof Error ? initError.constructor.name : typeof initError
         });
-        
         // Show a fatal error message to the user
         try {
-            (window as any).Toastify({
+            window.Toastify({
                 text: 'Fatal error initializing designer. Please check console for details.',
                 duration: 0, // No auto-hide
                 close: true,
@@ -1018,10 +917,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 stopOnFocus: true,
                 className: 'toast-spacious'
             }).showToast();
-        } catch (toastError) {
+        }
+        catch (toastError) {
             // If even toast fails, try a basic alert
             console.error('[Debug] Could not show error toast:', toastError);
             alert('Fatal error initializing designer. Please check console for details.');
         }
     }
 });
+//# sourceMappingURL=main.js.map

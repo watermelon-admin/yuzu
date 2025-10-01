@@ -27,9 +27,12 @@ namespace Yuzu.Web.Pages
         // Background image title (populated when loading existing design)
         public string BackgroundImageTitle { get; set; } = "Default Background";
 
+        // Background image URL (populated when loading existing design)
+        public string BackgroundImageUrl { get; set; } = string.Empty;
+
         // Flag to indicate if we're loading an existing design
         public bool IsLoadingExistingDesign { get; set; } = false;
-        
+
         // Path to background images
         public string ImagePath { get; set; } = string.Empty;
 
@@ -102,10 +105,29 @@ namespace Yuzu.Web.Pages
                     _logger.LogWarning($"Break type with ID {designId} has no canvas data");
                 }
                 
-                // Set background title if available
+                // Set background title and construct URL directly
                 if (!string.IsNullOrEmpty(breakType.ImageTitle))
                 {
                     BackgroundImageTitle = breakType.ImageTitle;
+
+                    // Construct the background URL directly from the title
+                    // Pattern: {baseUrl}/{title}-fhd.jpg
+                    // This avoids expensive S3 enumeration
+                    try
+                    {
+                        var baseUrl = storageService.GetBackgroundsUrl();
+
+                        // ImageTitle is already lowercase from the database (normalized on save)
+                        // Construct URL with -fhd suffix and .jpg extension
+                        BackgroundImageUrl = $"{baseUrl}/{breakType.ImageTitle}-fhd.jpg";
+
+                        _logger.LogInformation($"Constructed background URL for title '{BackgroundImageTitle}': {BackgroundImageUrl}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error constructing background image URL - continuing without background");
+                        // Don't fail the page load if URL construction fails
+                    }
                 }
             }
             else

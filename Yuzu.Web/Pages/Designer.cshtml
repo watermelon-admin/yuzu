@@ -45,9 +45,25 @@
 	<!-- Store JSON in a data attribute which is less prone to encoding issues -->
 	<div id="initial-canvas-data-container" style="display: none;"
 		 data-canvas-json='@Html.Raw(Model.InitialCanvasData)'
-		 data-background-title="@(Model.BackgroundImageTitle)"></div>
+		 data-background-title="@(Model.BackgroundImageTitle)"
+		 data-background-url="@(Model.BackgroundImageUrl)"></div>
 
-	<div id="designer-canvas" class="canvas" role="main" tabindex="0" aria-label="Design Canvas" aria-description="Canvas area for designing layouts. Use arrow keys to navigate when elements are selected.">
+	<!-- Loading overlay -->
+	<div id="designer-loading-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+		<div style="text-align: center; color: white;">
+			<div class="spinner-border text-light mb-3" role="status" style="width: 3rem; height: 3rem;">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			<div style="font-size: 1.2rem;">Loading Designer...</div>
+		</div>
+	</div>
+
+	<div id="designer-canvas" class="canvas" role="main" tabindex="0" aria-label="Design Canvas" aria-description="Canvas area for designing layouts. Use arrow keys to navigate when elements are selected."
+		 @if (!string.IsNullOrEmpty(Model.BackgroundImageUrl))
+		 {
+			 <text>style="background-image: url('@Model.BackgroundImageUrl');"</text>
+		 }
+		 >
 		<!-- Widgets will be added here by JavaScript -->
 	</div>
 
