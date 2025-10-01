@@ -248,9 +248,10 @@ If you have questions, please contact our support team.
     <meta charset=""utf-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Confirm Your Email Change</title>
+    <link rel=""stylesheet"" href=""https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"">
     <style>
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             margin: 0;
@@ -266,22 +267,38 @@ If you have questions, please contact our support team.
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background-color: #f8f9fa;
+            color: #333;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e5f1;
         }}
-        .header h1 {{
-            margin: 0;
+        .header .logo {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
-            font-weight: 600;
+            margin: 0;
+        }}
+        .header .logo-icon {{
+            font-size: 32px;
+            margin-right: 8px;
+            color: #6366f1;
+        }}
+        .header .logo-text-purple {{
+            font-weight: 700;
+            color: #6366f1;
+        }}
+        .header .logo-text-black {{
+            font-weight: 700;
+            color: #333;
         }}
         .content {{
             padding: 30px;
         }}
         .button {{
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #6366f1;
             color: white !important;
             text-decoration: none;
             padding: 14px 32px;
@@ -319,7 +336,10 @@ If you have questions, please contact our support team.
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1>🎯 breakscreen</h1>
+            <div class=""logo"">
+                <i class=""bx bx-coffee-togo logo-icon""></i>
+                <span><span class=""logo-text-purple"">break</span><span class=""logo-text-black"">screen</span></span>
+            </div>
         </div>
         <div class=""content"">
             <h2>Confirm Your Email Change</h2>
@@ -333,7 +353,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""info-box"">
-                <strong>📋 What happens next:</strong>
+                <strong>What happens next:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li>Click the button above to confirm this email address</li>
                     <li>Your account email will be updated immediately</li>
@@ -343,7 +363,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""security-note"">
-                <strong>🔒 Security Information:</strong>
+                <strong>Security Information:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li>This confirmation link will expire in 24 hours</li>
                     <li>If you didn't request this change, you can safely ignore this email</li>
@@ -353,7 +373,7 @@ If you have questions, please contact our support team.
 
             <p style=""color: #6c757d; font-size: 14px; margin-top: 30px;"">
                 If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href=""{HtmlEncoder.Default.Encode(confirmationUrl)}"" style=""color: #667eea; word-break: break-all;"">{HtmlEncoder.Default.Encode(confirmationUrl)}</a>
+                <a href=""{HtmlEncoder.Default.Encode(confirmationUrl)}"" style=""color: #6366f1; word-break: break-all;"">{HtmlEncoder.Default.Encode(confirmationUrl)}</a>
             </p>
         </div>
         <div class=""footer"">
@@ -378,9 +398,10 @@ If you have questions, please contact our support team.
     <meta charset=""utf-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Email Change Request</title>
+    <link rel=""stylesheet"" href=""https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"">
     <style>
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             margin: 0;
@@ -396,15 +417,31 @@ If you have questions, please contact our support team.
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background-color: #f8f9fa;
+            color: #333;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e5f1;
         }}
-        .header h1 {{
-            margin: 0;
+        .header .logo {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
-            font-weight: 600;
+            margin: 0;
+        }}
+        .header .logo-icon {{
+            font-size: 32px;
+            margin-right: 8px;
+            color: #6366f1;
+        }}
+        .header .logo-text-purple {{
+            font-weight: 700;
+            color: #6366f1;
+        }}
+        .header .logo-text-black {{
+            font-weight: 700;
+            color: #333;
         }}
         .content {{
             padding: 30px;
@@ -451,15 +488,18 @@ If you have questions, please contact our support team.
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1>🎯 breakscreen</h1>
+            <div class=""logo"">
+                <i class=""bx bx-coffee-togo logo-icon""></i>
+                <span><span class=""logo-text-purple"">break</span><span class=""logo-text-black"">screen</span></span>
+            </div>
         </div>
         <div class=""content"">
-            <h2>🔔 Email Change Request</h2>
+            <h2>Email Change Request</h2>
             <p>Hello,</p>
             <p>This is a security notification for your breakscreen account.</p>
 
             <div class=""alert-box"">
-                <strong>📧 Email Change Requested</strong>
+                <strong>Email Change Requested</strong>
                 <p style=""margin: 10px 0;"">A request was made to change your account email address to:</p>
                 <div class=""new-email"">
                     {HtmlEncoder.Default.Encode(maskedNewEmail)}
@@ -467,7 +507,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""info-box"">
-                <strong>✅ If you made this request:</strong>
+                <strong>If you made this request:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li>No action is needed from you</li>
                     <li>The change will be completed once the new email is confirmed</li>
@@ -477,7 +517,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""danger-box"">
-                <strong>⚠️ If you did NOT request this change:</strong>
+                <strong>If you did NOT request this change:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li><strong>Your current email is still active</strong> - the change hasn't happened yet</li>
                     <li><strong>Change your password immediately</strong> - someone may have accessed your account</li>
@@ -519,9 +559,10 @@ If you have questions, please contact our support team.
     <meta charset=""utf-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Verify Your Email</title>
+    <link rel=""stylesheet"" href=""https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"">
     <style>
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             margin: 0;
@@ -537,22 +578,38 @@ If you have questions, please contact our support team.
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background-color: #f8f9fa;
+            color: #333;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e5f1;
         }}
-        .header h1 {{
-            margin: 0;
+        .header .logo {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
-            font-weight: 600;
+            margin: 0;
+        }}
+        .header .logo-icon {{
+            font-size: 32px;
+            margin-right: 8px;
+            color: #6366f1;
+        }}
+        .header .logo-text-purple {{
+            font-weight: 700;
+            color: #6366f1;
+        }}
+        .header .logo-text-black {{
+            font-weight: 700;
+            color: #333;
         }}
         .content {{
             padding: 30px;
         }}
         .button {{
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #6366f1;
             color: white !important;
             text-decoration: none;
             padding: 14px 32px;
@@ -583,7 +640,10 @@ If you have questions, please contact our support team.
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1>🎯 breakscreen</h1>
+            <div class=""logo"">
+                <i class=""bx bx-coffee-togo logo-icon""></i>
+                <span><span class=""logo-text-purple"">break</span><span class=""logo-text-black"">screen</span></span>
+            </div>
         </div>
         <div class=""content"">
             <h2>Verify Your Email Address</h2>
@@ -595,7 +655,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""info-box"">
-                <strong>✓ Why verify your email?</strong>
+                <strong>Why verify your email?</strong>
                 <ul style=""margin: 10px 0;"">
                     <li>Secure your account with email notifications</li>
                     <li>Receive important updates about your subscription</li>
@@ -606,7 +666,7 @@ If you have questions, please contact our support team.
 
             <p style=""color: #6c757d; font-size: 14px; margin-top: 30px;"">
                 If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href=""{HtmlEncoder.Default.Encode(confirmationUrl)}"" style=""color: #667eea; word-break: break-all;"">{HtmlEncoder.Default.Encode(confirmationUrl)}</a>
+                <a href=""{HtmlEncoder.Default.Encode(confirmationUrl)}"" style=""color: #6366f1; word-break: break-all;"">{HtmlEncoder.Default.Encode(confirmationUrl)}</a>
             </p>
 
             <p style=""color: #6c757d; font-size: 14px; margin-top: 20px;"">
@@ -636,9 +696,10 @@ If you have questions, please contact our support team.
     <meta charset=""utf-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Welcome to breakscreen</title>
+    <link rel=""stylesheet"" href=""https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"">
     <style>
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             margin: 0;
@@ -654,22 +715,38 @@ If you have questions, please contact our support team.
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background-color: #f8f9fa;
+            color: #333;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e5f1;
         }}
-        .header h1 {{
-            margin: 0;
+        .header .logo {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
-            font-weight: 600;
+            margin: 0;
+        }}
+        .header .logo-icon {{
+            font-size: 32px;
+            margin-right: 8px;
+            color: #6366f1;
+        }}
+        .header .logo-text-purple {{
+            font-weight: 700;
+            color: #6366f1;
+        }}
+        .header .logo-text-black {{
+            font-weight: 700;
+            color: #333;
         }}
         .content {{
             padding: 30px;
         }}
         .button {{
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #6366f1;
             color: white !important;
             text-decoration: none;
             padding: 14px 32px;
@@ -707,7 +784,10 @@ If you have questions, please contact our support team.
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1>🎯 breakscreen</h1>
+            <div class=""logo"">
+                <i class=""bx bx-coffee-togo logo-icon""></i>
+                <span><span class=""logo-text-purple"">break</span><span class=""logo-text-black"">screen</span></span>
+            </div>
         </div>
         <div class=""content"">
             <h2>Welcome to breakscreen!</h2>
@@ -721,7 +801,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""success-box"">
-                <strong>🎉 What's next?</strong>
+                <strong>What's next?</strong>
                 <ul style=""margin: 10px 0;"">
                     <li>Confirm your email address (click the button above)</li>
                     <li>Customize your break types and schedules</li>
@@ -731,7 +811,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""info-box"">
-                <strong>💡 Getting Started Tips:</strong>
+                <strong>Getting Started Tips:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li><strong>Break Types:</strong> Choose from short breaks, long breaks, or custom schedules</li>
                     <li><strong>Backgrounds:</strong> Personalize your break screens with beautiful images</li>
@@ -742,7 +822,7 @@ If you have questions, please contact our support team.
 
             <p style=""color: #6c757d; font-size: 14px; margin-top: 30px;"">
                 If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href=""{HtmlEncoder.Default.Encode(confirmationUrl)}"" style=""color: #667eea; word-break: break-all;"">{HtmlEncoder.Default.Encode(confirmationUrl)}</a>
+                <a href=""{HtmlEncoder.Default.Encode(confirmationUrl)}"" style=""color: #6366f1; word-break: break-all;"">{HtmlEncoder.Default.Encode(confirmationUrl)}</a>
             </p>
 
             <p style=""color: #6c757d; font-size: 14px; margin-top: 20px;"">
@@ -771,9 +851,10 @@ If you have questions, please contact our support team.
     <meta charset=""utf-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Reset Your Password</title>
+    <link rel=""stylesheet"" href=""https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"">
     <style>
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             margin: 0;
@@ -789,22 +870,38 @@ If you have questions, please contact our support team.
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background-color: #f8f9fa;
+            color: #333;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e5f1;
         }}
-        .header h1 {{
-            margin: 0;
+        .header .logo {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
-            font-weight: 600;
+            margin: 0;
+        }}
+        .header .logo-icon {{
+            font-size: 32px;
+            margin-right: 8px;
+            color: #6366f1;
+        }}
+        .header .logo-text-purple {{
+            font-weight: 700;
+            color: #6366f1;
+        }}
+        .header .logo-text-black {{
+            font-weight: 700;
+            color: #333;
         }}
         .content {{
             padding: 30px;
         }}
         .button {{
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #6366f1;
             color: white !important;
             text-decoration: none;
             padding: 14px 32px;
@@ -842,10 +939,13 @@ If you have questions, please contact our support team.
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1>🎯 breakscreen</h1>
+            <div class=""logo"">
+                <i class=""bx bx-coffee-togo logo-icon""></i>
+                <span><span class=""logo-text-purple"">break</span><span class=""logo-text-black"">screen</span></span>
+            </div>
         </div>
         <div class=""content"">
-            <h2>🔑 Password Reset Request</h2>
+            <h2>Password Reset Request</h2>
             <p>Hello,</p>
             <p>We received a request to reset the password for your breakscreen account.</p>
 
@@ -856,7 +956,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""security-note"">
-                <strong>🔒 Security Information:</strong>
+                <strong>Security Information:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li>This password reset link will expire in 24 hours</li>
                     <li>After resetting, you'll need to log in with your new password</li>
@@ -865,7 +965,7 @@ If you have questions, please contact our support team.
             </div>
 
             <div class=""danger-box"">
-                <strong>⚠️ If you didn't request this:</strong>
+                <strong>If you didn't request this:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li><strong>You can safely ignore this email</strong> - your password will not be changed</li>
                     <li><strong>Your account may be at risk</strong> - someone may be trying to access it</li>
@@ -876,7 +976,7 @@ If you have questions, please contact our support team.
 
             <p style=""color: #6c757d; font-size: 14px; margin-top: 30px;"">
                 If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href=""{HtmlEncoder.Default.Encode(resetUrl)}"" style=""color: #667eea; word-break: break-all;"">{HtmlEncoder.Default.Encode(resetUrl)}</a>
+                <a href=""{HtmlEncoder.Default.Encode(resetUrl)}"" style=""color: #6366f1; word-break: break-all;"">{HtmlEncoder.Default.Encode(resetUrl)}</a>
             </p>
         </div>
         <div class=""footer"">
@@ -901,9 +1001,10 @@ If you have questions, please contact our support team.
     <meta charset=""utf-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Password Changed</title>
+    <link rel=""stylesheet"" href=""https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"">
     <style>
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             margin: 0;
@@ -919,15 +1020,31 @@ If you have questions, please contact our support team.
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background-color: #f8f9fa;
+            color: #333;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e5f1;
         }}
-        .header h1 {{
-            margin: 0;
+        .header .logo {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
-            font-weight: 600;
+            margin: 0;
+        }}
+        .header .logo-icon {{
+            font-size: 32px;
+            margin-right: 8px;
+            color: #6366f1;
+        }}
+        .header .logo-text-purple {{
+            font-weight: 700;
+            color: #6366f1;
+        }}
+        .header .logo-text-black {{
+            font-weight: 700;
+            color: #333;
         }}
         .content {{
             padding: 30px;
@@ -958,20 +1075,23 @@ If you have questions, please contact our support team.
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1>🎯 breakscreen</h1>
+            <div class=""logo"">
+                <i class=""bx bx-coffee-togo logo-icon""></i>
+                <span><span class=""logo-text-purple"">break</span><span class=""logo-text-black"">screen</span></span>
+            </div>
         </div>
         <div class=""content"">
-            <h2>🔐 Password Changed Successfully</h2>
+            <h2>Password Changed Successfully</h2>
             <p>Hello,</p>
             <p>This is a security notification to confirm that your breakscreen account password was changed on {DateTime.UtcNow:MMMM d, yyyy} at {DateTime.UtcNow:h:mm tt} UTC.</p>
 
             <div class=""success-box"">
-                <strong>✅ Password Updated</strong>
+                <strong>Password Updated</strong>
                 <p style=""margin: 10px 0;"">Your password has been successfully changed. You can now log in using your new password.</p>
             </div>
 
             <div class=""danger-box"">
-                <strong>⚠️ If you didn't make this change:</strong>
+                <strong>If you didn't make this change:</strong>
                 <ul style=""margin: 10px 0;"">
                     <li><strong>Someone else may have accessed your account</strong></li>
                     <li><strong>Reset your password immediately</strong> using the ""Forgot Password"" link on the login page</li>
