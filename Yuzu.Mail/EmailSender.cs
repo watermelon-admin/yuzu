@@ -100,7 +100,32 @@ namespace Yuzu.Mail
                 string.Empty,
                 toEmail,
                 mailSubject,
-                mailMessage);
+                mailMessage,
+                null);
+        }
+
+        /// <summary>
+        /// Sends an email asynchronously with both HTML and plain text versions.
+        /// </summary>
+        /// <param name="toEmail">The recipient's email address.</param>
+        /// <param name="mailSubject">The subject of the email.</param>
+        /// <param name="htmlMessage">The HTML body of the email.</param>
+        /// <param name="plainTextMessage">The plain text body of the email.</param>
+        public async Task SendEmailAsync(string toEmail, string mailSubject, string htmlMessage, string plainTextMessage)
+        {
+            _logger.LogInformation("Sending multipart email to {ToEmail} with subject {Subject}", toEmail, mailSubject);
+            await Execute(
+                _smtpServer,
+                _smtpUsername,
+                _smtpPassword,
+                _smtpPort,
+                _senderName,
+                _senderEmail,
+                string.Empty,
+                toEmail,
+                mailSubject,
+                htmlMessage,
+                plainTextMessage);
         }
 
         /// <summary>
@@ -131,7 +156,8 @@ namespace Yuzu.Mail
                 toName,
                 toEmail,
                 mailSubject,
-                mailMessage);
+                mailMessage,
+                null);
         }
 
         /// <summary>
@@ -158,7 +184,8 @@ namespace Yuzu.Mail
                 toName,
                 toEmail,
                 mailSubject,
-                mailMessage);
+                mailMessage,
+                null);
         }
 
         /// <summary>
@@ -173,7 +200,8 @@ namespace Yuzu.Mail
         /// <param name="toName">The recipient's display name.</param>
         /// <param name="toEmail">The recipient's email address.</param>
         /// <param name="subject">The subject of the email.</param>
-        /// <param name="message">The body of the email.</param>
+        /// <param name="htmlMessage">The HTML body of the email.</param>
+        /// <param name="plainTextMessage">The plain text body of the email (optional).</param>
         private async Task Execute(
             string smtpServer,
             string smtpUsername,
@@ -184,13 +212,32 @@ namespace Yuzu.Mail
             string toName,
             string toEmail,
             string subject,
-            string message)
+            string htmlMessage,
+            string? plainTextMessage)
         {
             var mimeMessage = new MimeMessage
             {
-                Subject = subject,
-                Body = new TextPart("html") { Text = message }
+                Subject = subject
             };
+
+            // Create multipart/alternative if we have both HTML and plain text
+            if (!string.IsNullOrEmpty(plainTextMessage))
+            {
+                var multipart = new Multipart("alternative");
+
+                // Add plain text version first (RFC 2046 recommends simplest format first)
+                multipart.Add(new TextPart("plain") { Text = plainTextMessage });
+
+                // Add HTML version second (preferred format last)
+                multipart.Add(new TextPart("html") { Text = htmlMessage });
+
+                mimeMessage.Body = multipart;
+            }
+            else
+            {
+                // HTML only (legacy behavior)
+                mimeMessage.Body = new TextPart("html") { Text = htmlMessage };
+            }
 
             mimeMessage.From.Add(new MailboxAddress(fromName, fromEmail));
             mimeMessage.To.Add(new MailboxAddress(toName, toEmail));

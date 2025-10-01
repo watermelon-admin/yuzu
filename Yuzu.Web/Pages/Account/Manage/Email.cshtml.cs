@@ -169,20 +169,24 @@ namespace Yuzu.Web.Pages.Account.Manage
                     values: new { userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme) ?? string.Empty;
 
-                // Send confirmation email to NEW address using professional template
-                var confirmationEmailBody = Yuzu.Web.Services.EmailTemplates.EmailChangeConfirmation(callbackUrl);
+                // Send confirmation email to NEW address using professional template (HTML + plain text)
+                var confirmationEmailBodyHtml = Yuzu.Web.Services.EmailTemplates.EmailChangeConfirmation(callbackUrl);
+                var confirmationEmailBodyPlain = Yuzu.Web.Services.EmailTemplates.PlainText.EmailChangeConfirmation(callbackUrl);
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
                     "Confirm your email change - breakscreen",
-                    confirmationEmailBody);
+                    confirmationEmailBodyHtml,
+                    confirmationEmailBodyPlain);
 
-                // Send security notification to OLD address using professional template
+                // Send security notification to OLD address using professional template (HTML + plain text)
                 var maskedNewEmail = MaskEmail(Input.NewEmail);
-                var securityEmailBody = Yuzu.Web.Services.EmailTemplates.EmailChangeSecurityNotification(maskedNewEmail);
+                var securityEmailBodyHtml = Yuzu.Web.Services.EmailTemplates.EmailChangeSecurityNotification(maskedNewEmail);
+                var securityEmailBodyPlain = Yuzu.Web.Services.EmailTemplates.PlainText.EmailChangeSecurityNotification(maskedNewEmail);
                 await _emailSender.SendEmailAsync(
                     email!,
                     "Email change request - breakscreen",
-                    securityEmailBody);
+                    securityEmailBodyHtml,
+                    securityEmailBodyPlain);
 
                 // Store new email in TempData to avoid exposing in URL (security best practice)
                 TempData["NewEmail"] = Input.NewEmail;
@@ -219,12 +223,14 @@ namespace Yuzu.Web.Pages.Account.Manage
                 values: new { userId, code },
                 protocol: Request.Scheme) ?? string.Empty;
 
-            // Use professional email template for verification
-            var verificationEmailBody = Yuzu.Web.Services.EmailTemplates.EmailVerification(callbackUrl);
+            // Use professional email template for verification (HTML + plain text)
+            var verificationEmailBodyHtml = Yuzu.Web.Services.EmailTemplates.EmailVerification(callbackUrl);
+            var verificationEmailBodyPlain = Yuzu.Web.Services.EmailTemplates.PlainText.EmailVerification(callbackUrl);
             await _emailSender.SendEmailAsync(
                 email ?? string.Empty,
                 "Verify your email - breakscreen",
-                verificationEmailBody);
+                verificationEmailBodyHtml,
+                verificationEmailBodyPlain);
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();

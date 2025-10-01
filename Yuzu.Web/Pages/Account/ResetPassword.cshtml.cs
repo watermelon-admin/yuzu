@@ -106,15 +106,17 @@ namespace Yuzu.Web.Pages.Account
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
-                // Send password changed notification email using professional template
+                // Send password changed notification email using professional template (HTML + plain text)
                 var userEmail = await _userManager.GetEmailAsync(user);
                 if (!string.IsNullOrEmpty(userEmail))
                 {
-                    var passwordChangedEmailBody = Yuzu.Web.Services.EmailTemplates.PasswordChangedNotification();
+                    var passwordChangedEmailBodyHtml = Yuzu.Web.Services.EmailTemplates.PasswordChangedNotification();
+                    var passwordChangedEmailBodyPlain = Yuzu.Web.Services.EmailTemplates.PlainText.PasswordChangedNotification();
                     await _emailSender.SendEmailAsync(
                         userEmail,
                         "Your password was changed - breakscreen",
-                        passwordChangedEmailBody);
+                        passwordChangedEmailBodyHtml,
+                        passwordChangedEmailBodyPlain);
                 }
 
                 return RedirectToPage("./ResetPasswordConfirmation");

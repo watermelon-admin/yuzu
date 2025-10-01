@@ -71,12 +71,14 @@ namespace Yuzu.Web.Pages.Account.Manage
                     values: new { code },
                     protocol: Request.Scheme) ?? string.Empty;
 
-                // Send password reset email using professional template
-                var resetEmailBody = Yuzu.Web.Services.EmailTemplates.PasswordResetRequest(callbackUrl);
+                // Send password reset email using professional template (HTML + plain text)
+                var resetEmailBodyHtml = Yuzu.Web.Services.EmailTemplates.PasswordResetRequest(callbackUrl);
+                var resetEmailBodyPlain = Yuzu.Web.Services.EmailTemplates.PlainText.PasswordResetRequest(callbackUrl);
                 await _emailSender.SendEmailAsync(
                     Input.Email,
                     "Reset your password - breakscreen",
-                    resetEmailBody);
+                    resetEmailBodyHtml,
+                    resetEmailBodyPlain);
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

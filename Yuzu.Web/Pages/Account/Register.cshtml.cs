@@ -172,12 +172,14 @@ namespace Yuzu.Web.Pages.Account
                         values: new { userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme) ?? string.Empty;
 
-                    // Send welcome email with confirmation link using professional template
-                    var welcomeEmailBody = Yuzu.Web.Services.EmailTemplates.WelcomeAndConfirmation(callbackUrl);
+                    // Send welcome email with confirmation link using professional template (HTML + plain text)
+                    var welcomeEmailBodyHtml = Yuzu.Web.Services.EmailTemplates.WelcomeAndConfirmation(callbackUrl);
+                    var welcomeEmailBodyPlain = Yuzu.Web.Services.EmailTemplates.PlainText.WelcomeAndConfirmation(callbackUrl);
                     await _emailSender.SendEmailAsync(
                         Input.Email,
                         "Welcome to breakscreen - Confirm your email",
-                        welcomeEmailBody);
+                        welcomeEmailBodyHtml,
+                        welcomeEmailBodyPlain);
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

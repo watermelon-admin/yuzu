@@ -9,6 +9,234 @@ namespace Yuzu.Web.Services
     public static class EmailTemplates
     {
         /// <summary>
+        /// Provides plain text versions of email templates for text-only email clients.
+        /// </summary>
+        public static class PlainText
+        {
+            /// <summary>
+            /// Plain text version of email change confirmation email.
+            /// </summary>
+            public static string EmailChangeConfirmation(string confirmationUrl)
+            {
+                return $@"breakscreen
+
+CONFIRM YOUR EMAIL CHANGE
+
+Hello,
+
+You're receiving this email because a request was made to change your breakscreen account email address to this email.
+
+To complete the email change, please click the link below or copy it into your browser:
+
+{confirmationUrl}
+
+WHAT HAPPENS NEXT:
+• Click the link above to confirm this email address
+• Your account email will be updated immediately
+• You'll use this new email to log in
+• Your username will also update to match this email
+
+SECURITY INFORMATION:
+• This confirmation link will expire in 24 hours
+• If you didn't request this change, you can safely ignore this email
+• Your current email address will remain active until you confirm
+
+---
+This is an automated message from breakscreen.
+Please do not reply to this email.
+
+© {DateTime.UtcNow.Year} Watermelon Software. All rights reserved.";
+            }
+
+            /// <summary>
+            /// Plain text version of email change security notification.
+            /// </summary>
+            public static string EmailChangeSecurityNotification(string maskedNewEmail)
+            {
+                return $@"breakscreen
+
+EMAIL CHANGE REQUEST
+
+Hello,
+
+This is a security notification for your breakscreen account.
+
+EMAIL CHANGE REQUESTED
+A request was made to change your account email address to:
+{maskedNewEmail}
+
+IF YOU MADE THIS REQUEST:
+• No action is needed from you
+• The change will be completed once the new email is confirmed
+• This email address (your current one) will remain active until then
+• You can continue using it to log in
+
+IF YOU DID NOT REQUEST THIS CHANGE:
+• Your current email is still active - the change hasn't happened yet
+• Change your password immediately - someone may have accessed your account
+• Review your recent account activity
+• Contact our support team if you need assistance
+
+ACCOUNT SECURITY TIPS:
+• Use a strong, unique password for your breakscreen account
+• Never share your password with anyone
+• Be cautious of phishing emails asking for your credentials
+• Keep your account information up to date
+
+---
+This is an automated security notification from breakscreen.
+Please do not reply to this email.
+
+If you have questions, please contact our support team.
+
+© {DateTime.UtcNow.Year} Watermelon Software. All rights reserved.";
+            }
+
+            /// <summary>
+            /// Plain text version of email verification email.
+            /// </summary>
+            public static string EmailVerification(string confirmationUrl)
+            {
+                return $@"breakscreen
+
+VERIFY YOUR EMAIL ADDRESS
+
+Hello,
+
+Thank you for using breakscreen! To ensure you can receive important account notifications, please verify your email address.
+
+To verify your email, click the link below or copy it into your browser:
+
+{confirmationUrl}
+
+WHY VERIFY YOUR EMAIL?
+• Secure your account with email notifications
+• Receive important updates about your subscription
+• Enable password recovery if needed
+• Get the most out of your breakscreen account
+
+If you didn't create a breakscreen account, you can safely ignore this email.
+
+---
+This is an automated message from breakscreen.
+Please do not reply to this email.
+
+© {DateTime.UtcNow.Year} Watermelon Software. All rights reserved.";
+            }
+
+            /// <summary>
+            /// Plain text version of welcome and confirmation email.
+            /// </summary>
+            public static string WelcomeAndConfirmation(string confirmationUrl)
+            {
+                return $@"breakscreen
+
+WELCOME TO BREAKSCREEN!
+
+Hello,
+
+Thank you for creating a breakscreen account! We're excited to help you take healthy breaks throughout your day.
+
+To get started, please confirm your email address by clicking the link below or copying it into your browser:
+
+{confirmationUrl}
+
+WHAT'S NEXT?
+• Confirm your email address (click the link above)
+• Customize your break types and schedules
+• Set up your time zone preferences
+• Start taking healthier breaks today!
+
+GETTING STARTED TIPS:
+• Break Types: Choose from short breaks, long breaks, or custom schedules
+• Backgrounds: Personalize your break screens with beautiful images
+• Time Zones: Automatically adjust breaks for your location
+• Countdown Timer: See exactly when your next break is coming
+
+If you didn't create a breakscreen account, you can safely ignore this email.
+
+---
+This is an automated message from breakscreen.
+Please do not reply to this email.
+
+© {DateTime.UtcNow.Year} Watermelon Software. All rights reserved.";
+            }
+
+            /// <summary>
+            /// Plain text version of password reset request email.
+            /// </summary>
+            public static string PasswordResetRequest(string resetUrl)
+            {
+                return $@"breakscreen
+
+PASSWORD RESET REQUEST
+
+Hello,
+
+We received a request to reset the password for your breakscreen account.
+
+To reset your password, click the link below or copy it into your browser:
+
+{resetUrl}
+
+SECURITY INFORMATION:
+• This password reset link will expire in 24 hours
+• After resetting, you'll need to log in with your new password
+• Your old password will no longer work
+
+IF YOU DIDN'T REQUEST THIS:
+• You can safely ignore this email - your password will not be changed
+• Your account may be at risk - someone may be trying to access it
+• Consider changing your password if you're concerned about security
+• Contact support if you need assistance
+
+---
+This is an automated message from breakscreen.
+Please do not reply to this email.
+
+© {DateTime.UtcNow.Year} Watermelon Software. All rights reserved.";
+            }
+
+            /// <summary>
+            /// Plain text version of password changed notification email.
+            /// </summary>
+            public static string PasswordChangedNotification()
+            {
+                return $@"breakscreen
+
+PASSWORD CHANGED SUCCESSFULLY
+
+Hello,
+
+This is a security notification to confirm that your breakscreen account password was changed on {DateTime.UtcNow:MMMM d, yyyy} at {DateTime.UtcNow:h:mm tt} UTC.
+
+PASSWORD UPDATED
+Your password has been successfully changed. You can now log in using your new password.
+
+IF YOU DIDN'T MAKE THIS CHANGE:
+• Someone else may have accessed your account
+• Reset your password immediately using the ""Forgot Password"" link on the login page
+• Review your account activity for any unauthorized changes
+• Contact our support team for immediate assistance
+
+ACCOUNT SECURITY TIPS:
+• Use a strong, unique password for your breakscreen account
+• Never share your password with anyone
+• Be cautious of phishing emails asking for your credentials
+• Change your password regularly for better security
+
+---
+This is an automated security notification from breakscreen.
+Please do not reply to this email.
+
+If you have questions, please contact our support team.
+
+© {DateTime.UtcNow.Year} Watermelon Software. All rights reserved.";
+            }
+        }
+
+
+        /// <summary>
         /// Email sent to the NEW email address to confirm the email change.
         /// </summary>
         public static string EmailChangeConfirmation(string confirmationUrl)
