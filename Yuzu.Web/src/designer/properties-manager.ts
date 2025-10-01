@@ -67,7 +67,14 @@ export class PropertiesManager {
         this.makeToolboxDraggable();
         
         // Prevent deselection of widgets when clicking on properties toolbox
+        // Need to handle both mousedown and pointerdown since the canvas listens for pointerdown events
         this.propertiesToolbox.addEventListener('mousedown', (e: MouseEvent) => {
+            e.stopPropagation();
+        });
+
+        this.propertiesToolbox.addEventListener('pointerdown', (e: PointerEvent) => {
+            // Stop propagation to prevent canvas from handling this event
+            // This is critical - without this, clicking controls causes the canvas to deselect widgets
             e.stopPropagation();
         });
         
