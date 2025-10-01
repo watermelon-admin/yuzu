@@ -12,6 +12,12 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Yuzu.Web.Pages.Account
 {
+    /// <summary>
+    /// Confirms email change via token sent to new email address.
+    /// This page is intentionally [AllowAnonymous] because users access it via email link
+    /// without being signed in. Security is enforced by the cryptographic token.
+    /// </summary>
+    [AllowAnonymous]
     public class ConfirmEmailChangeModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager) : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;

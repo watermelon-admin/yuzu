@@ -87,6 +87,9 @@ builder.Services.AddMemoryCache();
 // Add the cached timezone service
 builder.Services.AddScoped<Yuzu.Time.CachedTimeZoneService>();
 
+// Add email change rate limiter (singleton for in-memory state)
+builder.Services.AddSingleton<Yuzu.Web.Services.EmailChangeRateLimiter>();
+
 // Health checks already registered earlier
 
 // Register the appropriate storage service based on configuration

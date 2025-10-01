@@ -17,11 +17,13 @@ namespace Yuzu.Web.Pages.Account.Manage
     public class EmailModel(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        Yuzu.Mail.IEmailSender emailSender) : PageModel
+        Yuzu.Mail.IEmailSender emailSender,
+        Yuzu.Web.Services.EmailChangeRateLimiter rateLimiter) : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private readonly Yuzu.Mail.IEmailSender _emailSender = emailSender;
+        private readonly Yuzu.Web.Services.EmailChangeRateLimiter _rateLimiter = rateLimiter;
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -86,6 +88,28 @@ namespace Yuzu.Web.Pages.Account.Manage
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
         }
 
+        /// <summary>
+        /// Masks an email address for security notifications.
+        /// Example: john.doe@example.com -> j***e@example.com
+        /// </summary>
+        private static string MaskEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return email;
+
+            var parts = email.Split('@');
+            if (parts.Length != 2)
+                return email;
+
+            var localPart = parts[0];
+            var domain = parts[1];
+
+            if (localPart.Length <= 2)
+                return $"{localPart[0]}***@{domain}";
+
+            return $"{localPart[0]}***{localPart[^1]}@{domain}";
+        }
+
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -112,6 +136,18 @@ namespace Yuzu.Web.Pages.Account.Manage
                 return Page();
             }
 
+            // Check rate limit to prevent abuse
+            var userId = await _userManager.GetUserIdAsync(user);
+            if (!_rateLimiter.IsAllowed(userId))
+            {
+                var retryAfter = _rateLimiter.GetRetryAfter(userId);
+                var minutes = (int)Math.Ceiling(retryAfter.TotalMinutes);
+                ModelState.AddModelError(string.Empty,
+                    $"Too many email change requests. Please try again in {minutes} minute{(minutes != 1 ? "s" : "")}.");
+                await LoadAsync(user);
+                return Page();
+            }
+
             // Verify current password before allowing email change
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, Input.CurrentPassword);
             if (!isPasswordValid)
@@ -132,13 +168,34 @@ namespace Yuzu.Web.Pages.Account.Manage
                     pageHandler: null,
                     values: new { userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme) ?? string.Empty;
+
+                // Send confirmation email to NEW address
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Confirm your email change",
+                    $"Please confirm your email change by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                // Redirect to dedicated "check your email" page instead of showing message on same page
-                return RedirectToPage("/Account/Manage/EmailChangeConfirmationSent", new { email = Input.NewEmail });
+                // Send security notification to OLD address
+                var maskedNewEmail = MaskEmail(Input.NewEmail);
+                await _emailSender.SendEmailAsync(
+                    email!,
+                    "Email change request",
+                    $@"<p>Hello,</p>
+                    <p>A request was made to change the email address for your account to <strong>{HtmlEncoder.Default.Encode(maskedNewEmail)}</strong>.</p>
+                    <p>If you made this request, no action is needed. The change will be completed once the new email address is confirmed.</p>
+                    <p><strong>If you did NOT request this change:</strong></p>
+                    <ul>
+                        <li>Your current email address is still active and has not been changed</li>
+                        <li>Change your password immediately</li>
+                        <li>Contact our support team</li>
+                    </ul>
+                    <p>This is an automated security notification.</p>");
+
+                // Store new email in TempData to avoid exposing in URL (security best practice)
+                TempData["NewEmail"] = Input.NewEmail;
+
+                // Redirect to dedicated "check your email" page
+                return RedirectToPage("/Account/Manage/EmailChangeConfirmationSent");
             }
 
             StatusMessage = "Your email is unchanged.";
