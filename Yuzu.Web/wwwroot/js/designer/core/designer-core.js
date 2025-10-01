@@ -51,8 +51,9 @@ export class Designer {
         this.toolboxManager = new ToolboxManager(this.canvasElement);
         this.propertiesManager = new PropertiesManager(this.canvasElement);
         // Bind event handlers to maintain context
-        this.boundMouseMoveHandler = this.handleDocumentMouseMove.bind(this);
-        this.boundMouseUpHandler = this.handleDocumentMouseUp.bind(this);
+        this.boundPointerMoveHandler = this.handleCanvasPointerMove.bind(this);
+        this.boundPointerUpHandler = this.handleCanvasPointerUp.bind(this);
+        this.boundPointerCancelHandler = this.handleCanvasPointerCancel.bind(this);
         this.initEventListeners();
         // Set up periodic maintenance to prevent performance degradation
         this.setupPeriodicMaintenance();
@@ -64,6 +65,8 @@ export class Designer {
     setupPeriodicMaintenance() {
         // Run maintenance every 30 seconds
         const MAINTENANCE_INTERVAL = 30000; // 30 seconds
+        // Update debug info more frequently (every 500ms)
+        const DEBUG_UPDATE_INTERVAL = 500; // 0.5 seconds
         console.log(`[Debug] Setting up periodic maintenance every ${MAINTENANCE_INTERVAL / 1000} seconds`);
         this.maintenanceInterval = setInterval(() => {
             console.log(`[Debug] Running periodic maintenance`);
@@ -78,12 +81,19 @@ export class Designer {
                 console.log(`[Debug] Refreshed canvas position: x=${canvasRect.left}, y=${canvasRect.top}`);
                 // Clean any stale event listeners
                 if (this.dragState === null) {
-                    // Just in case, remove document event listeners as safety
-                    document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-                    document.removeEventListener('mouseup', this.boundMouseUpHandler);
+                    // Just in case, remove canvas pointer event listeners as safety
+                    this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+                    this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+                    this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
                 }
             }
         }, MAINTENANCE_INTERVAL);
+        // Set up debug info update interval
+        setInterval(() => {
+            this.updateDebugInfo();
+        }, DEBUG_UPDATE_INTERVAL);
+        // Initial debug info update
+        this.updateDebugInfo();
     }
     /**
      * Registers a toolbox element to make it draggable.
@@ -533,8 +543,9 @@ export class Designer {
         console.log(`[Debug] Performing full designer state reset`);
         // 1. Clear any existing drag state
         if (this.dragState) {
-            document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-            document.removeEventListener('mouseup', this.boundMouseUpHandler);
+            this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+            this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+            this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
             this.dragState = null;
             console.log(`[Debug] Cleared drag state and removed event listeners`);
         }
@@ -722,11 +733,119 @@ export class Designer {
      * Cleans up drag event listeners (for issue #2 fix)
      */
     cleanupDragListeners() {
-        document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-        document.removeEventListener('mouseup', this.boundMouseUpHandler);
+        this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+        this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+        this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
         if (this.dragTimeout) {
             clearTimeout(this.dragTimeout);
             this.dragTimeout = null;
+        }
+    }
+    /**
+     * Stub methods that will be implemented in DesignerDrag subclass
+     * These are here to satisfy TypeScript's type checking for the bound handlers
+     */
+    handleCanvasPointerDown(_e) {
+        // Implemented in DesignerDrag
+    }
+    handleCanvasPointerMove(_e) {
+        // Implemented in DesignerDrag
+    }
+    handleCanvasPointerUp(_e) {
+        // Implemented in DesignerDrag
+    }
+    handleCanvasPointerCancel(_e) {
+        // Implemented in DesignerDrag
+    }
+    /**
+     * Updates the debug info panel with current designer state
+     * Useful for monitoring memory leaks and performance issues
+     */
+    updateDebugInfo() {
+        // Widget count
+        const widgetCountEl = document.getElementById('debug-widget-count');
+        if (widgetCountEl) {
+            widgetCountEl.textContent = this.widgets.size.toString();
+        }
+        // Selected widgets count
+        const selectedCountEl = document.getElementById('debug-selected-count');
+        if (selectedCountEl) {
+            const selectedCount = this.selectionManager.getSelectedWidgetIds().length;
+            selectedCountEl.textContent = selectedCount.toString();
+        }
+        // Drag state
+        const dragStateEl = document.getElementById('debug-drag-state');
+        if (dragStateEl) {
+            if (this.dragState) {
+                const dragTypeNames = ['None', 'Move', 'Resize', 'Select'];
+                const dragTypeName = dragTypeNames[this.dragState.type] || 'Unknown';
+                dragStateEl.textContent = dragTypeName;
+                dragStateEl.classList.add('warning');
+            }
+            else {
+                dragStateEl.textContent = 'null';
+                dragStateEl.classList.remove('warning');
+            }
+        }
+        // Pointer ID
+        const pointerIdEl = document.getElementById('debug-pointer-id');
+        if (pointerIdEl) {
+            if (this.dragState && this.dragState.pointerId !== undefined) {
+                pointerIdEl.textContent = this.dragState.pointerId.toString();
+            }
+            else {
+                pointerIdEl.textContent = '-';
+            }
+        }
+        // Event listener count (approximate)
+        const listenerCountEl = document.getElementById('debug-listener-count');
+        if (listenerCountEl) {
+            // Count widget event listeners (each widget has resize handlers)
+            let listenerCount = this.widgets.size * 4; // 4 resize handles per widget
+            // Add canvas listeners if drag is active
+            if (this.dragState) {
+                listenerCount += 3; // pointermove, pointerup, pointercancel
+            }
+            listenerCountEl.textContent = listenerCount.toString();
+            // Warn if listener count is high
+            if (listenerCount > 100) {
+                listenerCountEl.classList.add('warning');
+            }
+            else {
+                listenerCountEl.classList.remove('warning');
+            }
+        }
+        // Undo stack size
+        const undoStackEl = document.getElementById('debug-undo-stack');
+        if (undoStackEl) {
+            const undoSize = this.commandManager.getUndoStackSize();
+            undoStackEl.textContent = undoSize.toString();
+        }
+        // Redo stack size
+        const redoStackEl = document.getElementById('debug-redo-stack');
+        if (redoStackEl) {
+            const redoSize = this.commandManager.getRedoStackSize();
+            redoStackEl.textContent = redoSize.toString();
+        }
+        // Memory usage (if available)
+        const memoryEl = document.getElementById('debug-memory');
+        if (memoryEl) {
+            if ('memory' in performance && performance.memory) {
+                const memory = performance.memory;
+                const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+                const totalMB = Math.round(memory.totalJSHeapSize / 1024 / 1024);
+                memoryEl.textContent = `${usedMB}/${totalMB} MB`;
+                // Warn if memory usage is high (>80%)
+                if (usedMB / totalMB > 0.8) {
+                    memoryEl.classList.add('warning');
+                }
+                else {
+                    memoryEl.classList.remove('warning');
+                }
+            }
+            else {
+                memoryEl.textContent = 'N/A';
+            }
         }
     }
     /**

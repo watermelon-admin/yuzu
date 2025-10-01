@@ -538,6 +538,56 @@ body.preview-mode .widget::after {
     border: 0;
 }
 
+/* Debug Info Panel - Bottom of Canvas */
+.debug-info-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    z-index: 9999;
+    border-top: 2px solid #00ff00;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+    user-select: none;
+}
+
+.debug-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.debug-label {
+    color: #888;
+    font-weight: bold;
+}
+
+.debug-value {
+    color: #00ff00;
+    font-weight: normal;
+    font-family: 'Courier New', monospace;
+}
+
+.debug-value.warning {
+    color: #ffaa00;
+}
+
+.debug-value.error {
+    color: #ff0000;
+}
+
+/* Hide debug panel in preview mode */
+body.preview-mode .debug-info-panel {
+    display: none !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .toolbar,
@@ -545,8 +595,14 @@ body.preview-mode .widget::after {
         flex-direction: column;
         max-width: 80vw;
     }
-    
+
     .properties-toolbar {
         width: 250px;
+    }
+
+    .debug-info-panel {
+        font-size: 9px;
+        padding: 4px 8px;
+        gap: 10px;
     }
 }

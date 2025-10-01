@@ -141,5 +141,19 @@ export class CommandManager {
         this.redoStack = [];
         this.onStackChange();
     }
+    /**
+     * Gets the size of the undo stack.
+     * @returns The number of commands in the undo stack.
+     */
+    getUndoStackSize() {
+        return this.undoStack.length;
+    }
+    /**
+     * Gets the size of the redo stack.
+     * @returns The number of commands in the redo stack.
+     */
+    getRedoStackSize() {
+        return this.redoStack.length;
+    }
 }
 //# sourceMappingURL=command.js.map

@@ -115,6 +115,7 @@ export interface DragState {
     type: DragType; // Type of the drag operation
     startPoint: Point; // Starting point of the drag
     currentPoint: Point; // Current point of the drag
+    pointerId?: number; // ID of the pointer (for tracking specific pointer in multi-pointer scenarios)
     resizeHandle?: ResizeHandlePosition; // Optional position of the resize handle
     affectedWidgets: string[]; // IDs of the widgets affected by the drag
     selectionBox?: Rect; // Optional selection box for selecting multiple widgets
