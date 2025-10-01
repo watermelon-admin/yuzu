@@ -727,6 +727,40 @@ document.addEventListener('DOMContentLoaded', () => {
         // Expose the designer instance to the global scope for debugging purposes
         window.designer = designer;
         console.log('[Debug] Designer instance exposed to global scope for debugging');
+
+        // Add debug panel button
+        const debugButton = document.getElementById('btn-debug-report');
+        if (debugButton) {
+            debugButton.addEventListener('click', () => {
+                if (window.PerformanceMonitor) {
+                    const report = window.PerformanceMonitor.printReport();
+
+                    // Show summary in a modal or alert
+                    const summary = `
+Designer Performance Report
+==========================
+Uptime: ${(report.uptime / 1000).toFixed(2)}s
+Widgets Created: ${report.summary.widgetCreations}
+Widgets Deleted: ${report.summary.widgetDeletions}
+Active Widgets: ${report.summary.activeWidgets}
+Potential Leaks: ${report.summary.widgetLeaks}
+Commands Executed: ${report.summary.commandExecutions}
+Drag Operations: ${report.summary.dragOperations}
+Event Listeners: ${report.summary.totalEventListeners}
+DOM Nodes: ${report.summary.domNodes}
+${report.currentMemory ? `
+Memory Usage: ${report.currentMemory.usedMB} MB / ${report.currentMemory.limitMB} MB (${report.currentMemory.usedPercent}%)` : ''}
+
+Check console for full details.
+Download JSON report?`;
+
+                    if (confirm(summary)) {
+                        window.PerformanceMonitor.downloadReport();
+                    }
+                }
+            });
+        }
+
         console.timeEnd('designer-initialization');
         console.log('[Debug] Designer initialized successfully with draggable toolboxes');
         // Hide the loading overlay now that initialization is complete
