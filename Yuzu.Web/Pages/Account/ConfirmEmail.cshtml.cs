@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.-   
+// Licensed to the .NET Foundation under one or more agreements.-
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using IdentityUser = Yuzu.Web.ApplicationUser;
@@ -39,7 +40,9 @@ namespace Yuzu.Web.Pages.Account
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{userId}'.");
+                // Don't reveal that the user doesn't exist - return generic error
+                ResultSucceeded = false;
+                return Page();
             }
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));

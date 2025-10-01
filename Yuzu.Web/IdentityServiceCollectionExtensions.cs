@@ -48,6 +48,11 @@ namespace Yuzu.Web
                 // Lockout settings
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                 options.Lockout.MaxFailedAccessAttempts = 5;
+
+                // Token settings - set explicit expiration times for security
+                options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+                options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+                options.Tokens.ChangeEmailTokenProvider = TokenOptions.DefaultEmailProvider;
             })
             .AddAzureTableStores<ApplicationDbContext>(
                 () => new IdentityConfiguration
@@ -60,7 +65,20 @@ namespace Yuzu.Web
                 () => new TableServiceClient(connectionString)
             )
             .CreateAzureTablesIfNotExists<ApplicationDbContext>()
-            .AddDefaultTokenProviders(); // Add default token providers for email confirmation, password reset, etc.
+            .AddDefaultTokenProviders() // Add default token providers for email confirmation, password reset, etc.
+            .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultEmailProvider);
+
+            // Configure token lifespan for security (24 hours for email confirmation, 1 hour for password reset)
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromHours(24); // Email confirmation tokens valid for 24 hours
+            });
+
+            // Configure shorter lifespan for password reset tokens
+            services.Configure<PasswordHasherOptions>(options =>
+            {
+                options.IterationCount = 100_000; // OWASP recommendation for PBKDF2
+            });
 
             // Add the services that AddDefaultIdentity would normally include
             // Create a wrapper for the existing email sender to work with Identity

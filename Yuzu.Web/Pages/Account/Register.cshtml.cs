@@ -15,6 +15,7 @@ using IdentityUser = Yuzu.Web.ApplicationUser;
 namespace Yuzu.Web.Pages.Account
 {
     [AllowAnonymous]
+    [ValidateAntiForgeryToken]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;

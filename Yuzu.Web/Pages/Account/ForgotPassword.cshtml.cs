@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace Yuzu.Web.Pages.Account.Manage
 {
     [AllowAnonymous]
+    [ValidateAntiForgeryToken]
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
