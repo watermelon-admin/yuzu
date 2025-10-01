@@ -51,8 +51,9 @@ export class Designer implements IDesignerCommands {
     protected maintenanceInterval: ReturnType<typeof setInterval> | null = null; // Track maintenance interval for cleanup
 
     // Bound event handlers to ensure they can be properly removed
-    protected boundMouseMoveHandler: (e: MouseEvent) => void;
-    protected boundMouseUpHandler: (e: MouseEvent) => void;
+    protected boundPointerMoveHandler: (e: PointerEvent) => void;
+    protected boundPointerUpHandler: (e: PointerEvent) => void;
+    protected boundPointerCancelHandler: (e: PointerEvent) => void;
 
     /**
      * Constructor for the Designer class.
@@ -71,8 +72,9 @@ export class Designer implements IDesignerCommands {
         this.propertiesManager = new PropertiesManager(this.canvasElement);
 
         // Bind event handlers to maintain context
-        this.boundMouseMoveHandler = this.handleDocumentMouseMove.bind(this);
-        this.boundMouseUpHandler = this.handleDocumentMouseUp.bind(this);
+        this.boundPointerMoveHandler = this.handleCanvasPointerMove.bind(this);
+        this.boundPointerUpHandler = this.handleCanvasPointerUp.bind(this);
+        this.boundPointerCancelHandler = this.handleCanvasPointerCancel.bind(this);
 
         this.initEventListeners();
         
@@ -106,9 +108,10 @@ export class Designer implements IDesignerCommands {
 
                 // Clean any stale event listeners
                 if (this.dragState === null) {
-                    // Just in case, remove document event listeners as safety
-                    document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-                    document.removeEventListener('mouseup', this.boundMouseUpHandler);
+                    // Just in case, remove canvas pointer event listeners as safety
+                    this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+                    this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+                    this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
                 }
             }
         }, MAINTENANCE_INTERVAL);
@@ -656,8 +659,9 @@ export class Designer implements IDesignerCommands {
         
         // 1. Clear any existing drag state
         if (this.dragState) {
-            document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-            document.removeEventListener('mouseup', this.boundMouseUpHandler);
+            this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+            this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+            this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
             this.dragState = null;
             console.log(`[Debug] Cleared drag state and removed event listeners`);
         }
@@ -887,13 +891,34 @@ export class Designer implements IDesignerCommands {
      * Cleans up drag event listeners (for issue #2 fix)
      */
     protected cleanupDragListeners(): void {
-        document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-        document.removeEventListener('mouseup', this.boundMouseUpHandler);
+        this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+        this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+        this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
 
         if (this.dragTimeout) {
             clearTimeout(this.dragTimeout);
             this.dragTimeout = null;
         }
+    }
+
+    /**
+     * Stub methods that will be implemented in DesignerDrag subclass
+     * These are here to satisfy TypeScript's type checking for the bound handlers
+     */
+    protected handleCanvasPointerDown(_e: PointerEvent): void {
+        // Implemented in DesignerDrag
+    }
+
+    protected handleCanvasPointerMove(_e: PointerEvent): void {
+        // Implemented in DesignerDrag
+    }
+
+    protected handleCanvasPointerUp(_e: PointerEvent): void {
+        // Implemented in DesignerDrag
+    }
+
+    protected handleCanvasPointerCancel(_e: PointerEvent): void {
+        // Implemented in DesignerDrag
     }
 
     /**

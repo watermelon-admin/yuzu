@@ -51,8 +51,9 @@ export class Designer {
         this.toolboxManager = new ToolboxManager(this.canvasElement);
         this.propertiesManager = new PropertiesManager(this.canvasElement);
         // Bind event handlers to maintain context
-        this.boundMouseMoveHandler = this.handleDocumentMouseMove.bind(this);
-        this.boundMouseUpHandler = this.handleDocumentMouseUp.bind(this);
+        this.boundPointerMoveHandler = this.handleCanvasPointerMove.bind(this);
+        this.boundPointerUpHandler = this.handleCanvasPointerUp.bind(this);
+        this.boundPointerCancelHandler = this.handleCanvasPointerCancel.bind(this);
         this.initEventListeners();
         // Set up periodic maintenance to prevent performance degradation
         this.setupPeriodicMaintenance();
@@ -78,9 +79,10 @@ export class Designer {
                 console.log(`[Debug] Refreshed canvas position: x=${canvasRect.left}, y=${canvasRect.top}`);
                 // Clean any stale event listeners
                 if (this.dragState === null) {
-                    // Just in case, remove document event listeners as safety
-                    document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-                    document.removeEventListener('mouseup', this.boundMouseUpHandler);
+                    // Just in case, remove canvas pointer event listeners as safety
+                    this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+                    this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+                    this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
                 }
             }
         }, MAINTENANCE_INTERVAL);
@@ -533,8 +535,9 @@ export class Designer {
         console.log(`[Debug] Performing full designer state reset`);
         // 1. Clear any existing drag state
         if (this.dragState) {
-            document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-            document.removeEventListener('mouseup', this.boundMouseUpHandler);
+            this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+            this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+            this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
             this.dragState = null;
             console.log(`[Debug] Cleared drag state and removed event listeners`);
         }
@@ -722,12 +725,29 @@ export class Designer {
      * Cleans up drag event listeners (for issue #2 fix)
      */
     cleanupDragListeners() {
-        document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-        document.removeEventListener('mouseup', this.boundMouseUpHandler);
+        this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+        this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+        this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
         if (this.dragTimeout) {
             clearTimeout(this.dragTimeout);
             this.dragTimeout = null;
         }
+    }
+    /**
+     * Stub methods that will be implemented in DesignerDrag subclass
+     * These are here to satisfy TypeScript's type checking for the bound handlers
+     */
+    handleCanvasPointerDown(_e) {
+        // Implemented in DesignerDrag
+    }
+    handleCanvasPointerMove(_e) {
+        // Implemented in DesignerDrag
+    }
+    handleCanvasPointerUp(_e) {
+        // Implemented in DesignerDrag
+    }
+    handleCanvasPointerCancel(_e) {
+        // Implemented in DesignerDrag
     }
     /**
      * Cleanup method to properly dispose of Designer instance and prevent memory leaks

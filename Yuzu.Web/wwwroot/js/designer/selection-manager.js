@@ -6,7 +6,6 @@ export class SelectionManager {
     constructor(onSelectionChange = () => { }) {
         this.selectedWidgets = new Set();
         this.selectionBox = null;
-        this.selectionBoxTimeout = null;
         console.log('[Debug] SelectionManager initialized');
         this.onSelectionChange = onSelectionChange;
     }
@@ -163,16 +162,12 @@ export class SelectionManager {
      */
     startSelectionBox(canvasElement, startPoint) {
         console.log(`[Debug] startSelectionBox called: startPoint=(${startPoint.x}, ${startPoint.y})`);
-        // Clear any existing selection box and timeout
+        // Clear any existing selection box
         if (this.selectionBox) {
             console.warn('[Debug] Selection box already exists, cleaning up first');
             if (this.selectionBox.parentElement) {
                 this.selectionBox.parentElement.removeChild(this.selectionBox);
             }
-        }
-        if (this.selectionBoxTimeout) {
-            clearTimeout(this.selectionBoxTimeout);
-            this.selectionBoxTimeout = null;
         }
         this.selectionBox = document.createElement('div');
         this.selectionBox.className = 'selection-box';
@@ -181,16 +176,7 @@ export class SelectionManager {
         this.selectionBox.style.width = '0';
         this.selectionBox.style.height = '0';
         canvasElement.appendChild(this.selectionBox);
-        // Safety timeout: remove selection box after 10 seconds if not properly cleaned up
-        this.selectionBoxTimeout = setTimeout(() => {
-            if (this.selectionBox && this.selectionBox.parentElement) {
-                console.warn('[Debug] Selection box timeout triggered - removing orphaned selection box');
-                this.selectionBox.parentElement.removeChild(this.selectionBox);
-                this.selectionBox = null;
-            }
-            this.selectionBoxTimeout = null;
-        }, 10000);
-        console.log('[Debug] Selection box created and added to canvas with safety timeout');
+        console.log('[Debug] Selection box created and added to canvas');
     }
     /**
      * Updates the selection box as the mouse moves.
@@ -221,11 +207,6 @@ export class SelectionManager {
      */
     endSelectionBox() {
         console.log('[Debug] endSelectionBox called');
-        // Clear the safety timeout
-        if (this.selectionBoxTimeout) {
-            clearTimeout(this.selectionBoxTimeout);
-            this.selectionBoxTimeout = null;
-        }
         if (!this.selectionBox) {
             console.warn('[Debug] No selection box to end');
             return null;

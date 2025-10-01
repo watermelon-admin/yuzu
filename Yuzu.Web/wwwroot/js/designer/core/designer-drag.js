@@ -8,7 +8,7 @@ export class DesignerDrag extends DesignerAlignment {
      * Handles the start of a resize operation.
      * @param widgetId - The ID of the widget being resized.
      * @param handlePosition - The position of the resize handle.
-     * @param event - The mouse event.
+     * @param event - The pointer event.
      */
     handleResizeStart(widgetId, handlePosition, event) {
         WidgetLogger.info('Resize', `Starting resize operation: widgetId=${widgetId}, handle=${handlePosition}`, {
@@ -54,21 +54,26 @@ export class DesignerDrag extends DesignerAlignment {
             type: DragType.Resize,
             startPoint: point,
             currentPoint: point,
+            pointerId: event.pointerId,
             resizeHandle: handlePosition,
             affectedWidgets: [widgetId],
             originalRect: Object.assign({}, widgetRect)
         };
         WidgetLogger.debug('Resize', `Resize drag state initialized for widget ${widgetId}`, this.dragState);
-        // Add global mouse move and up handlers
-        document.addEventListener('mousemove', this.boundMouseMoveHandler);
-        document.addEventListener('mouseup', this.boundMouseUpHandler);
-        WidgetLogger.debug('Resize', `Added document event listeners for resize operation`);
+        // Capture the pointer to ensure all pointer events come to the canvas
+        this.canvasElement.setPointerCapture(event.pointerId);
+        WidgetLogger.debug('Resize', `Pointer captured: pointerId=${event.pointerId}`);
+        // Add canvas pointer event handlers (not document, thanks to pointer capture)
+        this.canvasElement.addEventListener('pointermove', this.boundPointerMoveHandler);
+        this.canvasElement.addEventListener('pointerup', this.boundPointerUpHandler);
+        this.canvasElement.addEventListener('pointercancel', this.boundPointerCancelHandler);
+        WidgetLogger.debug('Resize', `Added canvas pointer event listeners for resize operation`);
     }
     /**
-     * Handles mouse down events on the canvas.
-     * @param e - The mouse event.
+     * Handles pointer down events on the canvas.
+     * @param e - The pointer event.
      */
-    handleCanvasMouseDown(e) {
+    handleCanvasPointerDown(e) {
         console.log(`[Debug] handleCanvasMouseDown: clientX=${e.clientX}, clientY=${e.clientY}, button=${e.button}, shiftKey=${e.shiftKey}`);
         // Ignore mouse events in preview mode
         if (this.previewMode) {
@@ -153,16 +158,21 @@ export class DesignerDrag extends DesignerAlignment {
                 type: DragType.Move,
                 startPoint: point,
                 currentPoint: point,
+                pointerId: e.pointerId,
                 affectedWidgets: selectedIds,
                 originalPositions
             };
             console.log(`[Debug] Move drag state initialized for ${selectedIds.length} widgets`);
             // Don't automatically bring widgets to front when moving them
             // this.bringSelectionToFront();
-            // Add document listeners for move
-            document.addEventListener('mousemove', this.boundMouseMoveHandler);
-            document.addEventListener('mouseup', this.boundMouseUpHandler);
-            console.log(`[Debug] Added document event listeners for move operation`);
+            // Capture the pointer to ensure all pointer events come to the canvas
+            this.canvasElement.setPointerCapture(e.pointerId);
+            console.log(`[Debug] Pointer captured: pointerId=${e.pointerId}`);
+            // Add canvas pointer event handlers (not document, thanks to pointer capture)
+            this.canvasElement.addEventListener('pointermove', this.boundPointerMoveHandler);
+            this.canvasElement.addEventListener('pointerup', this.boundPointerUpHandler);
+            this.canvasElement.addEventListener('pointercancel', this.boundPointerCancelHandler);
+            console.log(`[Debug] Added canvas pointer event listeners for move operation`);
         }
         else {
             // Start selection box
@@ -172,6 +182,7 @@ export class DesignerDrag extends DesignerAlignment {
                 type: DragType.Select,
                 startPoint: point,
                 currentPoint: point,
+                pointerId: e.pointerId,
                 affectedWidgets: []
             };
             // Clear selection if Shift key is not pressed
@@ -182,19 +193,27 @@ export class DesignerDrag extends DesignerAlignment {
             else {
                 console.log(`[Debug] Shift pressed - adding to selection with box select`);
             }
-            // Add document listeners for selection
-            document.addEventListener('mousemove', this.boundMouseMoveHandler);
-            document.addEventListener('mouseup', this.boundMouseUpHandler);
-            console.log(`[Debug] Added document event listeners for selection box operation`);
+            // Capture the pointer to ensure all pointer events come to the canvas
+            this.canvasElement.setPointerCapture(e.pointerId);
+            console.log(`[Debug] Pointer captured: pointerId=${e.pointerId}`);
+            // Add canvas pointer event handlers (not document, thanks to pointer capture)
+            this.canvasElement.addEventListener('pointermove', this.boundPointerMoveHandler);
+            this.canvasElement.addEventListener('pointerup', this.boundPointerUpHandler);
+            this.canvasElement.addEventListener('pointercancel', this.boundPointerCancelHandler);
+            console.log(`[Debug] Added canvas pointer event listeners for selection box operation`);
         }
     }
     /**
-     * Handles mouse move events on the document.
-     * @param e - The mouse event.
+     * Handles pointer move events on the canvas.
+     * @param e - The pointer event.
      */
-    handleDocumentMouseMove(e) {
+    handleCanvasPointerMove(e) {
         if (!this.dragState) {
-            console.warn(`[Debug] handleDocumentMouseMove called without drag state`);
+            console.warn(`[Debug] handleCanvasPointerMove called without drag state`);
+            return;
+        }
+        // Only handle events from the pointer that started the drag
+        if (this.dragState.pointerId !== undefined && e.pointerId !== this.dragState.pointerId) {
             return;
         }
         const point = this.getClientPointFromEvent(e);
@@ -282,16 +301,23 @@ export class DesignerDrag extends DesignerAlignment {
         }
     }
     /**
-     * Handles mouse up events on the document.
-     * @param e - The mouse event.
+     * Handles pointer up events on the canvas.
+     * @param e - The pointer event.
      */
-    handleDocumentMouseUp(e) {
-        WidgetLogger.info('MouseUp', `Mouse up: clientX=${e.clientX}, clientY=${e.clientY}, button=${e.button}`, {
+    handleCanvasPointerUp(e) {
+        WidgetLogger.info('PointerUp', `Pointer up: clientX=${e.clientX}, clientY=${e.clientY}, button=${e.button}, pointerId=${e.pointerId}`, {
             target: e.target instanceof Element ? e.target.tagName : 'unknown',
-            eventType: e.type
+            eventType: e.type,
+            pointerId: e.pointerId,
+            pointerType: e.pointerType
         });
         if (!this.dragState) {
-            WidgetLogger.warn('MouseUp', `Mouse up without drag state - missing dragState`);
+            WidgetLogger.warn('PointerUp', `Pointer up without drag state - missing dragState`);
+            return;
+        }
+        // Only handle events from the pointer that started the drag
+        if (this.dragState.pointerId !== undefined && e.pointerId !== this.dragState.pointerId) {
+            WidgetLogger.debug('PointerUp', `Ignoring pointer up from different pointer: expected=${this.dragState.pointerId}, got=${e.pointerId}`);
             return;
         }
         const { type, startPoint, currentPoint, affectedWidgets, resizeHandle } = this.dragState;
@@ -493,11 +519,102 @@ export class DesignerDrag extends DesignerAlignment {
                 }
                 break;
         }
+        // Release pointer capture
+        if (this.dragState.pointerId !== undefined) {
+            try {
+                this.canvasElement.releasePointerCapture(this.dragState.pointerId);
+                WidgetLogger.debug('PointerUp', `Pointer capture released: pointerId=${this.dragState.pointerId}`);
+            }
+            catch (error) {
+                WidgetLogger.warn('PointerUp', `Failed to release pointer capture: ${error}`);
+            }
+        }
         // Clean up event listeners
-        WidgetLogger.debug('MouseUp', `Removing document event listeners`);
-        document.removeEventListener('mousemove', this.boundMouseMoveHandler);
-        document.removeEventListener('mouseup', this.boundMouseUpHandler);
-        WidgetLogger.debug('MouseUp', `Clearing drag state`);
+        WidgetLogger.debug('PointerUp', `Removing canvas event listeners`);
+        this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+        this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+        this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
+        WidgetLogger.debug('PointerUp', `Clearing drag state`);
+        this.dragState = null;
+    }
+    /**
+     * Handles pointer cancel events on the canvas.
+     * This is called when the pointer is interrupted (browser alert, tab switch, etc.)
+     * @param e - The pointer event.
+     */
+    handleCanvasPointerCancel(e) {
+        WidgetLogger.info('PointerCancel', `Pointer cancelled: pointerId=${e.pointerId}, pointerType=${e.pointerType}`, {
+            pointerId: e.pointerId,
+            pointerType: e.pointerType,
+            eventType: e.type
+        });
+        if (!this.dragState) {
+            WidgetLogger.warn('PointerCancel', `Pointer cancel without drag state`);
+            return;
+        }
+        // Only handle events from the pointer that started the drag
+        if (this.dragState.pointerId !== undefined && e.pointerId !== this.dragState.pointerId) {
+            WidgetLogger.debug('PointerCancel', `Ignoring pointer cancel from different pointer: expected=${this.dragState.pointerId}, got=${e.pointerId}`);
+            return;
+        }
+        const { type, affectedWidgets } = this.dragState;
+        WidgetLogger.info('PointerCancel', `Aborting ${type} operation due to pointer cancellation`, {
+            dragType: type,
+            affectedWidgets
+        });
+        // Revert the operation based on drag type
+        switch (type) {
+            case DragType.Move:
+                // Revert widgets to their original positions
+                if (this.dragState.originalPositions) {
+                    WidgetLogger.info('PointerCancel', `Reverting ${affectedWidgets.length} widgets to original positions`);
+                    affectedWidgets.forEach(id => {
+                        var _a, _b;
+                        const widget = this.widgets.get(id);
+                        const originalPos = (_b = (_a = this.dragState) === null || _a === void 0 ? void 0 : _a.originalPositions) === null || _b === void 0 ? void 0 : _b.get(id);
+                        if (widget && originalPos) {
+                            widget.setPosition(originalPos);
+                            WidgetLogger.debug('PointerCancel', `Reverted widget ${id} to position (${originalPos.x}, ${originalPos.y})`);
+                        }
+                    });
+                }
+                break;
+            case DragType.Resize:
+                // Revert widget to its original size and position
+                if (affectedWidgets.length === 1 && this.dragState.originalRect) {
+                    const widgetId = affectedWidgets[0];
+                    const widget = this.widgets.get(widgetId);
+                    const originalRect = this.dragState.originalRect;
+                    if (widget) {
+                        WidgetLogger.info('PointerCancel', `Reverting widget ${widgetId} to original size and position`);
+                        widget.setPosition({ x: originalRect.x, y: originalRect.y });
+                        widget.setSize({ width: originalRect.width, height: originalRect.height });
+                        WidgetLogger.debug('PointerCancel', `Reverted widget ${widgetId}`, originalRect);
+                    }
+                }
+                break;
+            case DragType.Select:
+                // End the selection box without selecting anything
+                WidgetLogger.info('PointerCancel', `Cancelling selection box`);
+                this.selectionManager.endSelectionBox();
+                break;
+        }
+        // Release pointer capture
+        if (this.dragState.pointerId !== undefined) {
+            try {
+                this.canvasElement.releasePointerCapture(this.dragState.pointerId);
+                WidgetLogger.debug('PointerCancel', `Pointer capture released: pointerId=${this.dragState.pointerId}`);
+            }
+            catch (error) {
+                WidgetLogger.warn('PointerCancel', `Failed to release pointer capture: ${error}`);
+            }
+        }
+        // Clean up event listeners
+        WidgetLogger.debug('PointerCancel', `Removing canvas event listeners`);
+        this.canvasElement.removeEventListener('pointermove', this.boundPointerMoveHandler);
+        this.canvasElement.removeEventListener('pointerup', this.boundPointerUpHandler);
+        this.canvasElement.removeEventListener('pointercancel', this.boundPointerCancelHandler);
+        WidgetLogger.debug('PointerCancel', `Clearing drag state`);
         this.dragState = null;
     }
 }

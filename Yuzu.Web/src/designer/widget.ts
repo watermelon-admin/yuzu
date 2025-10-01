@@ -11,8 +11,8 @@ export class Widget {
     protected selected: boolean = false;
     protected isReference: boolean = false;
     protected resizeHandles: Map<ResizeHandlePosition, HTMLElement> = new Map();
-    protected boundResizeHandlers: Map<ResizeHandlePosition, (e: MouseEvent) => void> = new Map(); // Store bound handlers for cleanup
-    protected onResizeStart: ((widgetId: string, handlePosition: ResizeHandlePosition, event: MouseEvent) => void) | null = null;
+    protected boundResizeHandlers: Map<ResizeHandlePosition, (e: PointerEvent) => void> = new Map(); // Store bound handlers for cleanup
+    protected onResizeStart: ((widgetId: string, handlePosition: ResizeHandlePosition, event: PointerEvent) => void) | null = null;
     protected contentElement: HTMLElement | null = null;
 
     /**
@@ -31,7 +31,7 @@ export class Widget {
      * Sets the handler for the resize start event.
      * @param handler - The handler function.
      */
-    public setResizeStartHandler(handler: (widgetId: string, handlePosition: ResizeHandlePosition, event: MouseEvent) => void): void {
+    public setResizeStartHandler(handler: (widgetId: string, handlePosition: ResizeHandlePosition, event: PointerEvent) => void): void {
         this.onResizeStart = handler;
     }
 
@@ -362,7 +362,7 @@ export class Widget {
         this.resizeHandles.forEach((handle, position) => {
             const boundHandler = this.boundResizeHandlers.get(position);
             if (boundHandler) {
-                handle.removeEventListener('mousedown', boundHandler);
+                handle.removeEventListener('pointerdown', boundHandler);
             }
         });
         this.boundResizeHandlers.clear();
@@ -421,7 +421,7 @@ export class Widget {
             handle.setAttribute('data-resize-handle', position);
 
             // Create bound handler and store it for cleanup
-            const boundHandler = (e: MouseEvent) => {
+            const boundHandler = (e: PointerEvent) => {
                 e.stopPropagation(); // Prevent event from bubbling to parent
                 e.preventDefault();
 
@@ -431,8 +431,8 @@ export class Widget {
             };
             this.boundResizeHandlers.set(position, boundHandler);
 
-            // Add mousedown event listener to handle
-            handle.addEventListener('mousedown', boundHandler);
+            // Add pointerdown event listener to handle
+            handle.addEventListener('pointerdown', boundHandler);
 
             parent.appendChild(handle);
             this.resizeHandles.set(position, handle);

@@ -190,9 +190,9 @@ export class DesignerEvents extends DesignerZOrder {
      */
     initEventListeners() {
         console.log('[Debug] Initializing event listeners');
-        // Canvas mouse events
-        this.canvasElement.addEventListener('mousedown', this.handleCanvasMouseDown.bind(this));
-        console.log('[Debug] Added mousedown event listener to canvas');
+        // Canvas pointer events
+        this.canvasElement.addEventListener('pointerdown', this.handleCanvasPointerDown.bind(this));
+        console.log('[Debug] Added pointerdown event listener to canvas');
         // Button events
         this.setupButtonListeners();
         // Keyboard events

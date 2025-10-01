@@ -314,7 +314,7 @@ export class Widget {
         this.resizeHandles.forEach((handle, position) => {
             const boundHandler = this.boundResizeHandlers.get(position);
             if (boundHandler) {
-                handle.removeEventListener('mousedown', boundHandler);
+                handle.removeEventListener('pointerdown', boundHandler);
             }
         });
         this.boundResizeHandlers.clear();
@@ -370,8 +370,8 @@ export class Widget {
                 }
             };
             this.boundResizeHandlers.set(position, boundHandler);
-            // Add mousedown event listener to handle
-            handle.addEventListener('mousedown', boundHandler);
+            // Add pointerdown event listener to handle
+            handle.addEventListener('pointerdown', boundHandler);
             parent.appendChild(handle);
             this.resizeHandles.set(position, handle);
             handle.style.display = 'none'; // Initially hidden
