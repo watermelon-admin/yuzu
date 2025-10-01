@@ -1,3 +1,4 @@
+@using Yuzu.Web
 @{
     // Configure the standardized template - use "break-type" (singular) for container ID to match JS expectations
     ViewData["SectionId"] = "break-type";
@@ -57,7 +58,7 @@
                     Design
                     @if (!Model.IsSubscribed)
                     {
-                        <i class="fa-solid fa-rectangle-pro fs-sm text-warning ms-1"></i>
+                        @Html.Raw(ProFeatures.GetBadgeHtml("ms-1"))
                     }
                 </button>
                 <!-- Delete button (hidden by default for system break types) -->

@@ -1,10 +1,11 @@
+@using Yuzu.Web
 @{
     // Configure the standardized template with container IDs matching JavaScript expectations
     ViewData["SectionId"] = "backgrounds-gallery";
     ViewData["SectionTitle"] = "Backgrounds";
     ViewData["ContainerColumns"] = "row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4";
     ViewData["ShowViewport"] = true;
-    
+
     // Conditional button based on subscription status
     if (Model.IsSubscribed)
     {

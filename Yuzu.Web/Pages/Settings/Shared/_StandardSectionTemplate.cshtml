@@ -1,3 +1,4 @@
+@using Yuzu.Web
 @model Yuzu.Web.Pages.SettingsModel
 @{
     var sectionId = ViewData["SectionId"] as string ?? string.Empty;
@@ -23,7 +24,7 @@
             <span class="d-none d-sm-inline">@(actionButton.GetValueOrDefault("text", "Action"))</span>
             @if (!Model.IsSubscribed && actionButton.GetValueOrDefault("requiresSubscription", "false") == "true")
             {
-                <i class="fa-solid fa-rectangle-pro fs-lg text-warning ms-2"></i>
+                @Html.Raw(ProFeatures.GetBadgeHtml("fs-lg ms-2"))
             }
         </button>
     }
