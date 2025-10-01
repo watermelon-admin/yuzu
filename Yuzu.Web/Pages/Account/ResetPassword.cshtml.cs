@@ -17,10 +17,12 @@ namespace Yuzu.Web.Pages.Account
     public class ResetPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly Yuzu.Mail.IEmailSender _emailSender;
 
-        public ResetPasswordModel(UserManager<ApplicationUser> userManager)
+        public ResetPasswordModel(UserManager<ApplicationUser> userManager, Yuzu.Mail.IEmailSender emailSender)
         {
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -104,6 +106,17 @@ namespace Yuzu.Web.Pages.Account
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
+                // Send password changed notification email using professional template
+                var userEmail = await _userManager.GetEmailAsync(user);
+                if (!string.IsNullOrEmpty(userEmail))
+                {
+                    var passwordChangedEmailBody = Yuzu.Web.Services.EmailTemplates.PasswordChangedNotification();
+                    await _emailSender.SendEmailAsync(
+                        userEmail,
+                        "Your password was changed - breakscreen",
+                        passwordChangedEmailBody);
+                }
+
                 return RedirectToPage("./ResetPasswordConfirmation");
             }
 

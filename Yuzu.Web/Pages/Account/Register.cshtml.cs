@@ -172,8 +172,12 @@ namespace Yuzu.Web.Pages.Account
                         values: new { userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme) ?? string.Empty;
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    // Send welcome email with confirmation link using professional template
+                    var welcomeEmailBody = Yuzu.Web.Services.EmailTemplates.WelcomeAndConfirmation(callbackUrl);
+                    await _emailSender.SendEmailAsync(
+                        Input.Email,
+                        "Welcome to breakscreen - Confirm your email",
+                        welcomeEmailBody);
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
