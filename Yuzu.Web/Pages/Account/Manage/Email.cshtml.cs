@@ -17,13 +17,11 @@ namespace Yuzu.Web.Pages.Account.Manage
     public class EmailModel(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        Yuzu.Mail.IEmailSender emailSender,
-        Yuzu.Web.Services.EmailChangeRateLimiter rateLimiter) : PageModel
+        Yuzu.Mail.IEmailSender emailSender) : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private readonly Yuzu.Mail.IEmailSender _emailSender = emailSender;
-        private readonly Yuzu.Web.Services.EmailChangeRateLimiter _rateLimiter = rateLimiter;
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -136,17 +134,7 @@ namespace Yuzu.Web.Pages.Account.Manage
                 return Page();
             }
 
-            // Check rate limit to prevent abuse
             var userId = await _userManager.GetUserIdAsync(user);
-            if (!_rateLimiter.IsAllowed(userId))
-            {
-                var retryAfter = _rateLimiter.GetRetryAfter(userId);
-                var minutes = (int)Math.Ceiling(retryAfter.TotalMinutes);
-                ModelState.AddModelError(string.Empty,
-                    $"Too many email change requests. Please try again in {minutes} minute{(minutes != 1 ? "s" : "")}.");
-                await LoadAsync(user);
-                return Page();
-            }
 
             // Verify current password before allowing email change
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, Input.CurrentPassword);
