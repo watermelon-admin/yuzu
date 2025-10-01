@@ -24,9 +24,6 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunCodeAnalysis>false</RunCodeAnalysis>
 
-    <!-- TypeScript Optimizations -->
-    <TypeScriptCompileBlocked Condition="'$(BuildingInsideVisualStudio)' == 'true'">true</TypeScriptCompileBlocked>
-
     <!-- Output path optimization disabled to avoid assembly info conflicts -->
     <!-- <OutputPath Condition="'$(OutputPath)' == ''">X:\DevCache\build\$(MSBuildProjectName)\$(Configuration)\</OutputPath> -->
   </PropertyGroup>
