@@ -1,2 +1,0 @@
-﻿git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"
-git clone ssh://git@gitea.watermelonsoft.eu:29418/root/Test.git

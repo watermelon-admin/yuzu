@@ -158,9 +158,7 @@ var greeting = $@"
 |                                                                  
 |   YUZU BREAK TIMER - Your friendly productivity companion!       
 |                                                                  
-|   Version: {appVersion.PadRight(15)}       Started: {DateTime.Now:yyyy-MM-dd HH:mm:ss}   
-|                                                                  
-|   Take regular breaks for better productivity and wellbeing!     
+|   Version: {appVersion.PadRight(15)}       Started: {DateTime.Now:yyyy-MM-dd HH:mm:ss}                                                                     
 |                                                                  
 +==================================================================+
 ";
@@ -423,9 +421,6 @@ var completionMessage = $@"
 |                                                                  
 |   Time: {DateTime.Now:HH:mm:ss}                                            
 |   Status: Ready to serve requests                                
-|                                                                  
-|   ""A break reminds us that our determination to succeed          
-|    should never overpower our willingness to rest.""             
 |                                                                  
 +------------------------------------------------------------------+
 ";
