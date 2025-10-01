@@ -1,5 +1,7 @@
 // wizard.ts - Handles the break type creation/editing wizard modal
 
+import { createToast } from '../../../common/toast-util.js';
+
 /**
  * Interface for background image data
  */
@@ -34,7 +36,7 @@ interface AjaxResponse {
  * Interface for the break type data
  */
 interface BreakTypeWizardData {
-    id?: number;
+    id?: string;
     name: string;
     defaultDurationMinutes: number;
     breakTimeStepMinutes: number;
@@ -985,7 +987,7 @@ export class BreakTypeWizard {
         if (form) {
             // Set break type ID
             const idField = document.getElementById('break-type-id') as HTMLInputElement;
-            if (idField && this.breakTypeData.id) idField.value = this.breakTypeData.id.toString();
+            if (idField && this.breakTypeData.id) idField.value = this.breakTypeData.id;
             
             // Set basic properties
             const nameField = document.getElementById('breakTypeName') as HTMLInputElement;
@@ -1342,40 +1344,66 @@ export class BreakTypeWizard {
             const data = await response.json();
             
             if (data.success) {
+                console.log('Break type saved successfully!', data);
+
+                // Show success message BEFORE hiding modal
+                const successMessage = data.message || 'Break type saved successfully';
+                console.log('Showing toast:', successMessage);
+                createToast(successMessage, true);
+
+                // Store the break type ID for animation
+                const savedBreakTypeId = data.data?.id || this.breakTypeData.id;
+
                 // Hide modal
                 this.hideModal();
-                
-                // Show success message
-                (window as any).createToast?.(data.message || 'Break type saved successfully', true);
-                
+
                 // Reload break types list - use the same function as in index.ts
                 if (typeof (window as any).Yuzu?.Settings?.BreakTypes?.loadBreakTypes === 'function') {
                     (window as any).Yuzu.Settings.BreakTypes.loadBreakTypes(1);
                 }
+
+                // Add highlight animation to the saved card after a short delay
+                if (savedBreakTypeId) {
+                    setTimeout(() => {
+                        const cardElement = document.querySelector(`article[data-id="${savedBreakTypeId}"]`);
+                        if (cardElement) {
+                            // Add highlight animation
+                            const article = cardElement as HTMLElement;
+                            article.style.transition = 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
+                            article.style.boxShadow = '0 0 15px rgba(40, 167, 69, 0.5)'; // Green glow
+                            article.style.transform = 'scale(1.03)';
+
+                            // Reset after animation completes
+                            setTimeout(() => {
+                                article.style.transform = 'scale(1)';
+                                setTimeout(() => {
+                                    article.style.boxShadow = '';
+                                }, 300);
+                            }, 700);
+                        }
+                    }, 500); // Wait for list to reload
+                }
             } else {
                 // Show error message
-                (window as any).createToast?.(data.message || 'Failed to save break type', false);
-                
+                createToast(data.message || 'Failed to save break type', false);
+
                 // Display validation errors if any
                 if (data.errors) {
                     console.error('Validation errors:', data.errors);
-                    
+
                     // Display the specific validation errors using toast
                     for (const [field, errors] of Object.entries(data.errors)) {
                         const errorArray = errors as string[];
                         if (errorArray && errorArray.length > 0) {
-                            (window as any).createToast?.(
-                                `${field}: ${errorArray[0]}`, 
-                                false
-                            );
+                            createToast(`${field}: ${errorArray[0]}`, false);
                         }
                     }
                 }
             }
-        } 
+        }
         catch (error) {
             console.error('Error saving break type:', error);
-            (window as any).createToast?.('An error occurred while saving the break type', false);
+            createToast('An error occurred while saving the break type', false);
         }
         finally {
             // Reset save button
@@ -1416,7 +1444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 (window as any).editBreakType = (button: Element) => {
     // Extract break type data from button attributes
-    const id = parseInt(button.getAttribute('data-id') || '0');
+    const id = button.getAttribute('data-id') || '';
     const name = button.getAttribute('data-name') || '';
     const imageTitle = button.getAttribute('data-image-title') || '';
     const iconName = button.getAttribute('data-icon-name') || '';
