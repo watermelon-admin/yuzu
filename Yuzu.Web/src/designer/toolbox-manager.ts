@@ -66,6 +66,14 @@ export class ToolboxManager {
             e.stopPropagation();
         });
 
+        // Prevent pointerdown events on the toolbox from triggering canvas events
+        // This is critical - the canvas listens for pointerdown, so we need to stop
+        // those events from bubbling up or the toolbar buttons won't work
+        element.addEventListener('pointerdown', (e: PointerEvent) => {
+            // Only stop propagation, don't start drag (that's only for the handle)
+            e.stopPropagation();
+        });
+
         // Add the toolbox to the canvas
         this.canvasElement.appendChild(element);
     }
