@@ -67,6 +67,42 @@
 		<!-- Widgets will be added here by JavaScript -->
 	</div>
 
+	<!-- Debug Info Panel (bottom of canvas) -->
+	<div id="debug-info-panel" class="debug-info-panel" role="status" aria-live="polite" aria-label="Debug Information">
+		<div class="debug-section">
+			<span class="debug-label">Widgets:</span>
+			<span id="debug-widget-count" class="debug-value">0</span>
+		</div>
+		<div class="debug-section">
+			<span class="debug-label">Selected:</span>
+			<span id="debug-selected-count" class="debug-value">0</span>
+		</div>
+		<div class="debug-section">
+			<span class="debug-label">Drag State:</span>
+			<span id="debug-drag-state" class="debug-value">null</span>
+		</div>
+		<div class="debug-section">
+			<span class="debug-label">Pointer:</span>
+			<span id="debug-pointer-id" class="debug-value">-</span>
+		</div>
+		<div class="debug-section">
+			<span class="debug-label">Listeners:</span>
+			<span id="debug-listener-count" class="debug-value">0</span>
+		</div>
+		<div class="debug-section">
+			<span class="debug-label">Undo Stack:</span>
+			<span id="debug-undo-stack" class="debug-value">0</span>
+		</div>
+		<div class="debug-section">
+			<span class="debug-label">Redo Stack:</span>
+			<span id="debug-redo-stack" class="debug-value">0</span>
+		</div>
+		<div class="debug-section">
+			<span class="debug-label">Memory:</span>
+			<span id="debug-memory" class="debug-value">-</span>
+		</div>
+	</div>
+
 	<!-- Main Toolbar with all controls -->
 	<div class="toolbar d-flex flex-column" role="toolbar" aria-label="Main Toolbar">
 		<div class="toolbox-handle w-100" title="Drag to move toolbar" aria-label="Drag handle" role="button" tabindex="0">
