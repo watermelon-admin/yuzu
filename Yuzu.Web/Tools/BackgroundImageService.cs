@@ -50,65 +50,77 @@ namespace Yuzu.Web.Tools
 
             try
             {
+                logger.LogInformation("Listing objects from S3 container: {Container}", containerName);
+
                 // List all objects in the container
                 var items = await storageService.ListObjectsAsync(containerName);
+                logger.LogInformation("Retrieved {Count} objects from S3", items?.Count() ?? 0);
+
+                if (items == null || !items.Any())
+                {
+                    logger.LogWarning("No objects found in S3 container: {Container}", containerName);
+                    return backgrounds;
+                }
 
                 // Regex pattern to identify thumbnail images
                 Regex thumbnailPattern = new Regex(@"(.+)-thumb\.(jpe?g|png|gif|webp|svg)$", RegexOptions.IgnoreCase);
 
                 // Get the base URL for the container
                 var baseUrl = storageService.GetBaseUrl(containerName);
+                logger.LogInformation("Using base URL: {BaseUrl}", baseUrl);
+
+                // Create a set of all filenames for quick lookup
+                var allFiles = new HashSet<string>(items.Select(i => i.Name), StringComparer.OrdinalIgnoreCase);
+                logger.LogInformation("Created lookup set with {Count} files", allFiles.Count);
 
                 // Process each item
                 foreach (var item in items)
                 {
-                    // Get just the filename without the container prefix
-                    string fileName = item.Name;
-
-                    // Check if this is a thumbnail
-                    Match match = thumbnailPattern.Match(fileName);
-                    if (match.Success)
+                    try
                     {
-                        string baseFileName = match.Groups[1].Value;
-                        string extension = match.Groups[2].Value;
+                        // Get just the filename without the container prefix
+                        string fileName = item.Name;
 
-                        // Construct the full image name with -fhd suffix
-                        string fullImageName = $"{baseFileName}-fhd.{extension}";
-
-                        // Check if the full-size image exists
-                        bool fullImageExists = await storageService.ObjectExistsAsync(containerName, fullImageName);
-
-                        if (fullImageExists)
+                        // Check if this is a thumbnail
+                        Match match = thumbnailPattern.Match(fileName);
+                        if (match.Success)
                         {
-                            // Generate the URLs
-                            string thumbnailUrl = $"{baseUrl}/{fileName}";
-                            string fullImageUrl = $"{baseUrl}/{fullImageName}";
+                            string baseFileName = match.Groups[1].Value;
+                            string extension = match.Groups[2].Value;
 
-                            // Get the object's metadata to retrieve the custom title
-                            var metadata = await storageService.GetObjectMetadataAsync(containerName, fileName);
-                            
-                            // Get title from metadata if it exists, otherwise use a formatted filename
-                            string title;
-                            if (metadata.TryGetValue("title", out var metadataTitle) && !string.IsNullOrEmpty(metadataTitle))
+                            // Construct the full image name with -fhd suffix
+                            string fullImageName = $"{baseFileName}-fhd.{extension}";
+
+                            // Check if the full-size image exists in our set (no S3 call needed)
+                            if (allFiles.Contains(fullImageName))
                             {
-                                title = metadataTitle;
-                            }
-                            else
-                            {
-                                // Fallback for images without metadata
-                                title = baseFileName.Replace("-", " ");
+                                // Generate the URLs
+                                string thumbnailUrl = $"{baseUrl}/{fileName}";
+                                string fullImageUrl = $"{baseUrl}/{fullImageName}";
+
+                                // Try to get title from metadata if available
+                                // Note: S3 metadata is not available in ListObjects, only in GetObjectMetadata
+                                // For performance, we'll derive title from filename
+                                string title = baseFileName.Replace("-", " ");
                                 title = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(title);
-                            }
 
-                            // Add to the list
-                            backgrounds.Add(new BackgroundImage
-                            {
-                                Name = baseFileName,
-                                Title = title,
-                                ThumbnailUrl = thumbnailUrl,
-                                FullImageUrl = fullImageUrl
-                            });
+                                // Add to the list
+                                backgrounds.Add(new BackgroundImage
+                                {
+                                    Name = baseFileName,
+                                    Title = title,
+                                    ThumbnailUrl = thumbnailUrl,
+                                    FullImageUrl = fullImageUrl
+                                });
+
+                                logger.LogDebug("Added background: {Name} - {Title}", baseFileName, title);
+                            }
                         }
+                    }
+                    catch (Exception itemEx)
+                    {
+                        // Log but continue processing other items
+                        logger.LogWarning(itemEx, "Error processing background item: {ItemName}", item?.Name ?? "unknown");
                     }
                 }
 
