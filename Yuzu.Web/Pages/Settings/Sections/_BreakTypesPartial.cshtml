@@ -53,14 +53,14 @@
                     Edit
                 </button>
                 <!-- Design button -->
-                <button class="btn btn-sm btn-outline-secondary btn-design">
+                <a href="#" class="btn btn-sm btn-outline-secondary btn-design">
                     <i class="bx bx-palette fs-sm me-1"></i>
                     Design
                     @if (!Model.IsSubscribed)
                     {
                         @Html.Raw(ProFeatures.GetBadgeHtml("ms-1"))
                     }
-                </button>
+                </a>
                 <!-- Delete button (hidden by default for system break types) -->
                 <button class="btn btn-sm btn-outline-danger btn-delete d-none">
                     <i class="bx bx-trash-alt fs-sm me-1"></i>
