@@ -1,4 +1,5 @@
 // wizard.ts - Handles the break type creation/editing wizard modal
+import { createToast } from '../../../common/toast-util.js';
 /**
  * Class to handle the break type wizard modal functionality
  */
@@ -840,7 +841,7 @@ export class BreakTypeWizard {
             // Set break type ID
             const idField = document.getElementById('break-type-id');
             if (idField && this.breakTypeData.id)
-                idField.value = this.breakTypeData.id.toString();
+                idField.value = this.breakTypeData.id;
             // Set basic properties
             const nameField = document.getElementById('breakTypeName');
             const defaultDurationField = document.getElementById('defaultBreakDuration');
@@ -1083,7 +1084,7 @@ export class BreakTypeWizard {
      * Save the break type data
      */
     async saveBreakType() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         try {
             console.log('Saving break type...');
             // Get form values
@@ -1157,18 +1158,43 @@ export class BreakTypeWizard {
             // Parse the JSON response
             const data = await response.json();
             if (data.success) {
+                console.log('Break type saved successfully!', data);
+                // Show success message BEFORE hiding modal
+                const successMessage = data.message || 'Break type saved successfully';
+                console.log('Showing toast:', successMessage);
+                createToast(successMessage, true);
+                // Store the break type ID for animation
+                const savedBreakTypeId = ((_e = data.data) === null || _e === void 0 ? void 0 : _e.id) || this.breakTypeData.id;
                 // Hide modal
                 this.hideModal();
-                // Show success message
-                (_f = (_e = window).createToast) === null || _f === void 0 ? void 0 : _f.call(_e, data.message || 'Break type saved successfully', true);
                 // Reload break types list - use the same function as in index.ts
-                if (typeof ((_j = (_h = (_g = window.Yuzu) === null || _g === void 0 ? void 0 : _g.Settings) === null || _h === void 0 ? void 0 : _h.BreakTypes) === null || _j === void 0 ? void 0 : _j.loadBreakTypes) === 'function') {
+                if (typeof ((_h = (_g = (_f = window.Yuzu) === null || _f === void 0 ? void 0 : _f.Settings) === null || _g === void 0 ? void 0 : _g.BreakTypes) === null || _h === void 0 ? void 0 : _h.loadBreakTypes) === 'function') {
                     window.Yuzu.Settings.BreakTypes.loadBreakTypes(1);
+                }
+                // Add highlight animation to the saved card after a short delay
+                if (savedBreakTypeId) {
+                    setTimeout(() => {
+                        const cardElement = document.querySelector(`article[data-id="${savedBreakTypeId}"]`);
+                        if (cardElement) {
+                            // Add highlight animation
+                            const article = cardElement;
+                            article.style.transition = 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
+                            article.style.boxShadow = '0 0 15px rgba(40, 167, 69, 0.5)'; // Green glow
+                            article.style.transform = 'scale(1.03)';
+                            // Reset after animation completes
+                            setTimeout(() => {
+                                article.style.transform = 'scale(1)';
+                                setTimeout(() => {
+                                    article.style.boxShadow = '';
+                                }, 300);
+                            }, 700);
+                        }
+                    }, 500); // Wait for list to reload
                 }
             }
             else {
                 // Show error message
-                (_l = (_k = window).createToast) === null || _l === void 0 ? void 0 : _l.call(_k, data.message || 'Failed to save break type', false);
+                createToast(data.message || 'Failed to save break type', false);
                 // Display validation errors if any
                 if (data.errors) {
                     console.error('Validation errors:', data.errors);
@@ -1176,7 +1202,7 @@ export class BreakTypeWizard {
                     for (const [field, errors] of Object.entries(data.errors)) {
                         const errorArray = errors;
                         if (errorArray && errorArray.length > 0) {
-                            (_o = (_m = window).createToast) === null || _o === void 0 ? void 0 : _o.call(_m, `${field}: ${errorArray[0]}`, false);
+                            createToast(`${field}: ${errorArray[0]}`, false);
                         }
                     }
                 }
@@ -1184,7 +1210,7 @@ export class BreakTypeWizard {
         }
         catch (error) {
             console.error('Error saving break type:', error);
-            (_q = (_p = window).createToast) === null || _q === void 0 ? void 0 : _q.call(_p, 'An error occurred while saving the break type', false);
+            createToast('An error occurred while saving the break type', false);
         }
         finally {
             // Reset save button
@@ -1219,7 +1245,7 @@ window.createBreakType = () => {
 };
 window.editBreakType = (button) => {
     // Extract break type data from button attributes
-    const id = parseInt(button.getAttribute('data-id') || '0');
+    const id = button.getAttribute('data-id') || '';
     const name = button.getAttribute('data-name') || '';
     const imageTitle = button.getAttribute('data-image-title') || '';
     const iconName = button.getAttribute('data-icon-name') || '';
