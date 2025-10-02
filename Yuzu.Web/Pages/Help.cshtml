@@ -153,6 +153,128 @@
                             </div>
                         </div>
 
+                        <!-- Designer Basics -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingDesignerBasics">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDesignerBasics" aria-expanded="false" aria-controls="collapseDesignerBasics">
+                                    How do I use the Break Screen Designer?
+                                </button>
+                            </h3>
+                            <div id="collapseDesignerBasics" class="accordion-collapse collapse" aria-labelledby="headingDesignerBasics" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>The Break Screen Designer is a powerful visual editor for creating custom countdown screens. Here's how to get started:</p>
+                                    <ul>
+                                        <li><strong>Adding Widgets:</strong> Use the toolbar buttons to add boxes, text, and QR codes to your canvas</li>
+                                        <li><strong>Moving & Resizing:</strong> Click and drag widgets to move them; drag the corners to resize</li>
+                                        <li><strong>Editing Text:</strong> Double-click any text widget to edit its content</li>
+                                        <li><strong>Styling:</strong> Use the Properties panel to adjust colors, fonts, sizes, and more</li>
+                                        <li><strong>Background:</strong> Click the background button to choose from your uploaded images</li>
+                                        <li><strong>Preview:</strong> Click the eye icon to see how your design will look during a countdown</li>
+                                    </ul>
+                                    <p>The grid overlay helps you align elements precisely. Toggle it on/off using the grid button.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Designer Widgets -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingDesignerWidgets">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDesignerWidgets" aria-expanded="false" aria-controls="collapseDesignerWidgets">
+                                    What types of widgets can I add to my countdown screen?
+                                </button>
+                            </h3>
+                            <div id="collapseDesignerWidgets" class="accordion-collapse collapse" aria-labelledby="headingDesignerWidgets" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>The Designer supports three types of widgets:</p>
+                                    <ul>
+                                        <li><strong>Box Widget:</strong> Colored rectangles that can serve as backgrounds, dividers, or decorative elements. Customize the color and corner radius.</li>
+                                        <li><strong>Text Widget:</strong> Display static or dynamic text. Supports custom fonts, sizes, colors, alignment, and special placeholders for countdown data.</li>
+                                        <li><strong>QR Code Widget:</strong> Add QR codes that link to the mobile countdown view, making it easy for participants to follow along on their devices.</li>
+                                    </ul>
+                                    <p>You can layer widgets by bringing them to front or sending them to back, and group multiple widgets together for easier management.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Placeholders -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingPlaceholders">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlaceholders" aria-expanded="false" aria-controls="collapsePlaceholders">
+                                    What are placeholders and how do I use them in text widgets?
+                                </button>
+                            </h3>
+                            <div id="collapsePlaceholders" class="accordion-collapse collapse" aria-labelledby="headingPlaceholders" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Placeholders are special codes in curly brackets that get replaced with actual countdown data when displayed. This makes your designs dynamic and reusable.</p>
+                                    <p><strong>Available Placeholders:</strong></p>
+                                    <ul>
+                                        <li><code>{break-name}</code> - Name of the break type (e.g., "Lunch Break")</li>
+                                        <li><code>{timer}</code> - The countdown timer showing remaining time</li>
+                                        <li><code>{time-unit}</code> - Unit of time being displayed (Minutes, Seconds, etc.)</li>
+                                        <li><code>{countdown-message}</code> - Message shown during countdown</li>
+                                        <li><code>{countdown-end-msg}</code> - Message shown when countdown ends</li>
+                                        <li><code>{end-time-title}</code> - Label for the end time section</li>
+                                        <li><code>{end-time-home}</code> - Break end time in your home timezone</li>
+                                        <li><code>{time-name-home}</code> - Name of your home timezone</li>
+                                        <li><code>{end-time-secondary}</code> - Break end time in secondary timezone</li>
+                                        <li><code>{time-name-secondary}</code> - Name of secondary timezone</li>
+                                    </ul>
+                                    <p><strong>Example:</strong> Type "Back at {end-time-home}" in a text widget, and it will display "Back at 14:30" during the countdown.</p>
+                                    <p>In preview mode, text widgets with errors show a red outline. Hover over them to see what went wrong.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Designer Keyboard Shortcuts -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingDesignerShortcuts">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDesignerShortcuts" aria-expanded="false" aria-controls="collapseDesignerShortcuts">
+                                    Are there keyboard shortcuts in the Designer?
+                                </button>
+                            </h3>
+                            <div id="collapseDesignerShortcuts" class="accordion-collapse collapse" aria-labelledby="headingDesignerShortcuts" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>Yes! The Designer supports many keyboard shortcuts to speed up your work:</p>
+                                    <ul>
+                                        <li><strong>Ctrl+Z</strong> - Undo last action</li>
+                                        <li><strong>Ctrl+Y</strong> - Redo action</li>
+                                        <li><strong>Ctrl+C</strong> - Copy selected widgets</li>
+                                        <li><strong>Ctrl+X</strong> - Cut selected widgets</li>
+                                        <li><strong>Ctrl+V</strong> - Paste widgets</li>
+                                        <li><strong>Delete</strong> - Delete selected widgets</li>
+                                        <li><strong>Ctrl+G</strong> - Group selected widgets</li>
+                                        <li><strong>Ctrl+Shift+G</strong> - Ungroup</li>
+                                        <li><strong>Ctrl+]</strong> - Bring to front</li>
+                                        <li><strong>Ctrl+[</strong> - Send to back</li>
+                                        <li><strong>Arrow Keys</strong> - Move selected widgets (hold Shift for larger steps)</li>
+                                    </ul>
+                                    <p>When editing text, press Enter to confirm or Escape to cancel. Shift+Enter adds a line break.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Designer Alignment -->
+                        <div class="accordion-item bg-secondary">
+                            <h3 class="accordion-header" id="headingDesignerAlignment">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDesignerAlignment" aria-expanded="false" aria-controls="collapseDesignerAlignment">
+                                    How do I align and distribute widgets in the Designer?
+                                </button>
+                            </h3>
+                            <div id="collapseDesignerAlignment" class="accordion-collapse collapse" aria-labelledby="headingDesignerAlignment" data-bs-parent="#helpFAQ">
+                                <div class="accordion-body">
+                                    <p>The Designer includes powerful alignment and distribution tools:</p>
+                                    <ul>
+                                        <li><strong>Horizontal Alignment:</strong> Align left, center, or right edges of selected widgets</li>
+                                        <li><strong>Vertical Alignment:</strong> Align top, middle, or bottom edges</li>
+                                        <li><strong>Distribution:</strong> Space widgets evenly horizontally or vertically</li>
+                                        <li><strong>Same Size:</strong> Make selected widgets the same width, height, or both</li>
+                                    </ul>
+                                    <p>To use these tools, select multiple widgets (click and drag to select, or hold Shift while clicking), then click the appropriate alignment button in the toolbar.</p>
+                                    <p>The grid overlay also helps you align elements visually. You can snap widgets to grid lines by positioning them close to the lines.</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Sharing -->
                         <div class="accordion-item bg-secondary">
                             <h3 class="accordion-header" id="headingThree">
