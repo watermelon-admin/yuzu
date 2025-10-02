@@ -73,6 +73,47 @@ Development configuration is automatically used when `ASPNETCORE_ENVIRONMENT=Dev
 - **Email**: Configured to use MailHog (localhost:1025, no authentication)
 - **Debug Settings**: All users treated as subscribed for testing
 
+### User Secrets Configuration
+
+For production or when testing with real services, configure sensitive settings using .NET User Secrets:
+
+```bash
+# Initialize user secrets (only needed once per project)
+cd Yuzu.Web
+dotnet user-secrets init
+
+# Database Connection
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=yuzu;Username=postgres;Password=yourpassword"
+
+# S3/Object Storage Settings
+dotnet user-secrets set "S3Settings:AccessKey" "your-access-key"
+dotnet user-secrets set "S3Settings:SecretKey" "your-secret-key"
+dotnet user-secrets set "S3Settings:AccountId" "your-account-id"  # Required for Cloudflare R2
+
+# Mail Settings (if using real SMTP instead of MailHog)
+dotnet user-secrets set "MailSettings:SmtpUsername" "your-smtp-username"
+dotnet user-secrets set "MailSettings:SmtpPassword" "your-smtp-password"
+dotnet user-secrets set "MailSettings:SmtpNoReplyUsername" "your-noreply-username"
+dotnet user-secrets set "MailSettings:SmtpNoReplyPassword" "your-noreply-password"
+
+# Payment Settings
+dotnet user-secrets set "PaymentConfig:Stripe:SecretKey" "sk_test_your_stripe_secret_key"
+
+# Application Insights (optional)
+dotnet user-secrets set "ApplicationInsights:ConnectionString" "your-app-insights-connection-string"
+
+# List all configured secrets
+dotnet user-secrets list
+
+# Remove a specific secret
+dotnet user-secrets remove "SecretKey"
+
+# Clear all secrets
+dotnet user-secrets clear
+```
+
+**Note**: User secrets are stored in your user profile directory and are NOT checked into source control. For production deployments, use environment variables or Azure Key Vault.
+
 ## Testing Guidelines
 
 ### C# Unit Testing
