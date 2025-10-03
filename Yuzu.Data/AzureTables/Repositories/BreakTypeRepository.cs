@@ -17,14 +17,10 @@ namespace Yuzu.Data.AzureTables.Repositories
         private readonly ILogger<BreakTypeRepository> _logger;
         private const string TableName = "BreakTypes";
 
-        public BreakTypeRepository(IConfiguration configuration, ILogger<BreakTypeRepository> logger)
+        public BreakTypeRepository(TableServiceClientFactory factory, ILogger<BreakTypeRepository> logger)
         {
             _logger = logger;
-            var connectionString = configuration.GetConnectionString("AzureStorage")
-                ?? "UseDevelopmentStorage=true";
-
-            var serviceClient = new TableServiceClient(connectionString);
-            _tableClient = serviceClient.GetTableClient(TableName);
+            _tableClient = factory.GetTableClient(TableName);
         }
 
         public async Task InitializeAsync()

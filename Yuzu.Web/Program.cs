@@ -289,31 +289,30 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-        // Get connection string from configuration
-        var connectionString = builder.Configuration.GetConnectionString("AzureTables");
+        // Get the factory from DI
+        var factory = scope.ServiceProvider.GetRequiredService<Yuzu.Data.AzureTables.TableServiceClientFactory>();
+        var azureTablesSettings = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<Yuzu.Data.AzureTables.AzureTablesSettings>>().Value;
         bool canConnect = false;
 
         // Check Azure Tables connectivity
         try {
-            if (!string.IsNullOrEmpty(connectionString))
+            var tableServiceClient = factory.GetServiceClient();
+
+            // Try to get service properties to check connectivity
+            var properties = await tableServiceClient.GetPropertiesAsync();
+            canConnect = properties != null;
+
+            // Create a consolidated storage info log
+            var storageInfo = new System.Text.StringBuilder("=== Azure Tables Connection ===\n");
+            storageInfo.AppendLine($"  Service: Azure Table Storage");
+            storageInfo.AppendLine($"  Authentication: {(azureTablesSettings.UseManagedIdentity ? "Managed Identity" : "Connection String")}");
+            if (azureTablesSettings.UseManagedIdentity)
             {
-                var tableServiceClient = new Azure.Data.Tables.TableServiceClient(connectionString);
-
-                // Try to get service properties to check connectivity
-                var properties = await tableServiceClient.GetPropertiesAsync();
-                canConnect = properties != null;
-
-                // Create a consolidated storage info log
-                var storageInfo = new System.Text.StringBuilder("=== Azure Tables Connection ===\n");
-                storageInfo.AppendLine($"  Service: Azure Table Storage");
-                storageInfo.AppendLine($"  Status: {(canConnect ? "Connected ✓" : "Failed ✗")}");
-
-                app.Logger.LogInformation(storageInfo.ToString());
+                storageInfo.AppendLine($"  Account URI: {azureTablesSettings.AccountUri}");
             }
-            else
-            {
-                app.Logger.LogWarning("Azure Tables connection string not configured");
-            }
+            storageInfo.AppendLine($"  Status: {(canConnect ? "Connected ✓" : "Failed ✗")}");
+
+            app.Logger.LogInformation(storageInfo.ToString());
 
             if (!canConnect) {
                 app.Logger.LogWarning("Cannot connect to Azure Tables - application may not function correctly");

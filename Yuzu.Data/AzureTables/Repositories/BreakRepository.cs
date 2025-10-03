@@ -17,14 +17,10 @@ namespace Yuzu.Data.AzureTables.Repositories
         private readonly ILogger<BreakRepository> _logger;
         private const string TableName = "Breaks";
 
-        public BreakRepository(IConfiguration configuration, ILogger<BreakRepository> logger)
+        public BreakRepository(TableServiceClientFactory factory, ILogger<BreakRepository> logger)
         {
             _logger = logger;
-            var connectionString = configuration.GetConnectionString("AzureStorage")
-                ?? "UseDevelopmentStorage=true";
-
-            var serviceClient = new TableServiceClient(connectionString);
-            _tableClient = serviceClient.GetTableClient(TableName);
+            _tableClient = factory.GetTableClient(TableName);
         }
 
         public async Task InitializeAsync()
