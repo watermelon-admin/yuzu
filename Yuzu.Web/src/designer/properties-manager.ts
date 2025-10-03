@@ -155,7 +155,7 @@ export class PropertiesManager {
         
         // Initialize range control min/max values
         this.textSizeRange.min = "8";
-        this.textSizeRange.max = "72";
+        this.textSizeRange.max = "360";
         this.textSizeRange.step = "1";
         this.textSizeRange.value = "12";
         
