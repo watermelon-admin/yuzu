@@ -3,13 +3,24 @@ import { Designer } from './core/index.js';
 async function generateThumbnail(canvasElement) {
     try {
         console.log('[Thumbnail] Starting canvas screenshot generation');
+        // Temporarily hide the grid overlay for clean screenshot
+        const hadGridHidden = canvasElement.classList.contains('grid-hidden');
+        if (!hadGridHidden) {
+            canvasElement.classList.add('grid-hidden');
+        }
         // Capture the canvas at full resolution
         const screenshot = await html2canvas(canvasElement, {
-            backgroundColor: null, // Preserve transparency if any
+            backgroundColor: '#ffffff', // White background
             scale: 1, // Capture at actual resolution
             logging: false, // Disable console logging
-            useCORS: true // Allow cross-origin images
+            useCORS: true, // Allow cross-origin images
+            allowTaint: false, // Don't allow tainted canvases
+            foreignObjectRendering: false // Use native rendering for better compatibility
         });
+        // Restore grid state
+        if (!hadGridHidden) {
+            canvasElement.classList.remove('grid-hidden');
+        }
         console.log('[Thumbnail] Canvas captured, creating thumbnail at 640x360');
         // Create thumbnail canvas (640x360 for 16:9 ratio, 2x retina for 180px display)
         const thumbCanvas = document.createElement('canvas');

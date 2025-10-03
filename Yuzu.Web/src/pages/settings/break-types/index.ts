@@ -129,7 +129,11 @@ export async function loadBreakTypes(): Promise<void> {
                 iconElement.removeClass().addClass(`break-type-icon bx ${item.iconName || 'bx-coffee-togo'} fs-4`);
                 
                 // Use thumbnail if available, otherwise fall back to background image
-                const previewImageUrl = item.thumbnailUrl || `${backgroundImagesURL}/${item.imageTitle}-thumb.jpg`;
+                let previewImageUrl = item.thumbnailUrl || `${backgroundImagesURL}/${item.imageTitle}-thumb.jpg`;
+                // Add cache-busting parameter for thumbnails to ensure fresh images
+                if (item.thumbnailUrl) {
+                    previewImageUrl += `?v=${Date.now()}`;
+                }
                 cardDiv.find('.card-preview-image').attr('src', previewImageUrl);
                 
                 // Card Title
