@@ -76,16 +76,16 @@
 				<span id="debug-widget-count" class="debug-value">0</span>
 			</div>
 			<div class="debug-section">
+				<span class="debug-label">Pointer:</span>
+				<span id="debug-pointer-id" class="debug-value">-</span>
+			</div>
+			<div class="debug-section">
 				<span class="debug-label">Selected:</span>
 				<span id="debug-selected-count" class="debug-value">0</span>
 			</div>
 			<div class="debug-section">
 				<span class="debug-label">Drag State:</span>
 				<span id="debug-drag-state" class="debug-value">null</span>
-			</div>
-			<div class="debug-section">
-				<span class="debug-label">Pointer:</span>
-				<span id="debug-pointer-id" class="debug-value">-</span>
 			</div>
 			<div class="debug-section">
 				<span class="debug-label">Listeners:</span>
@@ -102,6 +102,11 @@
 			<div class="debug-section">
 				<span class="debug-label">Memory:</span>
 				<span id="debug-memory" class="debug-value">-</span>
+			</div>
+			<div class="debug-section">
+				<button id="btn-download-logs" class="btn btn-link btn-sm p-0" title="Download Debug Logs" aria-label="Download Debug Logs" style="color: #00ff00; text-decoration: none;">
+					<i class="fa-solid fa-download"></i> Download Logs
+				</button>
 			</div>
 		</div>
 	}
@@ -219,16 +224,6 @@
 					<i class="fa-solid fa-maximize"></i>
 				</button>
 			</div>
-
-			@* Debug group - Only shown when debug setting is enabled *@
-			@if (Model.ShowDesignerDebugInfo)
-			{
-				<div class="btn-group btn-group-sm" role="group" aria-label="Debug">
-					<button id="btn-download-logs" class="btn btn-outline-secondary" title="Download Debug Logs" aria-label="Download Debug Logs">
-						<i class="fa-solid fa-download"></i>
-					</button>
-				</div>
-			}
 		</div>
 	</div>
 
