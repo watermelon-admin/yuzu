@@ -1,11 +1,107 @@
-﻿/* roboto-regular - latin */
+/*
+ * Self-Hosted Google Fonts
+ * All fonts are licensed under the SIL Open Font License (OFL) or Apache License 2.0
+ * Self-hosting ensures GDPR compliance and better performance
+ * License files are included in the /fonts/ directory
+ */
+
+/* ==========================================================================
+   SANS-SERIF FONTS
+   ========================================================================== */
+
+/* roboto-regular - latin */
 @font-face {
     font-display: swap;
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
-    src: url('/fonts/roboto-v30-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/fonts/roboto-v30-latin-regular.woff2') format('woff2');
 }
+
+/* open-sans-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/open-sans-regular.woff2') format('woff2');
+}
+
+/* lato-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/lato-regular.woff2') format('woff2');
+}
+
+/* montserrat-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/montserrat-regular.woff2') format('woff2');
+}
+
+/* poppins-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/poppins-regular.woff2') format('woff2');
+}
+
+/* work-sans-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/work-sans-regular.woff2') format('woff2');
+}
+
+/* inter-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/inter-regular.woff2') format('woff2');
+}
+
+/* raleway-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Raleway';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/raleway-regular.woff2') format('woff2');
+}
+
+/* nunito-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/nunito-regular.woff2') format('woff2');
+}
+
+/* source-sans-3-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Source Sans 3';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/source-sans-3-regular.woff2') format('woff2');
+}
+
+/* ==========================================================================
+   SERIF FONTS
+   ========================================================================== */
 
 /* noto-serif-regular - latin */
 @font-face {
@@ -13,16 +109,168 @@
     font-family: 'Noto Serif';
     font-style: normal;
     font-weight: 400;
-    src: url('/fonts/noto-serif-v23-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/fonts/noto-serif-v23-latin-regular.woff2') format('woff2');
 }
 
-/* fira-sans-regular - latin */
+/* merriweather-regular - latin */
 @font-face {
     font-display: swap;
-    font-family: 'Fira Sans';
+    font-family: 'Merriweather';
     font-style: normal;
     font-weight: 400;
-    src: url('/fonts/fira-sans-v17-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Sa|fari 12+, iOS 10+ */
+    src: url('/fonts/merriweather-regular.woff2') format('woff2');
+}
+
+/* playfair-display-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/playfair-display-regular.woff2') format('woff2');
+}
+
+/* libre-baskerville-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Libre Baskerville';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/libre-baskerville-regular.woff2') format('woff2');
+}
+
+/* crimson-text-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Crimson Text';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/crimson-text-regular.woff2') format('woff2');
+}
+
+/* lora-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Lora';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/lora-regular.woff2') format('woff2');
+}
+
+/* ==========================================================================
+   MONOSPACE FONTS
+   ========================================================================== */
+
+/* roboto-mono-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/roboto-mono-regular.woff2') format('woff2');
+}
+
+/* source-code-pro-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Source Code Pro';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/source-code-pro-regular.woff2') format('woff2');
+}
+
+/* jetbrains-mono-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/jetbrains-mono-regular.woff2') format('woff2');
+}
+
+/* courier-prime-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Courier Prime';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/courier-prime-regular.woff2') format('woff2');
+}
+
+/* ==========================================================================
+   DISPLAY / DECORATIVE FONTS
+   ========================================================================== */
+
+/* bebas-neue-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Bebas Neue';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/bebas-neue-regular.woff2') format('woff2');
+}
+
+/* oswald-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Oswald';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/oswald-regular.woff2') format('woff2');
+}
+
+/* archivo-black-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Archivo Black';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/archivo-black-regular.woff2') format('woff2');
+}
+
+/* righteous-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Righteous';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/righteous-regular.woff2') format('woff2');
+}
+
+/* permanent-marker-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Permanent Marker';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/permanent-marker-regular.woff2') format('woff2');
+}
+
+/* pacifico-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Pacifico';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/pacifico-regular.woff2') format('woff2');
+}
+
+/* dancing-script-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Dancing Script';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/dancing-script-regular.woff2') format('woff2');
+}
+
+/* lobster-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Lobster';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/lobster-regular.woff2') format('woff2');
 }
 
 /* fredericka-the-great-regular - latin */
@@ -31,14 +279,208 @@
     font-family: 'Fredericka the Great';
     font-style: normal;
     font-weight: 400;
-    src: url('/fonts/fredericka-the-great-v21-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/fonts/fredericka-the-great-v21-latin-regular.woff2') format('woff2');
 }
 
-/* dekko-regular - latin */
+/* caveat-regular - latin */
 @font-face {
     font-display: swap;
-    font-family: 'Dekko';
+    font-family: 'Caveat';
     font-style: normal;
     font-weight: 400;
-    src: url('/fonts/dekko-v21-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    src: url('/fonts/caveat-regular.woff2') format('woff2');
+}
+
+/* ==========================================================================
+   EXOTIC FONTS (Script, Vintage, Decorative, Tech, Quirky)
+   ========================================================================== */
+
+/* SCRIPT & HANDWRITING */
+
+/* great-vibes-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Great Vibes';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/great-vibes-regular.woff2') format('woff2');
+}
+
+/* satisfy-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Satisfy';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/satisfy-regular.woff2') format('woff2');
+}
+
+/* allura-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Allura';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/allura-regular.woff2') format('woff2');
+}
+
+/* tangerine-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Tangerine';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/tangerine-regular.woff2') format('woff2');
+}
+
+/* sacramento-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Sacramento';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/sacramento-regular.woff2') format('woff2');
+}
+
+/* VINTAGE & RETRO */
+
+/* bungee-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Bungee';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/bungee-regular.woff2') format('woff2');
+}
+
+/* fredoka-one-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Fredoka One';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/fredoka-one-regular.woff2') format('woff2');
+}
+
+/* alfa-slab-one-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Alfa Slab One';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/alfa-slab-one-regular.woff2') format('woff2');
+}
+
+/* russo-one-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Russo One';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/russo-one-regular.woff2') format('woff2');
+}
+
+/* DECORATIVE & ARTISTIC */
+
+/* cinzel-decorative-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Cinzel Decorative';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/cinzel-decorative-regular.woff2') format('woff2');
+}
+
+/* abril-fatface-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Abril Fatface';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/abril-fatface-regular.woff2') format('woff2');
+}
+
+/* ultra-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Ultra';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/ultra-regular.woff2') format('woff2');
+}
+
+/* monoton-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Monoton';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/monoton-regular.woff2') format('woff2');
+}
+
+/* fascinate-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Fascinate';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/fascinate-regular.woff2') format('woff2');
+}
+
+/* TECH & FUTURISTIC */
+
+/* orbitron-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Orbitron';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/orbitron-regular.woff2') format('woff2');
+}
+
+/* press-start-2p-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Press Start 2P';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/press-start-2p-regular.woff2') format('woff2');
+}
+
+/* audiowide-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Audiowide';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/audiowide-regular.woff2') format('woff2');
+}
+
+/* QUIRKY & FUN */
+
+/* bangers-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Bangers';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/bangers-regular.woff2') format('woff2');
+}
+
+/* creepster-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Creepster';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/creepster-regular.woff2') format('woff2');
+}
+
+/* cabin-sketch-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Cabin Sketch';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/cabin-sketch-regular.woff2') format('woff2');
 }
