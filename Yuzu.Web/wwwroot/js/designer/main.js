@@ -1,4 +1,5 @@
 import { Designer } from './core/index.js';
+import { getPerformanceMonitor } from './core/debug-utils.js';
 // Helper function to get the image path
 function getImagePath() {
     const imagePathElement = document.getElementById('image-path');
@@ -88,6 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('[Debug] Creating Designer instance');
         const designer = new Designer('designer-canvas');
         console.log('[Debug] Designer instance created successfully');
+        // Enable PerformanceMonitor if debug panel exists (debug setting is enabled)
+        const debugPanel = document.getElementById('debug-info-panel');
+        if (debugPanel) {
+            console.log('[Debug] Debug panel found, enabling PerformanceMonitor');
+            const perfMonitor = getPerformanceMonitor();
+            perfMonitor.enable();
+        }
         // Check if we're loading an existing design
         console.log('[Debug] Checking for existing design data to load');
         const isLoadingExisting = document.getElementById('is-loading-existing');
@@ -660,6 +668,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else {
             console.warn('[Debug] Could not set up grid toggle: missing button or canvas element');
+        }
+        // Debug logs download button (only present when debug setting is enabled)
+        const downloadLogsButton = document.getElementById('btn-download-logs');
+        if (downloadLogsButton) {
+            downloadLogsButton.addEventListener('click', () => {
+                console.log('Download logs button clicked');
+                // Use the global PerformanceMonitor to download the debug report
+                if (window.PerformanceMonitor) {
+                    window.PerformanceMonitor.downloadReport();
+                }
+                else {
+                    console.warn('PerformanceMonitor not available');
+                }
+            });
         }
         // Helper function to update grid button icon
         function updateGridButtonIcon(button, isVisible) {
