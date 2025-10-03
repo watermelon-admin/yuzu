@@ -114,6 +114,72 @@ dotnet user-secrets clear
 
 **Note**: User secrets are stored in your user profile directory and are NOT checked into source control. For production deployments, use environment variables or Azure Key Vault.
 
+## Azure Table Storage Authentication
+
+The application supports two authentication methods for Azure Table Storage:
+
+### Development (Connection String)
+
+For local development with Azurite, use connection string authentication:
+
+```json
+{
+  "AzureTablesSettings": {
+    "UseManagedIdentity": false,
+    "AccountUri": ""
+  },
+  "ConnectionStrings": {
+    "AzureTables": "UseDevelopmentStorage=true"
+  }
+}
+```
+
+This is the default configuration in `appsettings.Development.json`.
+
+### Production (Managed Identity)
+
+For production deployments in Azure, use Managed Identity for passwordless authentication:
+
+```json
+{
+  "AzureTablesSettings": {
+    "UseManagedIdentity": true,
+    "AccountUri": "https://yourstorageaccount.table.core.windows.net/"
+  }
+}
+```
+
+**Azure Setup Steps:**
+
+1. **Enable Managed Identity** on your Azure App Service or Container App
+2. **Assign RBAC Role** to the managed identity:
+   - Navigate to your Storage Account → Access Control (IAM)
+   - Click "Add role assignment"
+   - Select role: **Storage Table Data Contributor**
+   - Assign access to: Your App Service's managed identity
+3. **Configure Application Settings** in Azure:
+   - `AzureTablesSettings__UseManagedIdentity` = `true`
+   - `AzureTablesSettings__AccountUri` = `https://yourstorageaccount.table.core.windows.net/`
+
+**Authentication Methods Supported:**
+
+The application uses `DefaultAzureCredential` which automatically tries multiple authentication methods in order:
+
+1. **Environment Variables** - Service principal credentials (AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET)
+2. **Managed Identity** - System or user-assigned managed identity (production in Azure)
+3. **Azure CLI** - Credentials from `az login` (local development)
+4. **Visual Studio** - Credentials from Visual Studio (local development)
+
+This allows seamless authentication across development and production environments without code changes.
+
+**Benefits:**
+
+- ✅ No connection strings or secrets to manage
+- ✅ Automatic credential rotation
+- ✅ Fine-grained access control via Azure RBAC
+- ✅ Works with both system and user-assigned managed identities
+- ✅ Simplified local development with Azure CLI or Visual Studio credentials
+
 ## Testing Guidelines
 
 ### C# Unit Testing
