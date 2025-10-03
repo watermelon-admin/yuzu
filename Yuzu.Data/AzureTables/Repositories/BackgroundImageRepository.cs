@@ -18,14 +18,10 @@ namespace Yuzu.Data.AzureTables.Repositories
         private const string TableName = "BackgroundImages";
         private const string SystemPartitionKey = "system";
 
-        public BackgroundImageRepository(IConfiguration configuration, ILogger<BackgroundImageRepository> logger)
+        public BackgroundImageRepository(TableServiceClientFactory factory, ILogger<BackgroundImageRepository> logger)
         {
             _logger = logger;
-            var connectionString = configuration.GetConnectionString("AzureStorage")
-                ?? "UseDevelopmentStorage=true";
-
-            var serviceClient = new TableServiceClient(connectionString);
-            _tableClient = serviceClient.GetTableClient(TableName);
+            _tableClient = factory.GetTableClient(TableName);
         }
 
         public async Task InitializeAsync()

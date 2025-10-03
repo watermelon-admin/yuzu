@@ -499,48 +499,48 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
           value: 'https://${staticStorage.name}.${az.environment().suffixes.storage}/backgrounds'
         }
         {
-          name: 'MailConnectionConfig__smtpServer'
+          name: 'MailSettings__SmtpServer'
           value: 'smtps.udag.de'
         }
         {
-          name: 'MailConnectionConfig__ConfirmationHost'
+          name: 'MailSettings__SmtpPort'
+          value: '465'
+        }
+        {
+          name: 'MailSettings__ConfirmationHost'
           value: 'breakscreen.com'
         }
         {
-          name: 'MailConnectionConfig__SenderName'
+          name: 'MailSettings__SenderName'
           value: 'BreakScreen Team'
         }
         {
-          name: 'MailConnectionConfig__SenderEmail'
+          name: 'MailSettings__SenderEmail'
           value: 'info@breakscreen.com'
         }
         {
-          name: 'MailConnectionConfig__smtpPassword'
-          value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpPassword/)'
-        }
-        {
-          name: 'MailConnectionConfig__smtpUsername'
+          name: 'MailSettings__SmtpUsername'
           value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpUsername/)'
         }
         {
-          name: 'MailConnectionConfig__NoReplySenderName'
+          name: 'MailSettings__SmtpPassword'
+          value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpPassword/)'
+        }
+        {
+          name: 'MailSettings__NoReplySenderName'
           value: 'BreakScreen Automailer'
         }
         {
-          name: 'MailConnectionConfig__NoReplySenderEmail'
+          name: 'MailSettings__NoReplySenderEmail'
           value: 'noreply@breakscreen.com'
         }
         {
-          name: 'MailConnectionConfig__smtpNoReplyUsername'
+          name: 'MailSettings__SmtpNoReplyUsername'
           value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpNoReplyUsername/)'
         }
         {
-          name: 'MailConnectionConfig__smtpNoReplyPassword'
+          name: 'MailSettings__SmtpNoReplyPassword'
           value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpNoReplyPassword/)'
-        }
-        {
-          name: 'MailConnectionConfig__smtpPort'
-          value: '465'
         }
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
@@ -646,48 +646,48 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
             value: 'https://${staticStorage.name}.${az.environment().suffixes.storage}/backgrounds'
           }
           {
-            name: 'MailConnectionConfig__smtpServer'
+            name: 'MailSettings__SmtpServer'
             value: 'smtps.udag.de'
           }
           {
-            name: 'MailConnectionConfig__ConfirmationHost'
+            name: 'MailSettings__SmtpPort'
+            value: '465'
+          }
+          {
+            name: 'MailSettings__ConfirmationHost'
             value: 'breakscreen.com'
           }
           {
-            name: 'MailConnectionConfig__SenderName'
+            name: 'MailSettings__SenderName'
             value: 'BreakScreen Team'
           }
           {
-            name: 'MailConnectionConfig__SenderEmail'
+            name: 'MailSettings__SenderEmail'
             value: 'info@breakscreen.com'
           }
           {
-            name: 'MailConnectionConfig__smtpPassword'
-            value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpPassword/)'
-          }
-          {
-            name: 'MailConnectionConfig__smtpUsername'
+            name: 'MailSettings__SmtpUsername'
             value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpUsername/)'
           }
           {
-            name: 'MailConnectionConfig__NoReplySenderName'
+            name: 'MailSettings__SmtpPassword'
+            value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpPassword/)'
+          }
+          {
+            name: 'MailSettings__NoReplySenderName'
             value: 'BreakScreen Automailer'
           }
           {
-            name: 'MailConnectionConfig__NoReplySenderEmail'
+            name: 'MailSettings__NoReplySenderEmail'
             value: 'noreply@breakscreen.com'
           }
           {
-            name: 'MailConnectionConfig__smtpNoReplyUsername'
+            name: 'MailSettings__SmtpNoReplyUsername'
             value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpNoReplyUsername/)'
           }
           {
-            name: 'MailConnectionConfig__smtpNoReplyPassword'
+            name: 'MailSettings__SmtpNoReplyPassword'
             value: '@Microsoft.KeyVault(SecretUri=${keyVault.properties.vaultUri}secrets/SmtpNoReplyPassword/)'
-          }
-          {
-            name: 'MailConnectionConfig__smtpPort'
-            value: '465'
           }
           {
             name: 'WEBSITE_RUN_FROM_PACKAGE'

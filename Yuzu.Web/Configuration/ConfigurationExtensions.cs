@@ -48,6 +48,9 @@ namespace Yuzu.Web.Configuration
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
+            services.AddOptions<Yuzu.Data.AzureTables.AzureTablesSettings>()
+                .Bind(configuration.GetSection("AzureTablesSettings"));
+
             return services;
         }
 

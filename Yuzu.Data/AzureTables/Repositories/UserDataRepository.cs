@@ -16,14 +16,10 @@ namespace Yuzu.Data.AzureTables.Repositories
         private readonly ILogger<UserDataRepository> _logger;
         private const string TableName = "UserData";
 
-        public UserDataRepository(IConfiguration configuration, ILogger<UserDataRepository> logger)
+        public UserDataRepository(TableServiceClientFactory factory, ILogger<UserDataRepository> logger)
         {
             _logger = logger;
-            var connectionString = configuration.GetConnectionString("AzureStorage")
-                ?? "UseDevelopmentStorage=true";
-
-            var serviceClient = new TableServiceClient(connectionString);
-            _tableClient = serviceClient.GetTableClient(TableName);
+            _tableClient = factory.GetTableClient(TableName);
         }
 
         public async Task InitializeAsync()

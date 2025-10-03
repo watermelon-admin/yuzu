@@ -20,6 +20,9 @@ namespace Yuzu.Data
         /// <returns>The service collection for chaining</returns>
         public static IServiceCollection AddDataServices(this IServiceCollection services, IConfiguration configuration)
         {
+            // Register Azure Tables factory (singleton to share TableServiceClient)
+            services.AddSingleton<AzureTables.TableServiceClientFactory>();
+
             // Register Azure Tables repositories
             services.AddSingleton<IUserDataRepository, UserDataRepository>();
             services.AddSingleton<IBreakTypeRepository, BreakTypeRepository>();

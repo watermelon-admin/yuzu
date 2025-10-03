@@ -36,6 +36,9 @@ namespace Yuzu.Web.Pages
         // Path to background images
         public string ImagePath { get; set; } = string.Empty;
 
+        // Debug settings flag for showing debug info panel and logs download
+        public bool ShowDesignerDebugInfo { get; set; } = false;
+
         // Sample test data for demonstration purposes
         private static readonly Dictionary<string, DesignData> TestDesigns = new Dictionary<string, DesignData>
         {
@@ -63,7 +66,17 @@ namespace Yuzu.Web.Pages
             // Set up the image path from the storage service factory
             var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
             ImagePath = storageService.GetBackgroundsUrl();
-            
+
+            // Get debug settings from configuration
+            ShowDesignerDebugInfo = configuration.GetValue<bool>("DebugSettings:ShowDesignerDebugInfo", false);
+
+            // Allow override via query parameter for production debugging (e.g., ?debug=true)
+            if (Request.Query.ContainsKey("debug") && bool.TryParse(Request.Query["debug"], out bool debugParam))
+            {
+                ShowDesignerDebugInfo = debugParam;
+                _logger.LogInformation("Debug info override via query parameter: {DebugEnabled}", debugParam);
+            }
+
             // Check if an ID was provided in the query string
             string designId = Request.Query["id"].ToString();
 
