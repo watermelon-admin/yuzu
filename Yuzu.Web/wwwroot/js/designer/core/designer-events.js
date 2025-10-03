@@ -98,21 +98,8 @@ export const WidgetLogger = {
         this.logs = [];
     }
 };
-// Add download logs button to UI and make WidgetLogger globally available
-document.addEventListener('DOMContentLoaded', () => {
-    // Make WidgetLogger available globally to avoid "not defined" errors
-    window.WidgetLogger = WidgetLogger;
-    const btnGroup = document.querySelector('.btn-group');
-    if (btnGroup) {
-        const downloadBtn = document.createElement('button');
-        downloadBtn.id = 'btn-download-logs';
-        downloadBtn.className = 'btn btn-secondary';
-        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Logs';
-        downloadBtn.title = 'Download Widget Operation Logs';
-        downloadBtn.onclick = () => WidgetLogger.downloadLogs();
-        btnGroup.appendChild(downloadBtn);
-    }
-});
+// Make WidgetLogger globally available
+window.WidgetLogger = WidgetLogger;
 // Final Designer class with event handling and UI updates
 export class DesignerEvents extends DesignerZOrder {
     /**

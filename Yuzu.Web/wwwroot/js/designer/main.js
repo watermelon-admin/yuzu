@@ -674,12 +674,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (downloadLogsButton) {
             downloadLogsButton.addEventListener('click', () => {
                 console.log('Download logs button clicked');
-                // Use the global PerformanceMonitor to download the debug report
+                // Download both WidgetLogger logs and PerformanceMonitor report
+                if (window.WidgetLogger) {
+                    window.WidgetLogger.downloadLogs();
+                }
                 if (window.PerformanceMonitor) {
                     window.PerformanceMonitor.downloadReport();
-                }
-                else {
-                    console.warn('PerformanceMonitor not available');
                 }
             });
         }
