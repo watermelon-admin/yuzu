@@ -1,5 +1,4 @@
 import { Designer } from './core/index.js';
-import html2canvas from 'html2canvas';
 // Generate thumbnail from designer canvas
 async function generateThumbnail(canvasElement) {
     try {

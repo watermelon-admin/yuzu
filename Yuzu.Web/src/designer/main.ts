@@ -1,5 +1,7 @@
 ﻿import { Designer } from './core/index.js';
-import html2canvas from 'html2canvas';
+
+// Declare html2canvas global from CDN
+declare const html2canvas: any;
 
 // Extend the Window interface to include our global designer instance
 declare global {
