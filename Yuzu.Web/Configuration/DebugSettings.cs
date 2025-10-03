@@ -53,9 +53,10 @@ namespace Yuzu.Web.Configuration
         /// <para>When enabled, the following debug features are available:</para>
         /// <list type="bullet">
         ///   <item>Debug info panel at the bottom of the designer canvas showing widget count, selection state, drag state, etc.</item>
-        ///   <item>Logs download button in the toolbar to export performance and debug logs</item>
+        ///   <item>Logs download button in the debug panel to export performance and debug logs</item>
         ///   <item>Real-time memory usage and performance metrics</item>
         /// </list>
+        /// <para><strong>Production Debugging:</strong> Can be temporarily enabled on production by adding <c>?debug=true</c> to the designer URL (e.g., <c>/Designer?id=xxx&amp;debug=true</c>). Use <c>?debug=false</c> to explicitly disable.</para>
         /// <para><strong>⚠️ NOTE:</strong> This should typically be disabled in production to avoid cluttering the designer UI.</para>
         /// </remarks>
         /// <value>

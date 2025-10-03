@@ -67,9 +67,16 @@ namespace Yuzu.Web.Pages
             var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
             ImagePath = storageService.GetBackgroundsUrl();
 
-            // Get debug settings
+            // Get debug settings from configuration
             ShowDesignerDebugInfo = configuration.GetValue<bool>("DebugSettings:ShowDesignerDebugInfo", false);
-            
+
+            // Allow override via query parameter for production debugging (e.g., ?debug=true)
+            if (Request.Query.ContainsKey("debug") && bool.TryParse(Request.Query["debug"], out bool debugParam))
+            {
+                ShowDesignerDebugInfo = debugParam;
+                _logger.LogInformation("Debug info override via query parameter: {DebugEnabled}", debugParam);
+            }
+
             // Check if an ID was provided in the query string
             string designId = Request.Query["id"].ToString();
 
