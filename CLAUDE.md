@@ -391,3 +391,136 @@ async Task DeleteFileAsync(IAmazonS3 client, string bucket, string key)
 // Add this at the end of your file if this is a console application
 await RunS3DemoAsync();
 ```
+## Font Management (Break Screen Designer)
+
+The break screen designer uses self-hosted Google Fonts for GDPR compliance and better performance. All fonts are stored locally and loaded dynamically.
+
+### Font Architecture
+
+**Files:**
+- `Yuzu.Web/wwwroot/css/fonts.css` - @font-face declarations for all fonts
+- `Yuzu.Web/wwwroot/js/designer/fonts.ts` - TypeScript font catalog and loading logic
+- `Yuzu.Web/wwwroot/js/designer/fonts.js` - Compiled JavaScript (generated from TS)
+- `Yuzu.Web/wwwroot/fonts/` - Font files (woff2 format)
+- `Yuzu.Web/Pages/Designer.cshtml` - Font dropdown UI
+
+**Current Font Catalog (30 fonts):**
+- Sans-Serif: Roboto, Open Sans, Lato, Montserrat, Poppins, Work Sans, Inter, Raleway, Nunito, Source Sans 3
+- Serif: Noto Serif, Merriweather, Playfair Display, Libre Baskerville, Crimson Text, Lora
+- Monospace: Roboto Mono, Source Code Pro, JetBrains Mono, Courier Prime
+- Display: Bebas Neue, Oswald, Archivo Black, Righteous, Permanent Marker, Pacifico, Dancing Script, Lobster, Fredericka the Great, Caveat
+
+### Dynamic Font Loading
+
+Fonts are loaded lazily for optimal performance:
+
+1. **On Designer Load**: Scans canvas data for used fonts and preloads them
+2. **On Font Selection**: Loads font before applying to text widget
+3. **Font Loading API**: Uses browser's CSS Font Loading API
+
+\`\`\`typescript
+// Example usage in code
+import { loadFont, preloadUsedFonts } from './fonts.js';
+
+// Load a single font
+await loadFont('Roboto');
+
+// Preload fonts from canvas data
+const canvasData = JSON.parse(jsonData);
+await preloadUsedFonts(canvasData);
+\`\`\`
+
+### Adding a New Font
+
+To add a new font to the designer:
+
+1. **Download the font file**:
+   - Go to [Google Fonts](https://fonts.google.com/)
+   - Select the font and download woff2 format (latin subset, regular weight)
+   - Or use [google-webfonts-helper](https://gwfh.mranftl.com/fonts)
+
+2. **Add to `/wwwroot/fonts/`**:
+   \`\`\`bash
+   # Naming convention: {font-name}-regular.woff2
+   cp ~/Downloads/my-font-regular.woff2 Yuzu.Web/wwwroot/fonts/
+   \`\`\`
+
+3. **Update `fonts.css`**:
+   \`\`\`css
+   /* my-font-regular - latin */
+   @font-face {
+       font-display: swap;
+       font-family: 'My Font';
+       font-style: normal;
+       font-weight: 400;
+       src: url('/fonts/my-font-regular.woff2') format('woff2');
+   }
+   \`\`\`
+
+4. **Update `fonts.ts` catalog**:
+   \`\`\`typescript
+   // Add to appropriate category in FONT_CATALOG
+   {
+       name: 'My Font',
+       family: 'My Font',
+       category: 'sans-serif', // or 'serif', 'monospace', 'display'
+       fileName: 'my-font-regular.woff2',
+       loaded: false
+   }
+   \`\`\`
+
+5. **Update `Designer.cshtml` dropdown**:
+   \`\`\`html
+   <optgroup label="Sans-Serif">
+       <!-- ... existing options ... -->
+       <option value="My Font">My Font</option>
+   </optgroup>
+   \`\`\`
+
+6. **Compile TypeScript**:
+   \`\`\`bash
+   cd Yuzu.Web
+   npx tsc wwwroot/js/designer/fonts.ts --outDir wwwroot/js/designer --module es2015 --target es2017 --sourceMap --skipLibCheck
+   \`\`\`
+
+7. **Test**: Build and run the designer, verify the font appears in dropdown and renders correctly
+
+### Font Licensing
+
+All Google Fonts are open source (OFL or Apache 2.0 licenses):
+- ✅ Free to use, modify, and redistribute
+- ✅ Must include original license file
+- ✅ Self-hosting is explicitly allowed
+- ✅ GDPR compliant (no external requests to Google)
+
+License file location: `Yuzu.Web/wwwroot/fonts/OFL.txt`
+
+### Downloading Multiple Fonts
+
+To download all 27 missing fonts (see fonts.ts for the complete list):
+
+\`\`\`bash
+# Use google-webfonts-helper (https://gwfh.mranftl.com/fonts)
+# 1. Select each font
+# 2. Choose "latin" subset only
+# 3. Select "regular" (400) weight only
+# 4. Download woff2 format
+# 5. Extract to Yuzu.Web/wwwroot/fonts/
+
+# Or use a download script (requires google-webfonts-helper API)
+\`\`\`
+
+**Missing fonts to download** (already configured in code):
+- Open Sans, Lato, Montserrat, Poppins, Work Sans, Inter, Raleway, Nunito, Source Sans 3
+- Merriweather, Playfair Display, Libre Baskerville, Crimson Text, Lora
+- Roboto Mono, Source Code Pro, JetBrains Mono, Courier Prime
+- Bebas Neue, Oswald, Archivo Black, Righteous, Permanent Marker, Pacifico, Dancing Script, Lobster, Caveat
+
+### Performance Considerations
+
+- **Format**: woff2 only (97%+ browser support, best compression)
+- **Subsetting**: Latin characters only (~15-50KB per font)
+- **Loading**: `font-display: swap` prevents FOIT (Flash of Invisible Text)
+- **Caching**: Aggressive browser caching (fonts rarely change)
+- **Initial Load**: Only fonts.css loads (~10KB)
+- **Dynamic Load**: Fonts load only when used or selected

@@ -99,7 +99,9 @@ export const WidgetLogger = {
     }
 };
 // Make WidgetLogger globally available
-window.WidgetLogger = WidgetLogger;
+document.addEventListener('DOMContentLoaded', () => {
+    window.WidgetLogger = WidgetLogger;
+});
 // Final Designer class with event handling and UI updates
 export class DesignerEvents extends DesignerZOrder {
     /**
