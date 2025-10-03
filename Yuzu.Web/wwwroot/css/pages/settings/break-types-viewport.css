@@ -12,14 +12,14 @@
 
 /* Ensure cards maintain minimum width and wrap to new rows when needed */
 #break-type-container .col {
-    min-width: 280px; /* Minimum width to accommodate buttons */
-    max-width: 400px; /* Maximum width to prevent stretching */
+    min-width: 320px; /* Minimum width to accommodate buttons and thumbnails */
+    max-width: 500px; /* Maximum width to show full thumbnails (640x360 aspect ratio) */
     flex: 0 1 auto; /* Don't grow, but allow shrinking if needed */
 }
 
 /* Prevent cards from stretching vertically */
 #break-type-container .settings-card {
-    max-height: 340px; /* Limit card height to prevent stretching */
+    max-height: 380px; /* Limit card height to prevent stretching, increased to accommodate larger thumbnails */
 }
 
 /* Section-specific overrides below */

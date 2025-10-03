@@ -40,6 +40,11 @@ namespace Yuzu.Data.Services.Interfaces
         /// Gets object metadata
         /// </summary>
         Task<IDictionary<string, string>> GetObjectMetadataAsync(string containerName, string objectName);
+
+        /// <summary>
+        /// Downloads an object from the specified container
+        /// </summary>
+        Task<Stream> DownloadObjectAsync(string containerName, string objectName);
     }
 
     // The IStorageServiceFactory interface has been removed - use IStorageService directly

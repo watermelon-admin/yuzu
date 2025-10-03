@@ -13,11 +13,6 @@ namespace Yuzu.Configuration.S3
         public enum ProviderType
         {
             /// <summary>
-            /// Scaleway Object Storage
-            /// </summary>
-            Scaleway,
-            
-            /// <summary>
             /// Cloudflare R2 Storage
             /// </summary>
             CloudflareR2
@@ -27,7 +22,7 @@ namespace Yuzu.Configuration.S3
         /// The storage provider to use
         /// </summary>
         [Required]
-        public ProviderType Provider { get; set; } = ProviderType.Scaleway;
+        public ProviderType Provider { get; set; } = ProviderType.CloudflareR2;
 
         /// <summary>
         /// Service URL for the S3 service

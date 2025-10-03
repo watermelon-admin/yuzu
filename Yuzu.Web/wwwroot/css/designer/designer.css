@@ -406,9 +406,9 @@ body {
 }
 
 /* Preview Mode Styles */
-.canvas.preview-mode {
-    background-image: none;
-    background-color: white;
+/* Hide grid in preview mode but keep background image */
+.canvas.preview-mode::after {
+    display: none;
 }
 
 .widget.preview-mode {
