@@ -30,6 +30,9 @@ namespace Yuzu.Web.Pages
         // Background image URL (populated when loading existing design)
         public string BackgroundImageUrl { get; set; } = string.Empty;
 
+        // Background image proxy URL (for CORS-safe access in html2canvas)
+        public string BackgroundImageProxyUrl => GetProxyUrl(BackgroundImageUrl);
+
         // Flag to indicate if we're loading an existing design
         public bool IsLoadingExistingDesign { get; set; } = false;
 
@@ -59,6 +62,26 @@ namespace Yuzu.Web.Pages
             _logger = logger;
             _antiforgery = antiforgery;
             _userManager = userManager;
+        }
+
+        /// <summary>
+        /// Converts an external background URL to a proxy URL for CORS-safe access
+        /// </summary>
+        private string GetProxyUrl(string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+                return string.Empty;
+
+            try
+            {
+                var uri = new Uri(imageUrl);
+                var filename = uri.Segments[^1]; // Get last segment (filename)
+                return $"/Designer?handler=BackgroundProxy&filename={Uri.EscapeDataString(filename)}";
+            }
+            catch
+            {
+                return imageUrl; // Return original if parsing fails
+            }
         }
 
         public async Task OnGetAsync([FromServices] IBreakTypeService breakTypeService, [FromServices] IConfiguration configuration)
@@ -196,6 +219,7 @@ namespace Yuzu.Web.Pages
                 }
 
                 _logger.LogInformation($"Attempting to save design with ID: {designData.Id}");
+                _logger.LogInformation($"Received thumbnailUrl: {designData.ThumbnailUrl}");
 
                 // Get current logged in user ID
                 var userId = _userManager.GetUserId(User);
@@ -204,7 +228,7 @@ namespace Yuzu.Web.Pages
                     _logger.LogWarning("User ID is null in OnPostSaveDesign");
                     return new JsonResult(new { success = false, message = "User authentication error. Please try logging in again." }) { StatusCode = 401 };
                 }
-                
+
                 // Use the ID directly as it's already a string GUID
                 _logger.LogInformation("Updating break type with ID: {BreakTypeId}", designData.Id);
 
@@ -216,24 +240,118 @@ namespace Yuzu.Web.Pages
                     return NotFound(new { success = false, message = "Break type not found" });
                 }
                 
-                // Update the Components and ImageTitle fields
+                // Update the Components, ImageTitle, and ThumbnailUrl fields
                 breakType.Components = designData.CanvasData;
-                
+
                 if (!string.IsNullOrEmpty(designData.BackgroundImageTitle))
                 {
                     // Normalize the image title to lowercase to ensure consistency
                     breakType.ImageTitle = designData.BackgroundImageTitle.ToLowerInvariant();
                 }
-                
+
+                if (!string.IsNullOrEmpty(designData.ThumbnailUrl))
+                {
+                    // Remove query parameters (like ?v=timestamp) before saving to database
+                    var cleanThumbnailUrl = designData.ThumbnailUrl.Split('?')[0];
+
+                    // Update thumbnail URL (without query params)
+                    breakType.ThumbnailUrl = cleanThumbnailUrl;
+
+                    // Extract path from URL (e.g., "https://example.com/thumbnails/break-123.jpg" -> "thumbnails/break-123.jpg")
+                    try
+                    {
+                        var uri = new Uri(cleanThumbnailUrl);
+                        breakType.ThumbnailPath = uri.AbsolutePath.TrimStart('/');
+                    }
+                    catch
+                    {
+                        // If URL parsing fails, just use the URL as-is
+                        breakType.ThumbnailPath = cleanThumbnailUrl;
+                    }
+                }
+
                 // Save the updated break type
                 await breakTypeService.UpdateAsync(breakType);
-                
-                _logger.LogInformation($"Design saved successfully with ID: {designData.Id}");
+
+                _logger.LogInformation($"Design saved successfully with ID: {designData.Id}, ThumbnailUrl: {breakType.ThumbnailUrl}");
                 return new JsonResult(new { success = true, message = "Design saved successfully" });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving design data");
+                return new JsonResult(new { success = false, message = ex.Message }) { StatusCode = 500 };
+            }
+        }
+
+        public async Task<IActionResult> OnPostUploadThumbnail(
+            IFormFile thumbnail,
+            string breakTypeId,
+            [FromServices] Yuzu.Data.Services.Interfaces.IStorageService storageService,
+            [FromServices] IConfiguration configuration)
+        {
+            try
+            {
+                if (thumbnail == null || thumbnail.Length == 0)
+                {
+                    _logger.LogWarning("No thumbnail file provided");
+                    return BadRequest(new { success = false, message = "No thumbnail provided" });
+                }
+
+                if (string.IsNullOrEmpty(breakTypeId))
+                {
+                    _logger.LogWarning("No break type ID provided");
+                    return BadRequest(new { success = false, message = "Break type ID required" });
+                }
+
+                var userId = _userManager.GetUserId(User);
+                if (userId == null)
+                {
+                    _logger.LogWarning("User ID is null in OnPostUploadThumbnail");
+                    return new JsonResult(new { success = false, message = "User not authenticated" }) { StatusCode = 401 };
+                }
+
+                _logger.LogInformation($"Uploading thumbnail for break type {breakTypeId}, size: {thumbnail.Length} bytes");
+
+                // Get container name from configuration
+                string containerName = configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
+
+                // Create storage path for thumbnail
+                var fileName = $"thumbnails/break-{breakTypeId}.jpg";
+
+                // Prepare metadata
+                var metadata = new Dictionary<string, string>
+                {
+                    ["breakTypeId"] = breakTypeId,
+                    ["userId"] = userId
+                };
+
+                // Upload to storage
+                using var stream = thumbnail.OpenReadStream();
+                await storageService.UploadObjectAsync(
+                    containerName,
+                    fileName,
+                    stream,
+                    "image/jpeg",
+                    metadata
+                );
+
+                // Get the base URL and construct the full thumbnail URL with cache-busting timestamp
+                var baseUrl = storageService.GetBaseUrl(containerName);
+                var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                var thumbnailUrl = $"{baseUrl}/{fileName}?v={timestamp}";
+
+                _logger.LogInformation($"Thumbnail uploaded successfully to: {thumbnailUrl}");
+
+                return new JsonResult(new
+                {
+                    success = true,
+                    thumbnailUrl = thumbnailUrl,
+                    message = "Thumbnail uploaded successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading thumbnail");
                 return new JsonResult(new { success = false, message = ex.Message }) { StatusCode = 500 };
             }
         }
@@ -246,7 +364,7 @@ namespace Yuzu.Web.Pages
                 // Get dependencies
                 var configuration = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
                 var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
-                
+
                 _logger.LogInformation("Fetching background images from S3 storage");
 
                 // Use the utility service to load background images
@@ -271,6 +389,49 @@ namespace Yuzu.Web.Pages
                 return new JsonResult(new { success = false, message = ex.Message }) { StatusCode = 500 };
             }
         }
+
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> OnGetBackgroundProxy(
+            string filename,
+            [FromServices] Yuzu.Data.Services.Interfaces.IStorageService storageService,
+            [FromServices] IConfiguration configuration)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(filename))
+                {
+                    return BadRequest("Filename is required");
+                }
+
+                // Validate filename to prevent path traversal attacks
+                if (filename.Contains("..") || filename.Contains("/") || filename.Contains("\\"))
+                {
+                    return BadRequest("Invalid filename");
+                }
+
+                _logger.LogInformation($"Proxying background image: {filename}");
+
+                // Get container name from configuration
+                string containerName = configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
+
+                // Download the image from storage
+                var stream = await storageService.DownloadObjectAsync(containerName, filename);
+
+                // Set CORS headers to allow html2canvas to access the image
+                Response.Headers.Append("Access-Control-Allow-Origin", "*");
+                Response.Headers.Append("Access-Control-Allow-Methods", "GET");
+                Response.Headers.Append("Cross-Origin-Resource-Policy", "cross-origin");
+
+                // Return the image with appropriate content type
+                var contentType = filename.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/jpeg";
+                return File(stream, contentType);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error proxying background image: {filename}");
+                return NotFound();
+            }
+        }
     }
 
     public class DesignData
@@ -279,6 +440,7 @@ namespace Yuzu.Web.Pages
         public string BackgroundImageTitle { get; set; } = "Default Background";
         public string BackgroundImageUrl { get; set; } = "";
         public string CanvasData { get; set; } = "";
+        public string? ThumbnailUrl { get; set; }
     }
 
     // Removed BackgroundImage class - now using the shared model in Yuzu.Web.Pages namespace

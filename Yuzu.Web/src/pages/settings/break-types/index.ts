@@ -45,6 +45,7 @@ interface BreakType {
     countdownEndMessage: string;
     endTimeTitle: string;
     imageTitle: string;
+    thumbnailUrl?: string;
     iconName: string;
     usageCount: number;
     backgroundImageChoices?: string;
@@ -127,8 +128,21 @@ export async function loadBreakTypes(): Promise<void> {
                 const iconElement = cardDiv.find('.break-type-icon');
                 iconElement.removeClass().addClass(`break-type-icon bx ${item.iconName || 'bx-coffee-togo'} fs-4`);
                 
-                // Background Image as main visual
-                cardDiv.find('.card-preview-image').attr('src', `${backgroundImagesURL}/${item.imageTitle}-thumb.jpg`);
+                // Use thumbnail if available, otherwise fall back to background image
+                console.log(`Break type ${item.id} - thumbnailUrl:`, item.thumbnailUrl);
+                let previewImageUrl = item.thumbnailUrl || `${backgroundImagesURL}/${item.imageTitle}-thumb.jpg`;
+                console.log(`Break type ${item.id} - using preview image:`, previewImageUrl);
+
+                // Add cache-busting parameter for thumbnails to ensure fresh images
+                if (item.thumbnailUrl) {
+                    // Remove existing query parameters and add fresh timestamp
+                    const urlWithoutQuery = previewImageUrl.split('?')[0];
+                    previewImageUrl = `${urlWithoutQuery}?v=${Date.now()}`;
+                    console.log(`Break type ${item.id} - final URL with cache busting:`, previewImageUrl);
+                } else {
+                    console.log(`Break type ${item.id} - no thumbnailUrl, using fallback background image`);
+                }
+                cardDiv.find('.card-preview-image').attr('src', previewImageUrl);
                 
                 // Card Title
                 cardDiv.find('.card-title-link').text(item.name);

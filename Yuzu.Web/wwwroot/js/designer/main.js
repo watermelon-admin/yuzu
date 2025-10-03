@@ -1,4 +1,154 @@
 import { Designer } from './core/index.js';
+// Generate thumbnail from designer canvas
+async function generateThumbnail(canvasElement) {
+    try {
+        console.log('[Thumbnail] Starting canvas screenshot generation');
+        // Enter preview mode to hide all toolbars, grid, and editing controls
+        const wasInPreviewMode = window.designer.isInPreviewMode();
+        if (!wasInPreviewMode) {
+            console.log('[Thumbnail] Entering preview mode for clean screenshot');
+            window.designer.enterPreviewMode();
+            // Wait for DOM updates to complete
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        // Get background image URL from canvas style
+        const backgroundImageStyle = window.getComputedStyle(canvasElement).backgroundImage;
+        let backgroundImageUrl = null;
+        if (backgroundImageStyle && backgroundImageStyle !== 'none') {
+            const urlMatch = backgroundImageStyle.match(/url\(['"]?([^'"]+)['"]?\)/);
+            if (urlMatch && urlMatch[1]) {
+                backgroundImageUrl = urlMatch[1];
+                console.log('[Thumbnail] Background image URL extracted:', backgroundImageUrl);
+            }
+        }
+        // Load background image if present
+        let backgroundImg = null;
+        if (backgroundImageUrl) {
+            console.log('[Thumbnail] Loading background image...');
+            backgroundImg = await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous'; // Enable CORS
+                img.onload = () => {
+                    console.log('[Thumbnail] Background image loaded successfully');
+                    resolve(img);
+                };
+                img.onerror = () => {
+                    console.warn('[Thumbnail] Background image failed to load');
+                    resolve(null); // Continue without background
+                };
+                img.src = backgroundImageUrl;
+            });
+        }
+        // Temporarily remove background styles from canvas before screenshot
+        // (we'll draw the background separately to ensure it appears correctly)
+        const originalBackgroundImage = canvasElement.style.backgroundImage;
+        const originalBackgroundColor = canvasElement.style.backgroundColor;
+        canvasElement.style.backgroundImage = 'none';
+        canvasElement.style.backgroundColor = 'transparent';
+        // Capture the canvas widgets (without background since we'll draw it separately)
+        const screenshot = await html2canvas(canvasElement, {
+            backgroundColor: null, // Transparent background - don't fill with any color
+            scale: 1, // Capture at actual resolution
+            logging: false, // Disable logging
+            useCORS: true, // Allow cross-origin images
+            allowTaint: false, // Don't allow tainted canvases
+            foreignObjectRendering: false // Use native rendering for better compatibility
+        });
+        // Restore background styles
+        canvasElement.style.backgroundImage = originalBackgroundImage;
+        canvasElement.style.backgroundColor = originalBackgroundColor;
+        // Exit preview mode if we entered it
+        if (!wasInPreviewMode) {
+            console.log('[Thumbnail] Exiting preview mode');
+            window.designer.exitPreviewMode();
+        }
+        console.log('[Thumbnail] Canvas captured, creating thumbnail at 640x360');
+        // Create thumbnail canvas (640x360 for 16:9 ratio, 2x retina for 180px display)
+        const thumbCanvas = document.createElement('canvas');
+        thumbCanvas.width = 640;
+        thumbCanvas.height = 360;
+        const ctx = thumbCanvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Could not get canvas context');
+        }
+        // Calculate scaling (canvas is 1920x1080)
+        const canvasWidth = 1920;
+        const canvasHeight = 1080;
+        const scaleX = 640 / canvasWidth;
+        const scaleY = 360 / canvasHeight;
+        // Draw background image first if available
+        if (backgroundImg) {
+            console.log('[Thumbnail] Drawing background image to thumbnail canvas');
+            console.log('[Thumbnail] Background image dimensions:', backgroundImg.width, 'x', backgroundImg.height);
+            ctx.drawImage(backgroundImg, 0, 0, 640, 360);
+            // Verify background was drawn by checking pixel data
+            const imageData = ctx.getImageData(0, 0, 1, 1);
+            console.log('[Thumbnail] First pixel after background:', imageData.data);
+        }
+        else {
+            console.warn('[Thumbnail] No background image available, using white background');
+            // Fill with white background if no image
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 640, 360);
+        }
+        // Draw the screenshot (widgets) on top, scaled down
+        console.log('[Thumbnail] Drawing widget screenshot on top');
+        console.log('[Thumbnail] Screenshot canvas dimensions:', screenshot.width, 'x', screenshot.height);
+        ctx.drawImage(screenshot, 0, 0, 640, 360);
+        // Convert to blob (JPEG, 85% quality for good balance of size/quality)
+        return new Promise((resolve) => {
+            thumbCanvas.toBlob((blob) => {
+                if (blob) {
+                    console.log(`[Thumbnail] Generated thumbnail: ${(blob.size / 1024).toFixed(2)}KB`);
+                    // DEBUG: Download thumbnail locally to verify what's being generated
+                    // Uncomment to test thumbnail generation without uploading
+                    // const url = URL.createObjectURL(blob);
+                    // const a = document.createElement('a');
+                    // a.href = url;
+                    // a.download = 'thumbnail-debug.jpg';
+                    // a.click();
+                    // URL.revokeObjectURL(url);
+                    // console.log('[Thumbnail] Debug: Thumbnail downloaded locally');
+                }
+                resolve(blob);
+            }, 'image/jpeg', 0.85);
+        });
+    }
+    catch (error) {
+        console.error('[Thumbnail] Error generating thumbnail:', error);
+        return null;
+    }
+}
+// Upload thumbnail to server
+async function uploadThumbnail(blob, breakTypeId, antiForgeryToken) {
+    try {
+        console.log('[Thumbnail] Uploading thumbnail for break type:', breakTypeId);
+        const formData = new FormData();
+        formData.append('thumbnail', blob, `break-${breakTypeId}.jpg`);
+        formData.append('breakTypeId', breakTypeId);
+        const response = await fetch('/Designer?handler=UploadThumbnail', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': antiForgeryToken
+            },
+            credentials: 'include',
+            body: formData
+        });
+        if (!response.ok) {
+            throw new Error(`Upload failed: ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.success && result.thumbnailUrl) {
+            console.log('[Thumbnail] Upload successful:', result.thumbnailUrl);
+            return result.thumbnailUrl;
+        }
+        throw new Error(result.message || 'Upload failed');
+    }
+    catch (error) {
+        console.error('[Thumbnail] Error uploading thumbnail:', error);
+        return null;
+    }
+}
 // Helper function to get the image path
 function getImagePath() {
     const imagePathElement = document.getElementById('image-path');
@@ -7,6 +157,26 @@ function getImagePath() {
     }
     console.error('[Debug] Could not find image path element');
     return '';
+}
+// Helper function to convert external background URL to proxy URL for CORS-safe access
+function getProxyUrl(imageUrl) {
+    try {
+        // Extract filename from URL (e.g., "https://backgrounds.breakscreen.com/blueray-fhd.jpg" -> "blueray-fhd.jpg")
+        const url = new URL(imageUrl);
+        const filename = url.pathname.split('/').pop();
+        if (!filename) {
+            console.error('[Debug] Could not extract filename from URL:', imageUrl);
+            return imageUrl;
+        }
+        // Return proxy URL
+        const proxyUrl = `/Designer?handler=BackgroundProxy&filename=${encodeURIComponent(filename)}`;
+        console.log(`[Debug] Converted ${imageUrl} to proxy URL: ${proxyUrl}`);
+        return proxyUrl;
+    }
+    catch (error) {
+        console.error('[Debug] Error converting to proxy URL:', error);
+        return imageUrl;
+    }
 }
 // Background selector functionality - defined before use
 function applyBackground(imageUrl, title) {
@@ -20,8 +190,10 @@ function applyBackground(imageUrl, title) {
             console.log('[Debug] Setting canvas background image style');
             const oldBackgroundImage = canvas.style.backgroundImage;
             console.log(`[Debug] Previous background image: ${oldBackgroundImage || 'none'}`);
+            // Convert to proxy URL to avoid CORS issues with html2canvas
+            const proxyImageUrl = getProxyUrl(imageUrl);
             // Check if the background is actually changing
-            const newBackgroundImage = `url('${imageUrl}')`;
+            const newBackgroundImage = `url('${proxyImageUrl}')`;
             if (oldBackgroundImage !== newBackgroundImage) {
                 canvas.style.backgroundImage = newBackgroundImage;
                 console.log(`[Debug] New background image set: ${newBackgroundImage}`);
@@ -484,16 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (selectedBackgroundTitle) {
                         backgroundTitle = selectedBackgroundTitle;
                     }
-                    // Create the payload with the real break type ID
-                    // Ensure background title is lowercase to maintain consistency
-                    const payload = {
-                        id: designId,
-                        backgroundImageTitle: backgroundTitle.toLowerCase(),
-                        canvasData: canvasData
-                    };
-                    // Send data to the server
-                    // Get the anti-forgery token
-                    // Debug all hidden inputs
+                    // Get the anti-forgery token first (needed for thumbnail upload)
                     console.log('Looking for anti-forgery token');
                     document.querySelectorAll('input[type="hidden"]').forEach(input => {
                         console.log(`Found hidden input: name="${input.getAttribute('name')}", value="${input.getAttribute('value')}"`);
@@ -510,6 +673,31 @@ document.addEventListener('DOMContentLoaded', () => {
                             throw new Error("Anti-forgery token not found");
                         }
                     }
+                    // Generate and upload thumbnail
+                    let thumbnailUrl = null;
+                    if (canvasElement) {
+                        const thumbnailBlob = await generateThumbnail(canvasElement);
+                        if (thumbnailBlob) {
+                            thumbnailUrl = await uploadThumbnail(thumbnailBlob, designId, tokenElement.value);
+                            console.log('[Save] Thumbnail URL received from upload:', thumbnailUrl);
+                        }
+                        else {
+                            console.warn('[Save] Failed to generate thumbnail blob');
+                        }
+                    }
+                    else {
+                        console.warn('[Save] Canvas element not found for thumbnail generation');
+                    }
+                    // Create the payload with the real break type ID
+                    // Ensure background title is lowercase to maintain consistency
+                    const payload = {
+                        id: designId,
+                        backgroundImageTitle: backgroundTitle.toLowerCase(),
+                        canvasData: canvasData,
+                        thumbnailUrl: thumbnailUrl // Add thumbnail URL to payload
+                    };
+                    console.log('[Save] Payload being sent:', JSON.stringify(payload, null, 2));
+                    // Send data to the server
                     // For ASP.NET Core Razor Pages, we need to include the antiforgery token and use the right URL format
                     const response = await fetch('/Designer?handler=SaveDesign', {
                         method: 'POST',

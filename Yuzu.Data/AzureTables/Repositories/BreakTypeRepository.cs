@@ -101,6 +101,8 @@ namespace Yuzu.Data.AzureTables.Repositories
             existing.UsageCount = breakType.UsageCount;
             existing.IconName = breakType.IconName;
             existing.Components = breakType.Components;
+            existing.ThumbnailUrl = breakType.ThumbnailUrl;
+            existing.ThumbnailPath = breakType.ThumbnailPath;
             existing.IsLocked = breakType.IsLocked;
             existing.SortOrder = breakType.SortOrder;
             existing.UpdatedAt = DateTime.UtcNow;

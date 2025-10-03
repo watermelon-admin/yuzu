@@ -98,19 +98,14 @@ builder.Services.AddScoped<Yuzu.Data.Services.Interfaces.IStorageService>(servic
     // Check provider type from settings
     var settings = options.Value;
     
-    // Create appropriate storage service based on provider type
-    if (settings.Provider == S3Settings.ProviderType.CloudflareR2)
+    // Create Cloudflare R2 storage service
+    if (settings.Provider != S3Settings.ProviderType.CloudflareR2)
     {
-        logger.LogInformation("Using Cloudflare R2 storage provider");
-        return new Yuzu.Data.Services.CloudflareR2StorageService(logger, options);
+        logger.LogWarning("Unsupported storage provider: {Provider}. Only CloudflareR2 is supported.", settings.Provider);
     }
-    else
-    {
-        // Default to Scaleway S3 for backward compatibility
-        logger.LogInformation("Using Scaleway S3 storage provider");
-        var scalewayLogger = serviceProvider.GetRequiredService<ILogger<Yuzu.Data.Services.ScalewayS3StorageService>>();
-        return new Yuzu.Data.Services.ScalewayS3StorageService(scalewayLogger, options);
-    }
+
+    logger.LogInformation("Using Cloudflare R2 storage provider");
+    return new Yuzu.Data.Services.CloudflareR2StorageService(logger, options);
 });
 
 // Add data services (repositories)

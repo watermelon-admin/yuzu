@@ -319,16 +319,16 @@ namespace Yuzu.Data.Services
                     BucketName = _bucketName,
                     Key = objectName  // In R2, we're using flat structure without container prefixes
                 };
-                
+
                 var response = await _s3Client.GetObjectMetadataAsync(request);
-                
+
                 // Convert metadata to dictionary
                 var metadata = new Dictionary<string, string>();
                 foreach (var key in response.Metadata.Keys)
                 {
                     metadata[key] = response.Metadata[key];
                 }
-                
+
                 return metadata;
             }
             catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -338,6 +338,38 @@ namespace Yuzu.Data.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting metadata for {ObjectName}", objectName);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Downloads an object from the specified container
+        /// </summary>
+        public async Task<Stream> DownloadObjectAsync(string containerName, string objectName)
+        {
+            try
+            {
+                var request = new GetObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = objectName  // In R2, we're using flat structure without container prefixes
+                };
+
+                var response = await _s3Client.GetObjectAsync(request);
+                _logger.LogInformation("Downloaded object {ObjectName}", objectName);
+
+                // Return the response stream
+                // Important: The caller is responsible for disposing the stream
+                return response.ResponseStream;
+            }
+            catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _logger.LogWarning("Object {ObjectName} not found", objectName);
+                throw new FileNotFoundException($"Object {objectName} not found", objectName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error downloading object {ObjectName}", objectName);
                 throw;
             }
         }

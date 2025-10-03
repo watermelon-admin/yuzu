@@ -20,6 +20,8 @@ namespace Yuzu.Data.AzureTables.Entities
         public int BreakTimeStepMinutes { get; set; }
         public string? BackgroundImageChoices { get; set; }
         public string? ImageTitle { get; set; }
+        public string? ThumbnailUrl { get; set; }
+        public string? ThumbnailPath { get; set; }
         public long UsageCount { get; set; }
         public string? IconName { get; set; }
         public string? Components { get; set; } // JSON data

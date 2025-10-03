@@ -62,9 +62,9 @@
 	<!-- Canvas container with scrolling -->
 	<div id="canvas-container" class="canvas-container">
 		<div id="designer-canvas" class="canvas" role="main" tabindex="0" aria-label="Design Canvas" aria-description="Canvas area for designing layouts. Use arrow keys to navigate when elements are selected."
-			 @if (!string.IsNullOrEmpty(Model.BackgroundImageUrl))
+			 @if (!string.IsNullOrEmpty(Model.BackgroundImageProxyUrl))
 			 {
-				 <text>style="background-image: url('@Model.BackgroundImageUrl');"</text>
+				 <text>style="background-image: url('@Model.BackgroundImageProxyUrl');"</text>
 			 }
 			 >
 			<!-- Widgets will be added here by JavaScript -->
@@ -472,6 +472,9 @@
 
 	<!-- Toastify JS -->
 	<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+	<!-- html2canvas for thumbnail generation -->
+	<script src="lib/html2canvas/dist/html2canvas.min.js"></script>
 
 	<!-- Background Selector Modal -->
 	<div class="modal fade" id="backgroundSelectorModal" tabindex="-1" aria-labelledby="backgroundSelectorModalLabel" aria-hidden="true">
