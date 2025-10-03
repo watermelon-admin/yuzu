@@ -71,7 +71,21 @@ namespace Yuzu.Data.Models
         /// Gets or sets the image title
         /// </summary>
         public string? ImageTitle { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the URL to the thumbnail preview image (generated from canvas screenshot)
+        /// </summary>
+        [Column("thumbnail_url")]
+        [Url]
+        public string? ThumbnailUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path to the thumbnail preview image in storage
+        /// </summary>
+        [Column("thumbnail_path")]
+        [StringLength(255)]
+        public string? ThumbnailPath { get; set; }
+
         /// <summary>
         /// Gets or sets the usage count
         /// </summary>

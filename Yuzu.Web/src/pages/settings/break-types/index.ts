@@ -45,6 +45,7 @@ interface BreakType {
     countdownEndMessage: string;
     endTimeTitle: string;
     imageTitle: string;
+    thumbnailUrl?: string;
     iconName: string;
     usageCount: number;
     backgroundImageChoices?: string;
@@ -127,8 +128,9 @@ export async function loadBreakTypes(): Promise<void> {
                 const iconElement = cardDiv.find('.break-type-icon');
                 iconElement.removeClass().addClass(`break-type-icon bx ${item.iconName || 'bx-coffee-togo'} fs-4`);
                 
-                // Background Image as main visual
-                cardDiv.find('.card-preview-image').attr('src', `${backgroundImagesURL}/${item.imageTitle}-thumb.jpg`);
+                // Use thumbnail if available, otherwise fall back to background image
+                const previewImageUrl = item.thumbnailUrl || `${backgroundImagesURL}/${item.imageTitle}-thumb.jpg`;
+                cardDiv.find('.card-preview-image').attr('src', previewImageUrl);
                 
                 // Card Title
                 cardDiv.find('.card-title-link').text(item.name);

@@ -216,15 +216,33 @@ namespace Yuzu.Web.Pages
                     return NotFound(new { success = false, message = "Break type not found" });
                 }
                 
-                // Update the Components and ImageTitle fields
+                // Update the Components, ImageTitle, and ThumbnailUrl fields
                 breakType.Components = designData.CanvasData;
-                
+
                 if (!string.IsNullOrEmpty(designData.BackgroundImageTitle))
                 {
                     // Normalize the image title to lowercase to ensure consistency
                     breakType.ImageTitle = designData.BackgroundImageTitle.ToLowerInvariant();
                 }
-                
+
+                if (!string.IsNullOrEmpty(designData.ThumbnailUrl))
+                {
+                    // Update thumbnail URL and extract path from URL
+                    breakType.ThumbnailUrl = designData.ThumbnailUrl;
+
+                    // Extract path from URL (e.g., "https://example.com/thumbnails/break-123.jpg" -> "thumbnails/break-123.jpg")
+                    try
+                    {
+                        var uri = new Uri(designData.ThumbnailUrl);
+                        breakType.ThumbnailPath = uri.AbsolutePath.TrimStart('/');
+                    }
+                    catch
+                    {
+                        // If URL parsing fails, just use the URL as-is
+                        breakType.ThumbnailPath = designData.ThumbnailUrl;
+                    }
+                }
+
                 // Save the updated break type
                 await breakTypeService.UpdateAsync(breakType);
                 
@@ -238,6 +256,78 @@ namespace Yuzu.Web.Pages
             }
         }
 
+        public async Task<IActionResult> OnPostUploadThumbnail(
+            IFormFile thumbnail,
+            string breakTypeId,
+            [FromServices] Yuzu.Data.Services.Interfaces.IStorageService storageService,
+            [FromServices] IConfiguration configuration)
+        {
+            try
+            {
+                if (thumbnail == null || thumbnail.Length == 0)
+                {
+                    _logger.LogWarning("No thumbnail file provided");
+                    return BadRequest(new { success = false, message = "No thumbnail provided" });
+                }
+
+                if (string.IsNullOrEmpty(breakTypeId))
+                {
+                    _logger.LogWarning("No break type ID provided");
+                    return BadRequest(new { success = false, message = "Break type ID required" });
+                }
+
+                var userId = _userManager.GetUserId(User);
+                if (userId == null)
+                {
+                    _logger.LogWarning("User ID is null in OnPostUploadThumbnail");
+                    return new JsonResult(new { success = false, message = "User not authenticated" }) { StatusCode = 401 };
+                }
+
+                _logger.LogInformation($"Uploading thumbnail for break type {breakTypeId}, size: {thumbnail.Length} bytes");
+
+                // Get container name from configuration
+                string containerName = configuration["S3Settings:BackgroundsContainer"] ?? "backgrounds";
+
+                // Create storage path for thumbnail
+                var fileName = $"thumbnails/break-{breakTypeId}.jpg";
+
+                // Prepare metadata
+                var metadata = new Dictionary<string, string>
+                {
+                    ["breakTypeId"] = breakTypeId,
+                    ["userId"] = userId
+                };
+
+                // Upload to storage
+                using var stream = thumbnail.OpenReadStream();
+                await storageService.UploadObjectAsync(
+                    containerName,
+                    fileName,
+                    stream,
+                    "image/jpeg",
+                    metadata
+                );
+
+                // Get the base URL and construct the full thumbnail URL
+                var baseUrl = storageService.GetBaseUrl(containerName);
+                var thumbnailUrl = $"{baseUrl}/{fileName}";
+
+                _logger.LogInformation($"Thumbnail uploaded successfully to: {thumbnailUrl}");
+
+                return new JsonResult(new
+                {
+                    success = true,
+                    thumbnailUrl = thumbnailUrl,
+                    message = "Thumbnail uploaded successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading thumbnail");
+                return new JsonResult(new { success = false, message = ex.Message }) { StatusCode = 500 };
+            }
+        }
+
         public async Task<IActionResult> OnGetBackgroundsAsync()
         {
             _logger.LogInformation("OnGetBackgroundsAsync method called");
@@ -246,7 +336,7 @@ namespace Yuzu.Web.Pages
                 // Get dependencies
                 var configuration = HttpContext.RequestServices.GetRequiredService<IConfiguration>();
                 var storageService = HttpContext.RequestServices.GetRequiredService<Yuzu.Data.Services.Interfaces.IStorageService>();
-                
+
                 _logger.LogInformation("Fetching background images from S3 storage");
 
                 // Use the utility service to load background images
@@ -279,6 +369,7 @@ namespace Yuzu.Web.Pages
         public string BackgroundImageTitle { get; set; } = "Default Background";
         public string BackgroundImageUrl { get; set; } = "";
         public string CanvasData { get; set; } = "";
+        public string? ThumbnailUrl { get; set; }
     }
 
     // Removed BackgroundImage class - now using the shared model in Yuzu.Web.Pages namespace

@@ -1,9 +1,92 @@
 ﻿import { Designer } from './core/index.js';
+import html2canvas from 'html2canvas';
 
 // Extend the Window interface to include our global designer instance
 declare global {
     interface Window {
         designer: Designer;
+    }
+}
+
+// Generate thumbnail from designer canvas
+async function generateThumbnail(canvasElement: HTMLElement): Promise<Blob | null> {
+    try {
+        console.log('[Thumbnail] Starting canvas screenshot generation');
+
+        // Capture the canvas at full resolution
+        const screenshot = await html2canvas(canvasElement, {
+            backgroundColor: null,  // Preserve transparency if any
+            scale: 1,               // Capture at actual resolution
+            logging: false,         // Disable console logging
+            useCORS: true          // Allow cross-origin images
+        });
+
+        console.log('[Thumbnail] Canvas captured, creating thumbnail at 640x360');
+
+        // Create thumbnail canvas (640x360 for 16:9 ratio, 2x retina for 180px display)
+        const thumbCanvas = document.createElement('canvas');
+        thumbCanvas.width = 640;
+        thumbCanvas.height = 360;
+
+        const ctx = thumbCanvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Could not get canvas context');
+        }
+
+        // Draw the screenshot scaled down to thumbnail size
+        ctx.drawImage(screenshot, 0, 0, 640, 360);
+
+        // Convert to blob (JPEG, 85% quality for good balance of size/quality)
+        return new Promise((resolve) => {
+            thumbCanvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        console.log(`[Thumbnail] Generated thumbnail: ${(blob.size / 1024).toFixed(2)}KB`);
+                    }
+                    resolve(blob);
+                },
+                'image/jpeg',
+                0.85
+            );
+        });
+    } catch (error) {
+        console.error('[Thumbnail] Error generating thumbnail:', error);
+        return null;
+    }
+}
+
+// Upload thumbnail to server
+async function uploadThumbnail(blob: Blob, breakTypeId: string, antiForgeryToken: string): Promise<string | null> {
+    try {
+        console.log('[Thumbnail] Uploading thumbnail for break type:', breakTypeId);
+
+        const formData = new FormData();
+        formData.append('thumbnail', blob, `break-${breakTypeId}.jpg`);
+        formData.append('breakTypeId', breakTypeId);
+
+        const response = await fetch('/Designer?handler=UploadThumbnail', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': antiForgeryToken
+            },
+            credentials: 'include',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Upload failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success && result.thumbnailUrl) {
+            console.log('[Thumbnail] Upload successful:', result.thumbnailUrl);
+            return result.thumbnailUrl;
+        }
+
+        throw new Error(result.message || 'Upload failed');
+    } catch (error) {
+        console.error('[Thumbnail] Error uploading thumbnail:', error);
+        return null;
     }
 }
 
@@ -532,23 +615,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         backgroundTitle = selectedBackgroundTitle;
                     }
                     
-                    // Create the payload with the real break type ID
-                    // Ensure background title is lowercase to maintain consistency
-                    const payload = {
-                        id: designId,
-                        backgroundImageTitle: backgroundTitle.toLowerCase(),
-                        canvasData: canvasData
-                    };
-                    
-                    // Send data to the server
-                    // Get the anti-forgery token
-                    
-                    // Debug all hidden inputs
+                    // Get the anti-forgery token first (needed for thumbnail upload)
                     console.log('Looking for anti-forgery token');
                     document.querySelectorAll('input[type="hidden"]').forEach(input => {
                         console.log(`Found hidden input: name="${input.getAttribute('name')}", value="${input.getAttribute('value')}"`);
                     });
-                    
+
                     let tokenElement = document.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement;
                     if (!tokenElement) {
                         // Try alternative token names
@@ -560,7 +632,26 @@ document.addEventListener('DOMContentLoaded', () => {
                             throw new Error("Anti-forgery token not found");
                         }
                     }
-                    
+
+                    // Generate and upload thumbnail
+                    let thumbnailUrl: string | null = null;
+                    if (canvasElement) {
+                        const thumbnailBlob = await generateThumbnail(canvasElement);
+                        if (thumbnailBlob) {
+                            thumbnailUrl = await uploadThumbnail(thumbnailBlob, designId, tokenElement.value);
+                        }
+                    }
+
+                    // Create the payload with the real break type ID
+                    // Ensure background title is lowercase to maintain consistency
+                    const payload = {
+                        id: designId,
+                        backgroundImageTitle: backgroundTitle.toLowerCase(),
+                        canvasData: canvasData,
+                        thumbnailUrl: thumbnailUrl // Add thumbnail URL to payload
+                    };
+
+                    // Send data to the server
                     // For ASP.NET Core Razor Pages, we need to include the antiforgery token and use the right URL format
                     const response = await fetch('/Designer?handler=SaveDesign', {
                         method: 'POST',
