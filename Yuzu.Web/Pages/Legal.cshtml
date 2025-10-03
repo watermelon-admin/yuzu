@@ -1,0 +1,236 @@
+@page
+@model Yuzu.Web.Pages.LegalModel
+@{
+    ViewData["Title"] = "Legal";
+}
+
+<!-- Page loading spinner -->
+<div class="page-loading active">
+    <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+    </div>
+</div>
+
+<!-- Page wrapper for sticky footer -->
+<!-- Wraps everything except footer to push footer to the bottom of the page if there is little content -->
+<main class="page-wrapper">
+
+    <!-- NavBar -->
+    <partial name="~/Pages/Shared/_NavBarPartialDark.cshtml" />
+
+    <!-- Hero -->
+    <section class="position-relative overflow-hidden">
+        <div class="position-relative bg-dark zindex-4 pt-lg-3 pt-xl-5">
+
+            <!-- Text -->
+            <div class="container zindex-5 pt-5">
+                <div class="row justify-content-center text-center pt-4 pb-sm-2 py-lg-5">
+                    <div class="col-xl-8 col-lg-9 col-md-10 py-5">
+                        <h1 class="display-4 text-light pt-sm-2 pb-1 pb-sm-3 mb-3">Legal Information</h1>
+                        <p class="fs-lg text-light opacity-70 pb-2 pb-sm-0 mb-4 mb-sm-5">
+                            Licenses, attributions, and legal information for breakscreen.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom shape -->
+            <div class="d-flex position-absolute top-100 start-0 w-100 overflow-hidden mt-n4 mt-sm-n1"
+                 style="color: #f7f7f9;"><!-- Bootstrap secondary color hex -->
+                <div class="position-relative start-50 translate-middle-x flex-shrink-0" style="width: 3788px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="3788" height="144" viewBox="0 0 3788 144">
+                        <path fill="currentColor" d="M0,0h3788.7c-525,90.2-1181.7,143.9-1894.3,143.9S525,90.2,0,0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Third-Party Software Licenses -->
+    <section class="position-relative bg-secondary py-5">
+        <div class="container position-relative zindex-2 py-md-3 py-lg-5">
+            <h2 class="h1 mb-4">Third-Party Software Licenses</h2>
+            <p class="pb-3">breakscreen uses the following open-source software components. We are grateful to the developers and contributors of these projects.</p>
+
+            <!-- Frontend Libraries -->
+            <div class="mb-5">
+                <h3 class="h3 mb-3">Frontend Libraries</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Library</th>
+                                <th>License</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Bootstrap</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/twbs/bootstrap/blob/main/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>jQuery</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/jquery/jquery/blob/main/LICENSE.txt" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Font Awesome</strong></td>
+                                <td>Font Awesome Free License</td>
+                                <td><a href="https://fontawesome.com/license/free" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Toastify JS</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/apvarun/toastify-js/blob/master/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Swiper</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/nolimits4web/swiper/blob/master/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>FilePond</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/pqina/filepond/blob/master/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Luxon</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/moment/luxon/blob/master/LICENSE.md" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Boxicons</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/atisawd/boxicons/blob/master/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Backend Libraries -->
+            <div class="mb-5">
+                <h3 class="h3 mb-3">Backend Libraries (.NET)</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Library</th>
+                                <th>License</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ASP.NET Core</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/dotnet/aspnetcore/blob/main/LICENSE.txt" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure SDK for .NET</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/Azure/azure-sdk-for-net/blob/main/LICENSE.txt" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS SDK for .NET</strong></td>
+                                <td>Apache License 2.0</td>
+                                <td><a href="https://github.com/aws/aws-sdk-net/blob/master/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stripe.net</strong></td>
+                                <td>Apache License 2.0</td>
+                                <td><a href="https://github.com/stripe/stripe-dotnet/blob/master/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>ImageSharp</strong></td>
+                                <td>Apache License 2.0</td>
+                                <td><a href="https://github.com/SixLabors/ImageSharp/blob/main/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>NodaTime</strong></td>
+                                <td>Apache License 2.0</td>
+                                <td><a href="https://github.com/nodatime/nodatime/blob/main/LICENSE.txt" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>MailKit</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/jstedfast/MailKit/blob/master/License.md" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>QRCoder</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/codebude/QRCoder/blob/master/LICENSE.txt" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>RabbitMQ Client</strong></td>
+                                <td>Apache License 2.0 / MPL 2.0</td>
+                                <td><a href="https://github.com/rabbitmq/rabbitmq-dotnet-client/blob/main/LICENSE" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Entity Framework Core</strong></td>
+                                <td>MIT License</td>
+                                <td><a href="https://github.com/dotnet/efcore/blob/main/LICENSE.txt" target="_blank" rel="noopener">View License</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Google Fonts License -->
+    <section class="py-5">
+        <div class="container py-md-3 py-lg-5">
+            <h2 class="h1 mb-4">Google Fonts License</h2>
+            <p class="pb-3">breakscreen uses 50 self-hosted Google Fonts to provide a wide variety of typography options in the Break Screen Designer. All fonts are licensed under the <strong>SIL Open Font License (OFL) 1.1</strong>.</p>
+
+            <div class="card bg-secondary border-0 mb-4">
+                <div class="card-body">
+                    <h3 class="h4 mb-3">Fonts Included</h3>
+                    <p class="mb-2"><strong>Sans-Serif:</strong> Roboto, Open Sans, Lato, Montserrat, Poppins, Work Sans, Inter, Raleway, Nunito, Source Sans 3</p>
+                    <p class="mb-2"><strong>Serif:</strong> Noto Serif, Merriweather, Playfair Display, Libre Baskerville, Crimson Text, Lora</p>
+                    <p class="mb-2"><strong>Monospace:</strong> Roboto Mono, Source Code Pro, JetBrains Mono, Courier Prime</p>
+                    <p class="mb-2"><strong>Display:</strong> Bebas Neue, Oswald, Archivo Black, Righteous, Permanent Marker, Pacifico, Dancing Script, Lobster, Fredericka the Great, Caveat</p>
+                    <p class="mb-0"><strong>Exotic:</strong> Great Vibes, Satisfy, Allura, Tangerine, Sacramento, Bungee, Fredoka One, Alfa Slab One, Russo One, Cinzel Decorative, Abril Fatface, Ultra, Monoton, Fascinate, Orbitron, Press Start 2P, Audiowide, Bangers, Creepster, Cabin Sketch</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info d-flex" role="alert">
+                <i class="bx bx-info-circle fs-xl me-3"></i>
+                <div>
+                    <h4 class="alert-heading h5">SIL Open Font License 1.1</h4>
+                    <p class="mb-2">The OFL allows the fonts to be used, studied, modified and redistributed freely as long as they are not sold by themselves. The fonts, including any derivative works, can be bundled, embedded, redistributed and/or sold with any software.</p>
+                    <p class="mb-0">
+                        <a href="/fonts/OFL.txt" class="alert-link" target="_blank">View Full License Text</a> |
+                        <a href="https://scripts.sil.org/OFL" class="alert-link" target="_blank" rel="noopener">Learn More About OFL</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Additional Legal Information -->
+    <section class="position-relative bg-secondary py-5">
+        <div class="container position-relative zindex-2 py-md-3 py-lg-5">
+            <h2 class="h1 mb-4">Additional Legal Information</h2>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bx bx-file-blank fs-1 text-muted me-3"></i>
+                        <div>
+                            <h3 class="h4 mb-1">Terms & Conditions</h3>
+                            <p class="text-muted mb-0">Additional legal terms and conditions will be added here.</p>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">This section is reserved for privacy policy, terms of service, and other legal documentation once finalized by our legal team.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<partial name="~/Pages/Shared/_Footer.cshtml" />
