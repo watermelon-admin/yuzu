@@ -1,67 +1,70 @@
 import { Designer } from './core/index.js';
 // Generate thumbnail from designer canvas
+// Uses an off-screen canvas clone to avoid visible UI changes during save (issue #60)
+// This approach creates a temporary hidden copy of the canvas, captures it with html2canvas,
+// and then removes it - all invisible to the user for a professional experience
 async function generateThumbnail(canvasElement) {
     try {
-        console.log('[Thumbnail] Starting canvas screenshot generation');
-        // Enter preview mode to hide all toolbars, grid, and editing controls
-        const wasInPreviewMode = window.designer.isInPreviewMode();
-        if (!wasInPreviewMode) {
-            console.log('[Thumbnail] Entering preview mode for clean screenshot');
-            window.designer.enterPreviewMode();
-            // Wait for DOM updates to complete
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        // Get background image URL from canvas style
+        console.log('[Thumbnail] Starting invisible canvas screenshot generation');
+        // Create an off-screen container for thumbnail generation
+        const offscreenContainer = document.createElement('div');
+        offscreenContainer.style.position = 'absolute';
+        offscreenContainer.style.left = '-10000px';
+        offscreenContainer.style.top = '0';
+        offscreenContainer.style.width = '1920px';
+        offscreenContainer.style.height = '1080px';
+        offscreenContainer.style.overflow = 'hidden';
+        document.body.appendChild(offscreenContainer);
+        console.log('[Thumbnail] Created off-screen container');
+        // Create a clone of the canvas element
+        const canvasClone = document.createElement('div');
+        canvasClone.style.width = '1920px';
+        canvasClone.style.height = '1080px';
+        canvasClone.style.position = 'relative';
+        canvasClone.style.backgroundColor = '#ffffff';
+        // Copy background image from original canvas
         const backgroundImageStyle = window.getComputedStyle(canvasElement).backgroundImage;
         let backgroundImageUrl = null;
         if (backgroundImageStyle && backgroundImageStyle !== 'none') {
             const urlMatch = backgroundImageStyle.match(/url\(['"]?([^'"]+)['"]?\)/);
             if (urlMatch && urlMatch[1]) {
                 backgroundImageUrl = urlMatch[1];
-                console.log('[Thumbnail] Background image URL extracted:', backgroundImageUrl);
+                canvasClone.style.backgroundImage = backgroundImageStyle;
+                canvasClone.style.backgroundSize = 'cover';
+                canvasClone.style.backgroundPosition = 'center';
+                console.log('[Thumbnail] Applied background image to clone:', backgroundImageUrl);
             }
         }
-        // Load background image if present
-        let backgroundImg = null;
-        if (backgroundImageUrl) {
-            console.log('[Thumbnail] Loading background image...');
-            backgroundImg = await new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous'; // Enable CORS
-                img.onload = () => {
-                    console.log('[Thumbnail] Background image loaded successfully');
-                    resolve(img);
-                };
-                img.onerror = () => {
-                    console.warn('[Thumbnail] Background image failed to load');
-                    resolve(null); // Continue without background
-                };
-                img.src = backgroundImageUrl;
-            });
-        }
-        // Temporarily remove background styles from canvas before screenshot
-        // (we'll draw the background separately to ensure it appears correctly)
-        const originalBackgroundImage = canvasElement.style.backgroundImage;
-        const originalBackgroundColor = canvasElement.style.backgroundColor;
-        canvasElement.style.backgroundImage = 'none';
-        canvasElement.style.backgroundColor = 'transparent';
-        // Capture the canvas widgets (without background since we'll draw it separately)
-        const screenshot = await html2canvas(canvasElement, {
-            backgroundColor: null, // Transparent background - don't fill with any color
+        // Clone all widget elements from the original canvas
+        const widgets = canvasElement.querySelectorAll('.widget');
+        console.log(`[Thumbnail] Cloning ${widgets.length} widgets to off-screen canvas`);
+        widgets.forEach((widget, index) => {
+            const widgetClone = widget.cloneNode(true);
+            // Remove selection handles and resize handles from clone
+            const handles = widgetClone.querySelectorAll('.selection-handle, .resize-handle');
+            handles.forEach(handle => handle.remove());
+            // Remove selection class if present
+            widgetClone.classList.remove('selected');
+            canvasClone.appendChild(widgetClone);
+            console.log(`[Thumbnail] Cloned widget ${index + 1}/${widgets.length}`);
+        });
+        offscreenContainer.appendChild(canvasClone);
+        console.log('[Thumbnail] All widgets cloned to off-screen canvas');
+        // Wait a bit for fonts and images to load in the clone
+        await new Promise(resolve => setTimeout(resolve, 50));
+        // Capture the off-screen clone with html2canvas
+        console.log('[Thumbnail] Capturing off-screen canvas with html2canvas');
+        const screenshot = await html2canvas(canvasClone, {
+            backgroundColor: null, // Transparent background - we have our own
             scale: 1, // Capture at actual resolution
             logging: false, // Disable logging
             useCORS: true, // Allow cross-origin images
             allowTaint: false, // Don't allow tainted canvases
             foreignObjectRendering: false // Use native rendering for better compatibility
         });
-        // Restore background styles
-        canvasElement.style.backgroundImage = originalBackgroundImage;
-        canvasElement.style.backgroundColor = originalBackgroundColor;
-        // Exit preview mode if we entered it
-        if (!wasInPreviewMode) {
-            console.log('[Thumbnail] Exiting preview mode');
-            window.designer.exitPreviewMode();
-        }
+        // Clean up: remove the off-screen container
+        document.body.removeChild(offscreenContainer);
+        console.log('[Thumbnail] Removed off-screen container');
         console.log('[Thumbnail] Canvas captured, creating thumbnail at 640x360');
         // Create thumbnail canvas (640x360 for 16:9 ratio, 2x retina for 180px display)
         const thumbCanvas = document.createElement('canvas');
@@ -71,28 +74,8 @@ async function generateThumbnail(canvasElement) {
         if (!ctx) {
             throw new Error('Could not get canvas context');
         }
-        // Calculate scaling (canvas is 1920x1080)
-        const canvasWidth = 1920;
-        const canvasHeight = 1080;
-        const scaleX = 640 / canvasWidth;
-        const scaleY = 360 / canvasHeight;
-        // Draw background image first if available
-        if (backgroundImg) {
-            console.log('[Thumbnail] Drawing background image to thumbnail canvas');
-            console.log('[Thumbnail] Background image dimensions:', backgroundImg.width, 'x', backgroundImg.height);
-            ctx.drawImage(backgroundImg, 0, 0, 640, 360);
-            // Verify background was drawn by checking pixel data
-            const imageData = ctx.getImageData(0, 0, 1, 1);
-            console.log('[Thumbnail] First pixel after background:', imageData.data);
-        }
-        else {
-            console.warn('[Thumbnail] No background image available, using white background');
-            // Fill with white background if no image
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, 640, 360);
-        }
-        // Draw the screenshot (widgets) on top, scaled down
-        console.log('[Thumbnail] Drawing widget screenshot on top');
+        // Draw the screenshot (includes background and all widgets), scaled down from 1920x1080 to 640x360
+        console.log('[Thumbnail] Drawing screenshot to thumbnail canvas');
         console.log('[Thumbnail] Screenshot canvas dimensions:', screenshot.width, 'x', screenshot.height);
         ctx.drawImage(screenshot, 0, 0, 640, 360);
         // Convert to blob (JPEG, 85% quality for good balance of size/quality)
