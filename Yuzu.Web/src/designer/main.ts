@@ -276,7 +276,9 @@ function applyBackground(imageUrl: string, title: string) {
                         close: true,
                         gravity: 'top',
                         position: 'center',
-                        backgroundColor: '#28a745',
+                        style: {
+                            background: '#28a745'
+                        },
                         stopOnFocus: true,
                         className: 'toast-spacious',
                         onClick: function(){
@@ -437,7 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         close: true,
                         gravity: 'top',
                         position: 'center',
-                        backgroundColor: '#28a745',
+                        style: {
+                            background: '#28a745'
+                        },
                         stopOnFocus: true,
                         className: 'toast-spacious',
                         onClick: function(){
@@ -465,7 +469,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         close: true,
                         gravity: 'top',
                         position: 'center',
-                        backgroundColor: '#dc3545',
+                        style: {
+                            background: '#dc3545'
+                        },
                         stopOnFocus: true,
                         className: 'toast-spacious',
                         onClick: function(){
@@ -828,7 +834,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             close: true,
                             gravity: 'top',
                             position: 'center',
-                            backgroundColor: '#28a745',
+                            style: {
+                                background: '#28a745'
+                            },
                             stopOnFocus: true,
                             className: 'toast-spacious',
                             onClick: function(){} // Callback after click
@@ -846,7 +854,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             close: true,
                             gravity: 'top',
                             position: 'center',
-                            backgroundColor: '#dc3545',
+                            style: {
+                                background: '#dc3545'
+                            },
                             stopOnFocus: true,
                             className: 'toast-spacious',
                             onClick: function(){} // Callback after click
@@ -861,7 +871,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         close: true,
                         gravity: 'top',
                         position: 'center',
-                        backgroundColor: '#dc3545',
+                        style: {
+                            background: '#dc3545'
+                        },
                         stopOnFocus: true,
                         className: 'toast-spacious',
                         onClick: function(){} // Callback after click
@@ -1252,7 +1264,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 close: true,
                 gravity: 'top',
                 position: 'center',
-                backgroundColor: '#dc3545',
+                style: {
+                    background: '#dc3545'
+                },
                 stopOnFocus: true,
                 className: 'toast-spacious'
             }).showToast();
