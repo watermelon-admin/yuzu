@@ -123,7 +123,7 @@ body {
 }
 
 .widget-content {
-    padding: 10px;
+    padding: 0;  /* Default: no padding (specific widget types add their own) */
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -266,8 +266,16 @@ body {
     align-items: center;
     justify-content: center;
     background-color: transparent;
-    padding: 0;
+    padding: 8px;  /* Comfortable spacing for text (10px total with 2px border) */
     min-height: unset;
+}
+
+.widget[data-type="image"] .widget-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    padding: 4px;  /* Subtle frame effect for images (6px total with 2px border) */
 }
 
 /* Group widget styles */
@@ -422,9 +430,9 @@ body {
     border-image: none !important;
     /* Note: not removing border-radius since we want to keep rounded corners for box widgets */
     
-    /* Add specific padding to compensate for the removed border (prevents layout shift) */
-    padding: 0 2px 2px 2px !important; /* Only add padding to right/bottom */
-    margin: 2px 0 0 0 !important; /* Add top margin to compensate for upward shift */
+    /* Add uniform padding to compensate for removed 2px border (prevents layout shift) */
+    padding: 2px !important;
+    margin: 0 !important;
     
     /* Remove outlines completely */
     outline: 0 !important;

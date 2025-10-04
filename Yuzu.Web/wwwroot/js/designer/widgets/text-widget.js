@@ -199,7 +199,7 @@ export class TextWidget extends Widget {
             textElement.style.textAlign = properties.textAlign || 'left';
             textElement.style.width = '100%';
             textElement.style.height = '100%';
-            textElement.style.padding = '0';
+            // Padding is now handled by CSS (.widget[data-type="text"] .widget-content)
             textElement.style.boxSizing = 'border-box';
             textElement.style.overflow = 'hidden';
             textElement.style.wordWrap = 'break-word';
@@ -280,7 +280,7 @@ export class TextWidget extends Widget {
         this.textEditorElement.style.textAlign = properties.textAlign || 'left';
         this.textEditorElement.style.width = '100%';
         this.textEditorElement.style.height = '100%';
-        this.textEditorElement.style.padding = '0';
+        // Padding is now handled by CSS (.widget[data-type="text"] .widget-content)
         this.textEditorElement.style.boxSizing = 'border-box';
         this.textEditorElement.style.border = 'none';
         this.textEditorElement.style.resize = 'none';
