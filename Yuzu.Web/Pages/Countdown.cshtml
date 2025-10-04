@@ -49,8 +49,8 @@
         .countdown-container {
             width: 100%;
             height: 100vh;
-            background-size: cover;
-            background-position: center;
+            background-size: 100% auto; /* Scale to 100% width, height auto (proportional) - matches widget scaling */
+            background-position: top center; /* Align to top, center horizontally - allows bottom to be cut off */
             background-repeat: no-repeat;
             overflow: hidden; /* Prevent scrollbars for screen sharing */
             opacity: 0;
