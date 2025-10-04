@@ -313,7 +313,7 @@ body {
 }
 
 .widget[data-type="qr"] .widget-content {
-    padding: 0;
+    padding: 4px;  /* Add padding to show selection border (like image widgets) */
     display: flex;
     align-items: center;
     justify-content: center;
