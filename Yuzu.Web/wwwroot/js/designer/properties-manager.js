@@ -10,11 +10,13 @@ export class PropertiesManager {
     /**
      * Creates an instance of PropertiesManager.
      * @param canvasElement - The canvas element where the toolbox will be placed.
+     * @param onPropertyChange - Callback function to be called when properties change.
      */
-    constructor(canvasElement) {
+    constructor(canvasElement, onPropertyChange = () => { }) {
         this.selectedWidgets = [];
         // Flag to prevent feedback loops when updating properties
         this.isUpdatingControls = false;
+        this.onPropertyChange = onPropertyChange;
         // Find the properties toolbox
         this.propertiesToolbox = document.querySelector('.properties-toolbar');
         if (!this.propertiesToolbox) {
@@ -133,6 +135,7 @@ export class PropertiesManager {
                     const position = Object.assign(Object.assign({}, widget.getData().position), { x });
                     widget.setPosition(position);
                 }
+                this.onPropertyChange();
             }
         });
         this.positionXInput.addEventListener('keydown', (event) => {
@@ -150,6 +153,7 @@ export class PropertiesManager {
                     const position = Object.assign(Object.assign({}, widget.getData().position), { y });
                     widget.setPosition(position);
                 }
+                this.onPropertyChange();
             }
         });
         this.positionYInput.addEventListener('keydown', (event) => {
@@ -182,6 +186,7 @@ export class PropertiesManager {
                     this.dimensionHInput.value = width.toString();
                     this.isUpdatingControls = false;
                 }
+                this.onPropertyChange();
             }
         });
         this.dimensionWInput.addEventListener('keydown', (event) => {
@@ -213,6 +218,7 @@ export class PropertiesManager {
                     this.dimensionWInput.value = height.toString();
                     this.isUpdatingControls = false;
                 }
+                this.onPropertyChange();
             }
         });
         this.dimensionHInput.addEventListener('keydown', (event) => {
@@ -231,6 +237,7 @@ export class PropertiesManager {
                     widget.setText(text);
                 }
             }
+            this.onPropertyChange();
         });
         // Text style controls
         this.boldButton.addEventListener('change', () => {
@@ -242,6 +249,7 @@ export class PropertiesManager {
                     widget.setFontWeight(isBold);
                 }
             }
+            this.onPropertyChange();
         });
         this.italicButton.addEventListener('change', () => {
             if (this.isUpdatingControls)
@@ -252,6 +260,7 @@ export class PropertiesManager {
                     widget.setFontStyle(isItalic);
                 }
             }
+            this.onPropertyChange();
         });
         this.underlineButton.addEventListener('change', () => {
             if (this.isUpdatingControls)
@@ -268,6 +277,7 @@ export class PropertiesManager {
                     }
                 }
             }
+            this.onPropertyChange();
         });
         this.strikethroughButton.addEventListener('change', () => {
             if (this.isUpdatingControls)
@@ -284,6 +294,7 @@ export class PropertiesManager {
                     }
                 }
             }
+            this.onPropertyChange();
         });
         // Text alignment controls
         this.alignLeftButton.addEventListener('change', () => {
@@ -295,6 +306,7 @@ export class PropertiesManager {
                         widget.setTextAlign('left');
                     }
                 }
+                this.onPropertyChange();
             }
         });
         this.alignCenterButton.addEventListener('change', () => {
@@ -306,6 +318,7 @@ export class PropertiesManager {
                         widget.setTextAlign('center');
                     }
                 }
+                this.onPropertyChange();
             }
         });
         this.alignRightButton.addEventListener('change', () => {
@@ -317,6 +330,7 @@ export class PropertiesManager {
                         widget.setTextAlign('right');
                     }
                 }
+                this.onPropertyChange();
             }
         });
         // Font controls
@@ -329,6 +343,7 @@ export class PropertiesManager {
                     widget.setFontFamily(fontFamily);
                 }
             }
+            this.onPropertyChange();
         });
         this.textSizeRange.addEventListener('input', () => {
             if (this.isUpdatingControls)
@@ -340,6 +355,7 @@ export class PropertiesManager {
                     widget.setFontSize(fontSize);
                 }
             }
+            this.onPropertyChange();
         });
         // Color controls
         this.colorPicker.addEventListener('input', () => {
@@ -352,6 +368,7 @@ export class PropertiesManager {
             this.isUpdatingControls = false;
             // Apply color to all applicable widgets
             this.applyColorToWidgets(color);
+            this.onPropertyChange();
         });
         this.colorHexInput.addEventListener('change', () => {
             if (this.isUpdatingControls)
@@ -369,6 +386,7 @@ export class PropertiesManager {
                 this.isUpdatingControls = false;
                 // Apply color to all applicable widgets
                 this.applyColorToWidgets(hexValue);
+                this.onPropertyChange();
             }
         });
         // Corner radius control
@@ -382,6 +400,7 @@ export class PropertiesManager {
                     widget.setBorderRadius(radius);
                 }
             }
+            this.onPropertyChange();
         });
     }
     /**

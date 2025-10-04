@@ -46,10 +46,15 @@ export class Designer {
             throw new Error(`Element with ID ${canvasElementId} not found`);
         }
         this.canvasElement = element;
-        this.commandManager = new CommandManager(() => this.updateUI());
+        this.commandManager = new CommandManager(() => {
+            this.updateUI();
+            this.hasChanges = true; // Mark as changed whenever a command is executed/undone/redone
+        });
         this.selectionManager = new SelectionManager((selectedIds) => this.handleSelectionChange(selectedIds));
         this.toolboxManager = new ToolboxManager(this.canvasElement);
-        this.propertiesManager = new PropertiesManager(this.canvasElement);
+        this.propertiesManager = new PropertiesManager(this.canvasElement, () => {
+            this.hasChanges = true; // Mark as changed whenever properties are modified
+        });
         // Bind event handlers to maintain context
         this.boundPointerMoveHandler = this.handleCanvasPointerMove.bind(this);
         this.boundPointerUpHandler = this.handleCanvasPointerUp.bind(this);

@@ -11,7 +11,8 @@ import { GroupWidget } from './widgets/group-widget.js';
 export class PropertiesManager {
     private propertiesToolbox: HTMLElement;
     private selectedWidgets: Widget[] = [];
-    
+    private onPropertyChange: () => void;
+
     // Flag to prevent feedback loops when updating properties
     private isUpdatingControls = false;
     
@@ -42,8 +43,11 @@ export class PropertiesManager {
     /**
      * Creates an instance of PropertiesManager.
      * @param canvasElement - The canvas element where the toolbox will be placed.
+     * @param onPropertyChange - Callback function to be called when properties change.
      */
-    constructor(canvasElement: HTMLElement) {
+    constructor(canvasElement: HTMLElement, onPropertyChange: () => void = () => {}) {
+        this.onPropertyChange = onPropertyChange;
+
         // Find the properties toolbox
         this.propertiesToolbox = document.querySelector('.properties-toolbar') as HTMLElement;
         if (!this.propertiesToolbox) {
@@ -178,13 +182,14 @@ export class PropertiesManager {
         // Position controls
         this.positionXInput.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const x = parseFloat(this.positionXInput.value);
             if (!isNaN(x)) {
                 for (const widget of this.selectedWidgets) {
                     const position = { ...widget.getData().position, x };
                     widget.setPosition(position);
                 }
+                this.onPropertyChange();
             }
         });
         
@@ -197,13 +202,14 @@ export class PropertiesManager {
         
         this.positionYInput.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const y = parseFloat(this.positionYInput.value);
             if (!isNaN(y)) {
                 for (const widget of this.selectedWidgets) {
                     const position = { ...widget.getData().position, y };
                     widget.setPosition(position);
                 }
+                this.onPropertyChange();
             }
         });
         
@@ -217,11 +223,11 @@ export class PropertiesManager {
         // Dimension controls
         this.dimensionWInput.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const width = parseFloat(this.dimensionWInput.value);
             if (!isNaN(width)) {
                 const hasQRWidget = this.selectedWidgets.some(widget => widget instanceof QRWidget);
-                
+
                 for (const widget of this.selectedWidgets) {
                     if (widget instanceof QRWidget) {
                         // For QR widgets, set both width and height to maintain square
@@ -232,13 +238,14 @@ export class PropertiesManager {
                         widget.setSize(size);
                     }
                 }
-                
+
                 // If we have a QR widget in the selection, update the height input to match
                 if (hasQRWidget) {
                     this.isUpdatingControls = true;
                     this.dimensionHInput.value = width.toString();
                     this.isUpdatingControls = false;
                 }
+                this.onPropertyChange();
             }
         });
         
@@ -251,11 +258,11 @@ export class PropertiesManager {
         
         this.dimensionHInput.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const height = parseFloat(this.dimensionHInput.value);
             if (!isNaN(height)) {
                 const hasQRWidget = this.selectedWidgets.some(widget => widget instanceof QRWidget);
-                
+
                 for (const widget of this.selectedWidgets) {
                     if (widget instanceof QRWidget) {
                         // For QR widgets, set both width and height to maintain square
@@ -266,13 +273,14 @@ export class PropertiesManager {
                         widget.setSize(size);
                     }
                 }
-                
+
                 // If we have a QR widget in the selection, update the width input to match
                 if (hasQRWidget) {
                     this.isUpdatingControls = true;
                     this.dimensionWInput.value = height.toString();
                     this.isUpdatingControls = false;
                 }
+                this.onPropertyChange();
             }
         });
         
@@ -286,41 +294,44 @@ export class PropertiesManager {
         // Text input control
         this.textInput.addEventListener('input', () => {
             if (this.isUpdatingControls) return;
-            
+
             const text = this.textInput.value;
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof TextWidget) {
                     widget.setText(text);
                 }
             }
+            this.onPropertyChange();
         });
         
         // Text style controls
         this.boldButton.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const isBold = this.boldButton.checked;
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof TextWidget) {
                     widget.setFontWeight(isBold);
                 }
             }
+            this.onPropertyChange();
         });
-        
+
         this.italicButton.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const isItalic = this.italicButton.checked;
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof TextWidget) {
                     widget.setFontStyle(isItalic);
                 }
             }
+            this.onPropertyChange();
         });
-        
+
         this.underlineButton.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const isUnderlined = this.underlineButton.checked;
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof TextWidget) {
@@ -333,11 +344,12 @@ export class PropertiesManager {
                     }
                 }
             }
+            this.onPropertyChange();
         });
-        
+
         this.strikethroughButton.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const isStrikethrough = this.strikethroughButton.checked;
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof TextWidget) {
@@ -350,119 +362,128 @@ export class PropertiesManager {
                     }
                 }
             }
+            this.onPropertyChange();
         });
-        
+
         // Text alignment controls
         this.alignLeftButton.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             if (this.alignLeftButton.checked) {
                 for (const widget of this.selectedWidgets) {
                     if (widget instanceof TextWidget) {
                         widget.setTextAlign('left');
                     }
                 }
+                this.onPropertyChange();
             }
         });
-        
+
         this.alignCenterButton.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             if (this.alignCenterButton.checked) {
                 for (const widget of this.selectedWidgets) {
                     if (widget instanceof TextWidget) {
                         widget.setTextAlign('center');
                     }
                 }
+                this.onPropertyChange();
             }
         });
-        
+
         this.alignRightButton.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             if (this.alignRightButton.checked) {
                 for (const widget of this.selectedWidgets) {
                     if (widget instanceof TextWidget) {
                         widget.setTextAlign('right');
                     }
                 }
+                this.onPropertyChange();
             }
         });
-        
+
         // Font controls
         this.fontFamilySelect.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             const fontFamily = this.fontFamilySelect.value;
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof TextWidget) {
                     widget.setFontFamily(fontFamily);
                 }
             }
+            this.onPropertyChange();
         });
-        
+
         this.textSizeRange.addEventListener('input', () => {
             if (this.isUpdatingControls) return;
-            
+
             const fontSize = parseInt(this.textSizeRange.value);
             this.textSizeDisplay.textContent = `${fontSize}px`;
-            
+
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof TextWidget) {
                     widget.setFontSize(fontSize);
                 }
             }
+            this.onPropertyChange();
         });
         
         // Color controls
         this.colorPicker.addEventListener('input', () => {
             if (this.isUpdatingControls) return;
-            
+
             const color = this.colorPicker.value;
-            
+
             // Update the hex input to match the picker
             this.isUpdatingControls = true;
             this.colorHexInput.value = color.substring(1);
             this.isUpdatingControls = false;
-            
+
             // Apply color to all applicable widgets
             this.applyColorToWidgets(color);
+            this.onPropertyChange();
         });
-        
+
         this.colorHexInput.addEventListener('change', () => {
             if (this.isUpdatingControls) return;
-            
+
             let hexValue = this.colorHexInput.value;
-            
+
             // Add # if it's missing
             if (!hexValue.startsWith('#')) {
                 hexValue = '#' + hexValue;
             }
-            
+
             // Validate hex color
             if (/^#[0-9A-F]{6}$/i.test(hexValue)) {
                 // Update the color picker to match
                 this.isUpdatingControls = true;
                 this.colorPicker.value = hexValue;
                 this.isUpdatingControls = false;
-                
+
                 // Apply color to all applicable widgets
                 this.applyColorToWidgets(hexValue);
+                this.onPropertyChange();
             }
         });
-        
+
         // Corner radius control
         this.cornerRadiusRange.addEventListener('input', () => {
             if (this.isUpdatingControls) return;
-            
+
             const radius = parseInt(this.cornerRadiusRange.value);
             this.cornerRadiusDisplay.textContent = `${radius}px`;
-            
+
             for (const widget of this.selectedWidgets) {
                 if (widget instanceof BoxWidget) {
                     widget.setBorderRadius(radius);
                 }
             }
+            this.onPropertyChange();
         });
     }
     
