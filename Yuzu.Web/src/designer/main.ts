@@ -65,6 +65,11 @@ async function generateThumbnail(canvasElement: HTMLElement): Promise<Blob | nul
             // Remove selection class if present
             widgetClone.classList.remove('selected');
 
+            // Remove design-time styles (borders, shadows) that shouldn't appear in thumbnail
+            widgetClone.style.border = 'none';
+            widgetClone.style.boxShadow = 'none';
+            widgetClone.style.outline = 'none';
+
             canvasClone.appendChild(widgetClone);
             console.log(`[Thumbnail] Cloned widget ${index + 1}/${widgets.length}`);
         });
