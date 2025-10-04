@@ -733,7 +733,83 @@ namespace Yuzu.Web.Pages
                 }
             }, _logger);
         }
-        
+
+        public async Task<IActionResult> OnPostCloneBreakType(string id)
+        {
+            return await this.SafeExecuteAsync(async () =>
+            {
+                _logger.LogInformation("OnPostCloneBreakType called for ID {Id}", id);
+
+                // Check if user is authenticated
+                var userId = _userManager.GetUserId(User);
+                if (userId == null)
+                {
+                    _logger.LogWarning("Break type cloning attempted without authentication");
+                    return ErrorHandling.JsonError("User is not authenticated", StatusCodes.Status401Unauthorized);
+                }
+
+                // Check if user is subscribed - only pro users can clone break types
+                var isSubscribed = await _stripeTools.IsSubscribedAsync(userId);
+                if (!isSubscribed)
+                {
+                    _logger.LogWarning("Break type cloning attempted by non-subscribed user {UserId}", userId);
+                    return ErrorHandling.JsonError("Only premium users can clone break types", StatusCodes.Status403Forbidden);
+                }
+
+                try
+                {
+                    // Get the existing break type
+                    var sourceBreakType = await _breakTypeService.GetAsync(userId, id);
+
+                    if (sourceBreakType == null)
+                    {
+                        _logger.LogWarning("Break type with ID {Id} not found for user {UserId}", id, userId);
+                        return ErrorHandling.JsonError($"Break type with ID {id} not found");
+                    }
+
+                    // Get all break types for sort order
+                    var allBreakTypes = await _breakTypeService.GetAllAsync(userId);
+
+                    // Create a copy with "Copy of" prefix
+                    var clonedBreakType = new BreakType
+                    {
+                        UserId = userId,
+                        Name = $"Copy of {sourceBreakType.Name}",
+                        DefaultDurationMinutes = sourceBreakType.DefaultDurationMinutes,
+                        BreakTimeStepMinutes = sourceBreakType.BreakTimeStepMinutes,
+                        CountdownMessage = sourceBreakType.CountdownMessage,
+                        CountdownEndMessage = sourceBreakType.CountdownEndMessage,
+                        EndTimeTitle = sourceBreakType.EndTimeTitle,
+                        ImageTitle = sourceBreakType.ImageTitle,
+                        IconName = sourceBreakType.IconName,
+                        BackgroundImageChoices = sourceBreakType.BackgroundImageChoices,
+                        Components = sourceBreakType.Components,
+                        ThumbnailUrl = sourceBreakType.ThumbnailUrl,
+                        ThumbnailPath = sourceBreakType.ThumbnailPath,
+                        UsageCount = 0,
+                        SortOrder = allBreakTypes.Count + 1,
+                        IsLocked = false,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    // Save to database
+                    var createdBreakType = await _breakTypeService.CreateAsync(clonedBreakType);
+
+                    _logger.LogInformation("Break type cloned with ID {Id} for user {UserId}", createdBreakType.Id, userId);
+                    return ErrorHandling.JsonSuccess($"Break type '{sourceBreakType.Name}' cloned successfully", new {
+                        id = createdBreakType.Id.ToString(),
+                        name = createdBreakType.Name
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error cloning break type {Id} for user {UserId}", id, userId);
+                    return ErrorHandling.JsonError($"Failed to clone break type: {ex.Message}");
+                }
+            }, _logger);
+        }
+
         // Time Zone API Handlers
         
         /// <summary>

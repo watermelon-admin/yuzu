@@ -469,7 +469,12 @@ function setupEventListeners(): void {
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', handleDeleteClick);
     });
-    
+
+    // Listen for clicks on clone buttons
+    document.querySelectorAll('.btn-clone').forEach(button => {
+        button.addEventListener('click', handleCloneClick);
+    });
+
     // Listen for clicks on preview buttons
     document.querySelectorAll('.break-type-preview-button').forEach(button => {
         button.addEventListener('click', handlePreviewClick);
@@ -557,7 +562,12 @@ function removeExistingEventListeners(): void {
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.removeEventListener('click', handleDeleteClick);
     });
-    
+
+    // Remove clone button listeners
+    document.querySelectorAll('.btn-clone').forEach(button => {
+        button.removeEventListener('click', handleCloneClick);
+    });
+
     // Remove preview button listeners
     document.querySelectorAll('.break-type-preview-button').forEach(button => {
         button.removeEventListener('click', handlePreviewClick);
@@ -591,13 +601,45 @@ function handleEditClick(e: Event): void {
 function handleDeleteClick(e: Event): void {
     e.preventDefault();
     const button = e.currentTarget as Element;
-    
+
     // Get break type ID and name
     const id = button.getAttribute('data-id');
     const name = button.getAttribute('data-name');
-    
+
     // Open delete confirmation modal
     openDeleteConfirmationModal(id, name);
+}
+
+/**
+ * Event handler for clone button clicks
+ */
+function handleCloneClick(e: Event): void {
+    e.preventDefault();
+
+    // Check if user is subscribed
+    if (!isSubscribed) {
+        showProFeatureRequiredModal();
+        return;
+    }
+
+    const button = e.currentTarget as Element;
+    const article = button.closest('article');
+
+    if (!article) {
+        console.error('Parent article element not found');
+        return;
+    }
+
+    // Get break type ID
+    const id = article.getAttribute('data-id');
+
+    if (!id) {
+        console.error('Break type ID is missing');
+        return;
+    }
+
+    // Call the clone function
+    cloneBreakType(id);
 }
 
 /**
@@ -838,6 +880,54 @@ async function deleteBreakType(): Promise<void> {
             deleteButton.disabled = false;
             deleteButton.innerHTML = 'Delete';
         }
+    }
+}
+
+/**
+ * Clones a break type
+ */
+async function cloneBreakType(id: string): Promise<void> {
+    try {
+        // Get the anti-forgery token
+        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement;
+        if (!tokenElement) {
+            console.error('Anti-forgery token not found');
+            (window as any).createToast?.('Security token not found', false);
+            return;
+        }
+        const token = tokenElement.value;
+
+        // Send clone request
+        const url = `/Settings?handler=CloneBreakType&id=${id}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify({}),
+            credentials: 'same-origin'
+        });
+
+        // Parse the JSON response
+        const data = await response.json();
+
+        if (data.success) {
+            // Show success message
+            (window as any).createToast?.(data.message || 'Break type cloned successfully', true);
+
+            // Reload break types to show the new clone
+            await loadBreakTypes();
+        } else {
+            // Show error message
+            (window as any).createToast?.(data.message || 'Failed to clone break type', false);
+        }
+    }
+    catch (error) {
+        console.error('Error cloning break type:', error);
+        (window as any).createToast?.('An error occurred while cloning the break type', false);
     }
 }
 

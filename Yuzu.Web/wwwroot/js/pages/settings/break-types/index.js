@@ -405,6 +405,10 @@ function setupEventListeners() {
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', handleDeleteClick);
     });
+    // Listen for clicks on clone buttons
+    document.querySelectorAll('.btn-clone').forEach(button => {
+        button.addEventListener('click', handleCloneClick);
+    });
     // Listen for clicks on preview buttons
     document.querySelectorAll('.break-type-preview-button').forEach(button => {
         button.addEventListener('click', handlePreviewClick);
@@ -485,6 +489,10 @@ function removeExistingEventListeners() {
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.removeEventListener('click', handleDeleteClick);
     });
+    // Remove clone button listeners
+    document.querySelectorAll('.btn-clone').forEach(button => {
+        button.removeEventListener('click', handleCloneClick);
+    });
     // Remove preview button listeners
     document.querySelectorAll('.break-type-preview-button').forEach(button => {
         button.removeEventListener('click', handlePreviewClick);
@@ -523,6 +531,31 @@ function handleDeleteClick(e) {
     const name = button.getAttribute('data-name');
     // Open delete confirmation modal
     openDeleteConfirmationModal(id, name);
+}
+/**
+ * Event handler for clone button clicks
+ */
+function handleCloneClick(e) {
+    e.preventDefault();
+    // Check if user is subscribed
+    if (!isSubscribed) {
+        showProFeatureRequiredModal();
+        return;
+    }
+    const button = e.currentTarget;
+    const article = button.closest('article');
+    if (!article) {
+        console.error('Parent article element not found');
+        return;
+    }
+    // Get break type ID
+    const id = article.getAttribute('data-id');
+    if (!id) {
+        console.error('Break type ID is missing');
+        return;
+    }
+    // Call the clone function
+    cloneBreakType(id);
 }
 /**
  * Event handler for add new break type button clicks
@@ -751,6 +784,51 @@ async function deleteBreakType() {
             deleteButton.disabled = false;
             deleteButton.innerHTML = 'Delete';
         }
+    }
+}
+/**
+ * Clones a break type
+ */
+async function cloneBreakType(id) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    try {
+        // Get the anti-forgery token
+        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (!tokenElement) {
+            console.error('Anti-forgery token not found');
+            (_b = (_a = window).createToast) === null || _b === void 0 ? void 0 : _b.call(_a, 'Security token not found', false);
+            return;
+        }
+        const token = tokenElement.value;
+        // Send clone request
+        const url = `/Settings?handler=CloneBreakType&id=${id}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify({}),
+            credentials: 'same-origin'
+        });
+        // Parse the JSON response
+        const data = await response.json();
+        if (data.success) {
+            // Show success message
+            (_d = (_c = window).createToast) === null || _d === void 0 ? void 0 : _d.call(_c, data.message || 'Break type cloned successfully', true);
+            // Reload break types to show the new clone
+            await loadBreakTypes();
+        }
+        else {
+            // Show error message
+            (_f = (_e = window).createToast) === null || _f === void 0 ? void 0 : _f.call(_e, data.message || 'Failed to clone break type', false);
+        }
+    }
+    catch (error) {
+        console.error('Error cloning break type:', error);
+        (_h = (_g = window).createToast) === null || _h === void 0 ? void 0 : _h.call(_g, 'An error occurred while cloning the break type', false);
     }
 }
 /**

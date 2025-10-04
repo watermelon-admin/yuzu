@@ -3,7 +3,7 @@
     // Configure the standardized template - use "break-type" (singular) for container ID to match JS expectations
     ViewData["SectionId"] = "break-type";
     ViewData["SectionTitle"] = "Break Types";
-    ViewData["ContainerColumns"] = "row-cols-1 row-cols-sm-2 row-cols-md-3 gx-3 gx-lg-4";
+    ViewData["ContainerColumns"] = "row-cols-1 row-cols-lg-2 gx-3 gx-lg-4";
     ViewData["ShowViewport"] = true;
     ViewData["ActionButton"] = new Dictionary<string, string>
     {
@@ -24,7 +24,7 @@
             <div class="position-relative">
                 <!-- Background image as the main visual -->
                 <div class="break-type-image-container position-relative"
-                     style="height: 180px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
+                     style="height: 240px; border-radius: 0.5rem 0.5rem 0 0; overflow: hidden;">
                     <img src="" class="card-img-top card-preview-image w-100 h-100"
                          style="object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;" alt="Image">
                 </div>
@@ -46,11 +46,20 @@
                 </h3>
             </div>
             
-            <div class="card-footer d-flex align-items-center justify-content-start gap-2 py-3">
+            <div class="card-footer d-flex flex-wrap align-items-center justify-content-start gap-2 py-3">
                 <!-- Edit button -->
                 <button class="btn btn-sm btn-outline-primary btn-edit">
                     <i class="bx bx-edit fs-sm me-1"></i>
                     Edit
+                </button>
+                <!-- Clone button -->
+                <button class="btn btn-sm btn-outline-secondary btn-clone">
+                    <i class="bx bx-copy fs-sm me-1"></i>
+                    Clone
+                    @if (!Model.IsSubscribed)
+                    {
+                        @Html.Raw(ProFeatures.GetBadgeHtml("ms-1"))
+                    }
                 </button>
                 <!-- Design button -->
                 <a href="#" class="btn btn-sm btn-outline-secondary btn-design">
