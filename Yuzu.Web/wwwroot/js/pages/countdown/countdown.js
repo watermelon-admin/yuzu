@@ -32,22 +32,23 @@ function scaleWidgetsToViewport() {
         const scaledTop = designerTop * scaleX;
         const scaledWidth = designerWidth * scaleX;
         const scaledHeight = designerHeight * scaleX;
-        // Apply scaled position and size
-        widget.style.left = `${scaledLeft}px`;
-        widget.style.top = `${scaledTop}px`;
-        widget.style.width = `${scaledWidth}px`;
-        widget.style.height = `${scaledHeight}px`;
+        // Apply scaled position and size using setProperty for maximum priority
+        widget.style.setProperty('left', `${scaledLeft}px`, 'important');
+        widget.style.setProperty('top', `${scaledTop}px`, 'important');
+        widget.style.setProperty('width', `${scaledWidth}px`, 'important');
+        widget.style.setProperty('height', `${scaledHeight}px`, 'important');
         // Scale font size for text widgets
         if (designerFontSize) {
             const scaledFontSize = parseFloat(designerFontSize) * scaleX;
-            widget.style.fontSize = `${scaledFontSize}px`;
+            widget.style.setProperty('font-size', `${scaledFontSize}px`, 'important');
         }
         // Scale border radius for box widgets
         if (designerBorderRadius) {
             const scaledBorderRadius = parseFloat(designerBorderRadius) * scaleX;
-            widget.style.borderRadius = `${scaledBorderRadius}px`;
+            widget.style.setProperty('border-radius', `${scaledBorderRadius}px`, 'important');
         }
         console.log(`[Viewport Scaling] Widget ${index + 1}: Scaled from (${designerLeft}, ${designerTop}, ${designerWidth}x${designerHeight}) to (${scaledLeft.toFixed(1)}, ${scaledTop.toFixed(1)}, ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)})`);
+        console.log(`[Viewport Scaling] Widget ${index + 1}: Applied styles - width: ${widget.style.width}, height: ${widget.style.height}`);
     });
     console.log(`[Viewport Scaling] Scaled ${widgets.length} widgets`);
 }
