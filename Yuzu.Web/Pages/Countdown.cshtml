@@ -150,8 +150,8 @@
                      data-designer-top="@posY"
                      data-designer-width="@width"
                      data-designer-height="@height"
-                     @(widgetType == "text" ? $"data-designer-fontsize=\"{fontSize}\"" : "")
-                     @(widgetType == "box" ? $"data-designer-borderradius=\"{borderRadius}\"" : "")
+                     @(widgetType == "text" ? $"data-designer-fontsize={fontSize}" : "")
+                     @(widgetType == "box" ? $"data-designer-borderradius={borderRadius}" : "")
                      style="
                     position: absolute;
                     left: @($"{Math.Round(posX)}px");
