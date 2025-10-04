@@ -1,3 +1,34 @@
+/* CSS Variables for Design System */
+:root {
+    /* Selection Colors - Single Blue Palette */
+    --selection-primary: #0d6efd;           /* Primary blue for selection */
+    --selection-shadow: rgba(13, 110, 253, 0.3);
+    --selection-glow: rgba(13, 110, 253, 0.15);
+
+    /* Reference/Key Object Indicator - Same Blue, Different Treatment */
+    --reference-border-width: 3px;          /* Thicker than normal */
+    --reference-inner-border: #ffffff;      /* White inner border for double-line effect */
+
+    /* Hover States */
+    --hover-border: rgba(13, 110, 253, 0.4); /* Subtle blue hint */
+    --hover-bg: rgba(13, 110, 253, 0.05);    /* Very subtle background */
+
+    /* Group Colors - Neutral When Unselected */
+    --group-unselected: #6c757d;            /* Gray - low visual weight */
+    --group-unselected-bg: rgba(108, 117, 125, 0.08);
+    --group-selected: #0d6efd;              /* Blue when selected */
+    --group-selected-bg: rgba(13, 110, 253, 0.1);
+
+    /* Alignment Guides */
+    --alignment-guide: #fd7e14;             /* Orange - only for guides */
+    --alignment-guide-shadow: rgba(253, 126, 20, 0.3);
+
+    /* Handle Colors */
+    --handle-fill: #0d6efd;                 /* Blue fill */
+    --handle-border: #ffffff;               /* White border */
+    --handle-size: 12px;                    /* Increased from 10px */
+}
+
 body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     margin: 0;
@@ -112,14 +143,22 @@ body {
 }
 
 .widget.selected {
-    border-color: #0d6efd; /* Change only the color, not the width */
-    box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+    border-color: var(--selection-primary);
+    box-shadow: 0 0 5px var(--selection-shadow);
+}
+
+/* Hover state for widgets (before selection) */
+.widget:hover:not(.selected):not(.preview-mode) {
+    border-color: var(--hover-border);
+    background-color: var(--hover-bg);
+    cursor: pointer;
+    transition: all 150ms ease;
 }
 
 /* Box widgets need the selection border to follow the border radius */
 .widget[data-type="box"].selected {
-    border-color: #0d6efd; /* Change only the color, not the width */
-    box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+    border-color: var(--selection-primary);
+    box-shadow: 0 0 5px var(--selection-shadow);
 }
 
 .widget-content {
@@ -133,12 +172,12 @@ body {
 /* Resize handle styles */
 .resize-handle {
     position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #0d6efd;
-    border: 1px solid #fff;
+    width: var(--handle-size);
+    height: var(--handle-size);
+    background-color: var(--handle-fill);
+    border: 1.5px solid var(--handle-border);
     border-radius: 50%;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
     z-index: 10;
     pointer-events: all;
 }
@@ -170,14 +209,18 @@ body {
 /* Selection box */
 .selection-box {
     position: absolute;
-    border: 1px dashed #0d6efd;
-    background-color: rgba(13, 110, 253, 0.1);
+    border: 1px dashed var(--selection-primary);
+    background-color: var(--selection-glow);
     pointer-events: none;
 }
 
-/* Reference widget styling */
-.reference-widget {
-    border-color: #fd7e14 !important; /* orange border color */
+/* Reference widget styling - Illustrator pattern with thicker blue border */
+.widget.selected.reference-widget {
+    border-width: var(--reference-border-width);
+    border-color: var(--selection-primary);
+    box-shadow:
+        inset 0 0 0 1px var(--reference-inner-border),  /* Inner white line for double-line effect */
+        0 0 8px var(--selection-shadow);                 /* Stronger glow */
 }
 
 /* Properties Toolbox Styling */
@@ -280,31 +323,31 @@ body {
 
 /* Group widget styles */
 .widget[data-type="group"] {
-    border: 3px dashed #007bff;
+    border: 2px dashed var(--group-unselected);
     border-radius: 8px;
-    background-color: rgba(0, 123, 255, 0.15); /* Increase opacity for better visibility */
-    pointer-events: all !important; /* Always allow interactions with groups */
-    position: relative; /* Ensure stacking context */
-    /* Create a new stacking context to isolate z-index issues */
+    background-color: var(--group-unselected-bg);
+    pointer-events: all !important;
+    position: relative;
     isolation: isolate;
-    /* Force a minimum z-index to ensure groups are visible */
-    z-index: 1000 !important; /* Override JS-controlled z-index with a high value */
-    /* Add significant padding for easier selection */
+    z-index: 1000 !important;
     box-sizing: border-box;
-    /* Add subtle box shadow to make it more visible */
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
+    box-shadow: none; /* Low visual weight when unselected */
 }
 
 .widget[data-type="group"].selected {
-    border: 4px dashed #fd7e14; /* Orange border when selected */
-    box-shadow: 0 0 15px rgba(253, 126, 20, 0.5); /* Stronger orange shadow */
-    background-color: rgba(253, 126, 20, 0.1); /* Slight orange background */
+    border: 2px dashed var(--group-selected);
+    box-shadow: 0 0 8px var(--selection-shadow);
+    background-color: var(--group-selected-bg);
 }
 
-.widget[data-type="group"].reference-widget {
-    border: 4px dashed #ff0000 !important; /* Red border for reference group */
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5) !important; /* Red shadow */
-    background-color: rgba(255, 0, 0, 0.1) !important; /* Slight red background */
+/* Reference group - thicker border like other reference widgets */
+.widget[data-type="group"].selected.reference-widget {
+    border-width: var(--reference-border-width);
+    border-style: dashed;
+    border-color: var(--group-selected);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+        0 0 12px var(--selection-shadow);
 }
 
 .widget[data-type="group"] .widget-content {
@@ -315,7 +358,7 @@ body {
     position: absolute;
     top: 5px;
     left: 5px;
-    background-color: #007bff;
+    background-color: var(--group-unselected);
     color: white;
     padding: 2px 6px;
     border-radius: 4px;
@@ -323,11 +366,16 @@ body {
     font-weight: bold;
     text-align: center;
     line-height: 16px;
-    z-index: 9999 !important; /* Very high z-index to ensure it's above everything */
+    z-index: 9999 !important;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     border: 1px solid white;
-    user-select: none; /* Prevent text selection */
-    pointer-events: none; /* Allow clicks to pass through to the group */
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Group icon changes color when group is selected */
+.widget[data-type="group"].selected .group-icon {
+    background-color: var(--group-selected);
 }
 
 .widget[data-type="group"]::after {
