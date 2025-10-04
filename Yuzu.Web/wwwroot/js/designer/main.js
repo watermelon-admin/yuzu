@@ -875,6 +875,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = '/Settings#break-types';
             });
         }
+        // Prevent accidental navigation away with unsaved changes
+        window.addEventListener('beforeunload', (event) => {
+            if (designer.hasUnsavedChanges()) {
+                // Modern browsers require preventDefault and returnValue to trigger the confirmation dialog
+                event.preventDefault();
+                event.returnValue = ''; // Chrome requires returnValue to be set
+                return ''; // Some older browsers need a return value
+            }
+        });
         // Background selector button
         const backgroundButton = document.getElementById('btn-background');
         if (backgroundButton) {

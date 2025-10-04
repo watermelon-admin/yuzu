@@ -405,14 +405,21 @@ export class Widget {
 
     /**
      * Creates the resize handles for the widget.
+     * Industry standard: 8 handles (4 corners + 4 edges)
      * @param parent - The parent element to attach the handles to.
      */
     private createResizeHandles(parent: HTMLElement): void {
         const positions: ResizeHandlePosition[] = [
+            // Corner handles - diagonal resize
             ResizeHandlePosition.NorthWest,
             ResizeHandlePosition.NorthEast,
             ResizeHandlePosition.SouthWest,
-            ResizeHandlePosition.SouthEast
+            ResizeHandlePosition.SouthEast,
+            // Edge handles - directional resize (height or width only)
+            ResizeHandlePosition.North,
+            ResizeHandlePosition.South,
+            ResizeHandlePosition.East,
+            ResizeHandlePosition.West
         ];
 
         positions.forEach(position => {

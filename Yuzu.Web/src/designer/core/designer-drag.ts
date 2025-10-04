@@ -156,6 +156,7 @@ export class DesignerDrag extends DesignerAlignment {
             console.log(`[Debug] Starting widget interaction with: ${widget.getId()}, type=${widget.getData().type}`);
             // Start move operation
             const isShiftKey = e.shiftKey;
+            const wasAlreadySelected = widget.isSelected();
 
             if (!widget.isSelected() && !isShiftKey) {
                 console.log(`[Debug] Widget not selected and shift not pressed - clearing selection`);
@@ -167,7 +168,7 @@ export class DesignerDrag extends DesignerAlignment {
                 this.selectionManager.selectWidget(widget.getId(), isShiftKey);
             } else if (isShiftKey) {
                 // If widget is already selected and shift is pressed,
-                // make it the reference widget
+                // make it the reference widget immediately
                 console.log(`[Debug] Setting reference widget: ${widget.getId()}`);
                 this.selectionManager.setReferenceWidget(widget.getId());
             }
@@ -175,7 +176,7 @@ export class DesignerDrag extends DesignerAlignment {
             // Store original positions of all selected widgets
             const selectedIds = this.selectionManager.getSelectedWidgetIds();
             const originalPositions = new Map<string, Point>();
-            
+
             console.log(`[Debug] Selected widgets for move: ${selectedIds.join(', ')}`);
 
             selectedIds.forEach(id => {
@@ -193,7 +194,11 @@ export class DesignerDrag extends DesignerAlignment {
                 currentPoint: point,
                 pointerId: e.pointerId,
                 affectedWidgets: selectedIds,
-                originalPositions
+                originalPositions,
+                // Track if this widget was already selected for click-to-set-reference pattern
+                originalRect: wasAlreadySelected ? widget.getRect() : undefined,
+                // Store which widget was clicked for reference widget selection
+                clickedWidgetId: wasAlreadySelected ? widget.getId() : undefined
             };
 
             console.log(`[Debug] Move drag state initialized for ${selectedIds.length} widgets`);
@@ -305,6 +310,7 @@ export class DesignerDrag extends DesignerAlignment {
 
                         // Adjust dimensions based on resize handle
                         switch (resizeHandle) {
+                            // Corner handles - diagonal resize
                             case ResizeHandlePosition.NorthWest:
                                 newRect.x = originalRect.x + dx;
                                 newRect.y = originalRect.y + dy;
@@ -327,6 +333,29 @@ export class DesignerDrag extends DesignerAlignment {
                             case ResizeHandlePosition.SouthEast:
                                 newRect.width = originalRect.width + dx;
                                 newRect.height = originalRect.height + dy;
+                                break;
+
+                            // Edge handles - directional resize (height or width only)
+                            case ResizeHandlePosition.North:
+                                newRect.y = originalRect.y + dy;
+                                newRect.height = originalRect.height - dy;
+                                // Width stays the same
+                                break;
+
+                            case ResizeHandlePosition.South:
+                                newRect.height = originalRect.height + dy;
+                                // X, Y, and width stay the same
+                                break;
+
+                            case ResizeHandlePosition.East:
+                                newRect.width = originalRect.width + dx;
+                                // X, Y, and height stay the same
+                                break;
+
+                            case ResizeHandlePosition.West:
+                                newRect.x = originalRect.x + dx;
+                                newRect.width = originalRect.width - dx;
+                                // Y and height stay the same
                                 break;
                         }
                         
@@ -409,11 +438,32 @@ export class DesignerDrag extends DesignerAlignment {
 
         switch (type) {
             case DragType.Move:
+                // Implement Illustrator pattern: click already-selected widget to set as reference
+                // Only if there was minimal movement (click, not drag) and multiple widgets selected
+                const movementThreshold = 3; // pixels
+                const wasClick = Math.abs(dx) < movementThreshold && Math.abs(dy) < movementThreshold;
+
+                if (wasClick && this.dragState.originalRect && affectedWidgets.length > 1) {
+                    // This was a click on an already-selected widget in a multi-selection
+                    // Set it as the reference widget (Illustrator pattern)
+                    const clickedWidgetId = this.dragState.clickedWidgetId;
+                    if (clickedWidgetId) {
+                        WidgetLogger.info('Selection', `Click on already-selected widget ${clickedWidgetId} - setting as reference`, {
+                            widgetId: clickedWidgetId,
+                            totalSelected: affectedWidgets.length
+                        });
+                        this.selectionManager.setReferenceWidget(clickedWidgetId);
+                    }
+
+                    // Don't create a move command for clicks
+                    break;
+                }
+
                 // Finalize move operation with a command
-                // Always create a move command regardless of the distance moved
+                // Always create a move command if there was actual movement
                 if (this.dragState.originalPositions) {
-                    WidgetLogger.info('Move', `Creating move command for ${affectedWidgets.length} widgets`, { 
-                        affectedWidgets 
+                    WidgetLogger.info('Move', `Creating move command for ${affectedWidgets.length} widgets`, {
+                        affectedWidgets
                     });
                     
                     const oldPositions = affectedWidgets.map(id => {

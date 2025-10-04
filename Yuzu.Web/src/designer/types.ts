@@ -103,12 +103,19 @@ export interface ImageWidgetProperties {
 
 /**
  * Enum for the positions of resize handles on a widget.
+ * Industry standard: 8 handles (4 corners + 4 edges)
  */
 export enum ResizeHandlePosition {
+    // Corner handles - diagonal resize
     NorthWest = 'nw',
     NorthEast = 'ne',
     SouthWest = 'sw',
-    SouthEast = 'se'
+    SouthEast = 'se',
+    // Edge handles - directional resize (height or width only)
+    North = 'n',
+    South = 's',
+    East = 'e',
+    West = 'w'
 }
 
 /**
@@ -135,4 +142,5 @@ export interface DragState {
     originalPositions?: Map<string, Point>; // Optional original positions of the widgets
     originalSize?: Size; // Optional original size of the widget
     originalRect?: Rect; // Optional original rectangle of the widget
+    clickedWidgetId?: string; // Optional ID of the widget that was clicked (for reference widget selection)
 }

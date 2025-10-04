@@ -1,0 +1,68 @@
+# ============================================================================
+# Terraform .gitignore
+# ============================================================================
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files (contain sensitive information and resource state)
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which may contain sensitive data
+# *.tfvars
+# *.tfvars.json
+
+# IMPORTANT: We're NOT ignoring .tfvars files because:
+# 1. This is a dev environment with placeholder values
+# 2. The actual secrets are stored in Azure Key Vault, not in .tfvars
+# 3. It's useful to version control non-sensitive configuration values
+#
+# If you add sensitive data to .tfvars, add them to .gitignore:
+# terraform.tfvars
+# secrets.tfvars
+
+# Ignore override files as they are usually used to override resources locally
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Ignore plan files (may contain sensitive information)
+*.tfplan
+*.tfplan.*
+
+# Ignore lock files (optional - some teams prefer to commit this)
+# .terraform.lock.hcl
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Local scripts with secrets (if you create any)
+*-local.sh
+*-local.ps1
+secrets.sh
+secrets.ps1
+local-*.sh
+local-*.ps1
