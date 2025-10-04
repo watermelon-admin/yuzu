@@ -52,6 +52,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            overflow: hidden; /* Prevent scrollbars for screen sharing */
             opacity: 0;
             transition: opacity 1s ease-in-out;
         }
@@ -142,7 +143,16 @@
                 var textAlign = props.textAlign ?? "center";
                 var fontWeight = string.IsNullOrEmpty(props.fontWeight) ? "normal" : props.fontWeight;
 
-                <div class="widget @widgetClass" data-type="@widgetType" data-template="@(widgetType == "text" ? text : "")" style="
+                <div class="widget @widgetClass"
+                     data-type="@widgetType"
+                     data-template="@(widgetType == "text" ? text : "")"
+                     data-designer-left="@posX"
+                     data-designer-top="@posY"
+                     data-designer-width="@width"
+                     data-designer-height="@height"
+                     @(widgetType == "text" ? $"data-designer-fontsize=\"{fontSize}\"" : "")
+                     @(widgetType == "box" ? $"data-designer-borderradius=\"{borderRadius}\"" : "")
+                     style="
                     position: absolute;
                     left: @($"{Math.Round(posX)}px");
                     top: @($"{Math.Round(posY)}px");
