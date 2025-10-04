@@ -1,4 +1,5 @@
 ﻿import { Designer } from './core/index.js';
+import { WidgetImageManager } from './widget-image-manager.js';
 
 // Declare html2canvas global from CDN
 declare const html2canvas: any;
@@ -634,7 +635,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
-        
+
+        // Initialize Widget Image Manager
+        const userIdElement = document.getElementById('user-id') as HTMLInputElement;
+        const designIdElement = document.getElementById('design-id') as HTMLInputElement;
+        const userId = userIdElement ? userIdElement.value : '';
+        const breakTypeId = designIdElement ? designIdElement.value : '';
+
+        let widgetImageManager: WidgetImageManager | null = null;
+        if (userId && breakTypeId) {
+            console.log('[Debug] Initializing Widget Image Manager');
+            widgetImageManager = new WidgetImageManager(userId, breakTypeId);
+        }
+
+        // Add image button - opens management modal to select/upload images
+        const addImageButton = document.getElementById('btn-add-image');
+        if (addImageButton && widgetImageManager) {
+            addImageButton.addEventListener('click', () => {
+                // Open the management modal to select an existing image or upload a new one
+                widgetImageManager!.openManagementModal();
+            });
+        }
+
+        // Listen for image selected/uploaded events to add widgets
+        document.addEventListener('widget-image-selected', ((event: CustomEvent) => {
+            designer.addWidget({
+                position: { x: 200, y: 200 },
+                size: { width: 300, height: 200 },
+                type: 'image',
+                properties: {
+                    imageUrl: event.detail.imageUrl,
+                    imageName: event.detail.imageName,
+                    thumbnailUrl: event.detail.thumbnailUrl,
+                    userId: userId,
+                    breakTypeId: breakTypeId
+                }
+            });
+        }) as EventListener);
+
+        document.addEventListener('widget-image-uploaded', ((event: CustomEvent) => {
+            // If there's no widget ID (new upload), create a new widget
+            if (!event.detail.widgetId) {
+                designer.addWidget({
+                    position: { x: 200, y: 200 },
+                    size: { width: 300, height: 200 },
+                    type: 'image',
+                    properties: {
+                        imageUrl: event.detail.imageUrl,
+                        imageName: event.detail.imageName,
+                        thumbnailUrl: event.detail.thumbnailUrl,
+                        userId: userId,
+                        breakTypeId: breakTypeId
+                    }
+                });
+            }
+        }) as EventListener);
+
         // Completely override the behavior of the New button
         const newWidgetButton = document.getElementById('btn-new-widget');
         const dropdownContent = document.querySelector('.dropdown-content') as HTMLElement;

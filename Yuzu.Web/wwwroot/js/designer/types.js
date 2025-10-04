@@ -8,6 +8,7 @@ export var WidgetType;
     WidgetType["QR"] = "qr";
     WidgetType["Text"] = "text";
     WidgetType["Group"] = "group";
+    WidgetType["Image"] = "image";
 })(WidgetType || (WidgetType = {}));
 /**
  * Enum for the positions of resize handles on a widget.

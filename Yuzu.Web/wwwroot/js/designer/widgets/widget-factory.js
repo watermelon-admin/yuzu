@@ -4,6 +4,7 @@ import { BoxWidget } from './box-widget.js';
 import { QRWidget } from './qr-widget.js';
 import { TextWidget } from './text-widget.js';
 import { GroupWidget } from './group-widget.js';
+import { ImageWidget } from './image-widget.js';
 /**
  * Factory class for creating widgets of different types.
  */
@@ -24,6 +25,8 @@ export class WidgetFactory {
             case WidgetType.Group:
                 // Use a type assertion to handle the GroupWidget type issue
                 return new GroupWidget(data);
+            case WidgetType.Image:
+                return new ImageWidget(data);
             default:
                 // Default to basic widget
                 console.warn(`Widget type "${data.type}" not recognized, using basic widget.`);
@@ -99,6 +102,36 @@ export class WidgetFactory {
             }
         };
         return new TextWidget(data);
+    }
+    /**
+     * Creates a new Image widget with default properties.
+     * @param id - The widget ID.
+     * @param x - The x position.
+     * @param y - The y position.
+     * @param width - The width.
+     * @param height - The height.
+     * @param zIndex - The z-index.
+     * @param imageUrl - The image URL.
+     * @param imageName - The GUID-based image name.
+     * @param userId - The user ID.
+     * @param breakTypeId - The break type ID.
+     * @returns The created widget.
+     */
+    static createImageWidget(id, x, y, width, height, zIndex, imageUrl = '', imageName = '', userId = '', breakTypeId = '') {
+        const data = {
+            id,
+            position: { x, y },
+            size: { width, height },
+            zIndex,
+            type: WidgetType.Image,
+            properties: {
+                imageUrl,
+                imageName,
+                userId,
+                breakTypeId
+            }
+        };
+        return new ImageWidget(data);
     }
     /**
      * Creates a new Group widget.

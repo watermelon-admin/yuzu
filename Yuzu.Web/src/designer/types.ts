@@ -46,7 +46,8 @@ export enum WidgetType {
     Box = 'box',
     QR = 'qr',
     Text = 'text',
-    Group = 'group'
+    Group = 'group',
+    Image = 'image'
 }
 
 /**
@@ -86,6 +87,18 @@ export interface TextWidgetProperties {
  */
 export interface GroupWidgetProperties {
     childIds: string[]; // IDs of widgets contained in this group
+}
+
+/**
+ * Properties specific to Image widgets.
+ */
+export interface ImageWidgetProperties {
+    imageUrl: string;           // URL to the image
+    imageName: string;          // GUID-based name of the image
+    userId: string;             // Owner user ID
+    breakTypeId: string;        // Associated break type ID
+    thumbnailUrl?: string;      // Optional thumbnail URL
+    originalFileName?: string;  // Optional original filename
 }
 
 /**

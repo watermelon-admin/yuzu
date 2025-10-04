@@ -1,4 +1,5 @@
 import { Designer } from './core/index.js';
+import { WidgetImageManager } from './widget-image-manager.js';
 // Generate thumbnail from designer canvas
 // Uses an off-screen canvas clone to avoid visible UI changes during save (issue #60)
 // This approach creates a temporary hidden copy of the canvas, captures it with html2canvas,
@@ -562,6 +563,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
+        // Initialize Widget Image Manager
+        const userIdElement = document.getElementById('user-id');
+        const designIdElement = document.getElementById('design-id');
+        const userId = userIdElement ? userIdElement.value : '';
+        const breakTypeId = designIdElement ? designIdElement.value : '';
+        let widgetImageManager = null;
+        if (userId && breakTypeId) {
+            console.log('[Debug] Initializing Widget Image Manager');
+            widgetImageManager = new WidgetImageManager(userId, breakTypeId);
+        }
+        // Add image button - opens management modal to select/upload images
+        const addImageButton = document.getElementById('btn-add-image');
+        if (addImageButton && widgetImageManager) {
+            addImageButton.addEventListener('click', () => {
+                // Open the management modal to select an existing image or upload a new one
+                widgetImageManager.openManagementModal();
+            });
+        }
+        // Listen for image selected/uploaded events to add widgets
+        document.addEventListener('widget-image-selected', ((event) => {
+            designer.addWidget({
+                position: { x: 200, y: 200 },
+                size: { width: 300, height: 200 },
+                type: 'image',
+                properties: {
+                    imageUrl: event.detail.imageUrl,
+                    imageName: event.detail.imageName,
+                    thumbnailUrl: event.detail.thumbnailUrl,
+                    userId: userId,
+                    breakTypeId: breakTypeId
+                }
+            });
+        }));
+        document.addEventListener('widget-image-uploaded', ((event) => {
+            // If there's no widget ID (new upload), create a new widget
+            if (!event.detail.widgetId) {
+                designer.addWidget({
+                    position: { x: 200, y: 200 },
+                    size: { width: 300, height: 200 },
+                    type: 'image',
+                    properties: {
+                        imageUrl: event.detail.imageUrl,
+                        imageName: event.detail.imageName,
+                        thumbnailUrl: event.detail.thumbnailUrl,
+                        userId: userId,
+                        breakTypeId: breakTypeId
+                    }
+                });
+            }
+        }));
         // Completely override the behavior of the New button
         const newWidgetButton = document.getElementById('btn-new-widget');
         const dropdownContent = document.querySelector('.dropdown-content');
