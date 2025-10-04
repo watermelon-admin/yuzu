@@ -142,4 +142,5 @@ export interface DragState {
     originalPositions?: Map<string, Point>; // Optional original positions of the widgets
     originalSize?: Size; // Optional original size of the widget
     originalRect?: Rect; // Optional original rectangle of the widget
+    clickedWidgetId?: string; // Optional ID of the widget that was clicked (for reference widget selection)
 }

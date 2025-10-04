@@ -446,7 +446,7 @@ export class DesignerDrag extends DesignerAlignment {
                 if (wasClick && this.dragState.originalRect && affectedWidgets.length > 1) {
                     // This was a click on an already-selected widget in a multi-selection
                     // Set it as the reference widget (Illustrator pattern)
-                    const clickedWidgetId = (this.dragState as any).clickedWidgetId;
+                    const clickedWidgetId = this.dragState.clickedWidgetId;
                     if (clickedWidgetId) {
                         WidgetLogger.info('Selection', `Click on already-selected widget ${clickedWidgetId} - setting as reference`, {
                             widgetId: clickedWidgetId,
