@@ -305,6 +305,7 @@ export class DesignerDrag extends DesignerAlignment {
 
                         // Adjust dimensions based on resize handle
                         switch (resizeHandle) {
+                            // Corner handles - diagonal resize
                             case ResizeHandlePosition.NorthWest:
                                 newRect.x = originalRect.x + dx;
                                 newRect.y = originalRect.y + dy;
@@ -327,6 +328,29 @@ export class DesignerDrag extends DesignerAlignment {
                             case ResizeHandlePosition.SouthEast:
                                 newRect.width = originalRect.width + dx;
                                 newRect.height = originalRect.height + dy;
+                                break;
+
+                            // Edge handles - directional resize (height or width only)
+                            case ResizeHandlePosition.North:
+                                newRect.y = originalRect.y + dy;
+                                newRect.height = originalRect.height - dy;
+                                // Width stays the same
+                                break;
+
+                            case ResizeHandlePosition.South:
+                                newRect.height = originalRect.height + dy;
+                                // X, Y, and width stay the same
+                                break;
+
+                            case ResizeHandlePosition.East:
+                                newRect.width = originalRect.width + dx;
+                                // X, Y, and height stay the same
+                                break;
+
+                            case ResizeHandlePosition.West:
+                                newRect.x = originalRect.x + dx;
+                                newRect.width = originalRect.width - dx;
+                                // Y and height stay the same
                                 break;
                         }
                         

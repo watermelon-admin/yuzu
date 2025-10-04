@@ -182,6 +182,7 @@ body {
     pointer-events: all;
 }
 
+/* Corner handles - Diagonal resize */
 .resize-handle.nw {
     top: -6px;
     left: -6px;
@@ -204,6 +205,31 @@ body {
     bottom: -6px;
     right: -6px;
     cursor: se-resize;
+}
+
+/* Edge handles - Directional resize (height or width only) */
+.resize-handle.n {
+    top: -6px;
+    left: calc(50% - 6px);
+    cursor: n-resize;
+}
+
+.resize-handle.s {
+    bottom: -6px;
+    left: calc(50% - 6px);
+    cursor: s-resize;
+}
+
+.resize-handle.e {
+    top: calc(50% - 6px);
+    right: -6px;
+    cursor: e-resize;
+}
+
+.resize-handle.w {
+    top: calc(50% - 6px);
+    left: -6px;
+    cursor: w-resize;
 }
 
 /* Selection box */
