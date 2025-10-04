@@ -54,8 +54,32 @@ async function generateThumbnail(canvasElement) {
         });
         offscreenContainer.appendChild(canvasClone);
         console.log('[Thumbnail] All widgets cloned to off-screen canvas');
-        // Wait a bit for fonts and images to load in the clone
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Wait for all resources to be ready before capturing
+        console.log('[Thumbnail] Waiting for fonts and images to load...');
+        // 1. Wait for fonts to be ready
+        await document.fonts.ready;
+        console.log('[Thumbnail] Fonts loaded');
+        // 2. Wait for all images in the clone to load
+        const images = canvasClone.querySelectorAll('img');
+        if (images.length > 0) {
+            console.log(`[Thumbnail] Waiting for ${images.length} images to load...`);
+            await Promise.all(Array.from(images).map(img => {
+                if (img.complete) {
+                    return Promise.resolve();
+                }
+                return new Promise((resolve, reject) => {
+                    img.onload = () => resolve();
+                    img.onerror = () => {
+                        console.warn('[Thumbnail] Image failed to load:', img.src);
+                        resolve(); // Continue even if image fails
+                    };
+                });
+            }));
+            console.log('[Thumbnail] All images loaded');
+        }
+        // 3. Wait for next animation frame to ensure browser has painted everything
+        await new Promise(resolve => requestAnimationFrame(() => resolve()));
+        console.log('[Thumbnail] Browser paint complete');
         // Capture the off-screen clone with html2canvas
         console.log('[Thumbnail] Capturing off-screen canvas with html2canvas');
         const screenshot = await html2canvas(canvasClone, {
