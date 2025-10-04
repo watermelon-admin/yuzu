@@ -434,9 +434,9 @@ export class Widget {
             this.element.style.setProperty('outline-style', 'none', 'important');
             this.element.style.setProperty('outline-color', 'transparent', 'important');
             this.element.style.setProperty('box-shadow', 'none', 'important');
-            // Add compensation padding/margin to prevent layout shift
-            this.element.style.setProperty('padding', '0 2px 2px 2px', 'important');
-            this.element.style.setProperty('margin', '2px 0 0 0', 'important');
+            // Add uniform padding to compensate for removed 2px border
+            this.element.style.setProperty('padding', '2px', 'important');
+            this.element.style.setProperty('margin', '0', 'important');
         }
         else if (this.data.type === WidgetType.QR && !this.selected) {
             console.log(`[Debug] Setting QR widget border to transparent (unselected state)`);
@@ -494,9 +494,9 @@ export class Widget {
             this.element.style.setProperty('border-style', 'none', 'important');
             this.element.style.setProperty('border-color', 'transparent', 'important');
             // Don't remove border-radius here, it will be handled by specific widget types
-            // Add specific padding/margin to compensate for the removed 2px border
-            this.element.style.setProperty('padding', '0 2px 2px 2px', 'important'); // Only add to right/bottom
-            this.element.style.setProperty('margin', '2px 0 0 0', 'important'); // Add top margin to compensate
+            // Add uniform padding to compensate for removed 2px border
+            this.element.style.setProperty('padding', '2px', 'important');
+            this.element.style.setProperty('margin', '0', 'important');
             this.element.style.setProperty('box-sizing', 'border-box', 'important');
             // Remove any outlines or shadows
             this.element.style.setProperty('outline', 'none', 'important');
