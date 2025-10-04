@@ -50,6 +50,9 @@ function scaleWidgetsToViewport(): void {
         if (designerFontSize) {
             const scaledFontSize = parseFloat(designerFontSize) * scaleX;
             widget.style.setProperty('font-size', `${scaledFontSize}px`, 'important');
+            console.log(`[Viewport Scaling] Widget ${index + 1}: Font-size scaled from ${designerFontSize}px to ${scaledFontSize.toFixed(1)}px`);
+        } else {
+            console.log(`[Viewport Scaling] Widget ${index + 1}: No font-size data attribute found (not a text widget)`);
         }
 
         // Scale border radius for box widgets
@@ -59,7 +62,7 @@ function scaleWidgetsToViewport(): void {
         }
 
         console.log(`[Viewport Scaling] Widget ${index + 1}: Scaled from (${designerLeft}, ${designerTop}, ${designerWidth}x${designerHeight}) to (${scaledLeft.toFixed(1)}, ${scaledTop.toFixed(1)}, ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)})`);
-        console.log(`[Viewport Scaling] Widget ${index + 1}: Applied styles - width: ${widget.style.width}, height: ${widget.style.height}`);
+        console.log(`[Viewport Scaling] Widget ${index + 1}: Applied styles - width: ${widget.style.width}, height: ${widget.style.height}, font-size: ${widget.style.fontSize || 'N/A'}`);
     });
 
     console.log(`[Viewport Scaling] Scaled ${widgets.length} widgets`);
