@@ -488,8 +488,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Register toolboxes with the designer to make them draggable
         console.log('[Debug] Setting up toolboxes');
         const toolboxes = [
-            { id: 'main-toolbar', element: document.querySelector('.toolbar') as HTMLElement },
-            { id: 'align-toolbar', element: document.querySelector('.align-toolbar') as HTMLElement }
+            { id: 'main-toolbar', element: document.querySelector('.toolbar') as HTMLElement }
+            // Note: align-toolbar removed - alignment buttons are part of main-toolbar
         ];
         
         console.log(`[Debug] Found toolboxes: ${toolboxes.map(t => t.id + (t.element ? ' (found)' : ' (not found)')).join(', ')}`);
@@ -509,12 +509,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log(`[Debug] Registering toolbox: ${toolbox.id}`);
                 designer.registerToolbox(toolbox.id, toolbox.element);
-    
-                // Set initial position - this positions the toolboxes at sensible starting positions
-                const initialPosition = toolbox.id === 'main-toolbar'
-                    ? { x: 20, y: 20 }
-                    : { x: 20, y: 140 }; // Move alignment toolbar lower to avoid overlap
-    
+
+                // Set initial position for main toolbar
+                const initialPosition = { x: 20, y: 20 };
+
                 console.log(`[Debug] Setting initial position for ${toolbox.id}: x=${initialPosition.x}, y=${initialPosition.y}`);
                 designer.setToolboxPosition(toolbox.id, initialPosition);
                 console.log(`[Debug] Toolbox ${toolbox.id} registered and positioned successfully`);
